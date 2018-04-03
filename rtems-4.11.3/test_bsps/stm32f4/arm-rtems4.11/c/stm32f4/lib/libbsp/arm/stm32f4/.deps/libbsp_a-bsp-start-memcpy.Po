@@ -1,0 +1,29 @@
+libbsp_a-bsp-start-memcpy.o: \
+ ../../../../../../../../../c/src/lib/libbsp/arm/stm32f4/../shared/startup/bsp-start-memcpy.S \
+ ../../../../../.././stm32f4/lib/include/rtems/asm.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/percpu.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/cpu.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/types.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/basedefs.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/cpuopts.h \
+ ../../../../../.././stm32f4/lib/include/rtems/score/arm.h \
+ ../../../../../.././stm32f4/lib/include/rtems/concat.h \
+ ../../../../../.././stm32f4/lib/include/rtems/system.h
+
+../../../../../.././stm32f4/lib/include/rtems/asm.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/percpu.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/cpu.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/types.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/basedefs.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/cpuopts.h:
+
+../../../../../.././stm32f4/lib/include/rtems/score/arm.h:
+
+../../../../../.././stm32f4/lib/include/rtems/concat.h:
+
+../../../../../.././stm32f4/lib/include/rtems/system.h:

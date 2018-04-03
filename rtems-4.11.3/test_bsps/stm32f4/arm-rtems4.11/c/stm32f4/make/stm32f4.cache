@@ -1,0 +1,3 @@
+ac_cv_env_RTEMS_CPU_MODEL=""
+ac_cv_env_CPU_CFLAGS="-march=armv7-m -mthumb"
+ac_cv_env_CFLAGS_OPTIMIZE_V="-O2 -g"

@@ -1,0 +1,2 @@
+network/libnetchip_a-open_eth.o: \
+ ../../../../../../c/src/libchip/network/open_eth.c

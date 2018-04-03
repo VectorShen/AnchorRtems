@@ -1,0 +1,5 @@
+libc/libc_a-strsep.o: \
+ ../../../../../../../c/src/../../cpukit/libnetworking/libc/strsep.c \
+ ../config.h
+
+../config.h:

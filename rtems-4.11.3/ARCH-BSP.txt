@@ -1,0 +1,218 @@
+RTEMS 4.11
+ Architectures: 20
+ BSP Count: 195
+arm:
+ altcycv_devkit                c/src/lib/libbsp/arm/altera-cyclone-v
+ altcycv_devkit_smp            c/src/lib/libbsp/arm/altera-cyclone-v
+ beagleboardorig               c/src/lib/libbsp/arm/beagle
+ beagleboardxm                 c/src/lib/libbsp/arm/beagle
+ beagleboneblack               c/src/lib/libbsp/arm/beagle
+ beaglebonewhite               c/src/lib/libbsp/arm/beagle
+ csb336                        c/src/lib/libbsp/arm/csb336
+ csb337                        c/src/lib/libbsp/arm/csb337
+ csb637                        c/src/lib/libbsp/arm/csb337
+ kit637_v6                     c/src/lib/libbsp/arm/csb337
+ edb7312                       c/src/lib/libbsp/arm/edb7312
+ gba                           c/src/lib/libbsp/arm/gba
+ arm1136jfs                    c/src/lib/libbsp/arm/gdbarmsim
+ arm1136js                     c/src/lib/libbsp/arm/gdbarmsim
+ arm7tdmi                      c/src/lib/libbsp/arm/gdbarmsim
+ arm920                        c/src/lib/libbsp/arm/gdbarmsim
+ armcortexa9                   c/src/lib/libbsp/arm/gdbarmsim
+ gp32                          c/src/lib/libbsp/arm/gp32
+ gumstix                       c/src/lib/libbsp/arm/gumstix
+ lm3s3749                      c/src/lib/libbsp/arm/lm3s69xx
+ lm3s6965                      c/src/lib/libbsp/arm/lm3s69xx
+ lm3s6965_qemu                 c/src/lib/libbsp/arm/lm3s69xx
+ lm4f120                       c/src/lib/libbsp/arm/lm3s69xx
+ lpc1768_mbed                  c/src/lib/libbsp/arm/lpc176x
+ lpc1768_mbed_ahb_ram          c/src/lib/libbsp/arm/lpc176x
+ lpc1768_mbed_ahb_ram_eth      c/src/lib/libbsp/arm/lpc176x
+ lpc17xx_ea_ram                c/src/lib/libbsp/arm/lpc24xx
+ lpc17xx_ea_rom_int            c/src/lib/libbsp/arm/lpc24xx
+ lpc17xx_plx800_ram            c/src/lib/libbsp/arm/lpc24xx
+ lpc17xx_plx800_rom_int        c/src/lib/libbsp/arm/lpc24xx
+ lpc2362                       c/src/lib/libbsp/arm/lpc24xx
+ lpc23xx_tli800                c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_ea                    c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_ncs_ram               c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_ncs_rom_ext           c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_ncs_rom_int           c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_plx800_ram            c/src/lib/libbsp/arm/lpc24xx
+ lpc24xx_plx800_rom_int        c/src/lib/libbsp/arm/lpc24xx
+ lpc40xx_ea_ram                c/src/lib/libbsp/arm/lpc24xx
+ lpc40xx_ea_rom_int            c/src/lib/libbsp/arm/lpc24xx
+ lpc32xx_mzx                   c/src/lib/libbsp/arm/lpc32xx
+ lpc32xx_mzx_stage_1           c/src/lib/libbsp/arm/lpc32xx
+ lpc32xx_mzx_stage_2           c/src/lib/libbsp/arm/lpc32xx
+ lpc32xx_phycore               c/src/lib/libbsp/arm/lpc32xx
+ nds                           c/src/lib/libbsp/arm/nds
+ raspberrypi                   c/src/lib/libbsp/arm/raspberrypi
+ raspberrypi2                  c/src/lib/libbsp/arm/raspberrypi
+ realview_pbx_a9_qemu          c/src/lib/libbsp/arm/realview-pbx-a9
+ realview_pbx_a9_qemu_smp      c/src/lib/libbsp/arm/realview-pbx-a9
+ rtl22xx                       c/src/lib/libbsp/arm/rtl22xx
+ rtl22xx_t                     c/src/lib/libbsp/arm/rtl22xx
+ smdk2410                      c/src/lib/libbsp/arm/smdk2410
+ stm32f105rc                   c/src/lib/libbsp/arm/stm32f4
+ stm32f4                       c/src/lib/libbsp/arm/stm32f4
+ tms570ls3137_hdk              c/src/lib/libbsp/arm/tms570
+ tms570ls3137_hdk_intram       c/src/lib/libbsp/arm/tms570
+ tms570ls3137_hdk_sdram        c/src/lib/libbsp/arm/tms570
+ tms570ls3137_hdk_with_loader  c/src/lib/libbsp/arm/tms570
+ xilinx_zynq_a9_qemu           c/src/lib/libbsp/arm/xilinx-zynq
+ xilinx_zynq_zc702             c/src/lib/libbsp/arm/xilinx-zynq
+ xilinx_zynq_zc706             c/src/lib/libbsp/arm/xilinx-zynq
+ xilinx_zynq_zedboard          c/src/lib/libbsp/arm/xilinx-zynq
+avr:
+ avrtest                       c/src/lib/libbsp/avr/avrtest
+bfin:
+ TLL6527M                      c/src/lib/libbsp/bfin/TLL6527M
+ bf537Stamp                    c/src/lib/libbsp/bfin/bf537Stamp
+ eZKit533                      c/src/lib/libbsp/bfin/eZKit533
+epiphany:
+ epiphany_sim                  c/src/lib/libbsp/epiphany/epiphany_sim
+h8300:
+ h8sim                         c/src/lib/libbsp/h8300/h8sim
+ h8sxsim                       c/src/lib/libbsp/h8300/h8sim
+i386:
+ edison                        c/src/lib/libbsp/i386/pc386
+ pc386                         c/src/lib/libbsp/i386/pc386
+ pc486                         c/src/lib/libbsp/i386/pc386
+ pc586-sse                     c/src/lib/libbsp/i386/pc386
+ pc586                         c/src/lib/libbsp/i386/pc386
+ pc686                         c/src/lib/libbsp/i386/pc386
+ pcp4                          c/src/lib/libbsp/i386/pc386
+lm32:
+ lm32_evr                      c/src/lib/libbsp/lm32/lm32_evr
+ lm32_evr_gdbsim               c/src/lib/libbsp/lm32/lm32_evr
+ milkymist                     c/src/lib/libbsp/lm32/milkymist
+m32c:
+ m32csim                       c/src/lib/libbsp/m32c/m32cbsp
+m32r:
+ m32rsim                       c/src/lib/libbsp/m32r/m32rsim
+m68k:
+ av5282                        c/src/lib/libbsp/m68k/av5282
+ csb360                        c/src/lib/libbsp/m68k/csb360
+ gen68302                      c/src/lib/libbsp/m68k/gen68302
+ gen68340                      c/src/lib/libbsp/m68k/gen68340
+ gen68360                      c/src/lib/libbsp/m68k/gen68360
+ gen68360_040                  c/src/lib/libbsp/m68k/gen68360
+ pgh360                        c/src/lib/libbsp/m68k/gen68360
+ COBRA5475                     c/src/lib/libbsp/m68k/genmcf548x
+ m5484FireEngine               c/src/lib/libbsp/m68k/genmcf548x
+ idp                           c/src/lib/libbsp/m68k/idp
+ mcf5206elite                  c/src/lib/libbsp/m68k/mcf5206elite
+ mcf52235                      c/src/lib/libbsp/m68k/mcf52235
+ mcf5225x                      c/src/lib/libbsp/m68k/mcf5225x
+ mcf5235                       c/src/lib/libbsp/m68k/mcf5235
+ mcf5329                       c/src/lib/libbsp/m68k/mcf5329
+ mrm332                        c/src/lib/libbsp/m68k/mrm332
+ mvme136                       c/src/lib/libbsp/m68k/mvme136
+ mvme147                       c/src/lib/libbsp/m68k/mvme147
+ mvme147s                      c/src/lib/libbsp/m68k/mvme147s
+ mvme162                       c/src/lib/libbsp/m68k/mvme162
+ mvme162lx                     c/src/lib/libbsp/m68k/mvme162
+ mvme167                       c/src/lib/libbsp/m68k/mvme167
+ ods68302                      c/src/lib/libbsp/m68k/ods68302
+ sim68000                      c/src/lib/libbsp/m68k/sim68000
+ simcpu32                      c/src/lib/libbsp/m68k/sim68000
+ uC5282                        c/src/lib/libbsp/m68k/uC5282
+mips:
+ csb350                        c/src/lib/libbsp/mips/csb350
+ genmongoosev                  c/src/lib/libbsp/mips/genmongoosev
+ hurricane                     c/src/lib/libbsp/mips/hurricane
+ jmr3904                       c/src/lib/libbsp/mips/jmr3904
+ malta                         c/src/lib/libbsp/mips/malta
+ rbtx4925                      c/src/lib/libbsp/mips/rbtx4925
+ rbtx4938                      c/src/lib/libbsp/mips/rbtx4938
+moxie:
+ moxiesim                      c/src/lib/libbsp/moxie/moxiesim
+nios2:
+ nios2_iss                     c/src/lib/libbsp/nios2/nios2_iss
+no_cpu:
+ no_bsp                        c/src/lib/libbsp/no_cpu/no_bsp
+or1k:
+ generic_or1k                  c/src/lib/libbsp/or1k/generic_or1k
+powerpc:
+ beatnik                       c/src/lib/libbsp/powerpc/beatnik
+ ep1a                          c/src/lib/libbsp/powerpc/ep1a
+ brs5l                         c/src/lib/libbsp/powerpc/gen5200
+ brs6l                         c/src/lib/libbsp/powerpc/gen5200
+ dp2                           c/src/lib/libbsp/powerpc/gen5200
+ icecube                       c/src/lib/libbsp/powerpc/gen5200
+ pm520_cr825                   c/src/lib/libbsp/powerpc/gen5200
+ pm520_ze30                    c/src/lib/libbsp/powerpc/gen5200
+ br_uid                        c/src/lib/libbsp/powerpc/gen83xx
+ hsc_cm01                      c/src/lib/libbsp/powerpc/gen83xx
+ mpc8309som                    c/src/lib/libbsp/powerpc/gen83xx
+ mpc8313erdb                   c/src/lib/libbsp/powerpc/gen83xx
+ mpc8349eamds                  c/src/lib/libbsp/powerpc/gen83xx
+ haleakala                     c/src/lib/libbsp/powerpc/haleakala
+ mbx821_001                    c/src/lib/libbsp/powerpc/mbx8xx
+ mbx821_002                    c/src/lib/libbsp/powerpc/mbx8xx
+ mbx821_002b                   c/src/lib/libbsp/powerpc/mbx8xx
+ mbx860_001b                   c/src/lib/libbsp/powerpc/mbx8xx
+ mbx860_002                    c/src/lib/libbsp/powerpc/mbx8xx
+ mbx860_005b                   c/src/lib/libbsp/powerpc/mbx8xx
+ mbx860_1b                     c/src/lib/libbsp/powerpc/mbx8xx
+ mcp750                        c/src/lib/libbsp/powerpc/motorola_powerpc
+ mtx603e                       c/src/lib/libbsp/powerpc/motorola_powerpc
+ mvme2100                      c/src/lib/libbsp/powerpc/motorola_powerpc
+ mvme2307                      c/src/lib/libbsp/powerpc/motorola_powerpc
+ qemuprep-altivec              c/src/lib/libbsp/powerpc/motorola_powerpc
+ qemuprep                      c/src/lib/libbsp/powerpc/motorola_powerpc
+ gwlcfm                        c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5566evb                    c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5566evb_spe                c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5643l_dpu                  c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5643l_evb                  c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5668g                      c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5674f_ecu508_app           c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5674f_ecu508_boot          c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5674f_rsm6                 c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5674fevb                   c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc5674fevb_spe               c/src/lib/libbsp/powerpc/mpc55xxevb
+ phycore_mpc5554               c/src/lib/libbsp/powerpc/mpc55xxevb
+ mpc8260ads                    c/src/lib/libbsp/powerpc/mpc8260ads
+ mvme3100                      c/src/lib/libbsp/powerpc/mvme3100
+ mvme5500                      c/src/lib/libbsp/powerpc/mvme5500
+ psim                          c/src/lib/libbsp/powerpc/psim
+ qemuppc                       c/src/lib/libbsp/powerpc/qemuppc
+ qoriq_core_0                  c/src/lib/libbsp/powerpc/qoriq
+ qoriq_core_1                  c/src/lib/libbsp/powerpc/qoriq
+ qoriq_p1020rdb                c/src/lib/libbsp/powerpc/qoriq
+ qoriq_t2080rdb                c/src/lib/libbsp/powerpc/qoriq
+ qoriq_t4240rdb                c/src/lib/libbsp/powerpc/qoriq
+ score603e                     c/src/lib/libbsp/powerpc/score603e
+ ss555                         c/src/lib/libbsp/powerpc/ss555
+ t32mppc                       c/src/lib/libbsp/powerpc/t32mppc
+ pghplus                       c/src/lib/libbsp/powerpc/tqm8xx
+ tqm8xx_stk8xx                 c/src/lib/libbsp/powerpc/tqm8xx
+ virtex                        c/src/lib/libbsp/powerpc/virtex
+ virtex4                       c/src/lib/libbsp/powerpc/virtex4
+ virtex5                       c/src/lib/libbsp/powerpc/virtex5
+sh:
+ gensh1                        c/src/lib/libbsp/sh/gensh1
+ gensh2                        c/src/lib/libbsp/sh/gensh2
+ gensh4                        c/src/lib/libbsp/sh/gensh4
+ simsh1                        c/src/lib/libbsp/sh/shsim
+ simsh2                        c/src/lib/libbsp/sh/shsim
+ simsh2e                       c/src/lib/libbsp/sh/shsim
+ simsh4                        c/src/lib/libbsp/sh/shsim
+sparc:
+ erc32                         c/src/lib/libbsp/sparc/erc32
+ sis                           c/src/lib/libbsp/sparc/erc32
+ leon2                         c/src/lib/libbsp/sparc/leon2
+ leon3                         c/src/lib/libbsp/sparc/leon3
+ ngmp                          c/src/lib/libbsp/sparc/leon3
+sparc64:
+ niagara                       c/src/lib/libbsp/sparc64/niagara
+ usiii                         c/src/lib/libbsp/sparc64/usiii
+v850:
+ v850e1sim                     c/src/lib/libbsp/v850/gdbv850sim
+ v850e2sim                     c/src/lib/libbsp/v850/gdbv850sim
+ v850e2v3sim                   c/src/lib/libbsp/v850/gdbv850sim
+ v850esim                      c/src/lib/libbsp/v850/gdbv850sim
+ v850essim                     c/src/lib/libbsp/v850/gdbv850sim
+ v850sim                       c/src/lib/libbsp/v850/gdbv850sim

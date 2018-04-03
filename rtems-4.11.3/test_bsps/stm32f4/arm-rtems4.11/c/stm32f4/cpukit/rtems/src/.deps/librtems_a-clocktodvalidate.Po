@@ -1,0 +1,257 @@
+src/librtems_a-clocktodvalidate.o: \
+ ../../../../../../../c/src/../../cpukit/rtems/src/clocktodvalidate.c \
+ ../config.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/clock.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/watchdog.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/object.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/basedefs.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/cpuopts.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdbool.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdint.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/stdint.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_default_types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/features.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_intsup.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_stdint.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include-fixed/limits.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include-fixed/syslimits.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/limits.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/syslimits.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/string.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/_ansi.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/newlib.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/config.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/ieeefp.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/reent.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/_ansi.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/lock.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/cdefs.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/string.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/cpu.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/types.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/arm.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/chain.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/tod.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/status.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/types.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/heap.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/thread.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/atomic.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/cpuatomic.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/cpustdatomic.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/isrlevel.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/assert.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/context.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/isrlock.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/smplock.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/priority.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/resource.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/stack.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/states.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/threadq.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/rbtree.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/address.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/timestamp.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/time.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_timeval.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/sched.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_timespec.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/cpuset.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/timespec.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/time.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/time.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/signal.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/signal.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/timespec.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/modes.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/config.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/posix/config.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/config.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/tasks.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/event.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/options.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/asr.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/rtems/attr.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/extension.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/userext.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/interr.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/system.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/timecounterimpl.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/timecounter.h \
+ ../../cpukit/../../../stm32f4/lib/include/sys/timetc.h \
+ ../../cpukit/../../../stm32f4/lib/include/rtems/score/todimpl.h
+
+../config.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/clock.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/watchdog.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/object.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/basedefs.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/cpuopts.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdbool.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdint.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/stdint.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_default_types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/features.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_intsup.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_stdint.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include-fixed/limits.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include-fixed/syslimits.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/limits.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/syslimits.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/string.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/_ansi.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/newlib.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/config.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/ieeefp.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/reent.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/_ansi.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/lock.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/cdefs.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/string.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/cpu.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/types.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/arm.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/chain.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/tod.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/status.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/types.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/heap.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/thread.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/atomic.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/cpuatomic.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/cpustdatomic.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/isrlevel.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/assert.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/context.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/isrlock.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/smplock.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/priority.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/resource.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/stack.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/states.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/threadq.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/rbtree.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/address.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/timestamp.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/time.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_timeval.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/sched.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_timespec.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/cpuset.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/timespec.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/time.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/time.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/signal.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/signal.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/timespec.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/modes.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/config.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/posix/config.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/config.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/tasks.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/event.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/options.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/asr.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/rtems/attr.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/extension.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/userext.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/interr.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/system.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/timecounterimpl.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/timecounter.h:
+
+../../cpukit/../../../stm32f4/lib/include/sys/timetc.h:
+
+../../cpukit/../../../stm32f4/lib/include/rtems/score/todimpl.h:

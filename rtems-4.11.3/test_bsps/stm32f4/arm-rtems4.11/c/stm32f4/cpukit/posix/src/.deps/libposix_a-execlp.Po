@@ -1,0 +1,4 @@
+src/libposix_a-execlp.o: \
+ ../../../../../../../c/src/../../cpukit/posix/src/execlp.c ../config.h
+
+../config.h:

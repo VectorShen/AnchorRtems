@@ -1,0 +1,5 @@
+src/libcsupport_a-readdir_r.o: \
+ ../../../../../../../c/src/../../cpukit/libcsupport/src/readdir_r.c \
+ ../config.h
+
+../config.h:

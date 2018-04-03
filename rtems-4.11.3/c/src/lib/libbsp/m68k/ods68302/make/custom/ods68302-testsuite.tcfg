@@ -1,0 +1,10 @@
+#
+# ods68302 RTEMS Test Database.
+#
+# Format is one line per test that is _NOT_ built.
+#
+
+fileio
+fsdosfsname01
+iostream
+utf8proc01

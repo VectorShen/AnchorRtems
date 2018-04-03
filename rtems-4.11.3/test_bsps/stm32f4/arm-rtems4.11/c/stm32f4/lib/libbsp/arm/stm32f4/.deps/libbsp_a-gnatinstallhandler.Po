@@ -1,0 +1,2 @@
+libbsp_a-gnatinstallhandler.o: \
+ ../../../../../../../../../c/src/lib/libbsp/arm/stm32f4/../../shared/gnatinstallhandler.c

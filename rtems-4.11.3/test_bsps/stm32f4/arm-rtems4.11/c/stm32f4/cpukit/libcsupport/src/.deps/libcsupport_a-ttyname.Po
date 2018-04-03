@@ -1,0 +1,5 @@
+src/libcsupport_a-ttyname.o: \
+ ../../../../../../../c/src/../../cpukit/libcsupport/src/ttyname.c \
+ ../config.h
+
+../config.h:

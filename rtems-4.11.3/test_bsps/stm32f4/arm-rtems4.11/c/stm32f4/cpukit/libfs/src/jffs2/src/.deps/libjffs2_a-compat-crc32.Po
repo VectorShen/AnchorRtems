@@ -1,0 +1,29 @@
+src/jffs2/src/libjffs2_a-compat-crc32.o: \
+ ../../../../../../../c/src/../../cpukit/libfs/src/jffs2/src/compat-crc32.c \
+ ../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/cyg/crc/crc.h \
+ ../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/cyg/infra/cyg_type.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdint.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/stdint.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_default_types.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/features.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_intsup.h \
+ /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_stdint.h
+
+../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/cyg/crc/crc.h:
+
+../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/cyg/infra/cyg_type.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stdint.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/stdint.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/machine/_default_types.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/features.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_intsup.h:
+
+/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/arm-rtems4.11/include/sys/_stdint.h:

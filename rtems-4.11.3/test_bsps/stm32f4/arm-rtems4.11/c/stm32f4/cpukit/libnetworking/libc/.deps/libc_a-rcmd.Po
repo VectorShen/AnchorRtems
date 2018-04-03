@@ -1,0 +1,5 @@
+libc/libc_a-rcmd.o: \
+ ../../../../../../../c/src/../../cpukit/libnetworking/libc/rcmd.c \
+ ../config.h
+
+../config.h:

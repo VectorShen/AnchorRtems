@@ -1,0 +1,16 @@
+#
+# phycore_mpc5554 RTEMS Test Database.
+#
+# Format is one line per test that is _NOT_ built.
+#
+
+include: testdata/dltests-broken-on-this-bsp.tcfg
+fsdosfsname01
+jffs2_fserror
+jffs2_fslink
+jffs2_fspatheval
+jffs2_fspermission
+jffs2_fsrdwr
+jffs2_fsscandir01
+jffs2_fssymlink
+jffs2_fstime

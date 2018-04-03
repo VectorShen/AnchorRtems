@@ -1,0 +1,158 @@
+  1/157: autoreconf: configure.ac
+  2/157: autoreconf: c/configure.ac
+  3/157: autoreconf: c/src/configure.ac
+  4/157: autoreconf: c/src/ada-tests/configure.ac
+  5/157: autoreconf: c/src/lib/libbsp/arm/configure.ac
+  6/157: autoreconf: c/src/lib/libbsp/arm/altera-cyclone-v/configure.ac
+  7/157: autoreconf: c/src/lib/libbsp/arm/beagle/configure.ac
+  8/157: autoreconf: c/src/lib/libbsp/arm/csb336/configure.ac
+  9/157: autoreconf: c/src/lib/libbsp/arm/csb337/configure.ac
+ 10/157: autoreconf: c/src/lib/libbsp/arm/edb7312/configure.ac
+ 11/157: autoreconf: c/src/lib/libbsp/arm/gba/configure.ac
+ 12/157: autoreconf: c/src/lib/libbsp/arm/gdbarmsim/configure.ac
+ 13/157: autoreconf: c/src/lib/libbsp/arm/gp32/configure.ac
+ 14/157: autoreconf: c/src/lib/libbsp/arm/gumstix/configure.ac
+ 15/157: autoreconf: c/src/lib/libbsp/arm/lm3s69xx/configure.ac
+ 16/157: autoreconf: c/src/lib/libbsp/arm/lpc176x/configure.ac
+ 17/157: autoreconf: c/src/lib/libbsp/arm/lpc24xx/configure.ac
+ 18/157: autoreconf: c/src/lib/libbsp/arm/lpc32xx/configure.ac
+ 19/157: autoreconf: c/src/lib/libbsp/arm/nds/configure.ac
+ 20/157: autoreconf: c/src/lib/libbsp/arm/nds/tools/configure.ac
+ 21/157: autoreconf: c/src/lib/libbsp/arm/raspberrypi/configure.ac
+ 22/157: autoreconf: c/src/lib/libbsp/arm/realview-pbx-a9/configure.ac
+ 23/157: autoreconf: c/src/lib/libbsp/arm/rtl22xx/configure.ac
+ 24/157: autoreconf: c/src/lib/libbsp/arm/smdk2410/configure.ac
+ 25/157: autoreconf: c/src/lib/libbsp/arm/stm32f4/configure.ac
+ 26/157: autoreconf: c/src/lib/libbsp/arm/tms570/configure.ac
+ 27/157: autoreconf: c/src/lib/libbsp/arm/xilinx-zynq/configure.ac
+ 28/157: autoreconf: c/src/lib/libbsp/avr/configure.ac
+ 29/157: autoreconf: c/src/lib/libbsp/avr/avrtest/configure.ac
+ 30/157: autoreconf: c/src/lib/libbsp/bfin/configure.ac
+ 31/157: autoreconf: c/src/lib/libbsp/bfin/TLL6527M/configure.ac
+ 32/157: autoreconf: c/src/lib/libbsp/bfin/bf537Stamp/configure.ac
+ 33/157: autoreconf: c/src/lib/libbsp/bfin/eZKit533/configure.ac
+ 34/157: autoreconf: c/src/lib/libbsp/epiphany/configure.ac
+ 35/157: autoreconf: c/src/lib/libbsp/epiphany/epiphany_sim/configure.ac
+ 36/157: autoreconf: c/src/lib/libbsp/h8300/configure.ac
+ 37/157: autoreconf: c/src/lib/libbsp/h8300/h8sim/configure.ac
+ 38/157: autoreconf: c/src/lib/libbsp/i386/configure.ac
+ 39/157: autoreconf: c/src/lib/libbsp/i386/pc386/configure.ac
+ 40/157: autoreconf: c/src/lib/libbsp/i386/pc386/tools/configure.ac
+ 41/157: autoreconf: c/src/lib/libbsp/lm32/configure.ac
+ 42/157: autoreconf: c/src/lib/libbsp/lm32/lm32_evr/configure.ac
+ 43/157: autoreconf: c/src/lib/libbsp/lm32/milkymist/configure.ac
+ 44/157: autoreconf: c/src/lib/libbsp/m32c/configure.ac
+ 45/157: autoreconf: c/src/lib/libbsp/m32c/m32cbsp/configure.ac
+ 46/157: autoreconf: c/src/lib/libbsp/m32r/configure.ac
+ 47/157: autoreconf: c/src/lib/libbsp/m32r/m32rsim/configure.ac
+ 48/157: autoreconf: c/src/lib/libbsp/m68k/configure.ac
+ 49/157: autoreconf: c/src/lib/libbsp/m68k/av5282/configure.ac
+ 50/157: autoreconf: c/src/lib/libbsp/m68k/csb360/configure.ac
+ 51/157: autoreconf: c/src/lib/libbsp/m68k/gen68302/configure.ac
+ 52/157: autoreconf: c/src/lib/libbsp/m68k/gen68340/configure.ac
+ 53/157: autoreconf: c/src/lib/libbsp/m68k/gen68360/configure.ac
+ 54/157: autoreconf: c/src/lib/libbsp/m68k/genmcf548x/configure.ac
+ 55/157: autoreconf: c/src/lib/libbsp/m68k/idp/configure.ac
+ 56/157: autoreconf: c/src/lib/libbsp/m68k/mcf5206elite/configure.ac
+ 57/157: autoreconf: c/src/lib/libbsp/m68k/mcf5206elite/tools/configure.ac
+ 58/157: autoreconf: c/src/lib/libbsp/m68k/mcf52235/configure.ac
+ 59/157: autoreconf: c/src/lib/libbsp/m68k/mcf5225x/configure.ac
+ 60/157: autoreconf: c/src/lib/libbsp/m68k/mcf5235/configure.ac
+ 61/157: autoreconf: c/src/lib/libbsp/m68k/mcf5329/configure.ac
+ 62/157: autoreconf: c/src/lib/libbsp/m68k/mrm332/configure.ac
+ 63/157: autoreconf: c/src/lib/libbsp/m68k/mvme136/configure.ac
+ 64/157: autoreconf: c/src/lib/libbsp/m68k/mvme147/configure.ac
+ 65/157: autoreconf: c/src/lib/libbsp/m68k/mvme147s/configure.ac
+ 66/157: autoreconf: c/src/lib/libbsp/m68k/mvme162/configure.ac
+ 67/157: autoreconf: c/src/lib/libbsp/m68k/mvme162/tools/configure.ac
+ 68/157: autoreconf: c/src/lib/libbsp/m68k/mvme167/configure.ac
+ 69/157: autoreconf: c/src/lib/libbsp/m68k/ods68302/configure.ac
+ 70/157: autoreconf: c/src/lib/libbsp/m68k/sim68000/configure.ac
+ 71/157: autoreconf: c/src/lib/libbsp/m68k/uC5282/configure.ac
+ 72/157: autoreconf: c/src/lib/libbsp/mips/configure.ac
+ 73/157: autoreconf: c/src/lib/libbsp/mips/csb350/configure.ac
+ 74/157: autoreconf: c/src/lib/libbsp/mips/genmongoosev/configure.ac
+ 75/157: autoreconf: c/src/lib/libbsp/mips/hurricane/configure.ac
+ 76/157: autoreconf: c/src/lib/libbsp/mips/jmr3904/configure.ac
+ 77/157: autoreconf: c/src/lib/libbsp/mips/jmr3904/tools/configure.ac
+ 78/157: autoreconf: c/src/lib/libbsp/mips/malta/configure.ac
+ 79/157: autoreconf: c/src/lib/libbsp/mips/rbtx4925/configure.ac
+ 80/157: autoreconf: c/src/lib/libbsp/mips/rbtx4938/configure.ac
+ 81/157: autoreconf: c/src/lib/libbsp/moxie/configure.ac
+ 82/157: autoreconf: c/src/lib/libbsp/moxie/moxiesim/configure.ac
+ 83/157: autoreconf: c/src/lib/libbsp/nios2/configure.ac
+ 84/157: autoreconf: c/src/lib/libbsp/nios2/nios2_iss/configure.ac
+ 85/157: autoreconf: c/src/lib/libbsp/no_cpu/configure.ac
+ 86/157: autoreconf: c/src/lib/libbsp/no_cpu/no_bsp/configure.ac
+ 87/157: autoreconf: c/src/lib/libbsp/or1k/configure.ac
+ 88/157: autoreconf: c/src/lib/libbsp/or1k/generic_or1k/configure.ac
+ 89/157: autoreconf: c/src/lib/libbsp/powerpc/configure.ac
+ 90/157: autoreconf: c/src/lib/libbsp/powerpc/beatnik/configure.ac
+ 91/157: autoreconf: c/src/lib/libbsp/powerpc/ep1a/configure.ac
+ 92/157: autoreconf: c/src/lib/libbsp/powerpc/gen5200/configure.ac
+ 93/157: autoreconf: c/src/lib/libbsp/powerpc/gen83xx/configure.ac
+ 94/157: autoreconf: c/src/lib/libbsp/powerpc/haleakala/configure.ac
+ 95/157: autoreconf: c/src/lib/libbsp/powerpc/mbx8xx/configure.ac
+ 96/157: autoreconf: c/src/lib/libbsp/powerpc/motorola_powerpc/configure.ac
+ 97/157: autoreconf: c/src/lib/libbsp/powerpc/mpc55xxevb/configure.ac
+ 98/157: autoreconf: c/src/lib/libbsp/powerpc/mpc8260ads/configure.ac
+ 99/157: autoreconf: c/src/lib/libbsp/powerpc/mvme3100/configure.ac
+100/157: autoreconf: c/src/lib/libbsp/powerpc/mvme5500/configure.ac
+101/157: autoreconf: c/src/lib/libbsp/powerpc/psim/configure.ac
+102/157: autoreconf: c/src/lib/libbsp/powerpc/qemuppc/configure.ac
+103/157: autoreconf: c/src/lib/libbsp/powerpc/qoriq/configure.ac
+104/157: autoreconf: c/src/lib/libbsp/powerpc/score603e/configure.ac
+105/157: autoreconf: c/src/lib/libbsp/powerpc/ss555/configure.ac
+106/157: autoreconf: c/src/lib/libbsp/powerpc/t32mppc/configure.ac
+107/157: autoreconf: c/src/lib/libbsp/powerpc/tqm8xx/configure.ac
+108/157: autoreconf: c/src/lib/libbsp/powerpc/virtex/configure.ac
+109/157: autoreconf: c/src/lib/libbsp/powerpc/virtex4/configure.ac
+110/157: autoreconf: c/src/lib/libbsp/powerpc/virtex5/configure.ac
+111/157: autoreconf: c/src/lib/libbsp/sh/configure.ac
+112/157: autoreconf: c/src/lib/libbsp/sh/gensh1/configure.ac
+113/157: autoreconf: c/src/lib/libbsp/sh/gensh2/configure.ac
+114/157: autoreconf: c/src/lib/libbsp/sh/gensh4/configure.ac
+115/157: autoreconf: c/src/lib/libbsp/sh/shsim/configure.ac
+116/157: autoreconf: c/src/lib/libbsp/sparc/configure.ac
+117/157: autoreconf: c/src/lib/libbsp/sparc/erc32/configure.ac
+118/157: autoreconf: c/src/lib/libbsp/sparc/leon2/configure.ac
+119/157: autoreconf: c/src/lib/libbsp/sparc/leon3/configure.ac
+120/157: autoreconf: c/src/lib/libbsp/sparc64/configure.ac
+121/157: autoreconf: c/src/lib/libbsp/sparc64/niagara/configure.ac
+122/157: autoreconf: c/src/lib/libbsp/sparc64/usiii/configure.ac
+123/157: autoreconf: c/src/lib/libbsp/v850/configure.ac
+124/157: autoreconf: c/src/lib/libbsp/v850/gdbv850sim/configure.ac
+125/157: autoreconf: c/src/lib/libcpu/arm/configure.ac
+126/157: autoreconf: c/src/lib/libcpu/bfin/configure.ac
+127/157: autoreconf: c/src/lib/libcpu/i386/configure.ac
+128/157: autoreconf: c/src/lib/libcpu/lm32/configure.ac
+129/157: autoreconf: c/src/lib/libcpu/m68k/configure.ac
+130/157: autoreconf: c/src/lib/libcpu/mips/configure.ac
+131/157: autoreconf: c/src/lib/libcpu/nios2/configure.ac
+132/157: autoreconf: c/src/lib/libcpu/or1k/configure.ac
+133/157: autoreconf: c/src/lib/libcpu/powerpc/configure.ac
+134/157: autoreconf: c/src/lib/libcpu/sh/configure.ac
+135/157: autoreconf: c/src/lib/libcpu/sparc/configure.ac
+136/157: autoreconf: c/src/lib/libcpu/sparc64/configure.ac
+137/157: autoreconf: c/src/librtems++/configure.ac
+138/157: autoreconf: c/src/make/configure.ac
+139/157: autoreconf: cpukit/configure.ac
+140/157: autoreconf: testsuites/configure.ac
+141/157: autoreconf: testsuites/fstests/configure.ac
+142/157: autoreconf: testsuites/libtests/configure.ac
+143/157: autoreconf: testsuites/mptests/configure.ac
+144/157: autoreconf: testsuites/psxtests/configure.ac
+145/157: autoreconf: testsuites/psxtmtests/configure.ac
+146/157: autoreconf: testsuites/rhealstone/configure.ac
+147/157: autoreconf: testsuites/samples/configure.ac
+148/157: autoreconf: testsuites/smptests/configure.ac
+149/157: autoreconf: testsuites/sptests/configure.ac
+150/157: autoreconf: testsuites/tmtests/configure.ac
+151/157: autoreconf: testsuites/tools/configure.ac
+152/157: autoreconf: testsuites/tools/generic/configure.ac
+153/157: autoreconf: tools/build/configure.ac
+154/157: autoreconf: tools/cpu/configure.ac
+155/157: autoreconf: tools/cpu/generic/configure.ac
+156/157: autoreconf: tools/cpu/nios2/configure.ac
+157/157: autoreconf: tools/cpu/sh/configure.ac
+Bootstrap time: 0:00:53.171231
