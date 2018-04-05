@@ -1,5 +1,0 @@
-src/libcsupport_a-isatty.o: \
- ../../../../../../../c/src/../../cpukit/libcsupport/src/isatty.c \
- ../config.h
-
-../config.h:

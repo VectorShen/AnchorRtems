@@ -1,8 +1,0 @@
-src/jffs2/src/libjffs2_a-compat-rbtree.o: \
- ../../../../../../../c/src/../../cpukit/libfs/src/jffs2/src/compat-rbtree.c \
- ../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/linux/rbtree.h \
- /home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h
-
-../../../../../../../c/src/../../cpukit/libfs/src/jffs2/include/linux/rbtree.h:
-
-/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/tools_installed/lib/gcc/arm-rtems4.11/4.9.3/include/stddef.h:

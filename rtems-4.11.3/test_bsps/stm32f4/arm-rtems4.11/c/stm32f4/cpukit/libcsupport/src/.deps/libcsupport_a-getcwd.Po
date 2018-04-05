@@ -1,5 +1,0 @@
-src/libcsupport_a-getcwd.o: \
- ../../../../../../../c/src/../../cpukit/libcsupport/src/getcwd.c \
- ../config.h
-
-../config.h:

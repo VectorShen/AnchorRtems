@@ -1,4 +1,0 @@
-src/libposix_a-execve.o: \
- ../../../../../../../c/src/../../cpukit/posix/src/execve.c ../config.h
-
-../config.h:

@@ -1,2 +1,0 @@
-libpppd_a-chap_ms.o: \
- ../../../../../../../c/src/../../cpukit/pppd/chap_ms.c
