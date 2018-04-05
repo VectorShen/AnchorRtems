@@ -67,7 +67,7 @@ pthread_attr_t _POSIX_Threads_Default_attributes =
 		0,			/* sched_ss_low_priority */
 		{0L, 0}
 		,			/* sched_ss_repl_period */
-		0L, 0}
+		{0L, 0}
 	 	,			/* sched_ss_init_budget */
 		0			/* sched_ss_max_repl */
 #endif

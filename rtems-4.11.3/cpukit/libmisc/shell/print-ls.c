@@ -196,7 +196,9 @@ void printlong (rtems_shell_ls_globals * globals, DISPLAY * dp)
 			if (S_ISLNK (sp->st_mode))
 				printlink (globals, p);
 			(void)putchar ('\n');
+#if RTEMS_REMOVED
 		}
+#endif
 	}
 }
 
