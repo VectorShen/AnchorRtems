@@ -36,9 +36,9 @@
  */
 int
 msdos_rename (const rtems_filesystem_location_info_t * old_parent_loc,
-			  const rtems_filesystem_location_info_t * old_loc,
-			  const rtems_filesystem_location_info_t * new_parent_loc,
-			  const char *new_name, size_t new_namelen)
+			const rtems_filesystem_location_info_t * old_loc,
+			const rtems_filesystem_location_info_t * new_parent_loc,
+			const char *new_name, size_t new_namelen)
 {
 	int rc = RC_OK;
 	fat_file_fd_t *old_fat_fd = old_loc->node_access;
@@ -48,12 +48,12 @@ msdos_rename (const rtems_filesystem_location_info_t * old_parent_loc,
 	 * existing file
 	 */
 	rc = msdos_creat_node (new_parent_loc,
-						   FAT_HARD_LINK, new_name, new_namelen, S_IFREG,
-						   old_fat_fd);
+						 FAT_HARD_LINK, new_name, new_namelen, S_IFREG,
+						 old_fat_fd);
 	if (rc != RC_OK)
-	  {
-		  return rc;
-	  }
+	{
+		return rc;
+	}
 
 	/*
 	 * mark file removed

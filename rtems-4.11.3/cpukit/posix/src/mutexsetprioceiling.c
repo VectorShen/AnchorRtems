@@ -33,7 +33,7 @@
  */
 
 int pthread_mutex_setprioceiling (pthread_mutex_t * mutex,
-								  int prioceiling, int *old_ceiling)
+								int prioceiling, int *old_ceiling)
 {
 	register POSIX_Mutex_Control *the_mutex;
 	Objects_Locations location;
@@ -65,27 +65,27 @@ int pthread_mutex_setprioceiling (pthread_mutex_t * mutex,
 	the_mutex = _POSIX_Mutex_Get_interrupt_disable (mutex,
 													&location, &lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  *old_ceiling =
-				  _POSIX_Priority_From_core (the_mutex->Mutex.Attributes.
+		case OBJECTS_LOCAL:
+			*old_ceiling =
+				_POSIX_Priority_From_core (the_mutex->Mutex.Attributes.
 											 priority_ceiling);
-			  the_mutex->Mutex.Attributes.priority_ceiling = the_priority;
-			  /*
-			   *  We are required to unlock the mutex before we return.
-			   */
-			  _CORE_mutex_Surrender (&the_mutex->Mutex,
+			the_mutex->Mutex.Attributes.priority_ceiling = the_priority;
+			/*
+			 *  We are required to unlock the mutex before we return.
+			 */
+			_CORE_mutex_Surrender (&the_mutex->Mutex,
 									 the_mutex->Object.id, NULL, &lock_context);
 
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* impossible to get here */
+		case OBJECTS_REMOTE:	/* impossible to get here */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

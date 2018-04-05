@@ -25,17 +25,17 @@
 #include <rtems/score/wkspace.h>
 
 void _Objects_Initialize_information (Objects_Information * information,
-									  Objects_APIs the_api,
-									  uint16_t the_class,
-									  uint32_t maximum,
-									  uint16_t size,
-									  bool is_string,
-									  uint32_t maximum_name_length
+									Objects_APIs the_api,
+									uint16_t the_class,
+									uint32_t maximum,
+									uint16_t size,
+									bool is_string,
+									uint32_t maximum_name_length
 #if defined(RTEMS_MULTIPROCESSING)
-									  ,
-									  bool supports_global,
-									  Objects_Thread_queue_Extract_callout
-									  extract
+									,
+									bool supports_global,
+									Objects_Thread_queue_Extract_callout
+									extract
 #endif
 	)
 {
@@ -78,10 +78,10 @@ void _Objects_Initialize_information (Objects_Information * information,
 	 *  Unlimited and maximum of zero is illogical.
 	 */
 	if (information->auto_extend && maximum_per_allocation == 0)
-	  {
-		  _Terminate (INTERNAL_ERROR_CORE,
-					  true, INTERNAL_ERROR_UNLIMITED_AND_MAXIMUM_IS_0);
-	  }
+	{
+		_Terminate (INTERNAL_ERROR_CORE,
+					true, INTERNAL_ERROR_UNLIMITED_AND_MAXIMUM_IS_0);
+	}
 
 	/*
 	 *  The allocation unit is the maximum value
@@ -99,7 +99,7 @@ void _Objects_Initialize_information (Objects_Information * information,
 	minimum_index = (maximum_per_allocation == 0) ? 0 : 1;
 	information->minimum_id =
 		_Objects_Build_id (the_api, the_class, _Objects_Local_node,
-						   minimum_index);
+						 minimum_index);
 
 	/*
 	 *  Calculate the maximum name length
@@ -117,14 +117,14 @@ void _Objects_Initialize_information (Objects_Information * information,
 	 *  Initialize objects .. if there are any
 	 */
 	if (maximum_per_allocation)
-	  {
-		  /*
-		   *  Always have the maximum size available so the current performance
-		   *  figures are create are met.  If the user moves past the maximum
-		   *  number then a performance hit is taken.
-		   */
-		  _Objects_Extend_information (information);
-	  }
+	{
+		/*
+		 *  Always have the maximum size available so the current performance
+		 *  figures are create are met.  If the user moves past the maximum
+		 *  number then a performance hit is taken.
+		 */
+		_Objects_Extend_information (information);
+	}
 
 	/*
 	 *  Take care of multiprocessing
@@ -133,14 +133,14 @@ void _Objects_Initialize_information (Objects_Information * information,
 	information->extract = extract;
 
 	if ((supports_global == true) && _System_state_Is_multiprocessing)
-	  {
+	{
 
-		  information->global_table =
-			  (Chain_Control *) _Workspace_Allocate_or_fatal_error ((_Objects_Maximum_nodes + 1) * sizeof (Chain_Control));
+		information->global_table =
+			(Chain_Control *) _Workspace_Allocate_or_fatal_error ((_Objects_Maximum_nodes + 1) * sizeof (Chain_Control));
 
-		  for (index = 1; index <= _Objects_Maximum_nodes; index++)
-			  _Chain_Initialize_empty (&information->global_table[index]);
-	  }
+		for (index = 1; index <= _Objects_Maximum_nodes; index++)
+			_Chain_Initialize_empty (&information->global_table[index]);
+	}
 	else
 		information->global_table = NULL;
 #endif

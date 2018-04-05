@@ -53,20 +53,20 @@ int pthread_cond_init (pthread_cond_t * cond, const pthread_condattr_t * attr)
 	the_cond = _POSIX_Condition_variables_Allocate ();
 
 	if (!the_cond)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return ENOMEM;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return ENOMEM;
+	}
 
 	the_cond->process_shared = the_attr->process_shared;
 
 	the_cond->Mutex = POSIX_CONDITION_VARIABLES_NO_MUTEX;
 
 	_Thread_queue_Initialize (&the_cond->Wait_queue,
-							  THREAD_QUEUE_DISCIPLINE_FIFO);
+							THREAD_QUEUE_DISCIPLINE_FIFO);
 
 	_Objects_Open_u32 (&_POSIX_Condition_variables_Information,
-					   &the_cond->Object, 0);
+					 &the_cond->Object, 0);
 
 	*cond = the_cond->Object.id;
 

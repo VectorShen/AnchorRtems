@@ -38,19 +38,19 @@ int sem_getvalue (sem_t * __restrict sem, int *__restrict sval)
 
 	the_semaphore = _POSIX_Semaphore_Get (sem, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  *sval = _CORE_semaphore_Get_count (&the_semaphore->Semaphore);
-			  _Objects_Put (&the_semaphore->Object);
-			  return 0;
+		case OBJECTS_LOCAL:
+			*sval = _CORE_semaphore_Get_count (&the_semaphore->Semaphore);
+			_Objects_Put (&the_semaphore->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

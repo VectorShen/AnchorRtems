@@ -16,7 +16,8 @@
 #include <rtems/rtems/statusimpl.h>
 #include <errno.h>
 
-const rtems_status_code _Status_Object_name_errors_to_status[] = {
+const rtems_status_code _Status_Object_name_errors_to_status[] =
+{
   /** This maps OBJECTS_SUCCESSFUL to RTEMS_SUCCESSFUL. */
 	RTEMS_SUCCESSFUL,
   /** This maps OBJECTS_INVALID_NAME to RTEMS_INVALID_NAME. */
@@ -29,7 +30,8 @@ const rtems_status_code _Status_Object_name_errors_to_status[] = {
 	RTEMS_INVALID_NODE
 };
 
-static const int status_code_to_errno[RTEMS_STATUS_CODES_LAST + 1] = {
+static const int status_code_to_errno[RTEMS_STATUS_CODES_LAST + 1] =
+{
 	[RTEMS_SUCCESSFUL] = 0,
 	[RTEMS_TASK_EXITTED] = EIO,
 	[RTEMS_MP_NOT_CONFIGURED] = EIO,
@@ -64,20 +66,20 @@ static const int status_code_to_errno[RTEMS_STATUS_CODES_LAST + 1] = {
 int rtems_status_code_to_errno (rtems_status_code sc)
 {
 	if (sc == RTEMS_SUCCESSFUL)
-	  {
-		  return 0;
-	  }
+	{
+		return 0;
+	}
 	else
-	  {
-		  int eno = EINVAL;
+	{
+		int eno = EINVAL;
 
-		  if ((unsigned)sc <= RTEMS_STATUS_CODES_LAST)
-			{
-				eno = status_code_to_errno[sc];
-			}
+		if ((unsigned)sc <= RTEMS_STATUS_CODES_LAST)
+		{
+			eno = status_code_to_errno[sc];
+		}
 
-		  errno = eno;
+		errno = eno;
 
-		  return -1;
-	  }
+		return -1;
+	}
 }

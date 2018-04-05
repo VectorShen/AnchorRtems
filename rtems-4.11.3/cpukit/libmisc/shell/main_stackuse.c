@@ -29,7 +29,8 @@ static int rtems_shell_main_stackuse (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_STACKUSE_Command = {
+rtems_shell_cmd_t rtems_shell_STACKUSE_Command =
+{
 	"stackuse",					/* name */
 	"print per thread stack usage",	/* usage */
 	"rtems",					/* topic */

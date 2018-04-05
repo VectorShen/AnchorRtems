@@ -66,7 +66,8 @@ static int32_t *xdrmem_inline_aligned (XDR * xdrs, u_int len);
 static int32_t *xdrmem_inline_unaligned (XDR * xdrs, u_int len);
 static void xdrmem_destroy (XDR *);
 
-static struct xdr_ops xdrmem_ops_aligned = {
+static struct xdr_ops xdrmem_ops_aligned =
+{
 	xdrmem_getlong_aligned,
 	xdrmem_putlong_aligned,
 	xdrmem_getbytes,
@@ -77,7 +78,8 @@ static struct xdr_ops xdrmem_ops_aligned = {
 	xdrmem_destroy
 };
 
-static struct xdr_ops xdrmem_ops_unaligned = {
+static struct xdr_ops xdrmem_ops_unaligned =
+{
 	xdrmem_getlong_unaligned,
 	xdrmem_putlong_unaligned,
 	xdrmem_getbytes,
@@ -195,11 +197,11 @@ static int32_t *xdrmem_inline_aligned (XDR * xdrs, u_int len)
 	int32_t *buf = 0;
 
 	if (xdrs->x_handy >= len)
-	  {
-		  xdrs->x_handy -= len;
-		  buf = (int32_t *) xdrs->x_private;
-		  xdrs->x_private += len;
-	  }
+	{
+		xdrs->x_handy -= len;
+		buf = (int32_t *) xdrs->x_private;
+		xdrs->x_private += len;
+	}
 	return (buf);
 }
 

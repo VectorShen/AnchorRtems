@@ -88,14 +88,16 @@ static u_long div_sendspace = DIVSNDQ;	/* XXX sysctl ? */
 static u_long div_recvspace = DIVRCVQ;	/* XXX sysctl ? */
 
 /* Optimization: have this preinitialized */
-static struct sockaddr_in divsrc = { sizeof (divsrc), AF_INET, 0, {0}
-, {0}
+static struct sockaddr_in divsrc =
+{
+	sizeof (divsrc), AF_INET, 0, {0}
+	, {0}
 };
 
 /* Internal functions */
 
 static int div_output (struct socket *so,
-					   struct mbuf *m, struct mbuf *addr, struct mbuf *control);
+					 struct mbuf *m, struct mbuf *addr, struct mbuf *control);
 
 /*
  * Initialize divert connection block queue.
@@ -133,9 +135,9 @@ void div_input (struct mbuf *m, int hlen)
 	/* Assure header */
 	if (m->m_len < sizeof (struct ip) &&
 		(m = m_pullup (m, sizeof (struct ip))) == 0)
-	  {
-		  return;
-	  }
+	{
+		return;
+	}
 	ip = mtod (m, struct ip *);
 
 	/* Record divert port */
@@ -149,53 +151,53 @@ void div_input (struct mbuf *m, int hlen)
 	/* Record receive interface address, if any */
 	divsrc.sin_addr.s_addr = 0;
 	if (hlen)
-	  {
-		  struct ifaddr *ifa;
+	{
+		struct ifaddr *ifa;
 
 #ifdef DIAGNOSTIC
-		  /* Sanity check */
-		  if (!(m->m_flags & M_PKTHDR))
-			  panic ("div_input: no pkt hdr");
+		/* Sanity check */
+		if (!(m->m_flags & M_PKTHDR))
+			panic ("div_input: no pkt hdr");
 #endif
 
-		  /* More fields affected by ip_input() */
-		  HTONS (ip->ip_id);
+		/* More fields affected by ip_input() */
+		HTONS (ip->ip_id);
 
-		  /* Find IP address for recieve interface */
-		  for (ifa = m->m_pkthdr.rcvif->if_addrlist;
-			   ifa != NULL; ifa = ifa->ifa_next)
-			{
-				if (ifa->ifa_addr == NULL)
-					continue;
-				if (ifa->ifa_addr->sa_family != AF_INET)
-					continue;
-				divsrc.sin_addr =
-					((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-				break;
-			}
-	  }
+		/* Find IP address for recieve interface */
+		for (ifa = m->m_pkthdr.rcvif->if_addrlist;
+			 ifa != NULL; ifa = ifa->ifa_next)
+		{
+			if (ifa->ifa_addr == NULL)
+				continue;
+			if (ifa->ifa_addr->sa_family != AF_INET)
+				continue;
+			divsrc.sin_addr =
+				((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+			break;
+		}
+	}
 
 	/* Put packet on socket queue, if any */
 	sa = NULL;
 	for (inp = divcb.lh_first; inp != NULL; inp = inp->inp_list.le_next)
-	  {
-		  if (inp->inp_lport == htons (ip_divert_port))
-			  sa = inp->inp_socket;
-	  }
+	{
+		if (inp->inp_lport == htons (ip_divert_port))
+			sa = inp->inp_socket;
+	}
 	if (sa)
-	  {
-		  if (sbappendaddr (&sa->so_rcv, (struct sockaddr *)&divsrc,
+	{
+		if (sbappendaddr (&sa->so_rcv, (struct sockaddr *)&divsrc,
 							m, (struct mbuf *)0) == 0)
-			  m_freem (m);
-		  else
-			  sorwakeup (sa);
-	  }
+			m_freem (m);
+		else
+			sorwakeup (sa);
+	}
 	else
-	  {
-		  m_freem (m);
-		  ipstat.ips_noproto++;
-		  ipstat.ips_delivered--;
-	  }
+	{
+		m_freem (m);
+		ipstat.ips_noproto++;
+		ipstat.ips_delivered--;
+	}
 }
 
 /*
@@ -227,43 +229,43 @@ div_output (struct socket *so, struct mbuf *m,
 
 	/* Reinject packet into the system as incoming or outgoing */
 	if (!sin || sin->sin_addr.s_addr == 0)
-	  {
-		  /* Don't allow both user specified and setsockopt options,
-		     and don't allow packet length sizes that will crash */
-		  if (((ip->ip_hl != (sizeof (*ip) >> 2)) && inp->inp_options) ||
-			  ((u_short) ntohs (ip->ip_len) > m->m_pkthdr.len))
-			{
-				error = EINVAL;
-				goto cantsend;
-			}
+	{
+		/* Don't allow both user specified and setsockopt options,
+		   and don't allow packet length sizes that will crash */
+		if (((ip->ip_hl != (sizeof (*ip) >> 2)) && inp->inp_options) ||
+			((u_short) ntohs (ip->ip_len) > m->m_pkthdr.len))
+		{
+			error = EINVAL;
+			goto cantsend;
+		}
 
-		  /* Convert fields to host order for ip_output() */
-		  NTOHS (ip->ip_len);
-		  NTOHS (ip->ip_off);
+		/* Convert fields to host order for ip_output() */
+		NTOHS (ip->ip_len);
+		NTOHS (ip->ip_off);
 
-		  /* Send packet to output processing */
-		  ipstat.ips_rawout++;	/* XXX */
-		  error = ip_output (m, inp->inp_options, &inp->inp_route,
+		/* Send packet to output processing */
+		ipstat.ips_rawout++;	/* XXX */
+		error = ip_output (m, inp->inp_options, &inp->inp_route,
 							 (so->so_options & SO_DONTROUTE) |
 							 IP_ALLOWBROADCAST | IP_RAWOUTPUT,
 							 inp->inp_moptions);
-	  }
+	}
 	else
-	  {
-		  struct ifaddr *ifa;
+	{
+		struct ifaddr *ifa;
 
-		  /* Find receive interface with the given IP address */
-		  sin->sin_port = 0;
-		  if ((ifa = ifa_ifwithaddr ((struct sockaddr *)sin)) == 0)
-			{
-				error = EADDRNOTAVAIL;
-				goto cantsend;
-			}
-		  m->m_pkthdr.rcvif = ifa->ifa_ifp;
+		/* Find receive interface with the given IP address */
+		sin->sin_port = 0;
+		if ((ifa = ifa_ifwithaddr ((struct sockaddr *)sin)) == 0)
+		{
+			error = EADDRNOTAVAIL;
+			goto cantsend;
+		}
+		m->m_pkthdr.rcvif = ifa->ifa_ifp;
 
-		  /* Send packet to input processing */
-		  ip_input (m);
-	  }
+		/* Send packet to input processing */
+		ip_input (m);
+	}
 
 	/* Reset for next time (and other packets) */
 	ip_divert_ignore = 0;
@@ -285,109 +287,109 @@ div_usrreq (struct socket *so,
 	int s;
 
 	if (inp == NULL && req != PRU_ATTACH)
-	  {
-		  error = EINVAL;
-		  goto release;
-	  }
+	{
+		error = EINVAL;
+		goto release;
+	}
 	switch (req)
-	  {
+	{
 
-		  case PRU_ATTACH:
-			  if (inp)
-				  panic ("div_attach");
-			  if ((so->so_state & SS_PRIV) == 0)
-				{
-					error = EACCES;
-					break;
-				}
-			  s = splnet ();
-			  error = in_pcballoc (so, &divcbinfo);
-			  splx (s);
-			  if (error)
-				  break;
-			  error = soreserve (so, div_sendspace, div_recvspace);
-			  if (error)
-				  break;
-			  inp = (struct inpcb *)so->so_pcb;
-			  inp->inp_ip_p = (intptr_t) nam;	/* XXX */
-			  inp->inp_flags |= INP_HDRINCL;
-			  /* The socket is always "connected" because
-			     we always know "where" to send the packet */
-			  so->so_state |= SS_ISCONNECTED;
-			  break;
+		case PRU_ATTACH:
+			if (inp)
+				panic ("div_attach");
+			if ((so->so_state & SS_PRIV) == 0)
+			{
+				error = EACCES;
+				break;
+			}
+			s = splnet ();
+			error = in_pcballoc (so, &divcbinfo);
+			splx (s);
+			if (error)
+				break;
+			error = soreserve (so, div_sendspace, div_recvspace);
+			if (error)
+				break;
+			inp = (struct inpcb *)so->so_pcb;
+			inp->inp_ip_p = (intptr_t) nam;	/* XXX */
+			inp->inp_flags |= INP_HDRINCL;
+			/* The socket is always "connected" because
+			   we always know "where" to send the packet */
+			so->so_state |= SS_ISCONNECTED;
+			break;
 
-		  case PRU_DISCONNECT:
-			  if ((so->so_state & SS_ISCONNECTED) == 0)
-				{
-					error = ENOTCONN;
-					break;
-				}
-			  /* FALLTHROUGH */
-		  case PRU_ABORT:
-			  soisdisconnected (so);
-			  /* FALLTHROUGH */
-		  case PRU_DETACH:
-			  if (inp == 0)
-				  panic ("div_detach");
-			  in_pcbdetach (inp);
-			  break;
+		case PRU_DISCONNECT:
+			if ((so->so_state & SS_ISCONNECTED) == 0)
+			{
+				error = ENOTCONN;
+				break;
+			}
+			/* FALLTHROUGH */
+		case PRU_ABORT:
+			soisdisconnected (so);
+			/* FALLTHROUGH */
+		case PRU_DETACH:
+			if (inp == 0)
+				panic ("div_detach");
+			in_pcbdetach (inp);
+			break;
 
-		  case PRU_BIND:
-			  s = splnet ();
-			  error = in_pcbbind (inp, nam);
-			  splx (s);
-			  break;
+		case PRU_BIND:
+			s = splnet ();
+			error = in_pcbbind (inp, nam);
+			splx (s);
+			break;
 
-			  /*
-			   * Mark the connection as being incapable of further input.
-			   */
-		  case PRU_SHUTDOWN:
-			  socantsendmore (so);
-			  break;
+			/*
+			 * Mark the connection as being incapable of further input.
+			 */
+		case PRU_SHUTDOWN:
+			socantsendmore (so);
+			break;
 
-		  case PRU_SEND:
-			  /* Packet must have a header (but that's about it) */
-			  if (m->m_len < sizeof (struct ip) ||
-				  (m = m_pullup (m, sizeof (struct ip))) == 0)
-				{
-					ipstat.ips_toosmall++;
-					error = EINVAL;
-					break;
-				}
+		case PRU_SEND:
+			/* Packet must have a header (but that's about it) */
+			if (m->m_len < sizeof (struct ip) ||
+				(m = m_pullup (m, sizeof (struct ip))) == 0)
+			{
+				ipstat.ips_toosmall++;
+				error = EINVAL;
+				break;
+			}
 
-			  /* Send packet */
-			  error = div_output (so, m, nam, control);
-			  m = NULL;
-			  break;
+			/* Send packet */
+			error = div_output (so, m, nam, control);
+			m = NULL;
+			break;
 
-		  case PRU_SOCKADDR:
-			  in_setsockaddr (inp, nam);
-			  break;
+		case PRU_SOCKADDR:
+			in_setsockaddr (inp, nam);
+			break;
 
-		  case PRU_SENSE:
-			  /*
-			   * stat: don't bother with a blocksize.
-			   */
-			  return (0);
+		case PRU_SENSE:
+			/*
+			 * stat: don't bother with a blocksize.
+			 */
+			return (0);
 
-			  /*
-			   * Not supported.
-			   */
-		  case PRU_CONNECT:
-		  case PRU_CONNECT2:
-		  case PRU_CONTROL:
-		  case PRU_RCVOOB:
-		  case PRU_RCVD:
-		  case PRU_LISTEN:
-		  case PRU_ACCEPT:
-		  case PRU_SENDOOB:
-		  case PRU_PEERADDR:
-			  error = EOPNOTSUPP;
-			  break;
+			/*
+			 * Not supported.
+			 */
+		case PRU_CONNECT:
+		case PRU_CONNECT2:
+		case PRU_CONTROL:
+		case PRU_RCVOOB:
+		case PRU_RCVD:
+		case PRU_LISTEN:
+		case PRU_ACCEPT:
+		case PRU_SENDOOB:
+		case PRU_PEERADDR:
+			error = EOPNOTSUPP;
+			break;
 
-		  default:
-			  panic ("div_usrreq");
-	  }
+		default:
+			panic ("div_usrreq");
+	}
   release:
 	if (m)
 		m_freem (m);

@@ -31,18 +31,18 @@ int IMFS_rmnod (const rtems_filesystem_location_info_t * parentloc,
 
 	node = (*node->control->node_remove) (node);
 	if (node != NULL)
-	  {
-		  --node->reference_count;
-		  --node->st_nlink;
-		  if (node->Parent != NULL)
-			{
-				IMFS_remove_from_directory (node);
-			}
-	  }
+	{
+		--node->reference_count;
+		--node->st_nlink;
+		if (node->Parent != NULL)
+		{
+			IMFS_remove_from_directory (node);
+		}
+	}
 	else
-	  {
-		  rv = -1;
-	  }
+	{
+		rv = -1;
+	}
 
 	return rv;
 }

@@ -76,16 +76,16 @@ struct pmaplist *pmap_getmaps (struct sockaddr_in *address)
 	address->sin_port = htons (PMAPPORT);
 	client = clnttcp_create (address, PMAPPROG, PMAPVERS, &socket, 50, 500);
 	if (client != NULL)
-	  {
-		  if (CLNT_CALL (client, (rpcproc_t) PMAPPROC_DUMP,
+	{
+		if (CLNT_CALL (client, (rpcproc_t) PMAPPROC_DUMP,
 						 (xdrproc_t) xdr_void, NULL,
 						 (xdrproc_t) xdr_pmaplist, &head, minutetimeout) !=
-			  RPC_SUCCESS)
-			{
-				clnt_perror (client, "pmap_getmaps rpc problem");
-			}
-		  CLNT_DESTROY (client);
-	  }
+			RPC_SUCCESS)
+		{
+			clnt_perror (client, "pmap_getmaps rpc problem");
+		}
+		CLNT_DESTROY (client);
+	}
 	if (socket != -1)
 		(void)_RPC_close (socket);
 	address->sin_port = 0;

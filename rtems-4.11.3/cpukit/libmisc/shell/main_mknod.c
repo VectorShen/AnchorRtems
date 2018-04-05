@@ -87,7 +87,7 @@ typedef struct
 
 static int gid_name (const char *, gid_t *);
 static portdev_t callPack (rtems_shell_mknod_globals * globals,
-						   pack_t *, int, u_long *);
+						 pack_t *, int, u_long *);
 
 static int main_mknod (rtems_shell_mknod_globals *, int, char *[]);
 static void usage (rtems_shell_mknod_globals *);
@@ -155,91 +155,91 @@ int main_mknod (rtems_shell_mknod_globals * globals, int argc, char **argv)
 
 #ifdef KERN_DRIVERS
 	while ((ch = getopt (argc, argv, "lrRF:g:m:u:")) != -1)
-	  {
+	{
 #else
 	while ((ch = getopt_r (argc, argv, "rRF:g:m:u:", &getopt_reent)) != -1)
-	  {
+	{
 #endif
-		  switch (ch)
-			{
+		switch (ch)
+		{
 
 #ifdef KERN_DRIVERS
-				case 'l':
-					l_flag = 1;
-					break;
+			case 'l':
+				l_flag = 1;
+				break;
 #endif
 
-				case 'r':
-					r_flag = 1;
-					break;
+			case 'r':
+				r_flag = 1;
+				break;
 
-				case 'R':
-					r_flag = 2;
-					break;
+			case 'R':
+				r_flag = 2;
+				break;
 
-				case 'F':
-					pack = pack_find (getopt_reent.optarg);
-					if (pack == NULL)
-						errx (exit_jump, 1, "invalid format: %s",
-							  getopt_reent.optarg);
-					hasformat++;
-					break;
+			case 'F':
+				pack = pack_find (getopt_reent.optarg);
+				if (pack == NULL)
+					errx (exit_jump, 1, "invalid format: %s",
+						getopt_reent.optarg);
+				hasformat++;
+				break;
 
-				case 'g':
-					if (getopt_reent.optarg[0] == '#')
-					  {
-						  gid = strtol (getopt_reent.optarg + 1, &p, 10);
-						  if (*p == 0)
-							  break;
-					  }
-					if (gid_name (getopt_reent.optarg, &gid) == 0)
-						break;
-					gid = strtol (getopt_reent.optarg, &p, 10);
+			case 'g':
+				if (getopt_reent.optarg[0] == '#')
+				{
+					gid = strtol (getopt_reent.optarg + 1, &p, 10);
 					if (*p == 0)
 						break;
-					errx (exit_jump, 1, "%s: invalid group name",
-						  getopt_reent.optarg);
-
-				case 'm':
-#if RTEMS_REMOVED
-					modes = setmode (getopt_reent.optarg);
-					if (modes == NULL)
-#endif
-						err (exit_jump, 1, "Cannot set file mode `%s'",
-							 getopt_reent.optarg);
+				}
+				if (gid_name (getopt_reent.optarg, &gid) == 0)
 					break;
+				gid = strtol (getopt_reent.optarg, &p, 10);
+				if (*p == 0)
+					break;
+				errx (exit_jump, 1, "%s: invalid group name",
+					getopt_reent.optarg);
 
-				case 'u':
-					if (getopt_reent.optarg[0] == '#')
-					  {
-						  uid = strtol (getopt_reent.optarg + 1, &p, 10);
-						  if (*p == 0)
-							  break;
-					  }
+			case 'm':
 #if RTEMS_REMOVED
-					if (uid_from_user (getopt_reent.optarg, &uid) == 0)
-						break;
+				modes = setmode (getopt_reent.optarg);
+				if (modes == NULL)
 #endif
-					uid = strtol (getopt_reent.optarg, &p, 10);
+					err (exit_jump, 1, "Cannot set file mode `%s'",
+						 getopt_reent.optarg);
+				break;
+
+			case 'u':
+				if (getopt_reent.optarg[0] == '#')
+				{
+					uid = strtol (getopt_reent.optarg + 1, &p, 10);
 					if (*p == 0)
 						break;
-					errx (exit_jump, 1, "%s: invalid user name",
-						  getopt_reent.optarg);
+				}
+#if RTEMS_REMOVED
+				if (uid_from_user (getopt_reent.optarg, &uid) == 0)
+					break;
+#endif
+				uid = strtol (getopt_reent.optarg, &p, 10);
+				if (*p == 0)
+					break;
+				errx (exit_jump, 1, "%s: invalid user name",
+					getopt_reent.optarg);
 
-				default:
-				case '?':
-					usage (globals);
-			}
-	  }
+			default:
+			case '?':
+				usage (globals);
+		}
+	}
 	argc -= getopt_reent.optind;
 	argv += getopt_reent.optind;
 
 #ifdef KERN_DRIVERS
 	if (l_flag)
-	  {
-		  print_device_info (argv);
-		  return 0;
-	  }
+	{
+		print_device_info (argv);
+		return 0;
+	}
 #endif
 
 	if (argc < 2 || argc > 10)
@@ -255,76 +255,76 @@ int main_mknod (rtems_shell_mknod_globals * globals, int argc, char **argv)
 	if (argv[0][1] != '\0')
 		goto badtype;
 	switch (*argv[0])
-	  {
-		  case 'c':
-			  mode |= S_IFCHR;
-			  break;
+	{
+		case 'c':
+			mode |= S_IFCHR;
+			break;
 
-		  case 'b':
-			  mode |= S_IFBLK;
-			  break;
+		case 'b':
+			mode |= S_IFBLK;
+			break;
 
-		  case 'p':
-			  if (hasformat)
-				  errx (exit_jump, 1, "format is meaningless for fifos");
-			  mode |= S_IFIFO;
-			  fifo = 1;
-			  break;
+		case 'p':
+			if (hasformat)
+				errx (exit_jump, 1, "format is meaningless for fifos");
+			mode |= S_IFIFO;
+			fifo = 1;
+			break;
 
-		  default:
+		default:
 			badtype:
-			  errx (exit_jump, 1, "node type must be 'b', 'c' or 'p'.");
-	  }
+			errx (exit_jump, 1, "node type must be 'b', 'c' or 'p'.");
+	}
 	argc--;
 	argv++;
 
 	if (fifo)
-	  {
-		  if (argc != 0)
-			  usage (globals);
-	  }
+	{
+		if (argc != 0)
+			usage (globals);
+	}
 	else
-	  {
-		  if (argc < 1 || argc > MAXARGS)
-			  usage (globals);
-	  }
+	{
+		if (argc < 1 || argc > MAXARGS)
+			usage (globals);
+	}
 
 	for (n = 0; n < argc; n++)
-	  {
-		  errno = 0;
-		  numbers[n] = strtoul (argv[n], &p, 0);
-		  if (*p == 0 && errno == 0)
-			  continue;
+	{
+		errno = 0;
+		numbers[n] = strtoul (argv[n], &p, 0);
+		if (*p == 0 && errno == 0)
+			continue;
 #ifdef KERN_DRIVERS
-		  if (n == 0)
+		if (n == 0)
+		{
+			major = major_from_name (argv[0], mode);
+			if (major != -1)
 			{
-				major = major_from_name (argv[0], mode);
-				if (major != -1)
-				  {
-					  numbers[0] = major;
-					  continue;
-				  }
-				if (!isdigit (*(unsigned char *)argv[0]))
-					errx (1, "unknown driver: %s", argv[0]);
+				numbers[0] = major;
+				continue;
 			}
+			if (!isdigit (*(unsigned char *)argv[0]))
+				errx (1, "unknown driver: %s", argv[0]);
+		}
 #endif
-		  errx (exit_jump, 1, "invalid number: %s", argv[n]);
-	  }
+		errx (exit_jump, 1, "invalid number: %s", argv[n]);
+	}
 
 	switch (argc)
-	  {
-		  case 0:
-			  dev = 0;
-			  break;
+	{
+		case 0:
+			dev = 0;
+			break;
 
-		  case 1:
-			  dev = numbers[0];
-			  break;
+		case 1:
+			dev = numbers[0];
+			break;
 
-		  default:
-			  dev = callPack (globals, pack, argc, numbers);
-			  break;
-	  }
+		default:
+			dev = callPack (globals, pack, argc, numbers);
+			break;
+	}
 
 #if RTEMS_REMOVED
 	if (modes != NULL)
@@ -333,27 +333,27 @@ int main_mknod (rtems_shell_mknod_globals * globals, int argc, char **argv)
 	umask (0);
 	rval = fifo ? mkfifo (name, mode) : mknod (name, mode, dev);
 	if (rval < 0 && errno == EEXIST && r_flag)
-	  {
-		  struct stat sb;
-		  if (lstat (name, &sb) != 0 || (!fifo && sb.st_rdev != dev))
-			  sb.st_mode = 0;
+	{
+		struct stat sb;
+		if (lstat (name, &sb) != 0 || (!fifo && sb.st_rdev != dev))
+			sb.st_mode = 0;
 
-		  if ((sb.st_mode & S_IFMT) == (mode & S_IFMT))
-			{
-				if (r_flag == 1)
-					/* Ignore permissions and user/group */
-					return 0;
-				if (sb.st_mode != mode)
-					rval = chmod (name, mode);
-				else
-					rval = 0;
-			}
-		  else
-			{
-				unlink (name);
-				rval = fifo ? mkfifo (name, mode) : mknod (name, mode, dev);
-			}
-	  }
+		if ((sb.st_mode & S_IFMT) == (mode & S_IFMT))
+		{
+			if (r_flag == 1)
+				/* Ignore permissions and user/group */
+				return 0;
+			if (sb.st_mode != mode)
+				rval = chmod (name, mode);
+			else
+				rval = 0;
+		}
+		else
+		{
+			unlink (name);
+			rval = fifo ? mkfifo (name, mode) : mknod (name, mode, dev);
+		}
+	}
 	if (rval < 0)
 		err (exit_jump, 1, "%s", name);
 	if ((uid != (uid_t) - 1 || gid != (uid_t) - 1)
@@ -369,17 +369,17 @@ static void usage (rtems_shell_mknod_globals * globals)
 	const char *progname = getprogname ();
 
 	(void)fprintf (stderr,
-				   "usage: %s [-rR] [-F format] [-m mode] [-u user] [-g group]\n",
-				   progname);
+				 "usage: %s [-rR] [-F format] [-m mode] [-u user] [-g group]\n",
+				 progname);
 	(void)fprintf (stderr,
 #ifdef KERN_DRIVERS
-				   "                   [ name [b | c] [major | driver] minor\n"
+				 "                   [ name [b | c] [major | driver] minor\n"
 #else
-				   "                   [ name [b | c] major minor\n"
+				 "                   [ name [b | c] major minor\n"
 #endif
-				   "                   | name [b | c] major unit subunit\n"
-				   "                   | name [b | c] number\n"
-				   "                   | name p ]\n");
+				 "                   | name [b | c] major unit subunit\n"
+				 "                   | name [b | c] number\n"
+				 "                   | name p ]\n");
 #ifdef KERN_DRIVERS
 	(void)fprintf (stderr, "       %s -l [driver] ...\n", progname);
 #endif
@@ -399,7 +399,7 @@ static int gid_name (const char *name, gid_t * gid)
 
 static portdev_t
 callPack (rtems_shell_mknod_globals * globals, pack_t * f, int n,
-		  u_long * numbers)
+		u_long * numbers)
 {
 	portdev_t d;
 	const char *error = NULL;
@@ -436,20 +436,20 @@ static void print_device_info (char **names)
 		get_device_info ();
 
 	do
-	  {
-		  kd = kern_drivers;
-		  for (i = 0; i < num_drivers; kd++, i++)
-			{
-				if (*names && strcmp (*names, kd->d_name))
-					continue;
-				printf ("%s", kd->d_name);
-				if (kd->d_cmajor != -1)
-					printf (" character major %d", kd->d_cmajor);
-				if (kd->d_bmajor != -1)
-					printf (" block major %d", kd->d_bmajor);
-				printf ("\n");
-			}
-	  }
+	{
+		kd = kern_drivers;
+		for (i = 0; i < num_drivers; kd++, i++)
+		{
+			if (*names && strcmp (*names, kd->d_name))
+				continue;
+			printf ("%s", kd->d_name);
+			if (kd->d_cmajor != -1)
+				printf (" character major %d", kd->d_cmajor);
+			if (kd->d_bmajor != -1)
+				printf (" block major %d", kd->d_bmajor);
+			printf ("\n");
+		}
+	}
 	while (*names && *++names);
 }
 
@@ -463,18 +463,19 @@ static int major_from_name (const char *name, mode_t mode)
 
 	kd = kern_drivers;
 	for (i = 0; i < num_drivers; kd++, i++)
-	  {
-		  if (strcmp (name, kd->d_name))
-			  continue;
-		  if (S_ISCHR (mode))
-			  return kd->d_cmajor;
-		  return kd->d_bmajor;
-	  }
+	{
+		if (strcmp (name, kd->d_name))
+			continue;
+		if (S_ISCHR (mode))
+			return kd->d_cmajor;
+		return kd->d_bmajor;
+	}
 	return -1;
 }
 #endif
 
-rtems_shell_cmd_t rtems_shell_MKNOD_Command = {
+rtems_shell_cmd_t rtems_shell_MKNOD_Command =
+{
 	"mknod",					/* name */
 	"mknod mknod [-rR] [-F fmt] [-m mode] name [c | b] minor",	/* usage */
 	"files",					/* topic */

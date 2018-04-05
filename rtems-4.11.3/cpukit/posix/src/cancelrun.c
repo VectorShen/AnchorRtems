@@ -46,17 +46,17 @@ void _POSIX_Threads_cancel_run (Thread_Control * the_thread)
 	thread_support->cancelability_state = PTHREAD_CANCEL_DISABLE;
 
 	while (!_Chain_Is_empty (handler_stack))
-	  {
-		  _ISR_Disable (level);
-		  handler = (POSIX_Cancel_Handler_control *)
-			  _Chain_Tail (handler_stack)->previous;
-		  _Chain_Extract_unprotected (&handler->Node);
-		  _ISR_Enable (level);
+	{
+		_ISR_Disable (level);
+		handler = (POSIX_Cancel_Handler_control *)
+			_Chain_Tail (handler_stack)->previous;
+		_Chain_Extract_unprotected (&handler->Node);
+		_ISR_Enable (level);
 
-		  (*handler->routine) (handler->arg);
+		(*handler->routine) (handler->arg);
 
-		  _Workspace_Free (handler);
-	  }
+		_Workspace_Free (handler);
+	}
 }
 
 #else /* HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT */
@@ -77,11 +77,11 @@ void _POSIX_Threads_cancel_run (Thread_Control * the_thread)
 	_Thread_Enable_dispatch ();
 
 	while (context != NULL)
-	  {
-		  (*context->_routine) (context->_arg);
+	{
+		(*context->_routine) (context->_arg);
 
-		  context = context->_previous;
-	  }
+		context = context->_previous;
+	}
 }
 
 #endif /* HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT */

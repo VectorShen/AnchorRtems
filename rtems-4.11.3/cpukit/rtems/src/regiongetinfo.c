@@ -41,22 +41,22 @@ rtems_status_code rtems_region_get_information (rtems_id id,
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Heap_Get_information (&the_region->Memory, the_info);
-			  return_status = RTEMS_SUCCESSFUL;
-			  break;
+		case OBJECTS_LOCAL:
+			_Heap_Get_information (&the_region->Memory, the_info);
+			return_status = RTEMS_SUCCESSFUL;
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 	return return_status;

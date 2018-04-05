@@ -49,24 +49,24 @@ void *rtems_capture_buffer_allocate (rtems_capture_buffer_t * buffer,
 	 *
 	 */
 	if (buffer->tail > buffer->head)
-	  {
-		  end = buffer->tail;
-	  }
+	{
+		end = buffer->tail;
+	}
 	else
-	  {
-		  end = buffer->end;
-	  }
+	{
+		end = buffer->end;
+	}
 
 	/*
 	 *  Can we allocate it easily?
 	 */
 	if ((buffer->head + size) <= end)
-	  {
-		  ptr = &buffer->buffer[buffer->head];
-		  buffer->head += size;
-		  buffer->count = buffer->count + size;
-		  return ptr;
-	  }
+	{
+		ptr = &buffer->buffer[buffer->head];
+		buffer->head += size;
+		buffer->count = buffer->count + size;
+		return ptr;
+	}
 
 	/*
 	 * We have to consider wrapping around to the front of the buffer
@@ -112,14 +112,14 @@ void *rtems_capture_buffer_free (rtems_capture_buffer_t * buffer, size_t size)
 	buffer->count = buffer->count - size;
 
 	if (next == buffer->end)
-	  {
-		  buffer->end = buffer->size;
-		  buffer->tail = 0;
-	  }
+	{
+		buffer->end = buffer->size;
+		buffer->tail = 0;
+	}
 	else
-	  {
-		  buffer->tail = next;
-	  }
+	{
+		buffer->tail = next;
+	}
 
 	return ptr;
 }

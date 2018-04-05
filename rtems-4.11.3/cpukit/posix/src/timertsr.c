@@ -45,25 +45,25 @@ void _POSIX_Timer_TSR (Objects_Id timer __attribute__ ((unused)), void *data)
 	/* The timer must be reprogrammed */
 	if ((ptimer->timer_data.it_interval.tv_sec != 0) ||
 		(ptimer->timer_data.it_interval.tv_nsec != 0))
-	  {
-		  activated = _POSIX_Timer_Insert_helper (&ptimer->Timer,
-												  ptimer->ticks,
-												  ptimer->Object.id,
-												  _POSIX_Timer_TSR, ptimer);
-		  if (!activated)
-			  return;
+	{
+		activated = _POSIX_Timer_Insert_helper (&ptimer->Timer,
+												ptimer->ticks,
+												ptimer->Object.id,
+												_POSIX_Timer_TSR, ptimer);
+		if (!activated)
+			return;
 
-		  /* Store the time when the timer was started again */
-		  _TOD_Get_as_timespec (&ptimer->time);
+		/* Store the time when the timer was started again */
+		_TOD_Get_as_timespec (&ptimer->time);
 
-		  /* The state really did not change but just to be safe */
-		  ptimer->state = POSIX_TIMER_STATE_CREATE_RUN;
-	  }
+		/* The state really did not change but just to be safe */
+		ptimer->state = POSIX_TIMER_STATE_CREATE_RUN;
+	}
 	else
-	  {
-		  /* Indicates that the timer is stopped */
-		  ptimer->state = POSIX_TIMER_STATE_CREATE_STOP;
-	  }
+	{
+		/* Indicates that the timer is stopped */
+		ptimer->state = POSIX_TIMER_STATE_CREATE_STOP;
+	}
 
 	/*
 	 * The sending of the signal to the process running the handling function
@@ -71,16 +71,16 @@ void _POSIX_Timer_TSR (Objects_Id timer __attribute__ ((unused)), void *data)
 	 */
 
 	if (pthread_kill (ptimer->thread_id, ptimer->inf.sigev_signo))
-	  {
-		  _Assert (FALSE);
-		  /*
-		   * TODO: What if an error happens at run-time? This should never
-		   *       occur because the timer should be canceled if the thread
-		   *       is deleted. This method is being invoked from the Clock
-		   *       Tick ISR so even if we decide to take action on an error,
-		   *       we don't have many options. We shouldn't shut the system down.
-		   */
-	  }
+	{
+		_Assert (FALSE);
+		/*
+		 * TODO: What if an error happens at run-time? This should never
+		 *       occur because the timer should be canceled if the thread
+		 *       is deleted. This method is being invoked from the Clock
+		 *       Tick ISR so even if we decide to take action on an error,
+		 *       we don't have many options. We shouldn't shut the system down.
+		 */
+	}
 
 	/* After the signal handler returns, the count of expirations of the
 	 * timer must be set to 0.

@@ -56,42 +56,42 @@ int _POSIX_Semaphore_Create_support (const char *name_arg,
 
 	the_semaphore = _POSIX_Semaphore_Allocate_unprotected ();
 	if (!the_semaphore)
-	  {
-		  rtems_set_errno_and_return_minus_one (ENOSPC);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ENOSPC);
+	}
 
 	/*
 	 * Make a copy of the user's string for name just in case it was
 	 * dynamically constructed.
 	 */
 	if (name_arg != NULL)
-	  {
-		  name = _Workspace_String_duplicate (name_arg, name_len);
-		  if (!name)
-			{
-				_POSIX_Semaphore_Free (the_semaphore);
-				rtems_set_errno_and_return_minus_one (ENOMEM);
-			}
-	  }
+	{
+		name = _Workspace_String_duplicate (name_arg, name_len);
+		if (!name)
+		{
+			_POSIX_Semaphore_Free (the_semaphore);
+			rtems_set_errno_and_return_minus_one (ENOMEM);
+		}
+	}
 	else
-	  {
-		  name = NULL;
-	  }
+	{
+		name = NULL;
+	}
 
 	the_semaphore->process_shared = pshared;
 
 	if (name)
-	  {
-		  the_semaphore->named = true;
-		  the_semaphore->open_count = 1;
-		  the_semaphore->linked = true;
-	  }
+	{
+		the_semaphore->named = true;
+		the_semaphore->open_count = 1;
+		the_semaphore->linked = true;
+	}
 	else
-	  {
-		  the_semaphore->named = false;
-		  the_semaphore->open_count = 0;
-		  the_semaphore->linked = false;
-	  }
+	{
+		the_semaphore->named = false;
+		the_semaphore->open_count = 0;
+		the_semaphore->linked = false;
+	}
 
 	the_sem_attr = &the_semaphore->Semaphore.Attributes;
 
@@ -115,7 +115,7 @@ int _POSIX_Semaphore_Create_support (const char *name_arg,
 	 *  Make the semaphore available for use.
 	 */
 	_Objects_Open_string (&_POSIX_Semaphore_Information,
-						  &the_semaphore->Object, name);
+						&the_semaphore->Object, name);
 
 	*the_sem = the_semaphore;
 

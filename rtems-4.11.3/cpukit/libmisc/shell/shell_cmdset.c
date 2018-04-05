@@ -54,11 +54,11 @@ rtems_shell_topic_t *rtems_shell_lookup_topic (const char *topic)
 	shell_topic = rtems_shell_first_topic;
 
 	while (shell_topic)
-	  {
-		  if (!strcmp (shell_topic->topic, topic))
-			  return shell_topic;
-		  shell_topic = shell_topic->next;
-	  }
+	{
+		if (!strcmp (shell_topic->topic, topic))
+			return shell_topic;
+		shell_topic = shell_topic->next;
+	}
 	return NULL;
 }
 
@@ -70,22 +70,22 @@ static rtems_shell_topic_t *rtems_shell_add_topic (const char *topic)
 	rtems_shell_topic_t *current, *aux;
 
 	if (!rtems_shell_first_topic)
-	  {
-		  aux = malloc (sizeof (rtems_shell_topic_t));
-		  aux->topic = topic;
-		  aux->next = NULL;
-		  return rtems_shell_first_topic = aux;
-	  }
+	{
+		aux = malloc (sizeof (rtems_shell_topic_t));
+		aux->topic = topic;
+		aux->next = NULL;
+		return rtems_shell_first_topic = aux;
+	}
 	current = rtems_shell_first_topic;
 	if (!strcmp (topic, current->topic))
 		return current;
 
 	while (current->next)
-	  {
-		  if (!strcmp (topic, current->next->topic))
-			  return current->next;
-		  current = current->next;
-	  }
+	{
+		if (!strcmp (topic, current->next->topic))
+			return current->next;
+		current = current->next;
+	}
 	aux = malloc (sizeof (rtems_shell_topic_t));
 	aux->topic = topic;
 	aux->next = NULL;
@@ -101,11 +101,11 @@ rtems_shell_cmd_t *rtems_shell_lookup_cmd (const char *cmd)
 	rtems_shell_cmd_t *shell_cmd;
 	shell_cmd = rtems_shell_first_cmd;
 	while (shell_cmd)
-	  {
-		  if (!strcmp (shell_cmd->name, cmd))
-			  return shell_cmd;
-		  shell_cmd = shell_cmd->next;
-	  };
+	{
+		if (!strcmp (shell_cmd->name, cmd))
+			return shell_cmd;
+		shell_cmd = shell_cmd->next;
+	};
 	return NULL;
 }
 
@@ -122,12 +122,12 @@ rtems_shell_cmd_t *rtems_shell_add_cmd_struct (rtems_shell_cmd_t * shell_cmd)
 	 * already present.
 	 */
 	while ((existing = *next_ptr) != NULL)
-	  {
-		  if (strcmp (existing->name, shell_cmd->name) == 0)
-			  return NULL;
+	{
+		if (strcmp (existing->name, shell_cmd->name) == 0)
+			return NULL;
 
-		  next_ptr = &existing->next;
-	  }
+		next_ptr = &existing->next;
+	}
 
 	/* Ensure that the user can read and execute commands */
 	shell_cmd->mode |= S_IRUSR | S_IXUSR;
@@ -156,16 +156,16 @@ rtems_shell_cmd_t *rtems_shell_add_cmd (const char *name,
 
 	/* Reject empty commands */
 	if (name == NULL || command == NULL)
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 
 	/* Allocate command stucture */
 	shell_cmd = (rtems_shell_cmd_t *) calloc (1, sizeof (*shell_cmd));
 	if (shell_cmd == NULL)
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 
 	/* Allocate strings */
 	my_name = strdup (name);
@@ -179,15 +179,15 @@ rtems_shell_cmd_t *rtems_shell_add_cmd (const char *name,
 	shell_cmd->command = command;
 
 	if (rtems_shell_add_cmd_struct (shell_cmd) == NULL)
-	  {
-		  /* Something is wrong, free allocated resources */
-		  free (my_usage);
-		  free (my_topic);
-		  free (my_name);
-		  free (shell_cmd);
+	{
+		/* Something is wrong, free allocated resources */
+		free (my_usage);
+		free (my_topic);
+		free (my_name);
+		free (shell_cmd);
 
-		  return NULL;
-	  }
+		return NULL;
+	}
 
 	return shell_cmd;
 }
@@ -202,43 +202,43 @@ rtems_shell_cmd_t *rtems_shell_alias_cmd (const char *cmd, const char *alias)
 	shell_aux = (rtems_shell_cmd_t *) NULL;
 
 	if (alias)
-	  {
-		  shell_aux = rtems_shell_lookup_cmd (alias);
-		  if (shell_aux != NULL)
+	{
+		shell_aux = rtems_shell_lookup_cmd (alias);
+		if (shell_aux != NULL)
+		{
+			return NULL;
+		}
+		shell_cmd = rtems_shell_lookup_cmd (cmd);
+		if (shell_cmd != NULL)
+		{
+			shell_aux = rtems_shell_add_cmd (alias,
+											 shell_cmd->topic,
+											 shell_cmd->usage,
+											 shell_cmd->command);
+			if (shell_aux)
 			{
-				return NULL;
+				shell_aux->alias = shell_cmd;
+				shell_aux->mode = shell_cmd->mode;
+				shell_aux->uid = shell_cmd->uid;
+				shell_aux->gid = shell_cmd->gid;
 			}
-		  shell_cmd = rtems_shell_lookup_cmd (cmd);
-		  if (shell_cmd != NULL)
-			{
-				shell_aux = rtems_shell_add_cmd (alias,
-												 shell_cmd->topic,
-												 shell_cmd->usage,
-												 shell_cmd->command);
-				if (shell_aux)
-				  {
-					  shell_aux->alias = shell_cmd;
-					  shell_aux->mode = shell_cmd->mode;
-					  shell_aux->uid = shell_cmd->uid;
-					  shell_aux->gid = shell_cmd->gid;
-				  }
-			}
-	  }
+		}
+	}
 	return shell_aux;
 }
 
 bool rtems_shell_can_see_cmd (const rtems_shell_cmd_t * shell_cmd)
 {
 	return rtems_filesystem_check_access (RTEMS_FS_PERMS_READ,
-										  shell_cmd->mode,
-										  shell_cmd->uid, shell_cmd->gid);
+										shell_cmd->mode,
+										shell_cmd->uid, shell_cmd->gid);
 }
 
 static bool rtems_shell_can_execute_cmd (const rtems_shell_cmd_t * shell_cmd)
 {
 	return rtems_filesystem_check_access (RTEMS_FS_PERMS_EXEC,
-										  shell_cmd->mode,
-										  shell_cmd->uid, shell_cmd->gid);
+										shell_cmd->mode,
+										shell_cmd->uid, shell_cmd->gid);
 }
 
 int rtems_shell_execute_cmd (const char *cmd, int argc, char *argv[])
@@ -246,29 +246,29 @@ int rtems_shell_execute_cmd (const char *cmd, int argc, char *argv[])
 	rtems_shell_cmd_t *shell_cmd;
 
 	if (argv[0] == NULL)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 
 	shell_cmd = rtems_shell_lookup_cmd (argv[0]);
 
 	if (shell_cmd != NULL && !rtems_shell_can_see_cmd (shell_cmd))
-	  {
-		  shell_cmd = NULL;
-	  }
+	{
+		shell_cmd = NULL;
+	}
 
 	if (shell_cmd == NULL)
-	  {
-		  return rtems_shell_script_file (argc, argv);
-	  }
+	{
+		return rtems_shell_script_file (argc, argv);
+	}
 	else if (rtems_shell_can_execute_cmd (shell_cmd))
-	  {
-		  return shell_cmd->command (argc, argv);
-	  }
+	{
+		return shell_cmd->command (argc, argv);
+	}
 	else
-	  {
-		  fprintf (stderr, "%s: Permission denied\n", cmd);
+	{
+		fprintf (stderr, "%s: Permission denied\n", cmd);
 
-		  return -1;
-	  }
+		return -1;
+	}
 }

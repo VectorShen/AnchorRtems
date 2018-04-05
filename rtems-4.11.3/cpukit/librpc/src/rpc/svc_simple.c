@@ -77,35 +77,35 @@ registerrpc (int prognum,
 {
 
 	if (procnum == NULLPROC)
-	  {
-		  (void)fprintf (stderr,
+	{
+		(void)fprintf (stderr,
 						 "can't reassign procedure number %" PRIu32 "\n",
 						 NULLPROC);
-		  return (-1);
-	  }
+		return (-1);
+	}
 	if (transp == 0)
-	  {
-		  transp = svcudp_create (RPC_ANYSOCK);
-		  if (transp == NULL)
-			{
-				(void)fprintf (stderr, "couldn't create an rpc server\n");
-				return (-1);
-			}
-	  }
+	{
+		transp = svcudp_create (RPC_ANYSOCK);
+		if (transp == NULL)
+		{
+			(void)fprintf (stderr, "couldn't create an rpc server\n");
+			return (-1);
+		}
+	}
 	(void)pmap_unset ((u_long) prognum, (u_long) versnum);
 	if (!svc_register (transp, (u_long) prognum, (u_long) versnum,
-					   universal, IPPROTO_UDP))
-	  {
-		  (void)fprintf (stderr, "couldn't register prog %d vers %d\n",
+					 universal, IPPROTO_UDP))
+	{
+		(void)fprintf (stderr, "couldn't register prog %d vers %d\n",
 						 prognum, versnum);
-		  return (-1);
-	  }
+		return (-1);
+	}
 	pl = (struct prog_lst *)malloc (sizeof (struct prog_lst));
 	if (pl == NULL)
-	  {
-		  (void)fprintf (stderr, "registerrpc: out of memory\n");
-		  return (-1);
-	  }
+	{
+		(void)fprintf (stderr, "registerrpc: out of memory\n");
+		return (-1);
+	}
 	pl->p_progname = progname;
 	pl->p_prognum = prognum;
 	pl->p_procnum = procnum;
@@ -127,41 +127,41 @@ static void universal (struct svc_req *rqstp, SVCXPRT * atransp)
 	 * enforce "procnum 0 is echo" convention
 	 */
 	if (rqstp->rq_proc == NULLPROC)
-	  {
-		  if (svc_sendreply (atransp, (xdrproc_t) xdr_void, NULL) == FALSE)
-			{
-				(void)fprintf (stderr, "xxx\n");
-				exit (1);
-			}
-		  return;
-	  }
+	{
+		if (svc_sendreply (atransp, (xdrproc_t) xdr_void, NULL) == FALSE)
+		{
+			(void)fprintf (stderr, "xxx\n");
+			exit (1);
+		}
+		return;
+	}
 	prog = rqstp->rq_prog;
 	proc = rqstp->rq_proc;
 	for (lpl = proglst; lpl != NULL; lpl = lpl->p_nxt)
 		if (lpl->p_prognum == prog && lpl->p_procnum == proc)
-		  {
-			  /* decode arguments into a CLEAN buffer */
-			  memset (xdrbuf, 0, sizeof (xdrbuf));	/* required ! */
-			  if (!svc_getargs (atransp, lpl->p_inproc, xdrbuf))
-				{
-					svcerr_decode (atransp);
-					return;
-				}
-			  outdata = (*(lpl->p_progname)) (xdrbuf);
-			  if (outdata == NULL && lpl->p_outproc != (xdrproc_t) xdr_void)
-				  /* there was an error */
-				  return;
-			  if (!svc_sendreply (atransp, lpl->p_outproc, outdata))
-				{
-					(void)fprintf (stderr,
-								   "trouble replying to prog %" PRIu32 "\n",
-								   lpl->p_prognum);
-					exit (1);
-				}
-			  /* free the decoded arguments */
-			  (void)svc_freeargs (atransp, lpl->p_inproc, xdrbuf);
-			  return;
-		  }
+		{
+			/* decode arguments into a CLEAN buffer */
+			memset (xdrbuf, 0, sizeof (xdrbuf));	/* required ! */
+			if (!svc_getargs (atransp, lpl->p_inproc, xdrbuf))
+			{
+				svcerr_decode (atransp);
+				return;
+			}
+			outdata = (*(lpl->p_progname)) (xdrbuf);
+			if (outdata == NULL && lpl->p_outproc != (xdrproc_t) xdr_void)
+				/* there was an error */
+				return;
+			if (!svc_sendreply (atransp, lpl->p_outproc, outdata))
+			{
+				(void)fprintf (stderr,
+							 "trouble replying to prog %" PRIu32 "\n",
+							 lpl->p_prognum);
+				exit (1);
+			}
+			/* free the decoded arguments */
+			(void)svc_freeargs (atransp, lpl->p_inproc, xdrbuf);
+			return;
+		}
 	(void)fprintf (stderr, "never registered prog %d\n", prog);
 	exit (1);
 }

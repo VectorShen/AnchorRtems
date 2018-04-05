@@ -62,7 +62,7 @@ void _Signal_Action_handler (Thread_Control * executing,
 }
 
 rtems_status_code rtems_signal_catch (rtems_asr_entry asr_handler,
-									  rtems_mode mode_set)
+									rtems_mode mode_set)
 {
 	Thread_Control *executing;
 	RTEMS_API_Control *api;
@@ -76,10 +76,10 @@ rtems_status_code rtems_signal_catch (rtems_asr_entry asr_handler,
 	/*   the thread is inconsistent */
 
 	if (!_ASR_Is_null_handler (asr_handler))
-	  {
-		  asr->mode_set = mode_set;
-		  asr->handler = asr_handler;
-	  }
+	{
+		asr->mode_set = mode_set;
+		asr->handler = asr_handler;
+	}
 	else
 		_ASR_Initialize (asr);
 	_Thread_Enable_dispatch ();

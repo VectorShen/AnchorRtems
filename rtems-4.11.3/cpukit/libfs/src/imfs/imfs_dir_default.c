@@ -58,26 +58,26 @@ static ssize_t IMFS_dir_read (rtems_libio_t * iop, void *buffer, size_t count)
 		 && !rtems_chain_is_tail (entries, node);
 		 current_entry += sizeof (*dir_ent),
 		 node = rtems_chain_immutable_next (node))
-	  {
-		  if (current_entry >= first_entry)
-			{
-				const IMFS_jnode_t *imfs_node = (const IMFS_jnode_t *)node;
+	{
+		if (current_entry >= first_entry)
+		{
+			const IMFS_jnode_t *imfs_node = (const IMFS_jnode_t *)node;
 
-				dir_ent = (struct dirent *)((char *)buffer + bytes_transferred);
+			dir_ent = (struct dirent *)((char *)buffer + bytes_transferred);
 
-				/* Move the entry to the return buffer */
-				dir_ent->d_off = current_entry;
-				dir_ent->d_reclen = sizeof (*dir_ent);
-				dir_ent->d_ino = IMFS_node_to_ino (imfs_node);
-				dir_ent->d_namlen =
-					MIN (imfs_node->namelen, sizeof (dir_ent->d_name) - 1);
-				dir_ent->d_name[dir_ent->d_namlen] = '\0';
-				memcpy (dir_ent->d_name, imfs_node->name, dir_ent->d_namlen);
+			/* Move the entry to the return buffer */
+			dir_ent->d_off = current_entry;
+			dir_ent->d_reclen = sizeof (*dir_ent);
+			dir_ent->d_ino = IMFS_node_to_ino (imfs_node);
+			dir_ent->d_namlen =
+				MIN (imfs_node->namelen, sizeof (dir_ent->d_name) - 1);
+			dir_ent->d_name[dir_ent->d_namlen] = '\0';
+			memcpy (dir_ent->d_name, imfs_node->name, dir_ent->d_namlen);
 
-				iop->offset += sizeof (*dir_ent);
-				bytes_transferred += (ssize_t) sizeof (*dir_ent);
-			}
-	  }
+			iop->offset += sizeof (*dir_ent);
+			bytes_transferred += (ssize_t) sizeof (*dir_ent);
+		}
+	}
 
 	rtems_filesystem_instance_unlock (&iop->pathinfo);
 
@@ -93,10 +93,10 @@ static size_t IMFS_directory_size (const IMFS_jnode_t * node)
 	const rtems_chain_node *tail = rtems_chain_immutable_tail (chain);
 
 	while (current != tail)
-	  {
-		  size += sizeof (struct dirent);
-		  current = rtems_chain_immutable_next (current);
-	  }
+	{
+		size += sizeof (struct dirent);
+		current = rtems_chain_immutable_next (current);
+	}
 
 	return size;
 }
@@ -111,7 +111,8 @@ static int IMFS_stat_directory (const rtems_filesystem_location_info_t * loc,
 	return IMFS_stat (loc, buf);
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_dir_default_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_dir_default_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = IMFS_dir_read,
@@ -129,11 +130,13 @@ static const rtems_filesystem_file_handlers_r IMFS_dir_default_handlers = {
 	.writev_h = rtems_filesystem_default_writev
 };
 
-const IMFS_mknod_control IMFS_mknod_control_dir_default = {
+const IMFS_mknod_control IMFS_mknod_control_dir_default =
+{
 	{
-	 .handlers = &IMFS_dir_default_handlers,
-	 .node_initialize = IMFS_node_initialize_directory,
-	 .node_remove = IMFS_node_remove_directory,
-	 .node_destroy = IMFS_node_destroy_default},
+		.handlers = &IMFS_dir_default_handlers,
+		.node_initialize = IMFS_node_initialize_directory,
+		.node_remove = IMFS_node_remove_directory,
+		.node_destroy = IMFS_node_destroy_default
+	},
 	.node_size = sizeof (IMFS_directory_t)
 };

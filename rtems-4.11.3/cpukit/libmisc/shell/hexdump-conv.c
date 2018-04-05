@@ -66,42 +66,42 @@ conv_c (rtems_shell_hexdump_globals * globals, PR * pr, u_char * p,
 	char peekbuf[MB_LEN_MAX];
 
 	if (pr->mbleft > 0)
-	  {
-		  str = "**";
-		  pr->mbleft--;
-		  goto strpr;
-	  }
+	{
+		str = "**";
+		pr->mbleft--;
+		goto strpr;
+	}
 
 	switch (*p)
-	  {
-		  case '\0':
-			  str = "\\0";
-			  goto strpr;
-			  /* case '\a': */
-		  case '\007':
-			  str = "\\a";
-			  goto strpr;
-		  case '\b':
-			  str = "\\b";
-			  goto strpr;
-		  case '\f':
-			  str = "\\f";
-			  goto strpr;
-		  case '\n':
-			  str = "\\n";
-			  goto strpr;
-		  case '\r':
-			  str = "\\r";
-			  goto strpr;
-		  case '\t':
-			  str = "\\t";
-			  goto strpr;
-		  case '\v':
-			  str = "\\v";
-			  goto strpr;
-		  default:
-			  break;
-	  }
+	{
+		case '\0':
+			str = "\\0";
+			goto strpr;
+			/* case '\a': */
+		case '\007':
+			str = "\\a";
+			goto strpr;
+		case '\b':
+			str = "\\b";
+			goto strpr;
+		case '\f':
+			str = "\\f";
+			goto strpr;
+		case '\n':
+			str = "\\n";
+			goto strpr;
+		case '\r':
+			str = "\\r";
+			goto strpr;
+		case '\t':
+			str = "\\t";
+			goto strpr;
+		case '\v':
+			str = "\\v";
+			goto strpr;
+		default:
+			break;
+	}
 	/*
 	 * Multibyte characters are disabled for hexdump(1) for backwards
 	 * compatibility and consistency (none of its other output formats
@@ -109,73 +109,74 @@ conv_c (rtems_shell_hexdump_globals * globals, PR * pr, u_char * p,
 	 */
 	converr = 0;
 	if (odmode && MB_CUR_MAX > 1)
-	  {
-		  oclen = 0;
+	{
+		oclen = 0;
 		retry:
-		  clen = mbrtowc (&wc, (char *)p, bufsize, &pr->mbstate);
-		  if (clen == 0)
-			  clen = 1;
-		  else if (clen == (size_t) - 1 || (clen == (size_t) - 2 &&
+		clen = mbrtowc (&wc, (char *)p, bufsize, &pr->mbstate);
+		if (clen == 0)
+			clen = 1;
+		else if (clen == (size_t) - 1 || (clen == (size_t) - 2 &&
 											buf == peekbuf))
-			{
-				memset (&pr->mbstate, 0, sizeof (pr->mbstate));
-				wc = *p;
-				clen = 1;
-				converr = 1;
-			}
-		  else if (clen == (size_t) - 2)
-			{
-				/*
-				 * Incomplete character; peek ahead and see if we
-				 * can complete it.
-				 */
-				oclen = bufsize;
-				bufsize = peek (globals, p = (u_char *) peekbuf, MB_CUR_MAX);
-				goto retry;
-			}
-		  clen += oclen;
-	  }
+		{
+			memset (&pr->mbstate, 0, sizeof (pr->mbstate));
+			wc = *p;
+			clen = 1;
+			converr = 1;
+		}
+		else if (clen == (size_t) - 2)
+		{
+			/*
+			 * Incomplete character; peek ahead and see if we
+			 * can complete it.
+			 */
+			oclen = bufsize;
+			bufsize = peek (globals, p = (u_char *) peekbuf, MB_CUR_MAX);
+			goto retry;
+		}
+		clen += oclen;
+	}
 	else
-	  {
-		  wc = *p;
-		  clen = 1;
-	  }
+	{
+		wc = *p;
+		clen = 1;
+	}
 	if (!converr && iswprint (wc))
-	  {
-		  if (!odmode)
-			{
-				*pr->cchar = 'c';
-				(void)printf (pr->fmt, (int)wc);
-			}
-		  else
-			{
-				*pr->cchar = 'C';
-				assert (strcmp (pr->fmt, "%3C") == 0);
-				width = wcwidth (wc);
-				assert (width >= 0);
-				pad = 3 - width;
-				if (pad < 0)
-					pad = 0;
+	{
+		if (!odmode)
+		{
+			*pr->cchar = 'c';
+			(void)printf (pr->fmt, (int)wc);
+		}
+		else
+		{
+			*pr->cchar = 'C';
+			assert (strcmp (pr->fmt, "%3C") == 0);
+			width = wcwidth (wc);
+			assert (width >= 0);
+			pad = 3 - width;
+			if (pad < 0)
+				pad = 0;
 #if defined(__rtems__)
-				(void)printf ("%*s%lc", pad, "", (wint_t) wc);
+			(void)printf ("%*s%lc", pad, "", (wint_t) wc);
 #else
-				(void)printf ("%*s%lc", pad, "", wc);
+			(void)printf ("%*s%lc", pad, "", wc);
 #endif
-				pr->mbleft = clen - 1;
-			}
-	  }
+			pr->mbleft = clen - 1;
+		}
+	}
 	else
-	  {
-		  (void)sprintf (buf, "%03o", (int)*p);
-		  str = buf;
+	{
+		(void)sprintf (buf, "%03o", (int)*p);
+		str = buf;
 		strpr:*pr->cchar = 's';
-		  (void)printf (pr->fmt, str);
-	  }
+		(void)printf (pr->fmt, str);
+	}
 }
 
 void conv_u (rtems_shell_hexdump_globals * globals, PR * pr, u_char * p)
 {
-	static char const *list[] = {
+	static char const *list[] =
+	{
 		"nul", "soh", "stx", "etx", "eot", "enq", "ack", "bel",
 		"bs", "ht", "lf", "vt", "ff", "cr", "so", "si",
 		"dle", "dcl", "dc2", "dc3", "dc4", "nak", "syn", "etb",
@@ -184,31 +185,31 @@ void conv_u (rtems_shell_hexdump_globals * globals, PR * pr, u_char * p)
 
 	/* od used nl, not lf */
 	if (*p <= 0x1f)
-	  {
-		  *pr->cchar = 's';
-		  if (odmode && *p == 0x0a)
-			  (void)printf (pr->fmt, "nl");
-		  else
-			  (void)printf (pr->fmt, list[*p]);
-	  }
+	{
+		*pr->cchar = 's';
+		if (odmode && *p == 0x0a)
+			(void)printf (pr->fmt, "nl");
+		else
+			(void)printf (pr->fmt, list[*p]);
+	}
 	else if (*p == 0x7f)
-	  {
-		  *pr->cchar = 's';
-		  (void)printf (pr->fmt, "del");
-	  }
+	{
+		*pr->cchar = 's';
+		(void)printf (pr->fmt, "del");
+	}
 	else if (odmode && *p == 0x20)
-	  {							/* od replaced space with sp */
-		  *pr->cchar = 's';
-		  (void)printf (pr->fmt, " sp");
-	  }
+	{							/* od replaced space with sp */
+		*pr->cchar = 's';
+		(void)printf (pr->fmt, " sp");
+	}
 	else if (isprint (*p))
-	  {
-		  *pr->cchar = 'c';
-		  (void)printf (pr->fmt, *p);
-	  }
+	{
+		*pr->cchar = 'c';
+		(void)printf (pr->fmt, *p);
+	}
 	else
-	  {
-		  *pr->cchar = 'x';
-		  (void)printf (pr->fmt, (int)*p);
-	  }
+	{
+		*pr->cchar = 'x';
+		(void)printf (pr->fmt, (int)*p);
+	}
 }

@@ -34,33 +34,33 @@ bool _Objects_Set_name (Objects_Information * information,
 
 #if defined(RTEMS_SCORE_OBJECT_ENABLE_STRING_NAMES)
 	if (information->is_string)
-	  {
-		  char *d;
+	{
+		char *d;
 
-		  d = _Workspace_Allocate (length + 1);
-		  if (!d)
-			  return false;
+		d = _Workspace_Allocate (length + 1);
+		if (!d)
+			return false;
 
-		  _Workspace_Free ((void *)the_object->name.name_p);
-		  the_object->name.name_p = NULL;
+		_Workspace_Free ((void *)the_object->name.name_p);
+		the_object->name.name_p = NULL;
 
-		  strncpy (d, name, length);
-		  d[length] = '\0';
-		  the_object->name.name_p = d;
-	  }
+		strncpy (d, name, length);
+		d[length] = '\0';
+		the_object->name.name_p = d;
+	}
 	else
 #endif
-	  {
-		  the_object->name.name_u32 = _Objects_Build_name (((length) ? s[0] :
+	{
+		the_object->name.name_u32 = _Objects_Build_name (((length) ? s[0] :
 															' '),
-														   ((length >
+														 ((length >
 															 1) ? s[1] : ' '),
-														   ((length >
+														 ((length >
 															 2) ? s[2] : ' '),
-														   ((length >
+														 ((length >
 															 3) ? s[3] : ' '));
 
-	  }
+	}
 
 	return true;
 }

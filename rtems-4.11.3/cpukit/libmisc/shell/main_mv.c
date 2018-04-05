@@ -154,21 +154,21 @@ int main_mv (rtems_shell_mv_globals * globals, int argc, char *argv[])
 
 	while ((ch = getopt_r (argc, argv, "ifv", &getopt_reent)) != -1)
 		switch (ch)
-		  {
-			  case 'i':
-				  fflg = 0;
-				  iflg = 1;
-				  break;
-			  case 'f':
-				  iflg = 0;
-				  fflg = 1;
-				  break;
-			  case 'v':
-				  vflg = 1;
-				  break;
-			  default:
-				  usage ();
-		  }
+		{
+			case 'i':
+				fflg = 0;
+				iflg = 1;
+				break;
+			case 'f':
+				iflg = 0;
+				fflg = 1;
+				break;
+			case 'v':
+				vflg = 1;
+				break;
+			default:
+				usage ();
+		}
 	argc -= getopt_reent.optind;
 	argv += getopt_reent.optind;
 
@@ -182,45 +182,45 @@ int main_mv (rtems_shell_mv_globals * globals, int argc, char *argv[])
 	 * try the move.  More than 2 arguments is an error in this case.
 	 */
 	if (stat (argv[argc - 1], &sb) || !S_ISDIR (sb.st_mode))
-	  {
-		  if (argc > 2)
-			  usage ();
-		  exit (do_move (argv[0], argv[1]));
-	  }
+	{
+		if (argc > 2)
+			usage ();
+		exit (do_move (argv[0], argv[1]));
+	}
 
 	/* It's a directory, move each file into it. */
 	baselen = strlcpy (path, argv[argc - 1], sizeof (path));
 	if (baselen >= sizeof (path))
 		errx (exit_jump, 1, "%s: destination pathname too long",
-			  argv[argc - 1]);
+			argv[argc - 1]);
 	endp = &path[baselen];
 	if (!baselen || *(endp - 1) != '/')
-	  {
-		  *endp++ = '/';
-		  ++baselen;
-	  }
+	{
+		*endp++ = '/';
+		++baselen;
+	}
 	for (rval = 0; --argc; ++argv)
-	  {
-		  p = *argv + strlen (*argv) - 1;
-		  while (*p == '/' && p != *argv)
-			  *p-- = '\0';
-		  if ((p = strrchr (*argv, '/')) == NULL)
-			  p = *argv;
-		  else
-			  ++p;
+	{
+		p = *argv + strlen (*argv) - 1;
+		while (*p == '/' && p != *argv)
+			*p-- = '\0';
+		if ((p = strrchr (*argv, '/')) == NULL)
+			p = *argv;
+		else
+			++p;
 
-		  if ((baselen + (len = strlen (p))) >= MAXPATHLEN)
-			{
-				warnx ("%s: destination pathname too long", *argv);
+		if ((baselen + (len = strlen (p))) >= MAXPATHLEN)
+		{
+			warnx ("%s: destination pathname too long", *argv);
+			rval = 1;
+		}
+		else
+		{
+			memmove (endp, p, len + 1);
+			if (do_move (*argv, path))
 				rval = 1;
-			}
-		  else
-			{
-				memmove (endp, p, len + 1);
-				if (do_move (*argv, path))
-					rval = 1;
-			}
-	  }
+		}
+	}
 	return rval;
 }
 
@@ -243,46 +243,46 @@ int do_move_mv (rtems_shell_mv_globals * globals, char *from, char *to)
 	 *  source file...
 	 */
 	if (!fflg && !access (to, F_OK))
-	  {
-		  int ask = 1;
-		  int ch;
+	{
+		int ask = 1;
+		int ch;
 
-		  if (iflg)
+		if (iflg)
+		{
+			if (access (from, F_OK))
 			{
-				if (access (from, F_OK))
-				  {
-					  warn ("rename %s", from);
-					  return (1);
-				  }
-				(void)fprintf (stderr, "overwrite %s? ", to);
+				warn ("rename %s", from);
+				return (1);
 			}
-		  else if (stdin_ok && access (to, W_OK) && !stat (to, &sb))
+			(void)fprintf (stderr, "overwrite %s? ", to);
+		}
+		else if (stdin_ok && access (to, W_OK) && !stat (to, &sb))
+		{
+			if (access (from, F_OK))
 			{
-				if (access (from, F_OK))
-				  {
-					  warn ("rename %s", from);
-					  return (1);
-				  }
-				strmode (sb.st_mode, modep);
-				(void)fprintf (stderr, "override %s%s%s/%s for %s? ",
-							   modep + 1, modep[9] == ' ' ? "" : " ",
-							   user_from_uid (sb.st_uid, 0),
-							   group_from_gid (sb.st_gid, 0), to);
+				warn ("rename %s", from);
+				return (1);
 			}
-		  else
-			  ask = 0;
-		  if (ask)
+			strmode (sb.st_mode, modep);
+			(void)fprintf (stderr, "override %s%s%s/%s for %s? ",
+						 modep + 1, modep[9] == ' ' ? "" : " ",
+						 user_from_uid (sb.st_uid, 0),
+						 group_from_gid (sb.st_gid, 0), to);
+		}
+		else
+			ask = 0;
+		if (ask)
+		{
+			if ((ch = getchar ()) != EOF && ch != '\n')
 			{
-				if ((ch = getchar ()) != EOF && ch != '\n')
-				  {
-					  int ch2;
-					  while ((ch2 = getchar ()) != EOF && ch2 != '\n')
-						  continue;
-				  }
-				if (ch != 'y' && ch != 'Y')
-					return (0);
+				int ch2;
+				while ((ch2 = getchar ()) != EOF && ch2 != '\n')
+					continue;
 			}
-	  }
+			if (ch != 'y' && ch != 'Y')
+				return (0);
+		}
+	}
 
 	/*
 	 * (2)  If rename() succeeds, mv shall do nothing more with the
@@ -298,17 +298,17 @@ int do_move_mv (rtems_shell_mv_globals * globals, char *from, char *to)
 	 *  current source file...
 	 */
 	if (!rename (from, to))
-	  {
-		  if (vflg)
-			  printf ("%s -> %s\n", from, to);
-		  return (0);
-	  }
+	{
+		if (vflg)
+			printf ("%s -> %s\n", from, to);
+		return (0);
+	}
 
 	if (errno != EXDEV)
-	  {
-		  warn ("rename %s to %s", from, to);
-		  return (1);
-	  }
+	{
+		warn ("rename %s to %s", from, to);
+		return (1);
+	}
 
 	/*
 	 * (4)  If the destination path exists, mv shall attempt to remove it.
@@ -317,23 +317,23 @@ int do_move_mv (rtems_shell_mv_globals * globals, char *from, char *to)
 	 *  current source file...
 	 */
 	if (!lstat (to, &sb))
-	  {
-		  if ((S_ISDIR (sb.st_mode)) ? rmdir (to) : unlink (to))
-			{
-				warn ("can't remove %s", to);
-				return (1);
-			}
-	  }
+	{
+		if ((S_ISDIR (sb.st_mode)) ? rmdir (to) : unlink (to))
+		{
+			warn ("can't remove %s", to);
+			return (1);
+		}
+	}
 
 	/*
 	 * (5)  The file hierarchy rooted in source_file shall be duplicated
 	 *  as a file hierarchy rooted in the destination path...
 	 */
 	if (lstat (from, &sb))
-	  {
-		  warn ("%s", from);
-		  return (1);
-	  }
+	{
+		warn ("%s", from);
+		return (1);
+	}
 
 	return (S_ISREG (sb.st_mode) ? fastcopy (from, to, &sb) : copy (from, to));
 }
@@ -352,40 +352,40 @@ fastcopy_mv (rtems_shell_mv_globals * globals, char *from, char *to,
 	blen = 0;
 
 	if ((from_fd = open (from, O_RDONLY, 0)) < 0)
-	  {
-		  warn ("%s", from);
-		  return (1);
-	  }
+	{
+		warn ("%s", from);
+		return (1);
+	}
 	if ((to_fd = open (to, O_CREAT | O_TRUNC | O_WRONLY, sbp->st_mode)) < 0)
-	  {
-		  warn ("%s", to);
-		  (void)close (from_fd);
-		  return (1);
-	  }
+	{
+		warn ("%s", to);
+		(void)close (from_fd);
+		return (1);
+	}
 	if (!blen && !(bp = malloc (blen = sbp->st_blksize)))
-	  {
-		  warn (NULL);
-		  blen = 0;
-		  (void)close (from_fd);
-		  (void)close (to_fd);
-		  return (1);
-	  }
+	{
+		warn (NULL);
+		blen = 0;
+		(void)close (from_fd);
+		(void)close (to_fd);
+		return (1);
+	}
 	while ((nread = read (from_fd, bp, blen)) > 0)
 		if (write (to_fd, bp, nread) != nread)
-		  {
-			  warn ("%s", to);
-			  goto err;
-		  }
+		{
+			warn ("%s", to);
+			goto err;
+		}
 	if (nread < 0)
-	  {
-		  warn ("%s", from);
+	{
+		warn ("%s", from);
 		err:if (unlink (to))
-			  warn ("%s: remove", to);
-		  (void)free (bp);
-		  (void)close (from_fd);
-		  (void)close (to_fd);
-		  return (1);
-	  }
+			warn ("%s: remove", to);
+		(void)free (bp);
+		(void)close (from_fd);
+		(void)close (to_fd);
+		return (1);
+	}
 
 	(void)free (bp);
 	(void)close (from_fd);
@@ -409,11 +409,11 @@ fastcopy_mv (rtems_shell_mv_globals * globals, char *from, char *to,
 		warn ("%s: set times", to);
 #endif
 	if (fchown (to_fd, sbp->st_uid, sbp->st_gid))
-	  {
-		  if (errno != EPERM)
-			  warn ("%s: set owner/group", to);
-		  sbp->st_mode &= ~(S_ISUID | S_ISGID);
-	  }
+	{
+		if (errno != EPERM)
+			warn ("%s: set owner/group", to);
+		sbp->st_mode &= ~(S_ISUID | S_ISGID);
+	}
 	if (fchmod (to_fd, sbp->st_mode))
 		warn ("%s: set mode", to);
 #if 0
@@ -421,16 +421,16 @@ fastcopy_mv (rtems_shell_mv_globals * globals, char *from, char *to,
 		warn ("%s: set flags (was: 0%07o)", to, sbp->st_flags);
 #endif
 	if (close (to_fd))
-	  {
-		  warn ("%s", to);
-		  return (1);
-	  }
+	{
+		warn ("%s", to);
+		return (1);
+	}
 
 	if (unlink (from))
-	  {
-		  warn ("%s: remove", from);
-		  return (1);
-	  }
+	{
+		warn ("%s: remove", from);
+		return (1);
+	}
 
 	if (vflg)
 		printf ("%s -> %s\n", from, to);
@@ -446,64 +446,64 @@ int copy_mv (rtems_shell_mv_globals * globals, char *from, char *to)
 
 	result = rtems_shell_main_cp (5, cp_argv);
 	if (result)
-	  {
-		  warnx ("%s: did not terminate normally", _PATH_CP);
-		  return (1);
-	  }
+	{
+		warnx ("%s: did not terminate normally", _PATH_CP);
+		return (1);
+	}
 	result = rtems_shell_main_rm (4, rm_argv);
 	if (result)
-	  {
-		  warnx ("%s: did not terminate normally", _PATH_RM);
-		  return (1);
-	  }
+	{
+		warnx ("%s: did not terminate normally", _PATH_RM);
+		return (1);
+	}
 #if 0
 	pid_t pid;
 	int status;
 
 	if ((pid = vfork ()) == 0)
-	  {
-		  execl (_PATH_CP, "mv", vflg ? "-PRpv" : "-PRp", "--", from, to, NULL);
-		  warn ("%s", _PATH_CP);
-		  _exit (1);
-	  }
+	{
+		execl (_PATH_CP, "mv", vflg ? "-PRpv" : "-PRp", "--", from, to, NULL);
+		warn ("%s", _PATH_CP);
+		_exit (1);
+	}
 	if (waitpid (pid, &status, 0) == -1)
-	  {
-		  warn ("%s: waitpid", _PATH_CP);
-		  return (1);
-	  }
+	{
+		warn ("%s: waitpid", _PATH_CP);
+		return (1);
+	}
 	if (!WIFEXITED (status))
-	  {
-		  warnx ("%s: did not terminate normally", _PATH_CP);
-		  return (1);
-	  }
+	{
+		warnx ("%s: did not terminate normally", _PATH_CP);
+		return (1);
+	}
 	if (WEXITSTATUS (status))
-	  {
-		  warnx ("%s: terminated with %d (non-zero) status",
+	{
+		warnx ("%s: terminated with %d (non-zero) status",
 				 _PATH_CP, WEXITSTATUS (status));
-		  return (1);
-	  }
+		return (1);
+	}
 	if (!(pid = vfork ()))
-	  {
-		  execl (_PATH_RM, "mv", "-rf", "--", from, NULL);
-		  warn ("%s", _PATH_RM);
-		  _exit (1);
-	  }
+	{
+		execl (_PATH_RM, "mv", "-rf", "--", from, NULL);
+		warn ("%s", _PATH_RM);
+		_exit (1);
+	}
 	if (waitpid (pid, &status, 0) == -1)
-	  {
-		  warn ("%s: waitpid", _PATH_RM);
-		  return (1);
-	  }
+	{
+		warn ("%s: waitpid", _PATH_RM);
+		return (1);
+	}
 	if (!WIFEXITED (status))
-	  {
-		  warnx ("%s: did not terminate normally", _PATH_RM);
-		  return (1);
-	  }
+	{
+		warnx ("%s: did not terminate normally", _PATH_RM);
+		return (1);
+	}
 	if (WEXITSTATUS (status))
-	  {
-		  warnx ("%s: terminated with %d (non-zero) status",
+	{
+		warnx ("%s: terminated with %d (non-zero) status",
 				 _PATH_RM, WEXITSTATUS (status));
-		  return (1);
-	  }
+		return (1);
+	}
 #endif
 	return (0);
 }
@@ -511,12 +511,13 @@ int copy_mv (rtems_shell_mv_globals * globals, char *from, char *to)
 void usage_mv (rtems_shell_mv_globals * globals)
 {
 	(void)fprintf (stderr, "usage: %s [-fiv] source target\n"
-				   "       %s [-fiv] source ... directory\n", "mv", "mv");
+				 "       %s [-fiv] source ... directory\n", "mv", "mv");
 	exit (1);
 	/* NOTREACHED */
 }
 
-rtems_shell_cmd_t rtems_shell_MV_Command = {
+rtems_shell_cmd_t rtems_shell_MV_Command =
+{
 	"mv",						/* name */
 	"[-fiv] source target ...",	/* usage */
 	"files",					/* topic */

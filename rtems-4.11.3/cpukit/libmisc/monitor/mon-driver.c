@@ -54,9 +54,9 @@ rtems_monitor_driver_canonical (rtems_monitor_driver_t * canonical_driver,
 }
 
 const void *rtems_monitor_driver_next (void *object_info
-									   __attribute__ ((unused)),
-									   rtems_monitor_driver_t *
-									   canonical_driver, rtems_id * next_id)
+									 __attribute__ ((unused)),
+									 rtems_monitor_driver_t *
+									 canonical_driver, rtems_id * next_id)
 {
 	uint32_t n = rtems_object_id_get_index (*next_id);
 
@@ -91,7 +91,7 @@ void rtems_monitor_driver_dump_header (bool verbose __attribute__ ((unused)))
 
 void
 rtems_monitor_driver_dump (rtems_monitor_driver_t * monitor_driver,
-						   bool verbose)
+						 bool verbose)
 {
 	uint32_t length = 0;
 

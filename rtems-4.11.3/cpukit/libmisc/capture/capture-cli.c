@@ -72,41 +72,41 @@ rtems_capture_cli_open (int argc,
 	int arg;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, open_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, open_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				if (argv[arg][1] == 'i')
-					enable = true;
-				else
-					fprintf (stdout, "warning: option -%c ignored\n",
-							 argv[arg][1]);
-			}
-		  else
-			{
-				size = strtoul (argv[arg], 0, 0);
+	{
+		if (argv[arg][0] == '-')
+		{
+			if (argv[arg][1] == 'i')
+				enable = true;
+			else
+				fprintf (stdout, "warning: option -%c ignored\n",
+						 argv[arg][1]);
+		}
+		else
+		{
+			size = strtoul (argv[arg], 0, 0);
 
-				if (size < 100)
-				  {
-					  fprintf (stdout,
-							   "error: size must be greater than or equal to 100\n");
-					  return;
-				  }
+			if (size < 100)
+			{
+				fprintf (stdout,
+						 "error: size must be greater than or equal to 100\n");
+				return;
 			}
-	  }
+		}
+	}
 
 	sc = rtems_capture_open (size, capture_timestamp);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: open failed: %s\n", rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: open failed: %s\n", rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "capture engine opened.\n");
 
@@ -116,11 +116,11 @@ rtems_capture_cli_open (int argc,
 	sc = rtems_capture_control (enable);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: open enable failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: open enable failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "capture engine enabled.\n");
 }
@@ -142,10 +142,10 @@ rtems_capture_cli_close (int argc RC_UNUSED,
 	sc = rtems_capture_close ();
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: close failed: %s\n", rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: close failed: %s\n", rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "capture engine closed.\n");
 }
@@ -158,20 +158,20 @@ rtems_capture_cli_close (int argc RC_UNUSED,
 
 static void
 rtems_capture_cli_enable (int argc RC_UNUSED,
-						  char **argv RC_UNUSED,
-						  const rtems_monitor_command_arg_t *
-						  command_arg RC_UNUSED, bool verbose RC_UNUSED)
+						char **argv RC_UNUSED,
+						const rtems_monitor_command_arg_t *
+						command_arg RC_UNUSED, bool verbose RC_UNUSED)
 {
 	rtems_status_code sc;
 
 	sc = rtems_capture_control (true);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: enable failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: enable failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "capture engine enabled.\n");
 }
@@ -184,20 +184,20 @@ rtems_capture_cli_enable (int argc RC_UNUSED,
 
 static void
 rtems_capture_cli_disable (int argc RC_UNUSED,
-						   char **argv RC_UNUSED,
-						   const rtems_monitor_command_arg_t *
-						   command_arg RC_UNUSED, bool verbose RC_UNUSED)
+						 char **argv RC_UNUSED,
+						 const rtems_monitor_command_arg_t *
+						 command_arg RC_UNUSED, bool verbose RC_UNUSED)
 {
 	rtems_status_code sc;
 
 	sc = rtems_capture_control (false);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: disable failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: disable failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "capture engine disabled.\n");
 }
@@ -231,13 +231,13 @@ static void rtems_capture_cli_print_task (rtems_tcb * tcb)
 	if ((floor > ceiling) && (ceiling > priority))
 		fprintf (stdout, "--");
 	else
-	  {
-		  uint32_t flags = rtems_capture_task_control_flags (tcb);
-		  fprintf (stdout, "%c%c",
-				   rtems_capture_task_control (tcb) ?
-				   (flags & RTEMS_CAPTURE_WATCH ? 'w' : '+') : '-',
-				   rtems_capture_watch_global_on ()? 'g' : '-');
-	  }
+	{
+		uint32_t flags = rtems_capture_task_control_flags (tcb);
+		fprintf (stdout, "%c%c",
+				 rtems_capture_task_control (tcb) ?
+				 (flags & RTEMS_CAPTURE_WATCH ? 'w' : '+') : '-',
+				 rtems_capture_watch_global_on ()? 'g' : '-');
+	}
 	fprintf (stdout, "\n");
 }
 
@@ -286,9 +286,9 @@ rtems_capture_cli_task_list (int argc RC_UNUSED,
 
 static void
 rtems_capture_cli_watch_list (int argc RC_UNUSED,
-							  char **argv RC_UNUSED,
-							  const rtems_monitor_command_arg_t *
-							  command_arg RC_UNUSED, bool verbose RC_UNUSED)
+							char **argv RC_UNUSED,
+							const rtems_monitor_command_arg_t *
+							command_arg RC_UNUSED, bool verbose RC_UNUSED)
 {
 	rtems_capture_print_watch_list ();
 }
@@ -301,18 +301,18 @@ rtems_capture_cli_watch_list (int argc RC_UNUSED,
 
 static bool
 rtems_capture_cli_get_name_id (char *arg,
-							   bool * valid_name,
-							   bool * valid_id,
-							   rtems_name * name, rtems_id * id)
+							 bool * valid_name,
+							 bool * valid_id,
+							 rtems_name * name, rtems_id * id)
 {
 	size_t l;
 	size_t i;
 
 	if (*valid_name && *valid_id)
-	  {
-		  fprintf (stdout, "error: too many arguments\n");
-		  return 0;
-	  }
+	{
+		fprintf (stdout, "error: too many arguments\n");
+		return 0;
+	}
 
 	/*
 	 * See if the arg is all hex digits.
@@ -325,25 +325,25 @@ rtems_capture_cli_get_name_id (char *arg,
 			break;
 
 	if (i == l)
-	  {
-		  *id = strtoul (arg, 0, 16);
-		  *valid_id = true;
-	  }
+	{
+		*id = strtoul (arg, 0, 16);
+		*valid_id = true;
+	}
 	else
-	  {
-		  /*
-		   * This is a bit of hack but it should work on all platforms
-		   * as it is what the score does with names.
-		   *
-		   * @warning The extra assigns play with the byte order so do not
-		   *          remove unless the score has been updated.
-		   */
-		  rtems_name rname;
+	{
+		/*
+		 * This is a bit of hack but it should work on all platforms
+		 * as it is what the score does with names.
+		 *
+		 * @warning The extra assigns play with the byte order so do not
+		 *          remove unless the score has been updated.
+		 */
+		rtems_name rname;
 
-		  rname = rtems_build_name (arg[0], arg[1], arg[2], arg[3]);
-		  *name = rname;
-		  *valid_name = true;
-	  }
+		rname = rtems_build_name (arg[0], arg[1], arg[2], arg[3]);
+		*name = rname;
+		*valid_name = true;
+	}
 
 	return 1;
 }
@@ -371,39 +371,39 @@ rtems_capture_cli_watch_add (int argc,
 	bool valid_id = false;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, watch_add_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_add_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				if (!rtems_capture_cli_get_name_id
-					(argv[arg], &valid_name, &valid_id, &name, &id))
-					return;
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			if (!rtems_capture_cli_get_name_id
+				(argv[arg], &valid_name, &valid_id, &name, &id))
+				return;
+		}
+	}
 
 	if (!valid_name && !valid_id)
-	  {
-		  fprintf (stdout, "error: no valid name or task id located\n");
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: no valid name or task id located\n");
+		return;
+	}
 
 	sc = rtems_capture_watch_add (name, id);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout,
-				   "error: watch add failed: %s\n", rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout,
+				 "error: watch add failed: %s\n", rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "watch added.\n");
 }
@@ -431,39 +431,39 @@ rtems_capture_cli_watch_del (int argc,
 	bool valid_id = false;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, watch_del_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_del_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				if (!rtems_capture_cli_get_name_id
-					(argv[arg], &valid_name, &valid_id, &name, &id))
-					return;
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			if (!rtems_capture_cli_get_name_id
+				(argv[arg], &valid_name, &valid_id, &name, &id))
+				return;
+		}
+	}
 
 	if (!valid_name && !valid_id)
-	  {
-		  fprintf (stdout, "error: no valid name or task id located\n");
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: no valid name or task id located\n");
+		return;
+	}
 
 	sc = rtems_capture_watch_del (name, id);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: watch delete failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: watch delete failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "watch delete.\n");
 }
@@ -492,43 +492,43 @@ rtems_capture_cli_watch_control (int argc,
 	bool enable = false;
 
 	if (argc <= 2)
-	  {
-		  fprintf (stdout, watch_control_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_control_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				if (strcmp (argv[arg], "on") == 0)
-					enable = true;
-				else if (strcmp (argv[arg], "off") == 0)
-					enable = false;
-				else if (!rtems_capture_cli_get_name_id (argv[arg], &valid_name,
-														 &valid_id, &name, &id))
-					return;
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			if (strcmp (argv[arg], "on") == 0)
+				enable = true;
+			else if (strcmp (argv[arg], "off") == 0)
+				enable = false;
+			else if (!rtems_capture_cli_get_name_id (argv[arg], &valid_name,
+													 &valid_id, &name, &id))
+				return;
+		}
+	}
 
 	if (!valid_name && !valid_id)
-	  {
-		  fprintf (stdout, "error: no valid name or task id located\n");
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: no valid name or task id located\n");
+		return;
+	}
 
 	sc = rtems_capture_watch_ctrl (name, id, enable);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: watch control failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: watch control failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "watch %s.\n", enable ? "enabled" : "disabled");
 }
@@ -552,34 +552,34 @@ rtems_capture_cli_watch_global (int argc,
 	bool enable = false;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, watch_global_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_global_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				if (strcmp (argv[arg], "on") == 0)
-					enable = true;
-				else if (strcmp (argv[arg], "off") == 0)
-					enable = false;
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			if (strcmp (argv[arg], "on") == 0)
+				enable = true;
+			else if (strcmp (argv[arg], "off") == 0)
+				enable = false;
+		}
+	}
 
 	sc = rtems_capture_watch_global (enable);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: global watch failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: global watch failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "global watch %s.\n", enable ? "enabled" : "disabled");
 }
@@ -603,31 +603,31 @@ rtems_capture_cli_watch_ceiling (int argc,
 	rtems_task_priority priority = 0;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, watch_ceiling_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_ceiling_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				priority = strtoul (argv[arg], 0, 0);
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			priority = strtoul (argv[arg], 0, 0);
+		}
+	}
 
 	sc = rtems_capture_watch_ceiling (priority);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: watch ceiling failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: watch ceiling failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "watch ceiling is %" PRId32 ".\n", priority);
 }
@@ -642,40 +642,40 @@ static char const *watch_floor_usage = "usage: cwfloor priority\n";
 
 static void
 rtems_capture_cli_watch_floor (int argc,
-							   char **argv,
-							   const rtems_monitor_command_arg_t *
-							   command_arg RC_UNUSED, bool verbose RC_UNUSED)
+							 char **argv,
+							 const rtems_monitor_command_arg_t *
+							 command_arg RC_UNUSED, bool verbose RC_UNUSED)
 {
 	rtems_status_code sc;
 	int arg;
 	rtems_task_priority priority = 0;
 
 	if (argc <= 1)
-	  {
-		  fprintf (stdout, watch_floor_usage);
-		  return;
-	  }
+	{
+		fprintf (stdout, watch_floor_usage);
+		return;
+	}
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
-			}
-		  else
-			{
-				priority = strtoul (argv[arg], 0, 0);
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stdout, "warning: option -%c ignored\n", argv[arg][1]);
+		}
+		else
+		{
+			priority = strtoul (argv[arg], 0, 0);
+		}
+	}
 
 	sc = rtems_capture_watch_floor (priority);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: watch floor failed: %s\n",
-				   rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: watch floor failed: %s\n",
+				 rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "watch floor is %" PRId32 ".\n", priority);
 }
@@ -711,7 +711,8 @@ typedef struct rtems_capture_cli_triggers_s
 	int to_only;
 } rtems_capture_cli_triggers_t;
 
-static rtems_capture_cli_triggers_t rtems_capture_cli_triggers[] = {
+static rtems_capture_cli_triggers_t rtems_capture_cli_triggers[] =
+{
 	{"switch", rtems_capture_switch, 0},	/* must be first */
 	{"create", rtems_capture_create, 0},
 	{"start", rtems_capture_start, 0},
@@ -755,151 +756,151 @@ static void rtems_capture_cli_trigger_worker (int set, int argc, char **argv)
 	bool to_valid_id = false;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
+	{
+		if (argv[arg][0] == '-')
+		{
+			switch (argv[arg][1])
 			{
-				switch (argv[arg][1])
-				  {
-					  case '?':
-						  fprintf (stdout, trigger_set_usage,
-								   set ? "ctset" : "ctclear");
-						  fprintf (stdout, trigger_set_types);
-						  return;
-					  default:
-						  fprintf (stdout, "warning: option -%c ignored\n",
-								   argv[arg][1]);
-						  break;
-				  }
-			}
-		  else
-			{
-				if (!trigger_set)
-				  {
-					  bool found = false;
-					  int t;
-
-					  for (t = 0; t < RTEMS_CAPTURE_CLI_TRIGGERS_NUM; t++)
-						  if (strcmp
-							  (argv[arg],
-							   rtems_capture_cli_triggers[t].name) == 0)
-							{
-								trigger = t;
-								found = true;
-								break;
-							}
-
-					  trigger_set = true;
-
-					  /*
-					   * If a trigger was not found assume the default and
-					   * assume the parameter is a task name or id.
-					   */
-					  if (found)
-						  continue;
-				  }
-
-				if (strcmp (arg[argv], "from") == 0)
-				  {
-					  if (from_valid_name || from_valid_id)
-						  fprintf (stdout, "warning: extra 'from' ignored\n");
-
-					  is_from = true;
-					  continue;
-				  }
-
-				if (strcmp (arg[argv], "to") == 0)
-				  {
-					  if (to_valid_name || from_valid_id)
-						  fprintf (stdout, "warning: extra 'to' ignored\n");
-
-					  is_to = true;
-					  continue;
-				  }
-
-				if (!rtems_capture_cli_get_name_id
-					(argv[arg], &valid_name, &valid_id, &name, &id))
+				case '?':
+					fprintf (stdout, trigger_set_usage,
+							 set ? "ctset" : "ctclear");
+					fprintf (stdout, trigger_set_types);
 					return;
-
-				if (valid_name)
-				  {
-					  if (!is_from && !is_to)
-						  is_to = true;
-
-					  if (is_from)
-						{
-							if (!from_valid_name && !from_valid_id)
-							  {
-								  from_valid_name = true;
-								  from_name = name;
-							  }
-							else
-								fprintf (stdout,
-										 "warning: extra name arguments ignored\n");
-						}
-					  else if (!to_valid_name && !to_valid_id)
-						{
-							to_valid_name = true;
-							to_name = name;
-						}
-					  else
-						  fprintf (stdout,
-								   "warning: extra name arguments ignored\n");
-				  }
-
-				if (valid_id)
-				  {
-					  if (!is_from && !is_to)
-						  is_to = true;
-
-					  if (is_from)
-						{
-							if (!from_valid_name && !from_valid_id)
-							  {
-								  from_valid_id = true;
-								  from_id = id;
-							  }
-							else
-								fprintf (stdout,
-										 "warning: extra id arguments ignored\n");
-						}
-					  else if (!to_valid_name && !to_valid_id)
-						{
-							to_valid_id = true;
-							to_id = id;
-						}
-					  else
-						  fprintf (stdout,
-								   "warning: extra id arguments ignored\n");
-				  }
+				default:
+					fprintf (stdout, "warning: option -%c ignored\n",
+							 argv[arg][1]);
+					break;
 			}
-	  }
+		}
+		else
+		{
+			if (!trigger_set)
+			{
+				bool found = false;
+				int t;
+
+				for (t = 0; t < RTEMS_CAPTURE_CLI_TRIGGERS_NUM; t++)
+					if (strcmp
+						(argv[arg],
+						 rtems_capture_cli_triggers[t].name) == 0)
+					{
+						trigger = t;
+						found = true;
+						break;
+					}
+
+				trigger_set = true;
+
+				/*
+				 * If a trigger was not found assume the default and
+				 * assume the parameter is a task name or id.
+				 */
+				if (found)
+					continue;
+			}
+
+			if (strcmp (arg[argv], "from") == 0)
+			{
+				if (from_valid_name || from_valid_id)
+					fprintf (stdout, "warning: extra 'from' ignored\n");
+
+				is_from = true;
+				continue;
+			}
+
+			if (strcmp (arg[argv], "to") == 0)
+			{
+				if (to_valid_name || from_valid_id)
+					fprintf (stdout, "warning: extra 'to' ignored\n");
+
+				is_to = true;
+				continue;
+			}
+
+			if (!rtems_capture_cli_get_name_id
+				(argv[arg], &valid_name, &valid_id, &name, &id))
+				return;
+
+			if (valid_name)
+			{
+				if (!is_from && !is_to)
+					is_to = true;
+
+				if (is_from)
+				{
+					if (!from_valid_name && !from_valid_id)
+					{
+						from_valid_name = true;
+						from_name = name;
+					}
+					else
+						fprintf (stdout,
+								 "warning: extra name arguments ignored\n");
+				}
+				else if (!to_valid_name && !to_valid_id)
+				{
+					to_valid_name = true;
+					to_name = name;
+				}
+				else
+					fprintf (stdout,
+							 "warning: extra name arguments ignored\n");
+			}
+
+			if (valid_id)
+			{
+				if (!is_from && !is_to)
+					is_to = true;
+
+				if (is_from)
+				{
+					if (!from_valid_name && !from_valid_id)
+					{
+						from_valid_id = true;
+						from_id = id;
+					}
+					else
+						fprintf (stdout,
+								 "warning: extra id arguments ignored\n");
+				}
+				else if (!to_valid_name && !to_valid_id)
+				{
+					to_valid_id = true;
+					to_id = id;
+				}
+				else
+					fprintf (stdout,
+							 "warning: extra id arguments ignored\n");
+			}
+		}
+	}
 
 	if (is_from && rtems_capture_cli_triggers[trigger].to_only)
-	  {
-		  fprintf (stdout, "error: a %s trigger can be a TO trigger\n",
-				   rtems_capture_cli_triggers[trigger].name);
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: a %s trigger can be a TO trigger\n",
+				 rtems_capture_cli_triggers[trigger].name);
+		return;
+	}
 
 	if (!to_valid_name && !to_valid_id && !from_valid_name && !from_valid_id)
-	  {
-		  fprintf (stdout, trigger_set_usage, set ? "ctset" : "ctclear");
-		  return;
-	  }
+	{
+		fprintf (stdout, trigger_set_usage, set ? "ctset" : "ctclear");
+		return;
+	}
 
 	if (!is_from && !to_valid_name && !to_valid_id)
-	  {
-		  fprintf (stdout, "error: a %s trigger needs a TO name or id\n",
-				   rtems_capture_cli_triggers[trigger].name);
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: a %s trigger needs a TO name or id\n",
+				 rtems_capture_cli_triggers[trigger].name);
+		return;
+	}
 
 	if (is_from && !from_valid_name && !from_valid_id)
-	  {
-		  fprintf (stdout, "error: a %s trigger needs a FROM name or id\n",
-				   rtems_capture_cli_triggers[trigger].name);
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: a %s trigger needs a FROM name or id\n",
+				 rtems_capture_cli_triggers[trigger].name);
+		return;
+	}
 
 	if ((from_valid_name || from_valid_id) && (to_valid_name || to_valid_id))
 		trigger_mode = rtems_capture_from_to;
@@ -915,16 +916,16 @@ static void rtems_capture_cli_trigger_worker (int set, int argc, char **argv)
 										type);
 	else
 		sc = rtems_capture_clear_trigger (from_name, from_id, to_name, to_id,
-										  trigger_mode,
-										  rtems_capture_cli_triggers[trigger].
-										  type);
+										trigger_mode,
+										rtems_capture_cli_triggers[trigger].
+										type);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: %sing the trigger failed: %s\n",
-				   set ? "sett" : "clear", rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: %sing the trigger failed: %s\n",
+				 set ? "sett" : "clear", rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "trigger %s.\n", set ? "set" : "cleared");
 }
@@ -937,9 +938,9 @@ static void rtems_capture_cli_trigger_worker (int set, int argc, char **argv)
 
 static void
 rtems_capture_cli_trigger_set (int argc,
-							   char **argv,
-							   const rtems_monitor_command_arg_t *
-							   command_arg RC_UNUSED, bool verbose RC_UNUSED)
+							 char **argv,
+							 const rtems_monitor_command_arg_t *
+							 command_arg RC_UNUSED, bool verbose RC_UNUSED)
 {
 	rtems_capture_cli_trigger_worker (1, argc, argv);
 }
@@ -976,32 +977,32 @@ rtems_capture_cli_trace_records (int argc,
 	int arg;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				if (argv[arg][1] == 'c')
-					csv = true;
-				else
-					fprintf (stdout, "warning: option -%c ignored\n",
-							 argv[arg][1]);
-			}
-		  else
-			{
-				size_t i;
-				size_t l;
+	{
+		if (argv[arg][0] == '-')
+		{
+			if (argv[arg][1] == 'c')
+				csv = true;
+			else
+				fprintf (stdout, "warning: option -%c ignored\n",
+						 argv[arg][1]);
+		}
+		else
+		{
+			size_t i;
+			size_t l;
 
-				l = strlen (argv[arg]);
+			l = strlen (argv[arg]);
 
-				for (i = 0; i < l; i++)
-					if (!isdigit ((unsigned char)argv[arg][i]))
-					  {
-						  fprintf (stdout, "error: not a number\n");
-						  return;
-					  }
+			for (i = 0; i < l; i++)
+				if (!isdigit ((unsigned char)argv[arg][i]))
+				{
+					fprintf (stdout, "error: not a number\n");
+					return;
+				}
 
-				dump_total = strtoul (argv[arg], 0, 0);
-			}
-	  }
+			dump_total = strtoul (argv[arg], 0, 0);
+		}
+	}
 
 	rtems_capture_print_trace_records (dump_total, csv);
 }
@@ -1024,142 +1025,159 @@ rtems_capture_cli_flush (int argc,
 	int arg;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
-			{
-				if (argv[arg][1] == 'n')
-					prime = false;
-				else
-					fprintf (stdout, "warning: option -%c ignored\n",
-							 argv[arg][1]);
-			}
-	  }
+	{
+		if (argv[arg][0] == '-')
+		{
+			if (argv[arg][1] == 'n')
+				prime = false;
+			else
+				fprintf (stdout, "warning: option -%c ignored\n",
+						 argv[arg][1]);
+		}
+	}
 
 	sc = rtems_capture_flush (prime);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fprintf (stdout, "error: flush failed: %s\n", rtems_status_text (sc));
-		  return;
-	  }
+	{
+		fprintf (stdout, "error: flush failed: %s\n", rtems_status_text (sc));
+		return;
+	}
 
 	fprintf (stdout, "trace buffer flushed and %s.\n",
 			 prime ? "primed" : "not primed");
 }
 
-static rtems_monitor_command_entry_t rtems_capture_cli_cmds[] = {
+static rtems_monitor_command_entry_t rtems_capture_cli_cmds[] =
+{
 	{
-	 "copen",
-	 "usage: copen [-i] size\n",
-	 0,
-	 rtems_capture_cli_open,
-	 {0},
-	 0},
+		"copen",
+		"usage: copen [-i] size\n",
+		0,
+		rtems_capture_cli_open,
+		{0},
+		0
+	},
 	{
-	 "cclose",
-	 "usage: cclose\n",
-	 0,
-	 rtems_capture_cli_close,
-	 {0},
-	 0},
+		"cclose",
+		"usage: cclose\n",
+		0,
+		rtems_capture_cli_close,
+		{0},
+		0
+	},
 	{
-	 "cenable",
-	 "usage: cenable\n",
-	 0,
-	 rtems_capture_cli_enable,
-	 {0},
-	 0},
+		"cenable",
+		"usage: cenable\n",
+		0,
+		rtems_capture_cli_enable,
+		{0},
+		0
+	},
 	{
-	 "cdisable",
-	 "usage: cdisable\n",
-	 0,
-	 rtems_capture_cli_disable,
-	 {0},
-	 0},
+		"cdisable",
+		"usage: cdisable\n",
+		0,
+		rtems_capture_cli_disable,
+		{0},
+		0
+	},
 	{
-	 "ctlist",
-	 "usage: ctlist \n",
-	 0,
-	 rtems_capture_cli_task_list,
-	 {0},
-	 0},
+		"ctlist",
+		"usage: ctlist \n",
+		0,
+		rtems_capture_cli_task_list,
+		{0},
+		0
+	},
 	{
-	 "cwlist",
-	 "usage: cwlist\n",
-	 0,
-	 rtems_capture_cli_watch_list,
-	 {0},
-	 0},
+		"cwlist",
+		"usage: cwlist\n",
+		0,
+		rtems_capture_cli_watch_list,
+		{0},
+		0
+	},
 	{
-	 "cwadd",
-	 "usage: cwadd [task name] [id]\n",
-	 0,
-	 rtems_capture_cli_watch_add,
-	 {0},
-	 0},
+		"cwadd",
+		"usage: cwadd [task name] [id]\n",
+		0,
+		rtems_capture_cli_watch_add,
+		{0},
+		0
+	},
 	{
-	 "cwdel",
-	 "usage: cwdel [task name] [id]\n",
-	 0,
-	 rtems_capture_cli_watch_del,
-	 {0},
-	 0},
+		"cwdel",
+		"usage: cwdel [task name] [id]\n",
+		0,
+		rtems_capture_cli_watch_del,
+		{0},
+		0
+	},
 	{
-	 "cwctl",
-	 "usage: cwctl [task name] [id] on/off\n",
-	 0,
-	 rtems_capture_cli_watch_control,
-	 {0},
-	 0},
+		"cwctl",
+		"usage: cwctl [task name] [id] on/off\n",
+		0,
+		rtems_capture_cli_watch_control,
+		{0},
+		0
+	},
 	{
-	 "cwglob",
-	 "usage: cwglob on/off\n",
-	 0,
-	 rtems_capture_cli_watch_global,
-	 {0},
-	 0},
+		"cwglob",
+		"usage: cwglob on/off\n",
+		0,
+		rtems_capture_cli_watch_global,
+		{0},
+		0
+	},
 	{
-	 "cwceil",
-	 "usage: cwceil priority\n",
-	 0,
-	 rtems_capture_cli_watch_ceiling,
-	 {0},
-	 0},
+		"cwceil",
+		"usage: cwceil priority\n",
+		0,
+		rtems_capture_cli_watch_ceiling,
+		{0},
+		0
+	},
 	{
-	 "cwfloor",
-	 "usage: cwfloor priority\n",
-	 0,
-	 rtems_capture_cli_watch_floor,
-	 {0},
-	 0},
+		"cwfloor",
+		"usage: cwfloor priority\n",
+		0,
+		rtems_capture_cli_watch_floor,
+		{0},
+		0
+	},
 	{
-	 "ctrace",
-	 "usage: ctrace [-c] [-r records]\n",
-	 0,
-	 rtems_capture_cli_trace_records,
-	 {0},
-	 0},
+		"ctrace",
+		"usage: ctrace [-c] [-r records]\n",
+		0,
+		rtems_capture_cli_trace_records,
+		{0},
+		0
+	},
 	{
-	 "ctset",
-	 "usage: ctset -h\n",
-	 0,
-	 rtems_capture_cli_trigger_set,
-	 {0},
-	 0},
+		"ctset",
+		"usage: ctset -h\n",
+		0,
+		rtems_capture_cli_trigger_set,
+		{0},
+		0
+	},
 	{
-	 "ctclear",
-	 "usage: ctclear -?\n",
-	 0,
-	 rtems_capture_cli_trigger_clear,
-	 {0},
-	 0},
+		"ctclear",
+		"usage: ctclear -?\n",
+		0,
+		rtems_capture_cli_trigger_clear,
+		{0},
+		0
+	},
 	{
-	 "cflush",
-	 "usage: cflush [-n]\n",
-	 0,
-	 rtems_capture_cli_flush,
-	 {0},
-	 0}
+		"cflush",
+		"usage: cflush [-n]\n",
+		0,
+		rtems_capture_cli_flush,
+		{0},
+		0
+	}
 };
 
 /*

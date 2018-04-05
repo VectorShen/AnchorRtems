@@ -38,13 +38,13 @@ static void _Timer_server_Cancel_method (Timer_server_Control * ts,
 										 Timer_Control * timer)
 {
 	if (timer->the_class == TIMER_INTERVAL_ON_TASK)
-	  {
-		  _Watchdog_Remove (&ts->Interval_watchdogs.Header, &timer->Ticker);
-	  }
+	{
+		_Watchdog_Remove (&ts->Interval_watchdogs.Header, &timer->Ticker);
+	}
 	else if (timer->the_class == TIMER_TIME_OF_DAY_ON_TASK)
-	  {
-		  _Watchdog_Remove (&ts->TOD_watchdogs.Header, &timer->Ticker);
-	  }
+	{
+		_Watchdog_Remove (&ts->TOD_watchdogs.Header, &timer->Ticker);
+	}
 }
 
 static Watchdog_Interval _Timer_server_Get_ticks (void)
@@ -58,56 +58,56 @@ static Watchdog_Interval _Timer_server_Get_seconds (void)
 }
 
 static void _Timer_server_Update_system_watchdog (Timer_server_Watchdogs *
-												  watchdogs,
-												  Watchdog_Header *
-												  system_header)
+												watchdogs,
+												Watchdog_Header *
+												system_header)
 {
 	ISR_lock_Context lock_context;
 
 	_Watchdog_Acquire (&watchdogs->Header, &lock_context);
 
 	if (watchdogs->system_watchdog_helper == NULL)
-	  {
-		  Thread_Control *executing;
-		  uint32_t my_generation;
+	{
+		Thread_Control *executing;
+		uint32_t my_generation;
 
-		  executing = _Thread_Executing;
-		  watchdogs->system_watchdog_helper = executing;
+		executing = _Thread_Executing;
+		watchdogs->system_watchdog_helper = executing;
 
-		  do
+		do
+		{
+			my_generation = watchdogs->generation;
+
+			if (!_Watchdog_Is_empty (&watchdogs->Header))
 			{
-				my_generation = watchdogs->generation;
+				Watchdog_Control *first;
+				Watchdog_Interval delta;
 
-				if (!_Watchdog_Is_empty (&watchdogs->Header))
-				  {
-					  Watchdog_Control *first;
-					  Watchdog_Interval delta;
+				first = _Watchdog_First (&watchdogs->Header);
+				delta = first->delta_interval;
 
-					  first = _Watchdog_First (&watchdogs->Header);
-					  delta = first->delta_interval;
+				if (watchdogs->System_watchdog.state == WATCHDOG_INACTIVE
+					|| delta != watchdogs->system_watchdog_delta)
+				{
+					watchdogs->system_watchdog_delta = delta;
+					_Watchdog_Release (&watchdogs->Header,
+									 &lock_context);
 
-					  if (watchdogs->System_watchdog.state == WATCHDOG_INACTIVE
-						  || delta != watchdogs->system_watchdog_delta)
-						{
-							watchdogs->system_watchdog_delta = delta;
-							_Watchdog_Release (&watchdogs->Header,
-											   &lock_context);
+					_Watchdog_Remove (system_header,
+									&watchdogs->System_watchdog);
+					watchdogs->System_watchdog.initial = delta;
+					_Watchdog_Insert (system_header,
+									&watchdogs->System_watchdog);
 
-							_Watchdog_Remove (system_header,
-											  &watchdogs->System_watchdog);
-							watchdogs->System_watchdog.initial = delta;
-							_Watchdog_Insert (system_header,
-											  &watchdogs->System_watchdog);
-
-							_Watchdog_Acquire (&watchdogs->Header,
-											   &lock_context);
-						}
-				  }
+					_Watchdog_Acquire (&watchdogs->Header,
+									 &lock_context);
+				}
 			}
-		  while (watchdogs->generation != my_generation);
+		}
+		while (watchdogs->generation != my_generation);
 
-		  watchdogs->system_watchdog_helper = NULL;
-	  }
+		watchdogs->system_watchdog_helper = NULL;
+	}
 
 	_Watchdog_Release (&watchdogs->Header, &lock_context);
 }
@@ -129,27 +129,27 @@ static void _Timer_server_Insert_timer (Timer_server_Watchdogs * watchdogs,
 	watchdogs->current_snapshot = now;
 
 	if (watchdogs->system_watchdog_delta > delta)
-	  {
-		  watchdogs->system_watchdog_delta -= delta;
-	  }
+	{
+		watchdogs->system_watchdog_delta -= delta;
+	}
 	else
-	  {
-		  watchdogs->system_watchdog_delta = 0;
-	  }
+	{
+		watchdogs->system_watchdog_delta = 0;
+	}
 
 	if (!_Watchdog_Is_empty (&watchdogs->Header))
-	  {
-		  Watchdog_Control *first = _Watchdog_First (&watchdogs->Header);
+	{
+		Watchdog_Control *first = _Watchdog_First (&watchdogs->Header);
 
-		  if (first->delta_interval > delta)
-			{
-				first->delta_interval -= delta;
-			}
-		  else
-			{
-				first->delta_interval = 0;
-			}
-	  }
+		if (first->delta_interval > delta)
+		{
+			first->delta_interval -= delta;
+		}
+		else
+		{
+			first->delta_interval = 0;
+		}
+	}
 
 	_Watchdog_Insert_locked (&watchdogs->Header, &timer->Ticker, &lock_context);
 
@@ -164,25 +164,25 @@ static void _Timer_server_Schedule_operation_method (Timer_server_Control * ts,
 													 Timer_Control * timer)
 {
 	if (timer->the_class == TIMER_INTERVAL_ON_TASK)
-	  {
-		  _Timer_server_Insert_timer (&ts->Interval_watchdogs,
-									  timer,
-									  &_Watchdog_Ticks_header,
-									  _Timer_server_Get_ticks);
-	  }
+	{
+		_Timer_server_Insert_timer (&ts->Interval_watchdogs,
+									timer,
+									&_Watchdog_Ticks_header,
+									_Timer_server_Get_ticks);
+	}
 	else if (timer->the_class == TIMER_TIME_OF_DAY_ON_TASK)
-	  {
-		  _Timer_server_Insert_timer (&ts->TOD_watchdogs,
-									  timer,
-									  &_Watchdog_Seconds_header,
-									  _Timer_server_Get_seconds);
-	  }
+	{
+		_Timer_server_Insert_timer (&ts->TOD_watchdogs,
+									timer,
+									&_Watchdog_Seconds_header,
+									_Timer_server_Get_seconds);
+	}
 }
 
 static void _Timer_server_Update_current_snapshot (Timer_server_Watchdogs *
-												   watchdogs,
-												   Watchdog_Interval
-												   (*get_ticks) (void))
+												 watchdogs,
+												 Watchdog_Interval
+												 (*get_ticks) (void))
 {
 	ISR_lock_Context lock_context;
 
@@ -193,9 +193,9 @@ static void _Timer_server_Update_current_snapshot (Timer_server_Watchdogs *
 }
 
 static void _Timer_server_Tickle (Timer_server_Watchdogs * watchdogs,
-								  Watchdog_Header * system_header,
-								  Watchdog_Interval (*get_ticks) (void),
-								  bool ticks)
+								Watchdog_Header * system_header,
+								Watchdog_Interval (*get_ticks) (void),
+								bool ticks)
 {
 	ISR_lock_Context lock_context;
 	Watchdog_Interval now;
@@ -208,14 +208,14 @@ static void _Timer_server_Tickle (Timer_server_Watchdogs * watchdogs,
 	watchdogs->last_snapshot = now;
 
 	if (ticks || now >= last)
-	  {
-		  _Watchdog_Adjust_forward_locked (&watchdogs->Header,
-										   now - last, &lock_context);
-	  }
+	{
+		_Watchdog_Adjust_forward_locked (&watchdogs->Header,
+										 now - last, &lock_context);
+	}
 	else
-	  {
-		  _Watchdog_Adjust_backward_locked (&watchdogs->Header, last - now);
-	  }
+	{
+		_Watchdog_Adjust_backward_locked (&watchdogs->Header, last - now);
+	}
 
 	++watchdogs->generation;
 
@@ -238,21 +238,21 @@ static rtems_task _Timer_server_Body (rtems_task_argument arg)
 	Timer_server_Control *ts = (Timer_server_Control *) arg;
 
 	while (true)
-	  {
-		  rtems_event_set events;
+	{
+		rtems_event_set events;
 
-		  _Timer_server_Tickle (&ts->Interval_watchdogs,
+		_Timer_server_Tickle (&ts->Interval_watchdogs,
 								&_Watchdog_Ticks_header,
 								_Timer_server_Get_ticks, true);
 
-		  _Timer_server_Tickle (&ts->TOD_watchdogs,
+		_Timer_server_Tickle (&ts->TOD_watchdogs,
 								&_Watchdog_Seconds_header,
 								_Timer_server_Get_seconds, false);
 
-		  (void)rtems_event_system_receive (RTEMS_EVENT_SYSTEM_TIMER_SERVER,
+		(void)rtems_event_system_receive (RTEMS_EVENT_SYSTEM_TIMER_SERVER,
 											RTEMS_EVENT_ALL | RTEMS_WAIT,
 											RTEMS_NO_TIMEOUT, &events);
-	  }
+	}
 }
 
 static void _Timer_server_Wakeup (Objects_Id id, void *arg)
@@ -260,10 +260,10 @@ static void _Timer_server_Wakeup (Objects_Id id, void *arg)
 	Timer_server_Control *ts = arg;
 
 	_Timer_server_Update_current_snapshot (&ts->Interval_watchdogs,
-										   _Timer_server_Get_ticks);
+										 _Timer_server_Get_ticks);
 
 	_Timer_server_Update_current_snapshot (&ts->TOD_watchdogs,
-										   _Timer_server_Get_seconds);
+										 _Timer_server_Get_seconds);
 
 	(void)rtems_event_system_send (id, RTEMS_EVENT_SYSTEM_TIMER_SERVER);
 }
@@ -284,7 +284,7 @@ static void _Timer_server_Initialize_watchdogs (Timer_server_Control * ts,
 	_Watchdog_Header_initialize (&watchdogs->Header);
 	_Watchdog_Preinitialize (&watchdogs->System_watchdog);
 	_Watchdog_Initialize (&watchdogs->System_watchdog,
-						  _Timer_server_Wakeup, id, ts);
+						_Timer_server_Wakeup, id, ts);
 }
 
 /**
@@ -301,8 +301,8 @@ static void _Timer_server_Initialize_watchdogs (Timer_server_Control * ts,
  *          error code otherwise.
  */
 rtems_status_code rtems_timer_initiate_server (uint32_t priority,
-											   uint32_t stack_size,
-											   rtems_attribute attribute_set)
+											 uint32_t stack_size,
+											 rtems_attribute attribute_set)
 {
 	rtems_id id;
 	rtems_status_code status;
@@ -318,11 +318,11 @@ rtems_status_code rtems_timer_initiate_server (uint32_t priority,
 	 */
 	_priority = priority;
 	if (!_RTEMS_tasks_Priority_is_valid (priority))
-	  {
-		  if (priority != RTEMS_TIMER_SERVER_DEFAULT_PRIORITY)
-			  return RTEMS_INVALID_PRIORITY;
-		  _priority = PRIORITY_PSEUDO_ISR;
-	  }
+	{
+		if (priority != RTEMS_TIMER_SERVER_DEFAULT_PRIORITY)
+			return RTEMS_INVALID_PRIORITY;
+		_priority = PRIORITY_PSEUDO_ISR;
+	}
 
 	/*
 	 *  Just to make sure this is only called once.
@@ -359,10 +359,10 @@ rtems_status_code rtems_timer_initiate_server (uint32_t priority,
 								attribute_set | RTEMS_SYSTEM_TASK, &id	/* get the id back */
 		);
 	if (status)
-	  {
-		  initialized = false;
-		  return status;
-	  }
+	{
+		initialized = false;
+		return status;
+	}
 
 	/*
 	 *  Do all the data structure initialization before starting the
@@ -395,7 +395,7 @@ rtems_status_code rtems_timer_initiate_server (uint32_t priority,
 	 *  Start the timer server
 	 */
 	status = rtems_task_start (id,
-							   _Timer_server_Body, (rtems_task_argument) ts);
+							 _Timer_server_Body, (rtems_task_argument) ts);
 
 #if defined(RTEMS_DEBUG)
 	/*
@@ -406,9 +406,9 @@ rtems_status_code rtems_timer_initiate_server (uint32_t priority,
 	 *  target such as a stray write in an ISR or incorrect memory layout.
 	 */
 	if (status)
-	  {
-		  initialized = false;
-	  }
+	{
+		initialized = false;
+	}
 #endif
 
 	return status;

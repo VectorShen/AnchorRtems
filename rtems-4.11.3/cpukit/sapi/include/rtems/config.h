@@ -69,195 +69,195 @@ extern "C"
  *  characteristics which must be known by RTEMS in a multiprocessor
  *  system.
  */
-	typedef struct
-	{
-  /** This is the local node number. */
-		uint32_t node;
-  /** This is the maximum number of nodes in system. */
-		uint32_t maximum_nodes;
-  /** This is the maximum number of global objects. */
-		uint32_t maximum_global_objects;
-  /** This is the maximum number of proxies. */
-		uint32_t maximum_proxies;
+typedef struct
+{
+/** This is the local node number. */
+	uint32_t node;
+/** This is the maximum number of nodes in system. */
+	uint32_t maximum_nodes;
+/** This is the maximum number of global objects. */
+	uint32_t maximum_global_objects;
+/** This is the maximum number of proxies. */
+	uint32_t maximum_proxies;
 
-  /** 
-   * The MPCI Receive server is assumed to have a stack of at least
-   * minimum stack size.  This field specifies the amount of extra
-   * stack this task will be given in bytes.
-   */
-		uint32_t extra_mpci_receive_server_stack;
+/**
+* The MPCI Receive server is assumed to have a stack of at least
+* minimum stack size.  This field specifies the amount of extra
+* stack this task will be given in bytes.
+*/
+	uint32_t extra_mpci_receive_server_stack;
 
-  /** This is a pointer to User/BSP provided MPCI Table. */
-		rtems_mpci_table *User_mpci_table;
-	} rtems_multiprocessing_table;
+/** This is a pointer to User/BSP provided MPCI Table. */
+	rtems_mpci_table *User_mpci_table;
+} rtems_multiprocessing_table;
 #endif
 
 /**
- * @brief Task stack allocator initialization hook.
- *
- * @param[in] stack_space_size is the size of the stack space in bytes.
- */
-	typedef void (*rtems_stack_allocate_init_hook) (size_t stack_space_size);
+* @brief Task stack allocator initialization hook.
+*
+* @param[in] stack_space_size is the size of the stack space in bytes.
+*/
+typedef void (*rtems_stack_allocate_init_hook) (size_t stack_space_size);
 
 /**
- * @brief Task stack allocator hook.
- *
- * @param[in] stack_size is the Size of the task stack in bytes.
- *
- * @retval NULL Not enough memory.
- * @retval other Pointer to task stack.
- */
-	typedef void *(*rtems_stack_allocate_hook) (size_t stack_size);
+* @brief Task stack allocator hook.
+*
+* @param[in] stack_size is the Size of the task stack in bytes.
+*
+* @retval NULL Not enough memory.
+* @retval other Pointer to task stack.
+*/
+typedef void *(*rtems_stack_allocate_hook) (size_t stack_size);
 
 /**
- * @brief Task stack deallocator hook.
- *
- * @param[in] addr is a pointer to previously allocated task stack.
- */
-	typedef void (*rtems_stack_free_hook) (void *addr);
+* @brief Task stack deallocator hook.
+*
+* @param[in] addr is a pointer to previously allocated task stack.
+*/
+typedef void (*rtems_stack_free_hook) (void *addr);
 
 /*
- *  The following records define the Configuration Table.  The
- *  information contained in this table is required in all
- *  RTEMS systems, whether single or multiprocessor.  This
- *  table primarily defines the following:
- *
- *     + location and size of the RTEMS Workspace
- *     + microseconds per clock tick
- *     + clock ticks per task timeslice
- *     + required number of each object type for each API configured
- */
-	typedef struct
-	{
-  /**
-   * This field specifies the size in bytes of the RTEMS Workspace.
-   */
-		uintptr_t work_space_size;
+*  The following records define the Configuration Table.  The
+*  information contained in this table is required in all
+*  RTEMS systems, whether single or multiprocessor.  This
+*  table primarily defines the following:
+*
+*     + location and size of the RTEMS Workspace
+*     + microseconds per clock tick
+*     + clock ticks per task timeslice
+*     + required number of each object type for each API configured
+*/
+typedef struct
+{
+/**
+* This field specifies the size in bytes of the RTEMS Workspace.
+*/
+	uintptr_t work_space_size;
 
-  /**
-   * This field specifies the size in bytes of the RTEMS thread stack space.
-   */
-		uintptr_t stack_space_size;
+/**
+* This field specifies the size in bytes of the RTEMS thread stack space.
+*/
+	uintptr_t stack_space_size;
 
-  /** 
-   * This field specifies the maximum number of dynamically installed
-   * used extensions.
-   */
-		uint32_t maximum_extensions;
+/**
+* This field specifies the maximum number of dynamically installed
+* used extensions.
+*/
+	uint32_t maximum_extensions;
 
-  /**
-   * This field contains the maximum number of POSIX API
-   * keys which are configured for this application.
-   */
-		uint32_t maximum_keys;
+/**
+* This field contains the maximum number of POSIX API
+* keys which are configured for this application.
+*/
+	uint32_t maximum_keys;
 
-  /**
-   * This field contains the maximum number of POSIX API
-   * key value pairs which are configured for this application.
-   *
-   * @note There can be potentially be a key/value pair for
-   *       every thread to use every key. But normally this
-   *       many are not needed in a system.
-   */
-		uint32_t maximum_key_value_pairs;
+/**
+* This field contains the maximum number of POSIX API
+* key value pairs which are configured for this application.
+*
+* @note There can be potentially be a key/value pair for
+*       every thread to use every key. But normally this
+*       many are not needed in a system.
+*/
+	uint32_t maximum_key_value_pairs;
 
-  /** 
-   * This field specifies the number of microseconds which elapse
-   * between clock ticks.  This is the basis for RTEMS timing.
-   */
-		uint32_t microseconds_per_tick;
+/**
+* This field specifies the number of microseconds which elapse
+* between clock ticks.  This is the basis for RTEMS timing.
+*/
+	uint32_t microseconds_per_tick;
 
-  /** 
-   * This field specifies the number of nanoseconds which elapse
-   * between clock ticks.  This value is derived from the
-   * microseconds_per_tick field and provided to avoid calculation at
-   * run-time.
-   */
-		uint32_t nanoseconds_per_tick;
+/**
+* This field specifies the number of nanoseconds which elapse
+* between clock ticks.  This value is derived from the
+* microseconds_per_tick field and provided to avoid calculation at
+* run-time.
+*/
+	uint32_t nanoseconds_per_tick;
 
-  /** 
-   * This field specifies the number of ticks in each task's timeslice.
-   */
-		uint32_t ticks_per_timeslice;
+/**
+* This field specifies the number of ticks in each task's timeslice.
+*/
+	uint32_t ticks_per_timeslice;
 
-  /** 
-   * This element points to the BSP's optional idle task which may override
-   * the default one provided with RTEMS.
-   */
-		  Thread (*idle_task) (uintptr_t);
+/**
+* This element points to the BSP's optional idle task which may override
+* the default one provided with RTEMS.
+*/
+	  Thread (*idle_task) (uintptr_t);
 
-  /** 
-   * This field specifies the size of the IDLE task's stack.  If less than or
-   * equal to the minimum stack size, then the IDLE task will have the minimum
-   * stack size.
-   */
-		uint32_t idle_task_stack_size;
+/**
+* This field specifies the size of the IDLE task's stack.  If less than or
+* equal to the minimum stack size, then the IDLE task will have the minimum
+* stack size.
+*/
+	uint32_t idle_task_stack_size;
 
-  /** 
-   * This field specifies the size of the interrupt stack.  If less than or
-   * equal to the minimum stack size, then the interrupt stack will be of
-   * minimum stack size.
-   */
-		uint32_t interrupt_stack_size;
+/**
+* This field specifies the size of the interrupt stack.  If less than or
+* equal to the minimum stack size, then the interrupt stack will be of
+* minimum stack size.
+*/
+	uint32_t interrupt_stack_size;
 
-  /**
-   * @brief Optional task stack allocator initialization hook.
-   */
-		rtems_stack_allocate_init_hook stack_allocate_init_hook;
+/**
+* @brief Optional task stack allocator initialization hook.
+*/
+	rtems_stack_allocate_init_hook stack_allocate_init_hook;
 
-  /**
-   * @brief Optional task stack allocator hook.
-   */
-		rtems_stack_allocate_hook stack_allocate_hook;
+/**
+* @brief Optional task stack allocator hook.
+*/
+	rtems_stack_allocate_hook stack_allocate_hook;
 
-  /**
-   * @brief Optional task stack free hook.
-   */
-		rtems_stack_free_hook stack_free_hook;
+/**
+* @brief Optional task stack free hook.
+*/
+	rtems_stack_free_hook stack_free_hook;
 
-  /** 
-   * If this element is TRUE, then RTEMS will zero the Executive Workspace.
-   * When this element is FALSE, it is assumed that the BSP or invoking
-   * environment has ensured that memory was cleared before RTEMS was
-   * invoked.
-   */
-		bool do_zero_of_workspace;
+/**
+* If this element is TRUE, then RTEMS will zero the Executive Workspace.
+* When this element is FALSE, it is assumed that the BSP or invoking
+* environment has ensured that memory was cleared before RTEMS was
+* invoked.
+*/
+	bool do_zero_of_workspace;
 
-  /**
-   * @brief Specifies if a unified work area is used or not.
-   *
-   * If this element is @a true, then the RTEMS Workspace and the C Program
-   * Heap use the same heap, otherwise they use separate heaps.
-   */
-		bool unified_work_area;
+/**
+* @brief Specifies if a unified work area is used or not.
+*
+* If this element is @a true, then the RTEMS Workspace and the C Program
+* Heap use the same heap, otherwise they use separate heaps.
+*/
+	bool unified_work_area;
 
-  /**
-   * @brief Specifies if the stack allocator avoids the work space.
-   *
-   * If this element is @a true, then the stack allocator must not allocate the
-   * thread stacks from the RTEMS Workspace, otherwise it should allocate the
-   * thread stacks from the RTEMS Workspace.
-   */
-		bool stack_allocator_avoids_work_space;
+/**
+* @brief Specifies if the stack allocator avoids the work space.
+*
+* If this element is @a true, then the stack allocator must not allocate the
+* thread stacks from the RTEMS Workspace, otherwise it should allocate the
+* thread stacks from the RTEMS Workspace.
+*/
+	bool stack_allocator_avoids_work_space;
 
 #ifdef RTEMS_SMP
-		bool smp_enabled;
+	bool smp_enabled;
 #endif
 
-		uint32_t number_of_initial_extensions;
-		const rtems_extensions_table *User_extension_table;
+	uint32_t number_of_initial_extensions;
+	const rtems_extensions_table *User_extension_table;
 #if defined(RTEMS_MULTIPROCESSING)
-		rtems_multiprocessing_table *User_multiprocessing_table;
+	rtems_multiprocessing_table *User_multiprocessing_table;
 #endif
 #ifdef RTEMS_SMP
-		uint32_t maximum_processors;
+	uint32_t maximum_processors;
 #endif
-	} rtems_configuration_table;
+} rtems_configuration_table;
 
 /**
  * This is the configuration table generated by confdefs.h.
  */
-	extern const rtems_configuration_table Configuration;
+extern const rtems_configuration_table Configuration;
 
 #if defined(RTEMS_MULTIPROCESSING)
   /**

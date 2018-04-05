@@ -93,42 +93,42 @@ void xprt_register (SVCXPRT * xprt)
 	register int sock = xprt->xp_sock;
 
 	if (sock + 1 > __svc_fdsetsize)
-	  {
-		  int bytes = sizeof (fd_set);
-		  fd_set *fds;
+	{
+		int bytes = sizeof (fd_set);
+		fd_set *fds;
 
-		  fds = (fd_set *) malloc (bytes);
-		  memset (fds, 0, bytes);
-		  if (__svc_fdset)
-			{
-				memcpy (fds, __svc_fdset, bytes);
-				free (__svc_fdset);
-			}
-		  __svc_fdset = fds;
-		  __svc_fdsetsize = bytes * NBBY;
-	  }
+		fds = (fd_set *) malloc (bytes);
+		memset (fds, 0, bytes);
+		if (__svc_fdset)
+		{
+			memcpy (fds, __svc_fdset, bytes);
+			free (__svc_fdset);
+		}
+		__svc_fdset = fds;
+		__svc_fdsetsize = bytes * NBBY;
+	}
 
 	if (sock < FD_SETSIZE)
 		FD_SET (sock, &svc_fdset);
 	FD_SET (sock, __svc_fdset);
 
 	if (xports == NULL || sock + 1 > xportssize)
-	  {
-		  SVCXPRT **xp;
-		  int size = FD_SETSIZE;
+	{
+		SVCXPRT **xp;
+		int size = FD_SETSIZE;
 
-		  if (sock + 1 > size)
-			  size = sock + 1;
-		  xp = (SVCXPRT **) mem_alloc (size * sizeof (SVCXPRT *));
-		  memset (xp, 0, size * sizeof (SVCXPRT *));
-		  if (xports)
-			{
-				memcpy (xp, xports, xportssize * sizeof (SVCXPRT *));
-				free (xports);
-			}
-		  xportssize = size;
-		  xports = xp;
-	  }
+		if (sock + 1 > size)
+			size = sock + 1;
+		xp = (SVCXPRT **) mem_alloc (size * sizeof (SVCXPRT *));
+		memset (xp, 0, size * sizeof (SVCXPRT *));
+		if (xports)
+		{
+			memcpy (xp, xports, xportssize * sizeof (SVCXPRT *));
+			free (xports);
+		}
+		xportssize = size;
+		xports = xp;
+	}
 	xports[sock] = xprt;
 	svc_maxfd = max (svc_maxfd, sock);
 }
@@ -141,22 +141,22 @@ void xprt_unregister (SVCXPRT * xprt)
 	register int sock = xprt->xp_sock;
 
 	if (xports[sock] == xprt)
-	  {
-		  xports[sock] = (SVCXPRT *) 0;
-		  if (sock < FD_SETSIZE)
-			  FD_CLR (sock, &svc_fdset);
-		  FD_CLR (sock, __svc_fdset);
-		  if (sock == svc_maxfd)
-			{
-				for (svc_maxfd--; svc_maxfd >= 0; svc_maxfd--)
-					if (xports[svc_maxfd])
-						break;
-			}
-		  /*
-		   * XXX could use svc_maxfd as a hint to
-		   * decrease the size of __svc_fdset
-		   */
-	  }
+	{
+		xports[sock] = (SVCXPRT *) 0;
+		if (sock < FD_SETSIZE)
+			FD_CLR (sock, &svc_fdset);
+		FD_CLR (sock, __svc_fdset);
+		if (sock == svc_maxfd)
+		{
+			for (svc_maxfd--; svc_maxfd >= 0; svc_maxfd--)
+				if (xports[svc_maxfd])
+					break;
+		}
+		/*
+		 * XXX could use svc_maxfd as a hint to
+		 * decrease the size of __svc_fdset
+		 */
+	}
 }
 
 /* ********************** CALLOUT list related stuff ************* */
@@ -168,25 +168,25 @@ void xprt_unregister (SVCXPRT * xprt)
  */
 bool_t
 svc_register (SVCXPRT * xprt,
-			  u_long prog,
-			  u_long vers,
-			  void (*dispatch) (struct svc_req * r, SVCXPRT * xprt),
-			  int protocol)
+			u_long prog,
+			u_long vers,
+			void (*dispatch) (struct svc_req * r, SVCXPRT * xprt),
+			int protocol)
 {
 	struct svc_callout *prev;
 	register struct svc_callout *s;
 
 	if ((s = svc_find (prog, vers, &prev)) != NULL_SVC)
-	  {
-		  if (s->sc_dispatch == dispatch)
-			  goto pmap_it;		/* he is registering another xptr */
-		  return (FALSE);
-	  }
+	{
+		if (s->sc_dispatch == dispatch)
+			goto pmap_it;		/* he is registering another xptr */
+		return (FALSE);
+	}
 	s = (struct svc_callout *)mem_alloc (sizeof (struct svc_callout));
 	if (s == (struct svc_callout *)0)
-	  {
-		  return (FALSE);
-	  }
+	{
+		return (FALSE);
+	}
 	s->sc_prog = prog;
 	s->sc_vers = vers;
 	s->sc_dispatch = dispatch;
@@ -195,9 +195,9 @@ svc_register (SVCXPRT * xprt,
   pmap_it:
 	/* now register the information with the local binder service */
 	if (protocol)
-	  {
-		  return (pmap_set (prog, vers, protocol, xprt->xp_port));
-	  }
+	{
+		return (pmap_set (prog, vers, protocol, xprt->xp_port));
+	}
 	return (TRUE);
 }
 
@@ -212,13 +212,13 @@ void svc_unregister (u_long prog, u_long vers)
 	if ((s = svc_find (prog, vers, &prev)) == NULL_SVC)
 		return;
 	if (prev == NULL_SVC)
-	  {
-		  svc_head = s->sc_next;
-	  }
+	{
+		svc_head = s->sc_next;
+	}
 	else
-	  {
-		  prev->sc_next = s->sc_next;
-	  }
+	{
+		prev->sc_next = s->sc_next;
+	}
 	s->sc_next = NULL_SVC;
 	mem_free ((char *)s, (u_int) sizeof (struct svc_callout));
 	/* now unregister the information with the local binder service */
@@ -236,11 +236,11 @@ static struct svc_callout *svc_find (u_long prog,
 
 	p = NULL_SVC;
 	for (s = svc_head; s != NULL_SVC; s = s->sc_next)
-	  {
-		  if ((s->sc_prog == prog) && (s->sc_vers == vers))
-			  goto done;
-		  p = s;
-	  }
+	{
+		if ((s->sc_prog == prog) && (s->sc_vers == vers))
+			goto done;
+		p = s;
+	}
   done:
 	*prev = p;
 	return (s);
@@ -253,7 +253,7 @@ static struct svc_callout *svc_find (u_long prog,
  */
 bool_t
 svc_sendreply (register SVCXPRT * xprt,
-			   xdrproc_t xdr_results, void *xdr_location)
+			 xdrproc_t xdr_results, void *xdr_location)
 {
 	struct rpc_msg rply;
 
@@ -414,73 +414,73 @@ void svc_getreqset2 (fd_set * readfds, int width)
 
 	maskp = readfds->fds_bits;
 	for (sock = 0; sock < width; sock += NFDBITS)
-	  {
-		  for (mask = *maskp++; (bit = ffs (mask)); mask ^= (1 << (bit - 1)))
+	{
+		for (mask = *maskp++; (bit = ffs (mask)); mask ^= (1 << (bit - 1)))
+		{
+			/* sock has input waiting */
+			xprt = xports[sock + bit - 1];
+			if (xprt == NULL)
+				/* But do we control sock? */
+				continue;
+			/* now receive msgs from xprtprt (support batch calls) */
+			do
 			{
-				/* sock has input waiting */
-				xprt = xports[sock + bit - 1];
-				if (xprt == NULL)
-					/* But do we control sock? */
-					continue;
-				/* now receive msgs from xprtprt (support batch calls) */
-				do
-				  {
-					  if (SVC_RECV (xprt, &msg))
-						{
+				if (SVC_RECV (xprt, &msg))
+				{
 
-							/* now find the exported program and call it */
-							register struct svc_callout *s;
-							enum auth_stat why;
+					/* now find the exported program and call it */
+					register struct svc_callout *s;
+					enum auth_stat why;
 
-							r.rq_xprt = xprt;
-							r.rq_prog = msg.rm_call.cb_prog;
-							r.rq_vers = msg.rm_call.cb_vers;
-							r.rq_proc = msg.rm_call.cb_proc;
-							r.rq_cred = msg.rm_call.cb_cred;
-							/* first authenticate the message */
-							if ((why = _authenticate (&r, &msg)) != AUTH_OK)
-							  {
-								  svcerr_auth (xprt, why);
-								  goto call_done;
-							  }
-							/* now match message with a registered service */
-							prog_found = FALSE;
-							low_vers = (u_long) - 1;
-							high_vers = 0;
-							for (s = svc_head; s != NULL_SVC; s = s->sc_next)
-							  {
-								  if (s->sc_prog == r.rq_prog)
-									{
-										if (s->sc_vers == r.rq_vers)
-										  {
-											  (*s->sc_dispatch) (&r, xprt);
-											  goto call_done;
-										  }	/* found correct version */
-										prog_found = TRUE;
-										if (s->sc_vers < low_vers)
-											low_vers = s->sc_vers;
-										if (s->sc_vers > high_vers)
-											high_vers = s->sc_vers;
-									}	/* found correct program */
-							  }
-							/*
-							 * if we got here, the program or version
-							 * is not served ...
-							 */
-							if (prog_found)
-								svcerr_progvers (xprt, low_vers, high_vers);
-							else
-								svcerr_noprog (xprt);
-							/* Fall through to ... */
-						}
-					call_done:
-					  if ((stat = SVC_STAT (xprt)) == XPRT_DIED)
+					r.rq_xprt = xprt;
+					r.rq_prog = msg.rm_call.cb_prog;
+					r.rq_vers = msg.rm_call.cb_vers;
+					r.rq_proc = msg.rm_call.cb_proc;
+					r.rq_cred = msg.rm_call.cb_cred;
+					/* first authenticate the message */
+					if ((why = _authenticate (&r, &msg)) != AUTH_OK)
+					{
+						svcerr_auth (xprt, why);
+						goto call_done;
+					}
+					/* now match message with a registered service */
+					prog_found = FALSE;
+					low_vers = (u_long) - 1;
+					high_vers = 0;
+					for (s = svc_head; s != NULL_SVC; s = s->sc_next)
+					{
+						if (s->sc_prog == r.rq_prog)
 						{
-							SVC_DESTROY (xprt);
-							break;
-						}
-				  }
-				while (stat == XPRT_MOREREQS);
+							if (s->sc_vers == r.rq_vers)
+							{
+								(*s->sc_dispatch) (&r, xprt);
+								goto call_done;
+							}	/* found correct version */
+							prog_found = TRUE;
+							if (s->sc_vers < low_vers)
+								low_vers = s->sc_vers;
+							if (s->sc_vers > high_vers)
+								high_vers = s->sc_vers;
+						}	/* found correct program */
+					}
+					/*
+					 * if we got here, the program or version
+					 * is not served ...
+					 */
+					if (prog_found)
+						svcerr_progvers (xprt, low_vers, high_vers);
+					else
+						svcerr_noprog (xprt);
+					/* Fall through to ... */
+				}
+				call_done:
+				if ((stat = SVC_STAT (xprt)) == XPRT_DIED)
+				{
+					SVC_DESTROY (xprt);
+					break;
+				}
 			}
-	  }
+			while (stat == XPRT_MOREREQS);
+		}
+	}
 }

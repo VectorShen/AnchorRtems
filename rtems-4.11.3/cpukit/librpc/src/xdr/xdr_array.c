@@ -63,10 +63,10 @@ static char *rcsid =
  * xdr procedure to call to handle each element of the array.
  */
 bool_t xdr_array (register XDR * xdrs, caddr_t * addrp,	/* array pointer */
-				  u_int * sizep,	/* number of elements */
-				  u_int maxsize,	/* max numberof elements */
-				  u_int elsize,	/* size in bytes of each element */
-				  xdrproc_t elproc)	/* xdr routine to handle each element */
+				u_int * sizep,	/* number of elements */
+				u_int maxsize,	/* max numberof elements */
+				u_int elsize,	/* size in bytes of each element */
+				xdrproc_t elproc)	/* xdr routine to handle each element */
 {
 	register u_int i;
 	register caddr_t target = *addrp;
@@ -76,14 +76,14 @@ bool_t xdr_array (register XDR * xdrs, caddr_t * addrp,	/* array pointer */
 
 	/* like strings, arrays are really counted arrays */
 	if (!xdr_u_int (xdrs, sizep))
-	  {
-		  return (FALSE);
-	  }
+	{
+		return (FALSE);
+	}
 	c = *sizep;
 	if ((c > maxsize) && (xdrs->x_op != XDR_FREE))
-	  {
-		  return (FALSE);
-	  }
+	{
+		return (FALSE);
+	}
 	nodesize = c * elsize;
 
 	/*
@@ -92,42 +92,42 @@ bool_t xdr_array (register XDR * xdrs, caddr_t * addrp,	/* array pointer */
 	 */
 	if (target == NULL)
 		switch (xdrs->x_op)
-		  {
-			  case XDR_DECODE:
-				  if (c == 0)
-					  return (TRUE);
-				  *addrp = target = mem_alloc (nodesize);
-				  if (target == NULL)
-					{
-						(void)fprintf (stderr, "xdr_array: out of memory\n");
-						return (FALSE);
-					}
-				  memset (target, 0, nodesize);
-				  break;
+		{
+			case XDR_DECODE:
+				if (c == 0)
+					return (TRUE);
+				*addrp = target = mem_alloc (nodesize);
+				if (target == NULL)
+				{
+					(void)fprintf (stderr, "xdr_array: out of memory\n");
+					return (FALSE);
+				}
+				memset (target, 0, nodesize);
+				break;
 
-			  case XDR_FREE:
-				  return (TRUE);
-			  case XDR_ENCODE:	/* to avoid warning */
-				  break;
-		  }
+			case XDR_FREE:
+				return (TRUE);
+			case XDR_ENCODE:	/* to avoid warning */
+				break;
+		}
 
 	/*
 	 * now we xdr each element of array
 	 */
 	for (i = 0; (i < c) && stat; i++)
-	  {
-		  stat = (*elproc) (xdrs, target, LASTUNSIGNED);
-		  target += elsize;
-	  }
+	{
+		stat = (*elproc) (xdrs, target, LASTUNSIGNED);
+		target += elsize;
+	}
 
 	/*
 	 * the array may need freeing
 	 */
 	if (xdrs->x_op == XDR_FREE)
-	  {
-		  mem_free (*addrp, nodesize);
-		  *addrp = NULL;
-	  }
+	{
+		mem_free (*addrp, nodesize);
+		*addrp = NULL;
+	}
 	return (stat);
 }
 
@@ -152,12 +152,12 @@ xdr_vector (register XDR * xdrs,
 
 	elptr = basep;
 	for (i = 0; i < nelem; i++)
-	  {
-		  if (!(*xdr_elem) (xdrs, elptr, LASTUNSIGNED))
-			{
-				return (FALSE);
-			}
-		  elptr += elemsize;
-	  }
+	{
+		if (!(*xdr_elem) (xdrs, elptr, LASTUNSIGNED))
+		{
+			return (FALSE);
+		}
+		elptr += elemsize;
+	}
 	return (TRUE);
 }

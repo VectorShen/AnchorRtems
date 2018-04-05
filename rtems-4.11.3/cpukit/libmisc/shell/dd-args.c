@@ -110,7 +110,9 @@ static const struct arg
 	{
 	"seek", f_seek, C_SEEK, C_SEEK},
 	{
-"skip", f_skip, C_SKIP, C_SKIP},};
+		"skip", f_skip, C_SKIP, C_SKIP
+	},
+};
 
 static char *oper;
 
@@ -127,75 +129,75 @@ void jcl (rtems_shell_dd_globals * globals, char **argv)
 	in.dbsz = out.dbsz = 512;
 
 	while ((oper = *++argv) != NULL)
-	  {
+	{
 //      if ((oper = strdup(oper)) == NULL)
 //          errx(exit_jump, 1, "unable to allocate space for the argument \"%s\"", *argv);
-		  if ((arg = strchr (oper, '=')) == NULL)
-			  errx (exit_jump, 1, "unknown operand %s", oper);
-		  *arg++ = '\0';
-		  if (!*arg)
-			  errx (exit_jump, 1, "no value specified for %s", oper);
-		  tmp.name = oper;
-		  if (!(ap = (struct arg *)bsearch (&tmp, args,
+		if ((arg = strchr (oper, '=')) == NULL)
+			errx (exit_jump, 1, "unknown operand %s", oper);
+		*arg++ = '\0';
+		if (!*arg)
+			errx (exit_jump, 1, "no value specified for %s", oper);
+		tmp.name = oper;
+		if (!(ap = (struct arg *)bsearch (&tmp, args,
 											sizeof (args) / sizeof (struct arg),
 											sizeof (struct arg), c_arg)))
-			  errx (exit_jump, 1, "unknown operand %s", tmp.name);
-		  if (ddflags & ap->noset)
-			  errx (exit_jump, 1,
+			errx (exit_jump, 1, "unknown operand %s", tmp.name);
+		if (ddflags & ap->noset)
+			errx (exit_jump, 1,
 					"%s: illegal argument combination or already set",
 					tmp.name);
-		  ddflags |= ap->set;
-		  ap->f (globals, arg);
-	  }
+		ddflags |= ap->set;
+		ap->f (globals, arg);
+	}
 
 	/* Final sanity checks. */
 
 	if (ddflags & C_BS)
-	  {
-		  /*
-		   * Bs is turned off by any conversion -- we assume the user
-		   * just wanted to set both the input and output block sizes
-		   * and didn't want the bs semantics, so we don't warn.
-		   */
-		  if (ddflags & (C_BLOCK | C_LCASE | C_SWAB | C_UCASE | C_UNBLOCK))
-			  ddflags &= ~C_BS;
+	{
+		/*
+		 * Bs is turned off by any conversion -- we assume the user
+		 * just wanted to set both the input and output block sizes
+		 * and didn't want the bs semantics, so we don't warn.
+		 */
+		if (ddflags & (C_BLOCK | C_LCASE | C_SWAB | C_UCASE | C_UNBLOCK))
+			ddflags &= ~C_BS;
 
-		  /* Bs supersedes ibs and obs. */
-		  if (ddflags & C_BS && ddflags & (C_IBS | C_OBS))
-			  warnx ("bs supersedes ibs and obs");
-	  }
+		/* Bs supersedes ibs and obs. */
+		if (ddflags & C_BS && ddflags & (C_IBS | C_OBS))
+			warnx ("bs supersedes ibs and obs");
+	}
 
 	/*
 	 * Ascii/ebcdic and cbs implies block/unblock.
 	 * Block/unblock requires cbs and vice-versa.
 	 */
 	if (ddflags & (C_BLOCK | C_UNBLOCK))
-	  {
-		  if (!(ddflags & C_CBS))
-			  errx (exit_jump, 1, "record operations require cbs");
-		  if (cbsz == 0)
-			  errx (exit_jump, 1, "cbs cannot be zero");
-		  cfunc = ddflags & C_BLOCK ? block : unblock;
-	  }
+	{
+		if (!(ddflags & C_CBS))
+			errx (exit_jump, 1, "record operations require cbs");
+		if (cbsz == 0)
+			errx (exit_jump, 1, "cbs cannot be zero");
+		cfunc = ddflags & C_BLOCK ? block : unblock;
+	}
 	else if (ddflags & C_CBS)
-	  {
-		  if (ddflags & (C_ASCII | C_EBCDIC))
+	{
+		if (ddflags & (C_ASCII | C_EBCDIC))
+		{
+			if (ddflags & C_ASCII)
 			{
-				if (ddflags & C_ASCII)
-				  {
-					  ddflags |= C_UNBLOCK;
-					  cfunc = unblock;
-				  }
-				else
-				  {
-					  ddflags |= C_BLOCK;
-					  cfunc = block;
-				  }
+				ddflags |= C_UNBLOCK;
+				cfunc = unblock;
 			}
-		  else
-			  errx (exit_jump, 1,
+			else
+			{
+				ddflags |= C_BLOCK;
+				cfunc = block;
+			}
+		}
+		else
+			errx (exit_jump, 1,
 					"cbs meaningless if not doing record operations");
-	  }
+	}
 	else
 		cfunc = def;
 
@@ -205,7 +207,7 @@ void jcl (rtems_shell_dd_globals * globals, char **argv)
 	if (in.offset > OFF_MAX / (ssize_t) in.dbsz ||
 		out.offset > OFF_MAX / (ssize_t) out.dbsz)
 		errx (exit_jump, 1, "seek offsets cannot be larger than %jd",
-			  (intmax_t) OFF_MAX);
+			(intmax_t) OFF_MAX);
 }
 
 static int c_arg (const void *a, const void *b)
@@ -222,7 +224,7 @@ static void f_bs (rtems_shell_dd_globals * globals, char *arg)
 	res = get_num (globals, arg);
 	if (res < 1 || res > SSIZE_MAX)
 		errx (exit_jump, 1, "bs must be between 1 and %jd",
-			  (intmax_t) SSIZE_MAX);
+			(intmax_t) SSIZE_MAX);
 	in.dbsz = out.dbsz = (size_t) res;
 }
 
@@ -233,7 +235,7 @@ static void f_cbs (rtems_shell_dd_globals * globals, char *arg)
 	res = get_num (globals, arg);
 	if (res < 1 || res > SSIZE_MAX)
 		errx (exit_jump, 1, "cbs must be between 1 and %jd",
-			  (intmax_t) SSIZE_MAX);
+			(intmax_t) SSIZE_MAX);
 	cbsz = (size_t) res;
 }
 
@@ -272,13 +274,13 @@ static void f_ibs (rtems_shell_dd_globals * globals, char *arg)
 	uintmax_t res;
 
 	if (!(ddflags & C_BS))
-	  {
-		  res = get_num (globals, arg);
-		  if (res < 1 || res > SSIZE_MAX)
-			  errx (exit_jump, 1, "ibs must be between 1 and %jd",
+	{
+		res = get_num (globals, arg);
+		if (res < 1 || res > SSIZE_MAX)
+			errx (exit_jump, 1, "ibs must be between 1 and %jd",
 					(intmax_t) SSIZE_MAX);
-		  in.dbsz = (size_t) res;
-	  }
+		in.dbsz = (size_t) res;
+	}
 }
 
 static void f_if (rtems_shell_dd_globals * globals, char *arg)
@@ -292,13 +294,13 @@ static void f_obs (rtems_shell_dd_globals * globals, char *arg)
 	uintmax_t res;
 
 	if (!(ddflags & C_BS))
-	  {
-		  res = get_num (globals, arg);
-		  if (res < 1 || res > SSIZE_MAX)
-			  errx (exit_jump, 1, "obs must be between 1 and %jd",
+	{
+		res = get_num (globals, arg);
+		if (res < 1 || res > SSIZE_MAX)
+			errx (exit_jump, 1, "obs must be between 1 and %jd",
 					(intmax_t) SSIZE_MAX);
-		  out.dbsz = (size_t) res;
-	  }
+		out.dbsz = (size_t) res;
+	}
 }
 
 static void f_of (rtems_shell_dd_globals * globals, char *arg)
@@ -372,19 +374,19 @@ static void f_conv (rtems_shell_dd_globals * globals, char *arg)
 	struct conv *cp, tmp;
 
 	while (arg != NULL)
-	  {
-		  tmp.name = strsep (&arg, ",");
-		  cp = bsearch (&tmp, clist, sizeof (clist) / sizeof (struct conv),
+	{
+		tmp.name = strsep (&arg, ",");
+		cp = bsearch (&tmp, clist, sizeof (clist) / sizeof (struct conv),
 						sizeof (struct conv), c_conv);
-		  if (cp == NULL)
-			  errx (exit_jump, 1, "unknown conversion %s", tmp.name);
-		  if (ddflags & cp->noset)
-			  errx (exit_jump, 1, "%s: illegal conversion combination",
+		if (cp == NULL)
+			errx (exit_jump, 1, "unknown conversion %s", tmp.name);
+		if (ddflags & cp->noset)
+			errx (exit_jump, 1, "%s: illegal conversion combination",
 					tmp.name);
-		  ddflags |= cp->set;
-		  if (cp->ctab_)
-			  ctab = cp->ctab_;
-	  }
+		ddflags |= cp->set;
+		if (cp->ctab_)
+			ctab = cp->ctab_;
+	}
 }
 
 static int c_conv (const void *a, const void *b)
@@ -403,8 +405,8 @@ static int c_conv (const void *a, const void *b)
  *	5) A positive decimal number followed by a 'g' or 'G' (mult by 1 << 30).
  *	5) A positive decimal number followed by a 'w' or 'W' (mult by sizeof int).
  *	6) Two or more positive decimal numbers (with/without [BbKkMmGgWw])
- *	   separated by 'x' or 'X' (also '*' for backwards compatibility),
- *	   specifying the product of the indicated values.
+ *	 separated by 'x' or 'X' (also '*' for backwards compatibility),
+ *	 specifying the product of the indicated values.
  */
 static uintmax_t get_num (rtems_shell_dd_globals * globals, const char *val)
 {
@@ -421,58 +423,58 @@ static uintmax_t get_num (rtems_shell_dd_globals * globals, const char *val)
 
 	mult = 0;
 	switch (*expr)
-	  {
-		  case 'B':
-		  case 'b':
-			  mult = UINT32_C (512);
-			  break;
-		  case 'K':
-		  case 'k':
-			  mult = UINT32_C (1) << 10;
-			  break;
-		  case 'M':
-		  case 'm':
-			  mult = UINT32_C (1) << 20;
-			  break;
-		  case 'G':
-		  case 'g':
-			  mult = UINT32_C (1) << 30;
-			  break;
-		  case 'W':
-		  case 'w':
-			  mult = sizeof (int);
-			  break;
-		  default:
-			  ;
-	  }
+	{
+		case 'B':
+		case 'b':
+			mult = UINT32_C (512);
+			break;
+		case 'K':
+		case 'k':
+			mult = UINT32_C (1) << 10;
+			break;
+		case 'M':
+		case 'm':
+			mult = UINT32_C (1) << 20;
+			break;
+		case 'G':
+		case 'g':
+			mult = UINT32_C (1) << 30;
+			break;
+		case 'W':
+		case 'w':
+			mult = sizeof (int);
+			break;
+		default:
+			;
+	}
 
 	if (mult != 0)
-	  {
-		  prevnum = num;
-		  num *= mult;
-		  /* Check for overflow. */
-		  if (num / mult != prevnum)
-			  goto erange;
-		  expr++;
-	  }
+	{
+		prevnum = num;
+		num *= mult;
+		/* Check for overflow. */
+		if (num / mult != prevnum)
+			goto erange;
+		expr++;
+	}
 
 	switch (*expr)
-	  {
-		  case '\0':
-			  break;
-		  case '*':			/* Backward compatible. */
-		  case 'X':
-		  case 'x':
-			  mult = get_num (globals, expr + 1);
-			  prevnum = num;
-			  num *= mult;
-			  if (num / mult == prevnum)
-				  break;
+	{
+		case '\0':
+			break;
+		case '*':			/* Backward compatible. */
+		case 'X':
+		case 'x':
+			mult = get_num (globals, expr + 1);
+			prevnum = num;
+			num *= mult;
+			if (num / mult == prevnum)
+				break;
 			erange:
-			  errx (exit_jump, 1, "%s: %s", oper, strerror (ERANGE));
-		  default:
-			  errx (exit_jump, 1, "%s: illegal numeric value", oper);
-	  }
+			errx (exit_jump, 1, "%s: %s", oper, strerror (ERANGE));
+		default:
+			errx (exit_jump, 1, "%s: illegal numeric value", oper);
+	}
 	return (num);
 }
 
@@ -497,55 +499,55 @@ static off_t get_off_t (rtems_shell_dd_globals * globals, const char *val)
 
 	mult = 0;
 	switch (*expr)
-	  {
-		  case 'B':
-		  case 'b':
-			  mult = UINT32_C (512);
-			  break;
-		  case 'K':
-		  case 'k':
-			  mult = UINT32_C (1) << 10;
-			  break;
-		  case 'M':
-		  case 'm':
-			  mult = UINT32_C (1) << 20;
-			  break;
-		  case 'G':
-		  case 'g':
-			  mult = UINT32_C (1) << 30;
-			  break;
-		  case 'W':
-		  case 'w':
-			  mult = sizeof (int);
-			  break;
-	  }
+	{
+		case 'B':
+		case 'b':
+			mult = UINT32_C (512);
+			break;
+		case 'K':
+		case 'k':
+			mult = UINT32_C (1) << 10;
+			break;
+		case 'M':
+		case 'm':
+			mult = UINT32_C (1) << 20;
+			break;
+		case 'G':
+		case 'g':
+			mult = UINT32_C (1) << 30;
+			break;
+		case 'W':
+		case 'w':
+			mult = sizeof (int);
+			break;
+	}
 
 	if (mult != 0)
-	  {
-		  prevnum = num;
-		  num *= mult;
-		  /* Check for overflow. */
-		  if ((prevnum > 0) != (num > 0) || num / mult != prevnum)
-			  goto erange;
-		  expr++;
-	  }
+	{
+		prevnum = num;
+		num *= mult;
+		/* Check for overflow. */
+		if ((prevnum > 0) != (num > 0) || num / mult != prevnum)
+			goto erange;
+		expr++;
+	}
 
 	switch (*expr)
-	  {
-		  case '\0':
-			  break;
-		  case '*':			/* Backward compatible. */
-		  case 'X':
-		  case 'x':
-			  mult = (intmax_t) get_off_t (globals, expr + 1);
-			  prevnum = num;
-			  num *= mult;
-			  if ((prevnum > 0) == (num > 0) && num / mult == prevnum)
-				  break;
+	{
+		case '\0':
+			break;
+		case '*':			/* Backward compatible. */
+		case 'X':
+		case 'x':
+			mult = (intmax_t) get_off_t (globals, expr + 1);
+			prevnum = num;
+			num *= mult;
+			if ((prevnum > 0) == (num > 0) && num / mult == prevnum)
+				break;
 			erange:
-			  errx (exit_jump, 1, "%s: %s", oper, strerror (ERANGE));
-		  default:
-			  errx (exit_jump, 1, "%s: illegal numeric value", oper);
-	  }
+			errx (exit_jump, 1, "%s: %s", oper, strerror (ERANGE));
+		default:
+			errx (exit_jump, 1, "%s: illegal numeric value", oper);
+	}
 	return (num);
 }

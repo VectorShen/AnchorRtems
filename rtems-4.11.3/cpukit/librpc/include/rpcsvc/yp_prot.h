@@ -328,7 +328,8 @@ struct yppushresp_xfr
 #define YPPUSH_REFUSED	((long)-14)	/* Transfer request refused by ypserv */
 
 struct inaddr;
-__BEGIN_DECLS bool_t xdr_datum (XDR *, datum *);
+__BEGIN_DECLS
+bool_t xdr_datum (XDR *, datum *);
 bool_t xdr_ypreq_key (XDR *, struct ypreq_key *);
 bool_t xdr_ypreq_nokey (XDR *, struct ypreq_nokey *);
 bool_t xdr_ypreq_xfr (XDR *, struct ypreq_xfr *);

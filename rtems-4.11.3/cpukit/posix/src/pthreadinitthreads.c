@@ -64,28 +64,28 @@ void _POSIX_Threads_Initialize_user_threads_body (void)
 	 */
 
 	for (index = 0; index < maximum; index++)
-	  {
-		  /*
-		   * There is no way for these calls to fail in this situation.
-		   */
-		  eno = pthread_attr_init (&attr);
-		  _Assert (eno == 0);
-		  eno = pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
-		  _Assert (eno == 0);
-		  eno =
-			  pthread_attr_setstacksize (&attr, user_threads[index].stack_size);
-		  _Assert (eno == 0);
+	{
+		/*
+		 * There is no way for these calls to fail in this situation.
+		 */
+		eno = pthread_attr_init (&attr);
+		_Assert (eno == 0);
+		eno = pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
+		_Assert (eno == 0);
+		eno =
+			pthread_attr_setstacksize (&attr, user_threads[index].stack_size);
+		_Assert (eno == 0);
 
-		  thread_entry = user_threads[index].thread_entry;
+		thread_entry = user_threads[index].thread_entry;
 
-		  if (register_global_construction && thread_entry != NULL)
-			{
-				register_global_construction = false;
-				thread_entry = (void *(*)(void *))_Thread_Global_construction;
-			}
+		if (register_global_construction && thread_entry != NULL)
+		{
+			register_global_construction = false;
+			thread_entry = (void *(*)(void *))_Thread_Global_construction;
+		}
 
-		  eno = pthread_create (&thread_id, &attr, thread_entry, NULL);
-		  if (eno)
-			  _POSIX_Fatal_error (POSIX_FD_PTHREAD, eno);
-	  }
+		eno = pthread_create (&thread_id, &attr, thread_entry, NULL);
+		if (eno)
+			_POSIX_Fatal_error (POSIX_FD_PTHREAD, eno);
+	}
 }

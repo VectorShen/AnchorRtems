@@ -73,33 +73,33 @@ static bool_t x_setpostn (XDR * xdrs, u_int pos)
 static int32_t *x_inline (XDR * xdrs, u_int len)
 {
 	if (len == 0)
-	  {
-		  return (NULL);
-	  }
+	{
+		return (NULL);
+	}
 	if (xdrs->x_op != XDR_ENCODE)
-	  {
-		  return (NULL);
-	  }
+	{
+		return (NULL);
+	}
 	if (len < (intptr_t) xdrs->x_base)
-	  {
-		  /* x_private was already allocated */
-		  xdrs->x_handy += len;
-		  return ((int32_t *) xdrs->x_private);
-	  }
+	{
+		/* x_private was already allocated */
+		xdrs->x_handy += len;
+		return ((int32_t *) xdrs->x_private);
+	}
 	else
-	  {
-		  /* Free the earlier space and allocate new area */
-		  if (xdrs->x_private)
-			  free (xdrs->x_private);
-		  if ((xdrs->x_private = (caddr_t) malloc (len)) == NULL)
-			{
-				xdrs->x_base = 0;
-				return (NULL);
-			}
-		  xdrs->x_base = (caddr_t) ((intptr_t) len);
-		  xdrs->x_handy += len;
-		  return ((int32_t *) xdrs->x_private);
-	  }
+	{
+		/* Free the earlier space and allocate new area */
+		if (xdrs->x_private)
+			free (xdrs->x_private);
+		if ((xdrs->x_private = (caddr_t) malloc (len)) == NULL)
+		{
+			xdrs->x_base = 0;
+			return (NULL);
+		}
+		xdrs->x_base = (caddr_t) ((intptr_t) len);
+		xdrs->x_handy += len;
+		return ((int32_t *) xdrs->x_private);
+	}
 }
 
 static int harmless (void)
@@ -113,10 +113,10 @@ static void x_destroy (XDR * xdrs)
 	xdrs->x_handy = 0;
 	xdrs->x_base = 0;
 	if (xdrs->x_private)
-	  {
-		  free (xdrs->x_private);
-		  xdrs->x_private = NULL;
-	  }
+	{
+		free (xdrs->x_private);
+		xdrs->x_private = NULL;
+	}
 	return;
 }
 

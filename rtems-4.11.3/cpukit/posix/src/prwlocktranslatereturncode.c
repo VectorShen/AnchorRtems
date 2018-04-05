@@ -24,7 +24,8 @@
 #include <rtems/system.h>
 #include <rtems/posix/rwlockimpl.h>
 
-static int _POSIX_RWLock_Return_codes[CORE_RWLOCK_STATUS_LAST + 1] = {
+static int _POSIX_RWLock_Return_codes[CORE_RWLOCK_STATUS_LAST + 1] =
+{
 	0,							/* CORE_RWLOCK_SUCCESSFUL */
 	EINVAL,						/* CORE_RWLOCK_DELETED */
 	EBUSY,						/* CORE_RWLOCK_UNAVAILABLE */

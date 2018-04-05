@@ -97,13 +97,13 @@ struct if_nameindex *if_nameindex (void)
 	ni = 0;
 	nbytes = 0;
 	for (ifa = ifaddrs; ifa != NULL; ifa = ifa->ifa_next)
-	  {
-		  if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_LINK)
-			{
-				nbytes += strlen (ifa->ifa_name) + 1;
-				ni++;
-			}
-	  }
+	{
+		if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_LINK)
+		{
+			nbytes += strlen (ifa->ifa_name) + 1;
+			ni++;
+		}
+	}
 
 	/*
 	 * Next, allocate a chunk of memory, use the first part
@@ -123,17 +123,17 @@ struct if_nameindex *if_nameindex (void)
 	 */
 	ifni2 = ifni;
 	for (ifa = ifaddrs; ifa != NULL; ifa = ifa->ifa_next)
-	  {
-		  if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_LINK)
-			{
-				ifni2->if_index =
-					((struct sockaddr_dl *)ifa->ifa_addr)->sdl_index;
-				ifni2->if_name = cp;
-				strcpy (cp, ifa->ifa_name);
-				ifni2++;
-				cp += strlen (cp) + 1;
-			}
-	  }
+	{
+		if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_LINK)
+		{
+			ifni2->if_index =
+				((struct sockaddr_dl *)ifa->ifa_addr)->sdl_index;
+			ifni2->if_name = cp;
+			strcpy (cp, ifa->ifa_name);
+			ifni2++;
+			cp += strlen (cp) + 1;
+		}
+	}
 	/*
 	 * Finally, don't forget to terminate the array.
 	 */

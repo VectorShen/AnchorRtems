@@ -55,10 +55,10 @@ rtems_status_code rtems_rate_monotonic_create (rtems_name name, rtems_id * id)
 	the_period = _Rate_monotonic_Allocate ();
 
 	if (!the_period)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 	the_period->owner = _Thread_Get_executing ();
 	the_period->state = RATE_MONOTONIC_INACTIVE;
@@ -68,7 +68,7 @@ rtems_status_code rtems_rate_monotonic_create (rtems_name name, rtems_id * id)
 	_Rate_monotonic_Reset_statistics (the_period);
 
 	_Objects_Open (&_Rate_monotonic_Information,
-				   &the_period->Object, (Objects_Name) name);
+				 &the_period->Object, (Objects_Name) name);
 
 	*id = the_period->Object.id;
 	_Objects_Allocator_unlock ();

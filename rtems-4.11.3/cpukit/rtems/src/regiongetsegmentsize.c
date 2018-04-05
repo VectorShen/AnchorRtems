@@ -43,22 +43,22 @@ rtems_status_code rtems_region_get_segment_size (rtems_id id,
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  if (!_Heap_Size_of_alloc_area
-				  (&the_region->Memory, segment, size))
-				  return_status = RTEMS_INVALID_ADDRESS;
-			  break;
+		case OBJECTS_LOCAL:
+			if (!_Heap_Size_of_alloc_area
+				(&the_region->Memory, segment, size))
+				return_status = RTEMS_INVALID_ADDRESS;
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 	return return_status;

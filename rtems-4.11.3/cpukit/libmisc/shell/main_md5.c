@@ -32,75 +32,76 @@ static int rtems_shell_main_md5 (int argc, char *argv[])
 
 	buffer = malloc (BUFFER_SIZE);
 	if (!buffer)
-	  {
-		  printf ("error: no memory\n");
-		  return 1;
-	  }
+	{
+		printf ("error: no memory\n");
+		return 1;
+	}
 
 	--argc;
 	++argv;
 
 	while (argc)
-	  {
-		  struct stat sb;
-		  MD5_CTX md5;
-		  int in;
+	{
+		struct stat sb;
+		MD5_CTX md5;
+		int in;
 
-		  if (stat (*argv, &sb) < 0)
+		if (stat (*argv, &sb) < 0)
+		{
+			free (buffer);
+			printf ("error: stat of %s: %s\n", *argv, strerror (errno));
+			return 1;
+		}
+
+		in = open (*argv, O_RDONLY);
+		if (in < 0)
+		{
+			free (buffer);
+			printf ("error: opening %s: %s\n", *argv, strerror (errno));
+			return 1;
+		}
+
+		MD5Init (&md5);
+
+		while (sb.st_size)
+		{
+			ssize_t size =
+				sb.st_size > BUFFER_SIZE ? BUFFER_SIZE : sb.st_size;
+
+			if (read (in, buffer, size) != size)
 			{
+				close (in);
 				free (buffer);
-				printf ("error: stat of %s: %s\n", *argv, strerror (errno));
+				printf ("error: reading %s: %s\n", *argv,
+						strerror (errno));
 				return 1;
 			}
 
-		  in = open (*argv, O_RDONLY);
-		  if (in < 0)
-			{
-				free (buffer);
-				printf ("error: opening %s: %s\n", *argv, strerror (errno));
-				return 1;
-			}
+			MD5Update (&md5, buffer, size);
 
-		  MD5Init (&md5);
+			sb.st_size -= size;
+		}
 
-		  while (sb.st_size)
-			{
-				ssize_t size =
-					sb.st_size > BUFFER_SIZE ? BUFFER_SIZE : sb.st_size;
+		MD5Final (hash, &md5);
 
-				if (read (in, buffer, size) != size)
-				  {
-					  close (in);
-					  free (buffer);
-					  printf ("error: reading %s: %s\n", *argv,
-							  strerror (errno));
-					  return 1;
-				  }
+		close (in);
 
-				MD5Update (&md5, buffer, size);
+		printf ("MD5 (%s) = ", *argv);
+		for (h = 0; h < sizeof (hash); ++h)
+			printf ("%02x", (int)hash[h]);
+		printf ("\n");
 
-				sb.st_size -= size;
-			}
-
-		  MD5Final (hash, &md5);
-
-		  close (in);
-
-		  printf ("MD5 (%s) = ", *argv);
-		  for (h = 0; h < sizeof (hash); ++h)
-			  printf ("%02x", (int)hash[h]);
-		  printf ("\n");
-
-		  --argc;
-		  ++argv;
-	  }
+		--argc;
+		++argv;
+	}
 
 	free (buffer);
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_MD5_Command = {
+rtems_shell_cmd_t rtems_shell_MD5_Command =
+{
 	"md5",						/* name */
 	"md5 [file ...]",			/* usage */
 	"files",					/* topic */

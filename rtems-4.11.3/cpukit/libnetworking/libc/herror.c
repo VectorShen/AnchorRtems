@@ -58,7 +58,8 @@
 #include <string.h>
 #include <unistd.h>
 
-const char *h_errlist[] = {
+const char *h_errlist[] =
+{
 	"Resolver Error 0 (no error)",
 	"Unknown host",				/* 1 HOST_NOT_FOUND */
 	"Host name lookup failure",	/* 2 TRY_AGAIN */
@@ -82,14 +83,14 @@ void herror (const char *s)
 	register struct iovec *v = iov;
 
 	if (s && *s)
-	  {
-		  v->iov_base = (char *)s;
-		  v->iov_len = strlen (s);
-		  v++;
-		  v->iov_base = ": ";
-		  v->iov_len = 2;
-		  v++;
-	  }
+	{
+		v->iov_base = (char *)s;
+		v->iov_len = strlen (s);
+		v++;
+		v->iov_base = ": ";
+		v->iov_len = 2;
+		v++;
+	}
 	v->iov_base = (char *)hstrerror (h_errno);
 	v->iov_len = strlen (v->iov_base);
 	v++;
@@ -101,10 +102,10 @@ void herror (const char *s)
 	 * no writev implementation available
 	 */
 	if (s && *s)
-	  {
-		  write (2, s, strlen (s));
-		  write (2, ": ", 2);
-	  }
+	{
+		write (2, s, strlen (s));
+		write (2, ": ", 2);
+	}
 	s = (char *)hstrerror (h_errno);
 	write (2, s, strlen (s));
 	write (2, "\n", 1);

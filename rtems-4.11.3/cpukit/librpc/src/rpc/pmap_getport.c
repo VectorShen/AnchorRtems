@@ -63,7 +63,7 @@ static const struct timeval tottimeout = { 60, 0 };
  */
 u_short
 pmap_getport (struct sockaddr_in *address,
-			  u_long program, u_long version, u_int protocol)
+			u_long program, u_long version, u_int protocol)
 {
 	u_short port = 0;
 	int socket = -1;
@@ -75,25 +75,25 @@ pmap_getport (struct sockaddr_in *address,
 								PMAPVERS, timeout, &socket, RPCSMALLMSGSIZE,
 								RPCSMALLMSGSIZE);
 	if (client != NULL)
-	  {
-		  parms.pm_prog = program;
-		  parms.pm_vers = version;
-		  parms.pm_prot = protocol;
-		  parms.pm_port = 0;	/* not needed or used */
-		  if (CLNT_CALL (client, (rpcproc_t) PMAPPROC_GETPORT,
+	{
+		parms.pm_prog = program;
+		parms.pm_vers = version;
+		parms.pm_prot = protocol;
+		parms.pm_port = 0;	/* not needed or used */
+		if (CLNT_CALL (client, (rpcproc_t) PMAPPROC_GETPORT,
 						 (xdrproc_t) xdr_pmap,
 						 &parms, (xdrproc_t) xdr_u_short, &port, tottimeout) !=
-			  RPC_SUCCESS)
-			{
-				rpc_createerr.cf_stat = RPC_PMAPFAILURE;
-				clnt_geterr (client, &rpc_createerr.cf_error);
-			}
-		  else if (port == 0)
-			{
-				rpc_createerr.cf_stat = RPC_PROGNOTREGISTERED;
-			}
-		  CLNT_DESTROY (client);
-	  }
+			RPC_SUCCESS)
+		{
+			rpc_createerr.cf_stat = RPC_PMAPFAILURE;
+			clnt_geterr (client, &rpc_createerr.cf_error);
+		}
+		else if (port == 0)
+		{
+			rpc_createerr.cf_stat = RPC_PROGNOTREGISTERED;
+		}
+		CLNT_DESTROY (client);
+	}
 	if (socket != -1)
 		(void)_RPC_close (socket);
 	address->sin_port = 0;

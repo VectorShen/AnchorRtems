@@ -32,15 +32,15 @@ static int rtems_shell_main_umask (int argc, char *argv[])
 	mode_t msk = umask (0);
 
 	if (argc == 2)
-	  {
-		  if (rtems_string_to_unsigned_long (argv[1], &tmp, NULL, 0))
-			{
-				printf ("Mask argument (%s) is not a number\n", argv[1]);
-				return -1;
-			}
-		  msk = (mode_t) tmp;
+	{
+		if (rtems_string_to_unsigned_long (argv[1], &tmp, NULL, 0))
+		{
+			printf ("Mask argument (%s) is not a number\n", argv[1]);
+			return -1;
+		}
+		msk = (mode_t) tmp;
 
-	  }
+	}
 	umask (msk);
 
 	msk = umask (0);
@@ -49,7 +49,8 @@ static int rtems_shell_main_umask (int argc, char *argv[])
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_UMASK_Command = {
+rtems_shell_cmd_t rtems_shell_UMASK_Command =
+{
 	"umask",					/* name */
 	"umask [new_umask]",		/* usage */
 	"misc",						/* topic */

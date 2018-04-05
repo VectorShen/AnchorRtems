@@ -21,19 +21,19 @@
 #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
 
 bool _Scheduler_Get_affinity (Thread_Control * the_thread,
-							  size_t cpusetsize, cpu_set_t * cpuset)
+							size_t cpusetsize, cpu_set_t * cpuset)
 {
 	const Scheduler_Control *scheduler = _Scheduler_Get (the_thread);
 
 	if (!_CPU_set_Is_large_enough (cpusetsize))
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 
 #if defined(RTEMS_SMP)
 	return (*scheduler->Operations.get_affinity) (scheduler,
-												  the_thread,
-												  cpusetsize, cpuset);
+												the_thread,
+												cpusetsize, cpuset);
 #else
 	return _Scheduler_default_Get_affinity_body (scheduler,
 												 the_thread,

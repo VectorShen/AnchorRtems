@@ -28,38 +28,38 @@ int pci_for_each (int (*func) (pci_dev_t, void *), void *arg)
 	pci_dev_t pcidev;
 
 	for (bus = 0; bus < maxbus; bus++)
-	  {
-		  for (dev = 0; dev <= PCI_SLOTMAX; dev++)
+	{
+		for (dev = 0; dev <= PCI_SLOTMAX; dev++)
+		{
+			pcidev = PCI_DEV (bus, dev, 0);
+
+			for (fun = 0; fun <= PCI_FUNCMAX; fun++, pcidev++)
 			{
-				pcidev = PCI_DEV (bus, dev, 0);
+				fail = pci_cfg_r32 (pcidev, PCIR_VENDOR, &id);
+				if (fail || (0xffffffff == id) || (0 == id))
+				{
+					if (fun == 0)
+						break;
+					else
+						continue;
+				}
 
-				for (fun = 0; fun <= PCI_FUNCMAX; fun++, pcidev++)
-				  {
-					  fail = pci_cfg_r32 (pcidev, PCIR_VENDOR, &id);
-					  if (fail || (0xffffffff == id) || (0 == id))
-						{
-							if (fun == 0)
-								break;
-							else
-								continue;
-						}
+				DBG ("pcibus_for_each: found 0x%08lx at"
+					 " %d/%d/%d\n", id, bus, dev, fun);
+				result = func (pcidev, arg);
+				if (result != 0)
+					return result;	/* Stopped */
 
-					  DBG ("pcibus_for_each: found 0x%08lx at"
-						   " %d/%d/%d\n", id, bus, dev, fun);
-					  result = func (pcidev, arg);
-					  if (result != 0)
-						  return result;	/* Stopped */
-
-					  /* Stop if not a multi-function device */
-					  if (fun == 0)
-						{
-							pci_cfg_r8 (pcidev, PCIR_HDRTYPE, &hd);
-							if ((hd & PCIM_MFDEV) == 0)
-								break;
-						}
-				  }
+				/* Stop if not a multi-function device */
+				if (fun == 0)
+				{
+					pci_cfg_r8 (pcidev, PCIR_HDRTYPE, &hd);
+					if ((hd & PCIM_MFDEV) == 0)
+						break;
+				}
 			}
-	  }
+		}
+	}
 
 	return 0;					/* scanned all */
 }

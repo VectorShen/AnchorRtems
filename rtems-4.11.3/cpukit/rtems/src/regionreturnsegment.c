@@ -48,49 +48,49 @@ rtems_status_code rtems_region_return_segment (rtems_id id, void *segment)
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  _Region_Debug_Walk (the_region, 3);
+			_Region_Debug_Walk (the_region, 3);
 
 #ifdef RTEMS_REGION_FREE_SHRED_PATTERN
-			  if (!_Heap_Size_of_alloc_area
-				  (&the_region->Memory, segment, &size))
-				  return_status = RTEMS_INVALID_ADDRESS;
-			  else
+			if (!_Heap_Size_of_alloc_area
+				(&the_region->Memory, segment, &size))
+				return_status = RTEMS_INVALID_ADDRESS;
+			else
+			{
+				memset (segment, (RTEMS_REGION_FREE_SHRED_PATTERN & 0xFF),
+						size);
+#endif
+				status = _Region_Free_segment (the_region, segment);
+
+				_Region_Debug_Walk (the_region, 4);
+
+				if (!status)
+					return_status = RTEMS_INVALID_ADDRESS;
+				else
 				{
-					memset (segment, (RTEMS_REGION_FREE_SHRED_PATTERN & 0xFF),
-							size);
-#endif
-					status = _Region_Free_segment (the_region, segment);
+					the_region->number_of_used_blocks -= 1;
 
-					_Region_Debug_Walk (the_region, 4);
+					_Region_Process_queue (the_region);	/* unlocks allocator */
 
-					if (!status)
-						return_status = RTEMS_INVALID_ADDRESS;
-					else
-					  {
-						  the_region->number_of_used_blocks -= 1;
-
-						  _Region_Process_queue (the_region);	/* unlocks allocator */
-
-						  return RTEMS_SUCCESSFUL;
-					  }
-#ifdef RTEMS_REGION_FREE_SHRED_PATTERN
+					return RTEMS_SUCCESSFUL;
 				}
+#ifdef RTEMS_REGION_FREE_SHRED_PATTERN
+			}
 #endif
-			  break;
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 	return return_status;

@@ -63,7 +63,7 @@ rtems_rfs_inodes_from_percent (rtems_rfs_file_system * fs, int percentage)
 {
 	int blocks;
 	blocks = ((rtems_rfs_fs_blocks (fs) -
-			   RTEMS_RFS_SUPERBLOCK_SIZE) * percentage) / 100;
+			 RTEMS_RFS_SUPERBLOCK_SIZE) * percentage) / 100;
 	blocks = rtems_rfs_rup_quotient (blocks, fs->group_count);
 	return blocks * (rtems_rfs_fs_block_size (fs) / RTEMS_RFS_INODE_SIZE);
 }
@@ -92,49 +92,49 @@ rtems_rfs_check_config (rtems_rfs_file_system * fs,
 {
 	fs->block_size = config->block_size;
 	if (!fs->block_size)
-	  {
-		  uint64_t total_size = rtems_rfs_fs_media_size (fs);
+	{
+		uint64_t total_size = rtems_rfs_fs_media_size (fs);
 
-		  if (total_size >= GIGS (1))
-			{
-				uint32_t gigs = (total_size + GIGS (1)) / GIGS (1);
-				int b;
-				for (b = 31; b > 0; b--)
-					if ((gigs & (1 << b)) != 0)
-						break;
-				fs->block_size = 1 << b;
-			}
+		if (total_size >= GIGS (1))
+		{
+			uint32_t gigs = (total_size + GIGS (1)) / GIGS (1);
+			int b;
+			for (b = 31; b > 0; b--)
+				if ((gigs & (1 << b)) != 0)
+					break;
+			fs->block_size = 1 << b;
+		}
 
-		  if (fs->block_size < 512)
-			  fs->block_size = 512;
+		if (fs->block_size < 512)
+			fs->block_size = 512;
 
-		  if (fs->block_size > (4 * 1024))
-			  fs->block_size = (4 * 1024);
-	  }
+		if (fs->block_size > (4 * 1024))
+			fs->block_size = (4 * 1024);
+	}
 
 	if ((fs->block_size % rtems_rfs_fs_media_block_size (fs)) != 0)
-	  {
-		  printf ("block size (%zd) is not a multiple of media block size (%"
-				  PRId32 ")\n", fs->block_size,
-				  rtems_rfs_fs_media_block_size (fs));
-		  return false;
-	  }
+	{
+		printf ("block size (%zd) is not a multiple of media block size (%"
+				PRId32 ")\n", fs->block_size,
+				rtems_rfs_fs_media_block_size (fs));
+		return false;
+	}
 
 	fs->group_blocks = config->group_blocks;
 	if (!fs->group_blocks)
-	  {
-		  /*
-		   * The number of blocks per group is defined by the number of bits in a
-		   * block.
-		   */
-		  fs->group_blocks = rtems_rfs_bitmap_numof_bits (fs->block_size);
-	  }
+	{
+		/*
+		 * The number of blocks per group is defined by the number of bits in a
+		 * block.
+		 */
+		fs->group_blocks = rtems_rfs_bitmap_numof_bits (fs->block_size);
+	}
 
 	if (fs->group_blocks > rtems_rfs_bitmap_numof_bits (fs->block_size))
-	  {
-		  printf ("group block count is higher than bits in block\n");
-		  return false;
-	  }
+	{
+		printf ("group block count is higher than bits in block\n");
+		return false;
+	}
 
 	fs->blocks = rtems_rfs_fs_media_size (fs) / fs->block_size;
 
@@ -144,21 +144,21 @@ rtems_rfs_check_config (rtems_rfs_file_system * fs,
 	 * per block.
 	 */
 	fs->group_count = rtems_rfs_rup_quotient (rtems_rfs_fs_blocks (fs),
-											  rtems_rfs_bits_per_block (fs));
+											rtems_rfs_bits_per_block (fs));
 
 	fs->group_inodes = config->group_inodes;
 	if (!fs->group_inodes)
-	  {
-		  int inode_overhead = RTEMS_RFS_INODE_OVERHEAD_PERCENTAGE;
+	{
+		int inode_overhead = RTEMS_RFS_INODE_OVERHEAD_PERCENTAGE;
 
-		  /*
-		   * The number of inodes per group is set as a percentage.
-		   */
-		  if (config->inode_overhead)
-			  inode_overhead = config->inode_overhead;
+		/*
+		 * The number of inodes per group is set as a percentage.
+		 */
+		if (config->inode_overhead)
+			inode_overhead = config->inode_overhead;
 
-		  fs->group_inodes = rtems_rfs_inodes_from_percent (fs, inode_overhead);
-	  }
+		fs->group_inodes = rtems_rfs_inodes_from_percent (fs, inode_overhead);
+	}
 
 	/*
 	 * Round up to fill a block because the minimum allocation unit is a block.
@@ -173,16 +173,16 @@ rtems_rfs_check_config (rtems_rfs_file_system * fs,
 
 	fs->max_name_length = config->max_name_length;
 	if (!fs->max_name_length)
-	  {
-		  fs->max_name_length = 512;
-	  }
+	{
+		fs->max_name_length = 512;
+	}
 
 	return true;
 }
 
 static bool
 rtems_rfs_write_group (rtems_rfs_file_system * fs,
-					   int group, bool initialise_inodes, bool verbose)
+					 int group, bool initialise_inodes, bool verbose)
 {
 	rtems_rfs_buffer_handle handle;
 	rtems_rfs_bitmap_control bitmap;
@@ -195,11 +195,11 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	group_base = rtems_rfs_fs_block (fs, group, 0);
 
 	if (group_base > rtems_rfs_fs_blocks (fs))
-	  {
-		  printf ("rtems-rfs: write-group: group %d base beyond disk limit\n",
-				  group);
-		  return false;
-	  }
+	{
+		printf ("rtems-rfs: write-group: group %d base beyond disk limit\n",
+				group);
+		return false;
+	}
 
 	group_size = fs->group_blocks;
 
@@ -220,11 +220,11 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	 */
 	rc = rtems_rfs_buffer_handle_open (fs, &handle);
 	if (rc > 0)
-	  {
-		  printf ("\nrtems-rfs: write-group: handle open failed: %d: %s\n",
-				  rc, strerror (rc));
-		  return false;
-	  }
+	{
+		printf ("\nrtems-rfs: write-group: handle open failed: %d: %s\n",
+				rc, strerror (rc));
+		return false;
+	}
 
 	if (verbose)
 		printf (", blocks");
@@ -236,13 +236,13 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 								group_base +
 								RTEMS_RFS_GROUP_BLOCK_BITMAP_BLOCK);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf
-			  ("\nrtems-rfs: write-group: group %3d: open block bitmap failed: %d: %s\n",
-			   group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf
+			("\nrtems-rfs: write-group: group %3d: open block bitmap failed: %d: %s\n",
+			 group, rc, strerror (rc));
+		return false;
+	}
 
 	/*
 	 * Force the whole buffer to a known state. The bit map may not occupy the
@@ -256,14 +256,14 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	 */
 	rc = rtems_rfs_bitmap_map_clear_all (&bitmap);
 	if (rc > 0)
-	  {
-		  rtems_rfs_bitmap_close (&bitmap);
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf
-			  ("\nrtems-rfs: write-group: group %3d: block bitmap clear all failed: %d: %s\n",
-			   group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_bitmap_close (&bitmap);
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf
+			("\nrtems-rfs: write-group: group %3d: block bitmap clear all failed: %d: %s\n",
+			 group, rc, strerror (rc));
+		return false;
+	}
 
 	/*
 	 * Forced allocation of the block bitmap.
@@ -291,13 +291,13 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	 */
 	rc = rtems_rfs_bitmap_close (&bitmap);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf
-			  ("\nrtems-rfs: write-group: group %3d: close block bitmap failed: %d: %s\n",
-			   group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf
+			("\nrtems-rfs: write-group: group %3d: close block bitmap failed: %d: %s\n",
+			 group, rc, strerror (rc));
+		return false;
+	}
 
 	rtems_rfs_buffer_mark_dirty (&handle);
 
@@ -311,13 +311,13 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 								group_base +
 								RTEMS_RFS_GROUP_INODE_BITMAP_BLOCK);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf
-			  ("\nrtems-rfs: write-group: group %3d: open inode bitmap failed: %d: %s\n",
-			   group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf
+			("\nrtems-rfs: write-group: group %3d: open inode bitmap failed: %d: %s\n",
+			 group, rc, strerror (rc));
+		return false;
+	}
 
 	/*
 	 * Force the whole buffer to a known state. The bit map may not occupy the
@@ -331,25 +331,25 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	 */
 	rc = rtems_rfs_bitmap_map_clear_all (&bitmap);
 	if (rc > 0)
-	  {
-		  rtems_rfs_bitmap_close (&bitmap);
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf ("\nrtems-rfs: write-group: group %3d: inode bitmap"
-				  " clear all failed: %d: %s\n", group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_bitmap_close (&bitmap);
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf ("\nrtems-rfs: write-group: group %3d: inode bitmap"
+				" clear all failed: %d: %s\n", group, rc, strerror (rc));
+		return false;
+	}
 
 	/*
 	 * Close the inode bitmap.
 	 */
 	rc = rtems_rfs_bitmap_close (&bitmap);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf ("\nrtems-rfs: write-group: group %3d: close inode"
-				  " bitmap failed: %d: %s\n", group, rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf ("\nrtems-rfs: write-group: group %3d: close inode"
+				" bitmap failed: %d: %s\n", group, rc, strerror (rc));
+		return false;
+	}
 
 	rtems_rfs_buffer_mark_dirty (&handle);
 
@@ -357,42 +357,42 @@ rtems_rfs_write_group (rtems_rfs_file_system * fs,
 	 * Initialise the inode tables if required to do so.
 	 */
 	if (initialise_inodes)
-	  {
-		  for (b = 0; b < blocks; b++)
+	{
+		for (b = 0; b < blocks; b++)
+		{
+			rc = rtems_rfs_buffer_handle_request (fs, &handle,
+												group_base + b +
+												RTEMS_RFS_GROUP_INODE_BLOCK,
+												false);
+			if (rc > 0)
 			{
-				rc = rtems_rfs_buffer_handle_request (fs, &handle,
-													  group_base + b +
-													  RTEMS_RFS_GROUP_INODE_BLOCK,
-													  false);
-				if (rc > 0)
-				  {
-					  rtems_rfs_buffer_handle_close (fs, &handle);
-					  printf ("\nrtems-rfs: write-group: group %3d: block %"
-							  PRId32 " request failed: %d: %s\n", group,
-							  group_base + b + RTEMS_RFS_GROUP_INODE_BLOCK, rc,
-							  strerror (rc));
-					  return false;
-				  }
-
-				/*
-				 * Force the whole buffer to a known state. The bit map may not occupy the
-				 * whole block.
-				 */
-				memset (rtems_rfs_buffer_data (&handle), 0xff,
-						rtems_rfs_fs_block_size (fs));
-
-				rtems_rfs_buffer_mark_dirty (&handle);
+				rtems_rfs_buffer_handle_close (fs, &handle);
+				printf ("\nrtems-rfs: write-group: group %3d: block %"
+						PRId32 " request failed: %d: %s\n", group,
+						group_base + b + RTEMS_RFS_GROUP_INODE_BLOCK, rc,
+						strerror (rc));
+				return false;
 			}
-	  }
+
+			/*
+			 * Force the whole buffer to a known state. The bit map may not occupy the
+			 * whole block.
+			 */
+			memset (rtems_rfs_buffer_data (&handle), 0xff,
+					rtems_rfs_fs_block_size (fs));
+
+			rtems_rfs_buffer_mark_dirty (&handle);
+		}
+	}
 
 	rc = rtems_rfs_buffer_handle_close (fs, &handle);
 	if (rc > 0)
-	  {
-		  printf
-			  ("\nrtems-rfs: write-group: buffer handle close failed: %d: %s\n",
-			   rc, strerror (rc));
-		  return false;
-	  }
+	{
+		printf
+			("\nrtems-rfs: write-group: buffer handle close failed: %d: %s\n",
+			 rc, strerror (rc));
+		return false;
+	}
 
 	return true;
 }
@@ -405,20 +405,20 @@ static bool rtems_rfs_write_superblock (rtems_rfs_file_system * fs)
 
 	rc = rtems_rfs_buffer_handle_open (fs, &handle);
 	if (rc > 0)
-	  {
-		  printf ("rtems-rfs: write-superblock: handle open failed: %d: %s\n",
-				  rc, strerror (rc));
-		  return false;
-	  }
+	{
+		printf ("rtems-rfs: write-superblock: handle open failed: %d: %s\n",
+				rc, strerror (rc));
+		return false;
+	}
 
 	rc = rtems_rfs_buffer_handle_request (fs, &handle, 0, false);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf ("rtems-rfs: write-superblock: request failed: %d: %s\n",
-				  rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf ("rtems-rfs: write-superblock: request failed: %d: %s\n",
+				rc, strerror (rc));
+		return false;
+	}
 
 	sb = rtems_rfs_buffer_data (&handle);
 
@@ -441,22 +441,22 @@ static bool rtems_rfs_write_superblock (rtems_rfs_file_system * fs)
 
 	rc = rtems_rfs_buffer_handle_release (fs, &handle);
 	if (rc > 0)
-	  {
-		  rtems_rfs_buffer_handle_close (fs, &handle);
-		  printf
-			  ("rtems-rfs: write-superblock: buffer release failed: %d: %s\n",
-			   rc, strerror (rc));
-		  return false;
-	  }
+	{
+		rtems_rfs_buffer_handle_close (fs, &handle);
+		printf
+			("rtems-rfs: write-superblock: buffer release failed: %d: %s\n",
+			 rc, strerror (rc));
+		return false;
+	}
 
 	rc = rtems_rfs_buffer_handle_close (fs, &handle);
 	if (rc > 0)
-	  {
-		  printf
-			  ("rtems-rfs: write-superblock: buffer handle close failed: %d: %s\n",
-			   rc, strerror (rc));
-		  return false;
-	  }
+	{
+		printf
+			("rtems-rfs: write-superblock: buffer handle close failed: %d: %s\n",
+			 rc, strerror (rc));
+		return false;
+	}
 
 	return true;
 }
@@ -475,45 +475,45 @@ static int rtems_rfs_write_root_dir (const char *name)
 							RTEMS_RFS_FS_FORCE_OPEN |
 							RTEMS_RFS_FS_NO_LOCAL_CACHE, 0, &fs);
 	if (rc != 0)
-	  {
-		  rc = errno;
+	{
+		rc = errno;
 
-		  printf ("rtems-rfs: format: file system open failed: %d: %s\n",
-				  rc, strerror (rc));
+		printf ("rtems-rfs: format: file system open failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  return rc;
-	  }
+		return rc;
+	}
 
 	rc = rtems_rfs_inode_alloc (fs, RTEMS_RFS_ROOT_INO, &ino);
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: inode allocation failed: %d: %s\n",
-				  rc, strerror (rc));
-		  rtems_rfs_fs_close (fs);
-		  return rc;
-	  }
+	{
+		printf ("rtems-rfs: format: inode allocation failed: %d: %s\n",
+				rc, strerror (rc));
+		rtems_rfs_fs_close (fs);
+		return rc;
+	}
 
 	if (ino != RTEMS_RFS_ROOT_INO)
-	  {
-		  printf ("rtems-rfs: format: allocated inode not root ino: %" PRId32
-				  "\n", ino);
-		  rtems_rfs_fs_close (fs);
-		  return EINVAL;
-	  }
+	{
+		printf ("rtems-rfs: format: allocated inode not root ino: %" PRId32
+				"\n", ino);
+		rtems_rfs_fs_close (fs);
+		return EINVAL;
+	}
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: inode open failed: %d: %s\n",
-				  rc, strerror (rc));
-		  rtems_rfs_group_bitmap_free (fs, true, ino);
-		  rtems_rfs_fs_close (fs);
-		  return rc;
-	  }
+	{
+		printf ("rtems-rfs: format: inode open failed: %d: %s\n",
+				rc, strerror (rc));
+		rtems_rfs_group_bitmap_free (fs, true, ino);
+		rtems_rfs_fs_close (fs);
+		return rc;
+	}
 
 	rc = rtems_rfs_inode_initialise (&inode, 0,
 									 (RTEMS_RFS_S_IFDIR | RTEMS_RFS_S_IRWXU |
-									  RTEMS_RFS_S_IXGRP | RTEMS_RFS_S_IXOTH),
+									RTEMS_RFS_S_IXGRP | RTEMS_RFS_S_IXOTH),
 									 0, 0);
 	if (rc != 0)
 		printf ("rtems-rfs: format: inode initialise failed: %d: %s\n",
@@ -531,14 +531,14 @@ static int rtems_rfs_write_root_dir (const char *name)
 
 	rc = rtems_rfs_fs_close (fs);
 	if (rc != 0)
-	  {
-		  rc = errno;
+	{
+		rc = errno;
 
-		  printf ("rtems-rfs: format: file system close failed: %d: %s\n",
-				  rc, strerror (rc));
+		printf ("rtems-rfs: format: file system close failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  return rc;
-	  }
+		return rc;
+	}
 
 	return 0;
 }
@@ -571,110 +571,110 @@ int rtems_rfs_format (const char *name, const rtems_rfs_format_config * config)
 	 */
 	rc = rtems_rfs_buffer_open (name, &fs);
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: buffer open failed: %d: %s\n",
-				  rc, strerror (rc));
+	{
+		printf ("rtems-rfs: format: buffer open failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  errno = rc;
-		  return -1;
-	  }
+		errno = rc;
+		return -1;
+	}
 
 	/*
 	 * Check the media.
 	 */
 	if (rtems_rfs_fs_media_block_size (&fs) == 0)
-	  {
-		  printf ("rtems-rfs: media block is invalid: %" PRIu32 "\n",
-				  rtems_rfs_fs_media_block_size (&fs));
+	{
+		printf ("rtems-rfs: media block is invalid: %" PRIu32 "\n",
+				rtems_rfs_fs_media_block_size (&fs));
 
-		  errno = EINVAL;
-		  return -1;
-	  }
+		errno = EINVAL;
+		return -1;
+	}
 
 	/*
 	 * Check the configuration data.
 	 */
 	if (!rtems_rfs_check_config (&fs, config))
-	  {
-		  errno = EINVAL;
-		  return -1;
-	  }
+	{
+		errno = EINVAL;
+		return -1;
+	}
 
 	if (config->verbose)
-	  {
-		  printf ("rtems-rfs: format: media size = %" PRIu64 "\n",
-				  rtems_rfs_fs_media_size (&fs));
-		  printf ("rtems-rfs: format: media blocks = %" PRIu32 "\n",
-				  rtems_rfs_fs_media_blocks (&fs));
-		  printf ("rtems-rfs: format: media block size = %" PRIu32 "\n",
-				  rtems_rfs_fs_media_block_size (&fs));
-		  printf ("rtems-rfs: format: size = %" PRIu64 "\n",
-				  rtems_rfs_fs_size (&fs));
-		  printf ("rtems-rfs: format: blocks = %zu\n",
-				  rtems_rfs_fs_blocks (&fs));
-		  printf ("rtems-rfs: format: block size = %zu\n",
-				  rtems_rfs_fs_block_size (&fs));
-		  printf ("rtems-rfs: format: bits per block = %u\n",
-				  rtems_rfs_bits_per_block (&fs));
-		  printf ("rtems-rfs: format: inode size = %zu\n",
-				  RTEMS_RFS_INODE_SIZE);
-		  printf ("rtems-rfs: format: inodes = %zu (%d.%d%%)\n",
-				  fs.group_inodes * fs.group_count,
-				  rtems_rfs_inode_overhead (&fs) / 10,
-				  rtems_rfs_inode_overhead (&fs) % 10);
-		  printf ("rtems-rfs: format: groups = %u\n", fs.group_count);
-		  printf ("rtems-rfs: format: group blocks = %zu\n", fs.group_blocks);
-		  printf ("rtems-rfs: format: group inodes = %zu\n", fs.group_inodes);
-	  }
+	{
+		printf ("rtems-rfs: format: media size = %" PRIu64 "\n",
+				rtems_rfs_fs_media_size (&fs));
+		printf ("rtems-rfs: format: media blocks = %" PRIu32 "\n",
+				rtems_rfs_fs_media_blocks (&fs));
+		printf ("rtems-rfs: format: media block size = %" PRIu32 "\n",
+				rtems_rfs_fs_media_block_size (&fs));
+		printf ("rtems-rfs: format: size = %" PRIu64 "\n",
+				rtems_rfs_fs_size (&fs));
+		printf ("rtems-rfs: format: blocks = %zu\n",
+				rtems_rfs_fs_blocks (&fs));
+		printf ("rtems-rfs: format: block size = %zu\n",
+				rtems_rfs_fs_block_size (&fs));
+		printf ("rtems-rfs: format: bits per block = %u\n",
+				rtems_rfs_bits_per_block (&fs));
+		printf ("rtems-rfs: format: inode size = %zu\n",
+				RTEMS_RFS_INODE_SIZE);
+		printf ("rtems-rfs: format: inodes = %zu (%d.%d%%)\n",
+				fs.group_inodes * fs.group_count,
+				rtems_rfs_inode_overhead (&fs) / 10,
+				rtems_rfs_inode_overhead (&fs) % 10);
+		printf ("rtems-rfs: format: groups = %u\n", fs.group_count);
+		printf ("rtems-rfs: format: group blocks = %zu\n", fs.group_blocks);
+		printf ("rtems-rfs: format: group inodes = %zu\n", fs.group_inodes);
+	}
 
 	rc = rtems_rfs_buffer_setblksize (&fs, rtems_rfs_fs_block_size (&fs));
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: setting block size failed: %d: %s\n",
-				  rc, strerror (rc));
+	{
+		printf ("rtems-rfs: format: setting block size failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  errno = rc;
-		  return -1;
-	  }
+		errno = rc;
+		return -1;
+	}
 
 	if (!rtems_rfs_write_superblock (&fs))
-	  {
-		  printf ("rtems-rfs: format: superblock write failed\n");
+	{
+		printf ("rtems-rfs: format: superblock write failed\n");
 
-		  errno = EIO;
-		  return -1;
-	  }
+		errno = EIO;
+		return -1;
+	}
 
 	for (group = 0; group < fs.group_count; group++)
 		if (!rtems_rfs_write_group (&fs, group,
 									config->initialise_inodes, config->verbose))
-		  {
-			  errno = EIO;
-			  return -1;
-		  }
+		{
+			errno = EIO;
+			return -1;
+		}
 
 	if (config->verbose)
 		printf ("\n");
 
 	rc = rtems_rfs_buffer_close (&fs);
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: buffer close failed: %d: %s\n",
-				  rc, strerror (rc));
+	{
+		printf ("rtems-rfs: format: buffer close failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  errno = rc;
-		  return -1;
-	  }
+		errno = rc;
+		return -1;
+	}
 
 	rc = rtems_rfs_write_root_dir (name);
 	if (rc != 0)
-	  {
-		  printf ("rtems-rfs: format: writing root dir failed: %d: %s\n",
-				  rc, strerror (rc));
+	{
+		printf ("rtems-rfs: format: writing root dir failed: %d: %s\n",
+				rc, strerror (rc));
 
-		  errno = rc;
-		  return -1;
-	  }
+		errno = rc;
+		return -1;
+	}
 
 	return 0;
 }

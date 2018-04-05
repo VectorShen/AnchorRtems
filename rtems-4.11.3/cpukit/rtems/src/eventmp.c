@@ -40,29 +40,29 @@ rtems_status_code _Event_MP_Send_request_packet (Event_MP_Remote_operations
 	Event_MP_Packet *the_packet;
 
 	switch (operation)
-	  {
+	{
 
-		  case EVENT_MP_SEND_REQUEST:
+		case EVENT_MP_SEND_REQUEST:
 
-			  the_packet = _Event_MP_Get_packet ();
-			  the_packet->Prefix.the_class = MP_PACKET_EVENT;
-			  the_packet->Prefix.length = sizeof (Event_MP_Packet);
-			  the_packet->Prefix.to_convert = sizeof (Event_MP_Packet);
-			  the_packet->operation = operation;
-			  the_packet->Prefix.id = event_id;
-			  the_packet->event_in = event_in;
+			the_packet = _Event_MP_Get_packet ();
+			the_packet->Prefix.the_class = MP_PACKET_EVENT;
+			the_packet->Prefix.length = sizeof (Event_MP_Packet);
+			the_packet->Prefix.to_convert = sizeof (Event_MP_Packet);
+			the_packet->operation = operation;
+			the_packet->Prefix.id = event_id;
+			the_packet->event_in = event_in;
 
-			  return (rtems_status_code)
-				  _MPCI_Send_request_packet (_Objects_Get_node (event_id),
+			return (rtems_status_code)
+				_MPCI_Send_request_packet (_Objects_Get_node (event_id),
 											 &the_packet->Prefix,
 											 STATES_READY, RTEMS_TIMEOUT);
 
-			  break;
+			break;
 
-		  case EVENT_MP_SEND_RESPONSE:
-			  break;
+		case EVENT_MP_SEND_RESPONSE:
+			break;
 
-	  }
+	}
 	/*
 	 *  The following line is included to satisfy compilers which
 	 *  produce warnings when a function does not end with a return.
@@ -76,28 +76,28 @@ void _Event_MP_Send_response_packet (Event_MP_Remote_operations operation,
 	Event_MP_Packet *the_packet;
 
 	switch (operation)
-	  {
+	{
 
-		  case EVENT_MP_SEND_RESPONSE:
+		case EVENT_MP_SEND_RESPONSE:
 
-			  the_packet = (Event_MP_Packet *) the_thread->receive_packet;
+			the_packet = (Event_MP_Packet *) the_thread->receive_packet;
 
 /*
  *  The packet being returned already contains the class, length, and
  *  to_convert fields, therefore they are not set in this routine.
  */
-			  the_packet->operation = operation;
-			  the_packet->Prefix.id = the_packet->Prefix.source_tid;
+			the_packet->operation = operation;
+			the_packet->Prefix.id = the_packet->Prefix.source_tid;
 
-			  _MPCI_Send_response_packet (_Objects_Get_node
-										  (the_packet->Prefix.source_tid),
-										  &the_packet->Prefix);
-			  break;
+			_MPCI_Send_response_packet (_Objects_Get_node
+										(the_packet->Prefix.source_tid),
+										&the_packet->Prefix);
+			break;
 
-		  case EVENT_MP_SEND_REQUEST:
-			  break;
+		case EVENT_MP_SEND_REQUEST:
+			break;
 
-	  }
+	}
 }
 
 void _Event_MP_Process_packet (rtems_packet_prefix * the_packet_prefix)
@@ -108,27 +108,27 @@ void _Event_MP_Process_packet (rtems_packet_prefix * the_packet_prefix)
 	the_packet = (Event_MP_Packet *) the_packet_prefix;
 
 	switch (the_packet->operation)
-	  {
+	{
 
-		  case EVENT_MP_SEND_REQUEST:
+		case EVENT_MP_SEND_REQUEST:
 
-			  the_packet->Prefix.return_code =
-				  rtems_event_send (the_packet->Prefix.id,
+			the_packet->Prefix.return_code =
+				rtems_event_send (the_packet->Prefix.id,
 									the_packet->event_in);
 
-			  _Event_MP_Send_response_packet (EVENT_MP_SEND_RESPONSE,
-											  _Thread_Executing);
-			  break;
+			_Event_MP_Send_response_packet (EVENT_MP_SEND_RESPONSE,
+											_Thread_Executing);
+			break;
 
-		  case EVENT_MP_SEND_RESPONSE:
+		case EVENT_MP_SEND_RESPONSE:
 
-			  the_thread = _MPCI_Process_response (the_packet_prefix);
+			the_thread = _MPCI_Process_response (the_packet_prefix);
 
-			  _MPCI_Return_packet (the_packet_prefix);
+			_MPCI_Return_packet (the_packet_prefix);
 
-			  break;
+			break;
 
-	  }
+	}
 }
 
 /*

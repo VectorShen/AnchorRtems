@@ -25,7 +25,8 @@
 #include <rtems/score/corespinlock.h>
 #include <rtems/posix/spinlockimpl.h>
 
-static int _POSIX_Spinlock_Return_codes[CORE_SPINLOCK_STATUS_LAST + 1] = {
+static int _POSIX_Spinlock_Return_codes[CORE_SPINLOCK_STATUS_LAST + 1] =
+{
 	0,							/* CORE_SPINLOCK_SUCCESSFUL */
 	EDEADLK,					/* CORE_SPINLOCK_HOLDER_RELOCKING */
 	EPERM,						/* CORE_SPINLOCK_NOT_HOLDER */

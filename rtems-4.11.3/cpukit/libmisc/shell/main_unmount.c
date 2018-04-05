@@ -31,40 +31,41 @@ static int rtems_shell_main_unmount (int argc, char *argv[])
 	int arg;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (!mount_point)
-			  mount_point = argv[arg];
-		  else
-			{
-				fprintf (stderr, "error: only one mount path require: %s\n",
-						 argv[arg]);
-				return 1;
-			}
-	  }
+	{
+		if (!mount_point)
+			mount_point = argv[arg];
+		else
+		{
+			fprintf (stderr, "error: only one mount path require: %s\n",
+					 argv[arg]);
+			return 1;
+		}
+	}
 
 	if (!mount_point)
-	  {
-		  fprintf (stderr, "error: no mount point\n");
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "error: no mount point\n");
+		return 1;
+	}
 
 	/*
 	 * Unmount the disk.
 	 */
 
 	if (unmount (mount_point) < 0)
-	  {
-		  fprintf (stderr, "error: unmount failed: %s: %s\n",
-				   mount_point, strerror (errno));
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "error: unmount failed: %s: %s\n",
+				 mount_point, strerror (errno));
+		return 1;
+	}
 
 	printf ("unmounted %s\n", mount_point);
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_UNMOUNT_Command = {
+rtems_shell_cmd_t rtems_shell_UNMOUNT_Command =
+{
 	"unmount",					/* name */
 	"unmount path # unmount disk",	/* usage */
 	"files",					/* topic */

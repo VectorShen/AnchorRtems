@@ -34,36 +34,36 @@ RBTree_Node *_RBTree_Next (const RBTree_Node * node, RBTree_Direction dir)
 	RBTree_Node *next = NULL;
 
 	if (current != NULL)
-	  {
-		  next = current;
+	{
+		next = current;
 
-		  while ((current = current->child[opp_dir]) != NULL)
-			{
-				next = current;
-			}
-	  }
+		while ((current = current->child[opp_dir]) != NULL)
+		{
+			next = current;
+		}
+	}
 	else
-	  {
-		  RBTree_Node *parent = node->parent;
+	{
+		RBTree_Node *parent = node->parent;
 
-		  if (parent->parent && node == parent->child[opp_dir])
+		if (parent->parent && node == parent->child[opp_dir])
+		{
+			next = parent;
+		}
+		else
+		{
+			while (parent->parent && node == parent->child[dir])
+			{
+				node = parent;
+				parent = parent->parent;
+			}
+
+			if (parent->parent)
 			{
 				next = parent;
 			}
-		  else
-			{
-				while (parent->parent && node == parent->child[dir])
-				  {
-					  node = parent;
-					  parent = parent->parent;
-				  }
-
-				if (parent->parent)
-				  {
-					  next = parent;
-				  }
-			}
-	  }
+		}
+	}
 
 	return next;
 }

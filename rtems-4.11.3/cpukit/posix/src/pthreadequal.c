@@ -54,43 +54,43 @@ int pthread_equal (pthread_t t1, pthread_t t2)
 
 	thread_1 = _Thread_Get (t1, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  /*
-			   *  Validate the second id and return 0 if it is not valid
-			   */
+			/*
+			 *  Validate the second id and return 0 if it is not valid
+			 */
 
-			  thread_2 = _Thread_Get (t2, &location);
-			  switch (location)
-				{
+			thread_2 = _Thread_Get (t2, &location);
+			switch (location)
+			{
 
-					case OBJECTS_LOCAL:
-						status = _Objects_Are_ids_equal (t1, t2);
-						_Objects_Put_without_thread_dispatch (&thread_2->
-															  Object);
-						_Objects_Put (&thread_1->Object);
-						break;
+				case OBJECTS_LOCAL:
+					status = _Objects_Are_ids_equal (t1, t2);
+					_Objects_Put_without_thread_dispatch (&thread_2->
+														Object);
+					_Objects_Put (&thread_1->Object);
+					break;
 
-					case OBJECTS_ERROR:
+				case OBJECTS_ERROR:
 #if defined(RTEMS_MULTIPROCESSING)
-					case OBJECTS_REMOTE:
+				case OBJECTS_REMOTE:
 #endif
-						/* t1 must have been valid so exit the critical section */
-						_Objects_Put (&thread_1->Object);
-						/* return status == 0 */
-						break;
-				}
-			  break;
+					/* t1 must have been valid so exit the critical section */
+					_Objects_Put (&thread_1->Object);
+					/* return status == 0 */
+					break;
+			}
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  /* return status == 0 */
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			/* return status == 0 */
+			break;
+	}
 
 	return status;
 #endif

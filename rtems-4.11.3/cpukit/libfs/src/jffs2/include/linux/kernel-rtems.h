@@ -20,10 +20,10 @@ static inline char *do_kmemdup (const char *s, size_t n)
 	char *dup = malloc (n + 1);
 
 	if (dup != 0)
-	  {
-		  dup[n] = '\0';
-		  dup = memcpy (dup, s, n);
-	  }
+	{
+		dup[n] = '\0';
+		dup = memcpy (dup, s, n);
+	}
 
 	return dup;
 }

@@ -29,13 +29,13 @@
 void _ARMV7M_Set_exception_priority (int vector, int priority)
 {
 	if (_ARMV7M_Is_vector_an_irq (vector))
-	  {
-		  _ARMV7M_NVIC_Set_priority (ARMV7M_IRQ_OF_VECTOR (vector), priority);
-	  }
+	{
+		_ARMV7M_NVIC_Set_priority (ARMV7M_IRQ_OF_VECTOR (vector), priority);
+	}
 	else if (vector >= ARMV7M_VECTOR_MEM_MANAGE)
-	  {
-		  _ARMV7M_SCB->shpr[vector - 4] = (uint8_t) priority;
-	  }
+	{
+		_ARMV7M_SCB->shpr[vector - 4] = (uint8_t) priority;
+	}
 }
 
 #endif /* ARM_MULTILIB_ARCH_V7M */

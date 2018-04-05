@@ -72,12 +72,12 @@ void pos_in (rtems_shell_dd_globals * globals)
 
 	/* If known to be seekable, try to seek on it. */
 	if (in.flags & ISSEEK)
-	  {
-		  errno = 0;
-		  if (lseek (in.fd, in.offset * in.dbsz, SEEK_CUR) == -1 && errno != 0)
-			  err (exit_jump, 1, "%s", in.name);
-		  return;
-	  }
+	{
+		errno = 0;
+		if (lseek (in.fd, in.offset * in.dbsz, SEEK_CUR) == -1 && errno != 0)
+			err (exit_jump, 1, "%s", in.name);
+		return;
+	}
 
 	/* Don't try to read a really weird amount (like negative). */
 	if (in.offset < 0)
@@ -89,49 +89,49 @@ void pos_in (rtems_shell_dd_globals * globals)
 	 * blocks for other devices.
 	 */
 	for (bcnt = in.dbsz, cnt = in.offset, warned = 0; cnt;)
-	  {
-		  if ((nr = read (in.fd, in.db, bcnt)) > 0)
+	{
+		if ((nr = read (in.fd, in.db, bcnt)) > 0)
+		{
+			if (in.flags & ISPIPE)
 			{
-				if (in.flags & ISPIPE)
-				  {
-					  if (!(bcnt -= nr))
-						{
-							bcnt = in.dbsz;
-							--cnt;
-						}
-				  }
-				else
+				if (!(bcnt -= nr))
+				{
+					bcnt = in.dbsz;
 					--cnt;
+				}
+			}
+			else
+				--cnt;
+			continue;
+		}
+
+		if (nr == 0)
+		{
+			if (files_cnt > 1)
+			{
+				--files_cnt;
 				continue;
 			}
+			errx (exit_jump, 1, "skip reached end of input");
+		}
 
-		  if (nr == 0)
+		/*
+		 * Input error -- either EOF with no more files, or I/O error.
+		 * If noerror not set die.  POSIX requires that the warning
+		 * message be followed by an I/O display.
+		 */
+		if (ddflags & C_NOERROR)
+		{
+			if (!warned)
 			{
-				if (files_cnt > 1)
-				  {
-					  --files_cnt;
-					  continue;
-				  }
-				errx (exit_jump, 1, "skip reached end of input");
+				warn ("%s", in.name);
+				warned = 1;
+				summary (globals);
 			}
-
-		  /*
-		   * Input error -- either EOF with no more files, or I/O error.
-		   * If noerror not set die.  POSIX requires that the warning
-		   * message be followed by an I/O display.
-		   */
-		  if (ddflags & C_NOERROR)
-			{
-				if (!warned)
-				  {
-					  warn ("%s", in.name);
-					  warned = 1;
-					  summary (globals);
-				  }
-				continue;
-			}
-		  err (exit_jump, 1, "%s", in.name);
-	  }
+			continue;
+		}
+		err (exit_jump, 1, "%s", in.name);
+	}
 }
 
 void pos_out (rtems_shell_dd_globals * globals)
@@ -148,13 +148,13 @@ void pos_out (rtems_shell_dd_globals * globals)
 	 * have specified the seek operand.
 	 */
 	if (out.flags & (ISSEEK | ISPIPE))
-	  {
-		  errno = 0;
-		  if (lseek (out.fd, out.offset * out.dbsz, SEEK_CUR) == -1 &&
-			  errno != 0)
-			  err (exit_jump, 1, "%s", out.name);
-		  return;
-	  }
+	{
+		errno = 0;
+		if (lseek (out.fd, out.offset * out.dbsz, SEEK_CUR) == -1 &&
+			errno != 0)
+			err (exit_jump, 1, "%s", out.name);
+		return;
+	}
 
 	/* Don't try to read a really weird amount (like negative). */
 	if (out.offset < 0)
@@ -163,43 +163,43 @@ void pos_out (rtems_shell_dd_globals * globals)
 #if RTEMS_REMOVED
 	/* If no read access, try using mtio. */
 	if (out.flags & NOREAD)
-	  {
-		  t_op.mt_op = MTFSR;
-		  t_op.mt_count = out.offset;
+	{
+		t_op.mt_op = MTFSR;
+		t_op.mt_count = out.offset;
 
-		  if (ioctl (out.fd, MTIOCTOP, &t_op) == -1)
-			  err (1, "%s", out.name);
-		  return;
-	  }
+		if (ioctl (out.fd, MTIOCTOP, &t_op) == -1)
+			err (1, "%s", out.name);
+		return;
+	}
 
 	/* Read it. */
 	for (cnt = 0; cnt < out.offset; ++cnt)
-	  {
-		  if ((n = read (out.fd, out.db, out.dbsz)) > 0)
-			  continue;
+	{
+		if ((n = read (out.fd, out.db, out.dbsz)) > 0)
+			continue;
 
-		  if (n == -1)
-			  err (1, "%s", out.name);
+		if (n == -1)
+			err (1, "%s", out.name);
 
-		  /*
-		   * If reach EOF, fill with NUL characters; first, back up over
-		   * the EOF mark.  Note, cnt has not yet been incremented, so
-		   * the EOF read does not count as a seek'd block.
-		   */
-		  t_op.mt_op = MTBSR;
-		  t_op.mt_count = 1;
-		  if (ioctl (out.fd, MTIOCTOP, &t_op) == -1)
-			  err (1, "%s", out.name);
+		/*
+		 * If reach EOF, fill with NUL characters; first, back up over
+		 * the EOF mark.  Note, cnt has not yet been incremented, so
+		 * the EOF read does not count as a seek'd block.
+		 */
+		t_op.mt_op = MTBSR;
+		t_op.mt_count = 1;
+		if (ioctl (out.fd, MTIOCTOP, &t_op) == -1)
+			err (1, "%s", out.name);
 
-		  while (cnt++ < out.offset)
-			{
-				n = write (out.fd, out.db, out.dbsz);
-				if (n == -1)
-					err (1, "%s", out.name);
-				if ((size_t) n != out.dbsz)
-					errx (1, "%s: write failure", out.name);
-			}
-		  break;
-	  }
+		while (cnt++ < out.offset)
+		{
+			n = write (out.fd, out.db, out.dbsz);
+			if (n == -1)
+				err (1, "%s", out.name);
+			if ((size_t) n != out.dbsz)
+				errx (1, "%s: write failure", out.name);
+		}
+		break;
+	}
 #endif
 }

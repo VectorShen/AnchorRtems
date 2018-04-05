@@ -67,23 +67,23 @@ char *strsep (stringp, delim)
 	if ((s = *stringp) == NULL)
 		return (NULL);
 	for (tok = s;;)
-	  {
-		  c = *s++;
-		  spanp = delim;
-		  do
+	{
+		c = *s++;
+		spanp = delim;
+		do
+		{
+			if ((sc = *spanp++) == c)
 			{
-				if ((sc = *spanp++) == c)
-				  {
-					  if (c == 0)
-						  s = NULL;
-					  else
-						  s[-1] = 0;
-					  *stringp = s;
-					  return (tok);
-				  }
+				if (c == 0)
+					s = NULL;
+				else
+					s[-1] = 0;
+				*stringp = s;
+				return (tok);
 			}
-		  while (sc != 0);
-	  }
+		}
+		while (sc != 0);
+	}
 	/* NOTREACHED */
 }
 #endif

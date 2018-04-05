@@ -160,35 +160,35 @@ do_section (ns_msg * handle, ns_sect section, int pflag, FILE * file)
 	opcode = ns_msg_getflag (*handle, ns_f_opcode);
 	rrnum = 0;
 	for (;;)
-	  {
-		  if (ns_parserr (handle, section, rrnum, &rr))
+	{
+		if (ns_parserr (handle, section, rrnum, &rr))
+		{
+			if (errno != ENODEV)
+				fprintf (file, ";; ns_parserr: %s\n", strerror (errno));
+			else if (rrnum > 0 && sflag != 0 &&
+					 (_res.pfcode & RES_PRF_HEAD1))
+				putc ('\n', file);
+			return;
+		}
+		if (rrnum == 0 && sflag != 0 && (_res.pfcode & RES_PRF_HEAD1))
+			fprintf (file, ";; %s SECTION:\n", p_section (section, opcode));
+		if (section == ns_s_qd)
+			fprintf (file, ";;\t%s, type = %s, class = %s\n",
+					 ns_rr_name (rr),
+					 p_type (ns_rr_type (rr)), p_class (ns_rr_class (rr)));
+		else
+		{
+			n = ns_sprintrr (handle, &rr, NULL, NULL, buf, sizeof buf);
+			if (n < 0)
 			{
-				if (errno != ENODEV)
-					fprintf (file, ";; ns_parserr: %s\n", strerror (errno));
-				else if (rrnum > 0 && sflag != 0 &&
-						 (_res.pfcode & RES_PRF_HEAD1))
-					putc ('\n', file);
+				fprintf (file, ";; ns_sprintrr: %s\n", strerror (errno));
 				return;
 			}
-		  if (rrnum == 0 && sflag != 0 && (_res.pfcode & RES_PRF_HEAD1))
-			  fprintf (file, ";; %s SECTION:\n", p_section (section, opcode));
-		  if (section == ns_s_qd)
-			  fprintf (file, ";;\t%s, type = %s, class = %s\n",
-					   ns_rr_name (rr),
-					   p_type (ns_rr_type (rr)), p_class (ns_rr_class (rr)));
-		  else
-			{
-				n = ns_sprintrr (handle, &rr, NULL, NULL, buf, sizeof buf);
-				if (n < 0)
-				  {
-					  fprintf (file, ";; ns_sprintrr: %s\n", strerror (errno));
-					  return;
-				  }
-				fputs (buf, file);
-				fputc ('\n', file);
-			}
-		  rrnum++;
-	  }
+			fputs (buf, file);
+			fputc ('\n', file);
+		}
+		rrnum++;
+	}
 }
 
 void p_query (const u_char * msg)
@@ -215,10 +215,10 @@ void fp_nquery (const u_char * msg, int len, FILE * file)
 		return;
 
 	if (ns_initparse (msg, len, &handle) < 0)
-	  {
-		  fprintf (file, ";; ns_initparse: %s\n", strerror (errno));
-		  return;
-	  }
+	{
+		fprintf (file, ";; ns_initparse: %s\n", strerror (errno));
+		return;
+	}
 	opcode = ns_msg_getflag (handle, ns_f_opcode);
 	rcode = ns_msg_getflag (handle, ns_f_rcode);
 	id = ns_msg_id (handle);
@@ -237,37 +237,37 @@ void fp_nquery (const u_char * msg, int len, FILE * file)
 	if ((!_res.pfcode) || (_res.pfcode & RES_PRF_HEADX))
 		putc (';', file);
 	if ((!_res.pfcode) || (_res.pfcode & RES_PRF_HEAD2))
-	  {
-		  fprintf (file, "; flags:");
-		  if (ns_msg_getflag (handle, ns_f_qr))
-			  fprintf (file, " qr");
-		  if (ns_msg_getflag (handle, ns_f_aa))
-			  fprintf (file, " aa");
-		  if (ns_msg_getflag (handle, ns_f_tc))
-			  fprintf (file, " tc");
-		  if (ns_msg_getflag (handle, ns_f_rd))
-			  fprintf (file, " rd");
-		  if (ns_msg_getflag (handle, ns_f_ra))
-			  fprintf (file, " ra");
-		  if (ns_msg_getflag (handle, ns_f_z))
-			  fprintf (file, " ??");
-		  if (ns_msg_getflag (handle, ns_f_ad))
-			  fprintf (file, " ad");
-		  if (ns_msg_getflag (handle, ns_f_cd))
-			  fprintf (file, " cd");
-	  }
+	{
+		fprintf (file, "; flags:");
+		if (ns_msg_getflag (handle, ns_f_qr))
+			fprintf (file, " qr");
+		if (ns_msg_getflag (handle, ns_f_aa))
+			fprintf (file, " aa");
+		if (ns_msg_getflag (handle, ns_f_tc))
+			fprintf (file, " tc");
+		if (ns_msg_getflag (handle, ns_f_rd))
+			fprintf (file, " rd");
+		if (ns_msg_getflag (handle, ns_f_ra))
+			fprintf (file, " ra");
+		if (ns_msg_getflag (handle, ns_f_z))
+			fprintf (file, " ??");
+		if (ns_msg_getflag (handle, ns_f_ad))
+			fprintf (file, " ad");
+		if (ns_msg_getflag (handle, ns_f_cd))
+			fprintf (file, " cd");
+	}
 	if ((!_res.pfcode) || (_res.pfcode & RES_PRF_HEAD1))
-	  {
-		  fprintf (file, "; %s: %d", p_section (ns_s_qd, opcode), qdcount);
-		  fprintf (file, ", %s: %d", p_section (ns_s_an, opcode), ancount);
-		  fprintf (file, ", %s: %d", p_section (ns_s_ns, opcode), nscount);
-		  fprintf (file, ", %s: %d", p_section (ns_s_ar, opcode), arcount);
-	  }
+	{
+		fprintf (file, "; %s: %d", p_section (ns_s_qd, opcode), qdcount);
+		fprintf (file, ", %s: %d", p_section (ns_s_an, opcode), ancount);
+		fprintf (file, ", %s: %d", p_section (ns_s_ns, opcode), nscount);
+		fprintf (file, ", %s: %d", p_section (ns_s_ar, opcode), arcount);
+	}
 	if ((!_res.pfcode) || (_res.pfcode &
-						   (RES_PRF_HEADX | RES_PRF_HEAD2 | RES_PRF_HEAD1)))
-	  {
-		  putc ('\n', file);
-	  }
+						 (RES_PRF_HEADX | RES_PRF_HEAD2 | RES_PRF_HEAD1)))
+	{
+		putc ('\n', file);
+	}
 	/*
 	 * Print the various sections.
 	 */
@@ -312,12 +312,12 @@ const u_char *p_fqnname (const u_char * cp,
 		return (NULL);
 	newlen = strlen (name);
 	if (newlen == 0 || name[newlen - 1] != '.')
-	  {
-		  if (newlen + 1 >= namelen)	/* Lack space for final dot */
-			  return (NULL);
-		  else
-			  strcpy (name + newlen, ".");
-	  }
+	{
+		if (newlen + 1 >= namelen)	/* Lack space for final dot */
+			return (NULL);
+		else
+			strcpy (name + newlen, ".");
+	}
 	return (cp + n);
 }
 
@@ -340,7 +340,8 @@ const u_char *p_fqname (const u_char * cp, const u_char * msg, FILE * file)
  * that C_ANY is a qclass but not a class.  (You can ask for records of class
  * C_ANY, but you can't have any records of that class in the database.)
  */
-const struct res_sym __p_class_syms[] = {
+const struct res_sym __p_class_syms[] =
+{
 	{C_IN, "IN", NULL},
 	{C_CHAOS, "CHAOS", NULL},
 	{C_HS, "HS", NULL},
@@ -353,7 +354,8 @@ const struct res_sym __p_class_syms[] = {
 /*
  * Names of message sections.
  */
-const struct res_sym __p_default_section_syms[] = {
+const struct res_sym __p_default_section_syms[] =
+{
 	{ns_s_qd, "QUERY", NULL},
 	{ns_s_an, "ANSWER", NULL},
 	{ns_s_ns, "AUTHORITY", NULL},
@@ -361,7 +363,8 @@ const struct res_sym __p_default_section_syms[] = {
 	{0, (char *)0, NULL}
 };
 
-const struct res_sym __p_update_section_syms[] = {
+const struct res_sym __p_update_section_syms[] =
+{
 	{S_ZONE, "ZONE", NULL},
 	{S_PREREQ, "PREREQUISITE", NULL},
 	{S_UPDATE, "UPDATE", NULL},
@@ -374,7 +377,8 @@ const struct res_sym __p_update_section_syms[] = {
  * that T_ANY is a qtype but not a type.  (You can ask for records of type
  * T_ANY, but you can't have any records of that type in the database.)
  */
-const struct res_sym __p_type_syms[] = {
+const struct res_sym __p_type_syms[] =
+{
 	{T_A, "A", "address"},
 	{T_NS, "NS", "name server"},
 	{T_MD, "MD", "mail destination (deprecated)"},
@@ -421,14 +425,14 @@ const struct res_sym __p_type_syms[] = {
 int sym_ston (const struct res_sym *syms, const char *name, int *success)
 {
 	for ((void)NULL; syms->name != 0; syms++)
-	  {
-		  if (strcasecmp (name, syms->name) == 0)
-			{
-				if (success)
-					*success = 1;
-				return (syms->number);
-			}
-	  }
+	{
+		if (strcasecmp (name, syms->name) == 0)
+		{
+			if (success)
+				*success = 1;
+			return (syms->number);
+		}
+	}
 	if (success)
 		*success = 0;
 	return (syms->number);		/* The default value. */
@@ -439,14 +443,14 @@ const char *sym_ntos (const struct res_sym *syms, int number, int *success)
 	static char unname[20];
 
 	for ((void)NULL; syms->name != 0; syms++)
-	  {
-		  if (number == syms->number)
-			{
-				if (success)
-					*success = 1;
-				return (syms->name);
-			}
-	  }
+	{
+		if (number == syms->number)
+		{
+			if (success)
+				*success = 1;
+			return (syms->name);
+		}
+	}
 
 	sprintf (unname, "%d", number);
 	if (success)
@@ -459,14 +463,14 @@ const char *sym_ntop (const struct res_sym *syms, int number, int *success)
 	static char unname[20];
 
 	for ((void)NULL; syms->name != 0; syms++)
-	  {
-		  if (number == syms->number)
-			{
-				if (success)
-					*success = 1;
-				return (syms->humanname);
-			}
-	  }
+	{
+		if (number == syms->number)
+		{
+			if (success)
+				*success = 1;
+			return (syms->humanname);
+		}
+	}
 	sprintf (unname, "%d", number);
 	if (success)
 		*success = 0;
@@ -489,14 +493,14 @@ const char *p_section (int section, int opcode)
 	const struct res_sym *symbols;
 
 	switch (opcode)
-	  {
-		  case ns_o_update:
-			  symbols = __p_update_section_syms;
-			  break;
-		  default:
-			  symbols = __p_default_section_syms;
-			  break;
-	  }
+	{
+		case ns_o_update:
+			symbols = __p_update_section_syms;
+			break;
+		default:
+			symbols = __p_default_section_syms;
+			break;
+	}
 	return (sym_ntos (symbols, section, (int *)0));
 }
 
@@ -516,35 +520,35 @@ const char *p_option (u_long option)
 	static char nbuf[40];
 
 	switch (option)
-	  {
-		  case RES_INIT:
-			  return "init";
-		  case RES_DEBUG:
-			  return "debug";
-		  case RES_AAONLY:
-			  return "aaonly(unimpl)";
-		  case RES_USEVC:
-			  return "usevc";
-		  case RES_PRIMARY:
-			  return "primry(unimpl)";
-		  case RES_IGNTC:
-			  return "igntc";
-		  case RES_RECURSE:
-			  return "recurs";
-		  case RES_DEFNAMES:
-			  return "defnam";
-		  case RES_STAYOPEN:
-			  return "styopn";
-		  case RES_DNSRCH:
-			  return "dnsrch";
-		  case RES_INSECURE1:
-			  return "insecure1";
-		  case RES_INSECURE2:
-			  return "insecure2";
-		  default:
-			  sprintf (nbuf, "?0x%lx?", (u_long) option);
-			  return (nbuf);
-	  }
+	{
+		case RES_INIT:
+			return "init";
+		case RES_DEBUG:
+			return "debug";
+		case RES_AAONLY:
+			return "aaonly(unimpl)";
+		case RES_USEVC:
+			return "usevc";
+		case RES_PRIMARY:
+			return "primry(unimpl)";
+		case RES_IGNTC:
+			return "igntc";
+		case RES_RECURSE:
+			return "recurs";
+		case RES_DEFNAMES:
+			return "defnam";
+		case RES_STAYOPEN:
+			return "styopn";
+		case RES_DNSRCH:
+			return "dnsrch";
+		case RES_INSECURE1:
+			return "insecure1";
+		case RES_INSECURE2:
+			return "insecure2";
+		default:
+			sprintf (nbuf, "?0x%lx?", (u_long) option);
+			return (nbuf);
+	}
 }
 
 /*
@@ -565,7 +569,9 @@ const char *p_time (u_int32_t value)
  * by 60*60*1000 for that.
  */
 
-static uint32_t poweroften[10] = { 1, 10, 100, 1000, 10000, 100000,
+static uint32_t poweroften[10] =
+{
+	1, 10, 100, 1000, 10000, 100000,
 	1000000, 10000000, 100000000, 1000000000
 };
 
@@ -600,17 +606,17 @@ static u_int8_t precsize_aton (const char **strptr)
 		mval = mval * 10 + (*cp++ - '0');
 
 	if (*cp == '.')
-	  {							/* centimeters */
-		  cp++;
-		  if (isdigit ((unsigned char)*cp))
+	{							/* centimeters */
+		cp++;
+		if (isdigit ((unsigned char)*cp))
+		{
+			cmval = (*cp++ - '0') * 10;
+			if (isdigit ((unsigned char)*cp))
 			{
-				cmval = (*cp++ - '0') * 10;
-				if (isdigit ((unsigned char)*cp))
-				  {
-					  cmval += (*cp++ - '0');
-				  }
+				cmval += (*cp++ - '0');
 			}
-	  }
+		}
+	}
 	cmval = (mval * 100) + cmval;
 
 	for (exponent = 0; exponent < 9; exponent++)
@@ -659,21 +665,21 @@ static u_int32_t latlon2ul (char **latlonstrptr, int *which)
 		secs = secs * 10 + (*cp++ - '0');
 
 	if (*cp == '.')
-	  {							/* decimal seconds */
-		  cp++;
-		  if (isdigit ((unsigned char)*cp))
+	{							/* decimal seconds */
+		cp++;
+		if (isdigit ((unsigned char)*cp))
+		{
+			secsfrac = (*cp++ - '0') * 100;
+			if (isdigit ((unsigned char)*cp))
 			{
-				secsfrac = (*cp++ - '0') * 100;
+				secsfrac += (*cp++ - '0') * 10;
 				if (isdigit ((unsigned char)*cp))
-				  {
-					  secsfrac += (*cp++ - '0') * 10;
-					  if (isdigit ((unsigned char)*cp))
-						{
-							secsfrac += (*cp++ - '0');
-						}
-				  }
+				{
+					secsfrac += (*cp++ - '0');
+				}
 			}
-	  }
+		}
+	}
 
 	while (!isspace ((unsigned char)*cp))	/* if any trailing garbage */
 		cp++;
@@ -683,44 +689,44 @@ static u_int32_t latlon2ul (char **latlonstrptr, int *which)
 
   fndhemi:
 	switch (*cp)
-	  {
-		  case 'N':
-		  case 'n':
-		  case 'E':
-		  case 'e':
-			  retval = ((u_int32_t) 1 << 31)
-				  + (((((deg * 60) + min) * 60) + secs) * 1000) + secsfrac;
-			  break;
-		  case 'S':
-		  case 's':
-		  case 'W':
-		  case 'w':
-			  retval = ((u_int32_t) 1 << 31)
-				  - (((((deg * 60) + min) * 60) + secs) * 1000) - secsfrac;
-			  break;
-		  default:
-			  retval = 0;		/* invalid value -- indicates error */
-			  break;
-	  }
+	{
+		case 'N':
+		case 'n':
+		case 'E':
+		case 'e':
+			retval = ((u_int32_t) 1 << 31)
+				+ (((((deg * 60) + min) * 60) + secs) * 1000) + secsfrac;
+			break;
+		case 'S':
+		case 's':
+		case 'W':
+		case 'w':
+			retval = ((u_int32_t) 1 << 31)
+				- (((((deg * 60) + min) * 60) + secs) * 1000) - secsfrac;
+			break;
+		default:
+			retval = 0;		/* invalid value -- indicates error */
+			break;
+	}
 
 	switch (*cp)
-	  {
-		  case 'N':
-		  case 'n':
-		  case 'S':
-		  case 's':
-			  *which = 1;		/* latitude */
-			  break;
-		  case 'E':
-		  case 'e':
-		  case 'W':
-		  case 'w':
-			  *which = 2;		/* longitude */
-			  break;
-		  default:
-			  *which = 0;		/* error */
-			  break;
-	  }
+	{
+		case 'N':
+		case 'n':
+		case 'S':
+		case 's':
+			*which = 1;		/* latitude */
+			break;
+		case 'E':
+		case 'e':
+		case 'W':
+		case 'w':
+			*which = 2;		/* longitude */
+			break;
+		default:
+			*which = 0;		/* error */
+			break;
+	}
 
 	cp++;						/* skip the hemisphere */
 
@@ -758,33 +764,33 @@ int loc_aton (const char *ascii, u_char * binary)
 	lltemp2 = latlon2ul ((char **)&cp, &which2);
 
 	switch (which1 + which2)
-	  {
-		  case 3:				/* 1 + 2, the only valid combination */
-			  if ((which1 == 1) && (which2 == 2))
-				{				/* normal case */
-					latit = lltemp1;
-					longit = lltemp2;
-				}
-			  else if ((which1 == 2) && (which2 == 1))
-				{				/* reversed */
-					longit = lltemp1;
-					latit = lltemp2;
-				}
-			  else
-				{				/* some kind of brokenness */
-					return (0);
-				}
-			  break;
-		  default:				/* we didn't get one of each */
-			  return (0);
-	  }
+	{
+		case 3:				/* 1 + 2, the only valid combination */
+			if ((which1 == 1) && (which2 == 2))
+			{				/* normal case */
+				latit = lltemp1;
+				longit = lltemp2;
+			}
+			else if ((which1 == 2) && (which2 == 1))
+			{				/* reversed */
+				longit = lltemp1;
+				latit = lltemp2;
+			}
+			else
+			{				/* some kind of brokenness */
+				return (0);
+			}
+			break;
+		default:				/* we didn't get one of each */
+			return (0);
+	}
 
 	/* altitude */
 	if (*cp == '-')
-	  {
-		  altsign = -1;
-		  cp++;
-	  }
+	{
+		altsign = -1;
+		cp++;
+	}
 
 	if (*cp == '+')
 		cp++;
@@ -793,17 +799,17 @@ int loc_aton (const char *ascii, u_char * binary)
 		altmeters = altmeters * 10 + (*cp++ - '0');
 
 	if (*cp == '.')
-	  {							/* decimal meters */
-		  cp++;
-		  if (isdigit ((unsigned char)*cp))
+	{							/* decimal meters */
+		cp++;
+		if (isdigit ((unsigned char)*cp))
+		{
+			altfrac = (*cp++ - '0') * 10;
+			if (isdigit ((unsigned char)*cp))
 			{
-				altfrac = (*cp++ - '0') * 10;
-				if (isdigit ((unsigned char)*cp))
-				  {
-					  altfrac += (*cp++ - '0');
-				  }
+				altfrac += (*cp++ - '0');
 			}
-	  }
+		}
+	}
 
 	alt = (10000000 + (altsign * (altmeters * 100 + altfrac)));
 
@@ -876,10 +882,10 @@ const char *loc_ntoa (const u_char * binary, char *ascii)
 	versionval = *cp++;
 
 	if (versionval)
-	  {
-		  (void)sprintf (ascii, "; error: unknown LOC RR version");
-		  return (ascii);
-	  }
+	{
+		(void)sprintf (ascii, "; error: unknown LOC RR version");
+		return (ascii);
+	}
 
 	sizeval = *cp++;
 
@@ -894,21 +900,21 @@ const char *loc_ntoa (const u_char * binary, char *ascii)
 
 	GETLONG (templ, cp);
 	if (templ < referencealt)
-	  {							/* below WGS 84 spheroid */
-		  altval = referencealt - templ;
-		  altsign = -1;
-	  }
+	{							/* below WGS 84 spheroid */
+		altval = referencealt - templ;
+		altsign = -1;
+	}
 	else
-	  {
-		  altval = templ - referencealt;
-		  altsign = 1;
-	  }
+	{
+		altval = templ - referencealt;
+		altsign = 1;
+	}
 
 	if (latval < 0)
-	  {
-		  northsouth = 'S';
-		  latval = -latval;
-	  }
+	{
+		northsouth = 'S';
+		latval = -latval;
+	}
 	else
 		northsouth = 'N';
 
@@ -921,10 +927,10 @@ const char *loc_ntoa (const u_char * binary, char *ascii)
 	latdeg = latval;
 
 	if (longval < 0)
-	  {
-		  eastwest = 'W';
-		  longval = -longval;
-	  }
+	{
+		eastwest = 'W';
+		longval = -longval;
+	}
 	else
 		eastwest = 'E';
 
@@ -969,11 +975,11 @@ int dn_count_labels (const char *name)
 
 	len = strlen (name);
 	for (i = 0, count = 0; i < len; i++)
-	  {
-		  /* XXX need to check for \. or use named's nlabels(). */
-		  if (name[i] == '.')
-			  count++;
-	  }
+	{
+		/* XXX need to check for \. or use named's nlabels(). */
+		if (name[i] == '.')
+			count++;
+	}
 
 	/* don't count initial wildcard */
 	if (name[0] == '*')

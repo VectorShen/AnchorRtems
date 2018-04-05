@@ -11,13 +11,13 @@
  * ----------
  * This software was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2005,
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * This software was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -100,22 +100,22 @@ int rtems_ifmedia2str (int media, char *buf, int bufsz)
 		dupdesc = IFM_FDX & media ? " full-duplex" : " half-duplex";
 
 	return WHATPRINT (buf, bufsz,
-					  "Ethernet [phy instance: %" PRId32
-					  "]: (link %s, autoneg %s) -- media: %s%s",
-					  (int32_t) IFM_INST (media),
-					  IFM_LINK_OK & media ? "ok" : "down",
-					  IFM_ANEG_DIS & media ? "off" : "on", mdesc,
-					  dupdesc ? dupdesc : "");
+					"Ethernet [phy instance: %" PRId32
+					"]: (link %s, autoneg %s) -- media: %s%s",
+					(int32_t) IFM_INST (media),
+					IFM_LINK_OK & media ? "ok" : "down",
+					IFM_ANEG_DIS & media ? "off" : "on", mdesc,
+					dupdesc ? dupdesc : "");
 }
 
 static int find_tag (const char *desc, struct ifmedia_description *list)
 {
 	while (list->ifmt_string)
-	  {
-		  if (strstr (desc, list->ifmt_string))
-			  return list->ifmt_word;
-		  list++;
-	  }
+	{
+		if (strstr (desc, list->ifmt_string))
+			return list->ifmt_word;
+		list++;
+	}
 	return -1;
 }
 
@@ -128,43 +128,43 @@ int rtems_str2ifmedia (const char *str, int phy)
 	char *chpt;
 
 	if (!strncmp (str, "auto", 4))
-	  {
-		  sub = IFM_AUTO;
-	  }
+	{
+		sub = IFM_AUTO;
+	}
 	else if ((sub = find_tag (str, ethern_media_strings)) < 0)
-	  {
-		  if ((sub = find_tag (str, eth_al_media_strings)) < 0)
+	{
+		if ((sub = find_tag (str, eth_al_media_strings)) < 0)
+		{
+			/* allow more */
+
+			/* if no number, 0 is returned which will not pass the test */
+			switch (strtol (str, &chpt, 10))
 			{
-				/* allow more */
-
-				/* if no number, 0 is returned which will not pass the test */
-				switch (strtol (str, &chpt, 10))
-				  {
-					  case 10:
-						  sub = IFM_10_T;
-						  break;
-					  case 100:
-						  sub = IFM_100_TX;
-						  break;
-					  case 1000:
-						  sub = IFM_1000_T;
-						  break;
-					  default:
-						  return 0;
-				  }
-
-				/* need 'b' or 'base' */
-				if ('b' != *chpt++)
-					return 0;
-				if (!strncmp (chpt, "ase", 3))
-					chpt += 3;
-				if (toupper ((unsigned char)*chpt++) != 'T')
-					return 0;
-				if (IFM_100_TX == sub
-					&& toupper ((unsigned char)*chpt++) != 'X')
+				case 10:
+					sub = IFM_10_T;
+					break;
+				case 100:
+					sub = IFM_100_TX;
+					break;
+				case 1000:
+					sub = IFM_1000_T;
+					break;
+				default:
 					return 0;
 			}
-	  }
+
+			/* need 'b' or 'base' */
+			if ('b' != *chpt++)
+				return 0;
+			if (!strncmp (chpt, "ase", 3))
+				chpt += 3;
+			if (toupper ((unsigned char)*chpt++) != 'T')
+				return 0;
+			if (IFM_100_TX == sub
+				&& toupper ((unsigned char)*chpt++) != 'X')
+				return 0;
+		}
+	}
 
 	if (strstr (str, "full") || strstr (str, "FDX") || strstr (str, "fdx"))
 		opt |= IFM_FDX;

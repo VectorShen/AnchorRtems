@@ -154,12 +154,12 @@ static void dummyproc (caddr_t ext_buf, u_int ext_size)
  */
 ssize_t
 sendto_nocpy (int s,
-			  const void *buf, size_t buflen,
-			  int flags,
-			  const struct sockaddr *toaddr, int tolen,
-			  void *closure,
-			  void (*freeproc) (caddr_t, u_int),
-			  void (*refproc) (caddr_t, u_int))
+			const void *buf, size_t buflen,
+			int flags,
+			const struct sockaddr *toaddr, int tolen,
+			void *closure,
+			void (*freeproc) (caddr_t, u_int),
+			void (*refproc) (caddr_t, u_int))
 {
 	int error;
 	struct socket *so;
@@ -168,18 +168,18 @@ sendto_nocpy (int s,
 
 	rtems_bsdnet_semaphore_obtain ();
 	if ((so = rtems_bsdnet_fdToSocket (s)) == NULL)
-	  {
-		  rtems_bsdnet_semaphore_release ();
-		  return -1;
-	  }
+	{
+		rtems_bsdnet_semaphore_release ();
+		return -1;
+	}
 
 	error = sockaddrtombuf (&to, toaddr, tolen);
 	if (error)
-	  {
-		  errno = error;
-		  rtems_bsdnet_semaphore_release ();
-		  return -1;
-	  }
+	{
+		errno = error;
+		rtems_bsdnet_semaphore_release ();
+		return -1;
+	}
 
 	MGETHDR (m, M_WAIT, MT_DATA);
 	m->m_pkthdr.len = 0;
@@ -199,11 +199,11 @@ sendto_nocpy (int s,
 
 	error = sosend (so, to, NULL, m, NULL, flags);
 	if (error)
-	  {
-		  if ( /*auio.uio_resid != len && */
-			  (error == EINTR || error == EWOULDBLOCK))
-			  error = 0;
-	  }
+	{
+		if ( /*auio.uio_resid != len && */
+			(error == EINTR || error == EWOULDBLOCK))
+			error = 0;
+	}
 	if (error)
 		errno = error;
 	else
@@ -238,10 +238,10 @@ recv_mbuf_from (int s, struct mbuf ** ppm, long len, struct sockaddr * fromaddr,
 
 	rtems_bsdnet_semaphore_obtain ();
 	if ((so = rtems_bsdnet_fdToSocket (s)) == NULL)
-	  {
-		  rtems_bsdnet_semaphore_release ();
-		  return -1;
-	  }
+	{
+		rtems_bsdnet_semaphore_release ();
+		return -1;
+	}
 /*	auio.uio_iov = mp->msg_iov;
 	auio.uio_iovcnt = mp->msg_iovlen;
 	auio.uio_segflg = UIO_USERSPACE;
@@ -250,42 +250,42 @@ recv_mbuf_from (int s, struct mbuf ** ppm, long len, struct sockaddr * fromaddr,
 */
 	auio.uio_resid = len;
 	error = soreceive (so, &from, &auio, (struct mbuf **)ppm,
-					   (struct mbuf **)NULL, NULL);
+					 (struct mbuf **)NULL, NULL);
 	if (error)
-	  {
-		  if (auio.uio_resid != len && (error == EINTR || error == EWOULDBLOCK))
-			  error = 0;
-	  }
+	{
+		if (auio.uio_resid != len && (error == EINTR || error == EWOULDBLOCK))
+			error = 0;
+	}
 	if (error)
-	  {
-		  errno = error;
-	  }
+	{
+		errno = error;
+	}
 	else
-	  {
-		  ret = len - auio.uio_resid;
-		  if (fromaddr)
+	{
+		ret = len - auio.uio_resid;
+		if (fromaddr)
+		{
+			len = *fromlen;
+			if ((len <= 0) || (from == NULL))
 			{
-				len = *fromlen;
-				if ((len <= 0) || (from == NULL))
-				  {
-					  len = 0;
-				  }
-				else
-				  {
-					  if (len > from->m_len)
-						  len = from->m_len;
-					  memcpy (fromaddr, mtod (from, caddr_t), len);
-				  }
-				*fromlen = len;
+				len = 0;
 			}
-	  }
+			else
+			{
+				if (len > from->m_len)
+					len = from->m_len;
+				memcpy (fromaddr, mtod (from, caddr_t), len);
+			}
+			*fromlen = len;
+		}
+	}
 	if (from)
 		m_freem (from);
 	if (error && *ppm)
-	  {
-		  m_freem (*ppm);
-		  *ppm = 0;
-	  }
+	{
+		m_freem (*ppm);
+		*ppm = 0;
+	}
 	rtems_bsdnet_semaphore_release ();
 	return (ret);
 }

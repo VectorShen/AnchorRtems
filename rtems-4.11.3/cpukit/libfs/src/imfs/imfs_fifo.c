@@ -32,7 +32,7 @@ do {  \
 } while (0)
 
 static int IMFS_fifo_open (rtems_libio_t * iop,
-						   const char *pathname, int oflag, mode_t mode)
+						 const char *pathname, int oflag, mode_t mode)
 {
 	IMFS_jnode_t *jnode = iop->pathinfo.node_access;
 
@@ -68,9 +68,9 @@ static ssize_t IMFS_fifo_write (rtems_libio_t * iop,
 
 	int err = pipe_write (JNODE2PIPE (jnode), buffer, count, iop);
 	if (err > 0)
-	  {
-		  IMFS_mtime_ctime_update (jnode);
-	  }
+	{
+		IMFS_mtime_ctime_update (jnode);
+	}
 
 	IMFS_FIFO_RETURN (err);
 }
@@ -81,25 +81,26 @@ static int IMFS_fifo_ioctl (rtems_libio_t * iop,
 	int err;
 
 	if (command == FIONBIO)
-	  {
-		  if (buffer == NULL)
-			  err = -EFAULT;
-		  else
-			{
-				if (*(int *)buffer)
-					iop->flags |= LIBIO_FLAGS_NO_DELAY;
-				else
-					iop->flags &= ~LIBIO_FLAGS_NO_DELAY;
-				return 0;
-			}
-	  }
+	{
+		if (buffer == NULL)
+			err = -EFAULT;
+		else
+		{
+			if (*(int *)buffer)
+				iop->flags |= LIBIO_FLAGS_NO_DELAY;
+			else
+				iop->flags &= ~LIBIO_FLAGS_NO_DELAY;
+			return 0;
+		}
+	}
 	else
 		err = pipe_ioctl (LIBIO2PIPE (iop), command, buffer, iop);
 
 	IMFS_FIFO_RETURN (err);
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_fifo_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_fifo_handlers =
+{
 	.open_h = IMFS_fifo_open,
 	.close_h = IMFS_fifo_close,
 	.read_h = IMFS_fifo_read,
@@ -117,11 +118,13 @@ static const rtems_filesystem_file_handlers_r IMFS_fifo_handlers = {
 	.writev_h = rtems_filesystem_default_writev
 };
 
-const IMFS_mknod_control IMFS_mknod_control_fifo = {
+const IMFS_mknod_control IMFS_mknod_control_fifo =
+{
 	{
-	 .handlers = &IMFS_fifo_handlers,
-	 .node_initialize = IMFS_node_initialize_default,
-	 .node_remove = IMFS_node_remove_default,
-	 .node_destroy = IMFS_node_destroy_default},
+		.handlers = &IMFS_fifo_handlers,
+		.node_initialize = IMFS_node_initialize_default,
+		.node_remove = IMFS_node_remove_default,
+		.node_destroy = IMFS_node_destroy_default
+	},
 	.node_size = sizeof (IMFS_fifo_t)
 };

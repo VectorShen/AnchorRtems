@@ -80,14 +80,14 @@ bool_t pmap_set (u_long program, u_long version, int protocol, int port)	/* was 
 	if (stat (PORTMAPSOCK, &st) == 0 && st.st_mode & S_IFSOCK)
 		client = clnt_create (PORTMAPSOCK, PMAPPROG, PMAPVERS, "unix");
 	else
-	  {
-		  if (get_myaddress (&myaddress) != 0)
-			  return (FALSE);
-		  myaddress.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
-		  client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
-									  timeout, &socket, RPCSMALLMSGSIZE,
-									  RPCSMALLMSGSIZE);
-	  }
+	{
+		if (get_myaddress (&myaddress) != 0)
+			return (FALSE);
+		myaddress.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+		client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
+									timeout, &socket, RPCSMALLMSGSIZE,
+									RPCSMALLMSGSIZE);
+	}
 
 	if (client == (CLIENT *) NULL)
 		return (FALSE);
@@ -98,10 +98,10 @@ bool_t pmap_set (u_long program, u_long version, int protocol, int port)	/* was 
 	if (CLNT_CALL
 		(client, PMAPPROC_SET, (xdrproc_t) xdr_pmap, &parms,
 		 (xdrproc_t) xdr_bool, &rslt, tottimeout) != RPC_SUCCESS)
-	  {
-		  clnt_perror (client, "Cannot register service");
-		  return (FALSE);
-	  }
+	{
+		clnt_perror (client, "Cannot register service");
+		return (FALSE);
+	}
 	CLNT_DESTROY (client);
 	if (socket != -1)
 		(void)_RPC_close (socket);
@@ -128,21 +128,21 @@ bool_t pmap_unset (u_long program, u_long version)
 	if (stat (PORTMAPSOCK, &st) == 0 && st.st_mode & S_IFSOCK)
 		client = clnt_create (PORTMAPSOCK, PMAPPROG, PMAPVERS, "unix");
 	else
-	  {
-		  if (get_myaddress (&myaddress) != 0)
-			  return (FALSE);
-		  myaddress.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
-		  client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
-									  timeout, &socket, RPCSMALLMSGSIZE,
-									  RPCSMALLMSGSIZE);
-	  }
+	{
+		if (get_myaddress (&myaddress) != 0)
+			return (FALSE);
+		myaddress.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+		client = clntudp_bufcreate (&myaddress, PMAPPROG, PMAPVERS,
+									timeout, &socket, RPCSMALLMSGSIZE,
+									RPCSMALLMSGSIZE);
+	}
 	if (client == (CLIENT *) NULL)
 		return (FALSE);
 	parms.pm_prog = program;
 	parms.pm_vers = version;
 	parms.pm_port = parms.pm_prot = 0;
 	CLNT_CALL (client, PMAPPROC_UNSET, (xdrproc_t) xdr_pmap, &parms,
-			   (xdrproc_t) xdr_bool, &rslt, tottimeout);
+			 (xdrproc_t) xdr_bool, &rslt, tottimeout);
 	CLNT_DESTROY (client);
 	if (socket != -1)
 		(void)_RPC_close (socket);

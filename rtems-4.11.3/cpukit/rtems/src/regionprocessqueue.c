@@ -44,23 +44,23 @@ void _Region_Process_queue (Region_Control * the_region)
 	 *        threads whose memory request is satisfied.
 	 */
 	for (;;)
-	  {
-		  the_thread = _Thread_queue_First (&the_region->Wait_queue);
+	{
+		the_thread = _Thread_queue_First (&the_region->Wait_queue);
 
-		  if (the_thread == NULL)
-			  break;
+		if (the_thread == NULL)
+			break;
 
-		  the_segment = (void **)_Region_Allocate_segment (the_region,
-														   the_thread->Wait.
-														   count);
+		the_segment = (void **)_Region_Allocate_segment (the_region,
+														 the_thread->Wait.
+														 count);
 
-		  if (the_segment == NULL)
-			  break;
+		if (the_segment == NULL)
+			break;
 
-		  *(void **)the_thread->Wait.return_argument = the_segment;
-		  the_region->number_of_used_blocks += 1;
-		  _Thread_queue_Extract (the_thread);
-		  the_thread->Wait.return_code = RTEMS_SUCCESSFUL;
-	  }
+		*(void **)the_thread->Wait.return_argument = the_segment;
+		the_region->number_of_used_blocks += 1;
+		_Thread_queue_Extract (the_thread);
+		the_thread->Wait.return_code = RTEMS_SUCCESSFUL;
+	}
 	_Thread_Enable_dispatch ();
 }

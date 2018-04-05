@@ -41,28 +41,28 @@ rtems_status_code rtems_region_get_free_information (rtems_id id,
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  the_info->Used.number = 0;
-			  the_info->Used.total = 0;
-			  the_info->Used.largest = 0;
+			the_info->Used.number = 0;
+			the_info->Used.total = 0;
+			the_info->Used.largest = 0;
 
-			  _Heap_Get_free_information (&the_region->Memory, &the_info->Free);
+			_Heap_Get_free_information (&the_region->Memory, &the_info->Free);
 
-			  return_status = RTEMS_SUCCESSFUL;
-			  break;
+			return_status = RTEMS_SUCCESSFUL;
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 	return return_status;

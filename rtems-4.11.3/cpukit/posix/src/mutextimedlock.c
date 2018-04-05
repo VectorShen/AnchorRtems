@@ -66,13 +66,13 @@ int pthread_mutex_timedlock (pthread_mutex_t * mutex,
 	 *  make sure the right reason is returned.
 	 */
 	if (!do_wait && (lock_status == EBUSY))
-	  {
-		  if (status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
-			  return EINVAL;
-		  if (status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
-			  status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
-			  return ETIMEDOUT;
-	  }
+	{
+		if (status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
+			return EINVAL;
+		if (status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
+			status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
+			return ETIMEDOUT;
+	}
 
 	return lock_status;
 }

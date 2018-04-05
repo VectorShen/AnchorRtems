@@ -32,16 +32,16 @@ static int IMFS_memfile_extend (IMFS_memfile_t * memfile,
 static int IMFS_memfile_addblock (IMFS_memfile_t * memfile, unsigned int block);
 
 static void IMFS_memfile_remove_block (IMFS_memfile_t * memfile,
-									   unsigned int block);
+									 unsigned int block);
 
 static block_p *IMFS_memfile_get_block_pointer (IMFS_memfile_t * memfile,
 												unsigned int block,
 												int malloc_it);
 
 static ssize_t IMFS_memfile_read (IMFS_file_t * file,
-								  off_t start,
-								  unsigned char *destination,
-								  unsigned int length);
+								off_t start,
+								unsigned char *destination,
+								unsigned int length);
 
 static void *memfile_alloc_block (void);
 
@@ -61,7 +61,7 @@ static ssize_t memfile_read (rtems_libio_t * iop, void *buffer, size_t count)
 }
 
 static ssize_t memfile_write (rtems_libio_t * iop,
-							  const void *buffer, size_t count)
+							const void *buffer, size_t count)
 {
 	IMFS_memfile_t *memfile = IMFS_iop_to_memfile (iop);
 	ssize_t status;
@@ -151,28 +151,28 @@ static int IMFS_memfile_extend (IMFS_memfile_t * memfile,
 	 *  Now allocate each of those blocks.
 	 */
 	for (block = old_blocks; block <= new_blocks; block++)
-	  {
-		  if (!IMFS_memfile_addblock (memfile, block))
+	{
+		if (!IMFS_memfile_addblock (memfile, block))
+		{
+			if (zero_fill)
 			{
-				if (zero_fill)
-				  {
-					  size_t count = IMFS_MEMFILE_BYTES_PER_BLOCK - offset;
-					  block_p *block_ptr =
-						  IMFS_memfile_get_block_pointer (memfile, block, 0);
+				size_t count = IMFS_MEMFILE_BYTES_PER_BLOCK - offset;
+				block_p *block_ptr =
+					IMFS_memfile_get_block_pointer (memfile, block, 0);
 
-					  memset (&(*block_ptr)[offset], 0, count);
-					  offset = 0;
-				  }
+				memset (&(*block_ptr)[offset], 0, count);
+				offset = 0;
 			}
-		  else
+		}
+		else
+		{
+			for (; block >= old_blocks; block--)
 			{
-				for (; block >= old_blocks; block--)
-				  {
-					  IMFS_memfile_remove_block (memfile, block);
-				  }
-				rtems_set_errno_and_return_minus_one (ENOSPC);
+				IMFS_memfile_remove_block (memfile, block);
 			}
-	  }
+			rtems_set_errno_and_return_minus_one (ENOSPC);
+		}
+	}
 
 	/*
 	 *  Set the new length of the file.
@@ -228,18 +228,18 @@ static int IMFS_memfile_addblock (IMFS_memfile_t * memfile, unsigned int block)
  *         dangerous and the results unpredictable.
  */
 static void IMFS_memfile_remove_block (IMFS_memfile_t * memfile,
-									   unsigned int block)
+									 unsigned int block)
 {
 	block_p *block_ptr;
 	block_p ptr;
 
 	block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
 	if (block_ptr)
-	  {
-		  ptr = *block_ptr;
-		  *block_ptr = 0;
-		  memfile_free_block (ptr);
-	  }
+	{
+		ptr = *block_ptr;
+		*block_ptr = 0;
+		memfile_free_block (ptr);
+	}
 }
 
 /*
@@ -264,13 +264,13 @@ static void memfile_free_blocks_in_table (block_p ** block_table, int entries)
 	b = *block_table;
 
 	for (i = 0; i < entries; i++)
-	  {
-		  if (b[i])
-			{
-				memfile_free_block (b[i]);
-				b[i] = 0;
-			}
-	  }
+	{
+		if (b[i])
+		{
+			memfile_free_block (b[i]);
+			b[i] = 0;
+		}
+	}
 
 	/*
 	 *  Now that all the blocks in the block table are free, we can
@@ -327,46 +327,46 @@ static void IMFS_memfile_destroy (IMFS_jnode_t * the_jnode)
 	 */
 
 	if (memfile->indirect)
-	  {
-		  memfile_free_blocks_in_table (&memfile->indirect, to_free);
-	  }
+	{
+		memfile_free_blocks_in_table (&memfile->indirect, to_free);
+	}
 
 	if (memfile->doubly_indirect)
-	  {
-		  for (i = 0; i < IMFS_MEMFILE_BLOCK_SLOTS; i++)
+	{
+		for (i = 0; i < IMFS_MEMFILE_BLOCK_SLOTS; i++)
+		{
+			if (memfile->doubly_indirect[i])
 			{
-				if (memfile->doubly_indirect[i])
-				  {
-					  memfile_free_blocks_in_table ((block_p **) & memfile->
-													doubly_indirect[i],
-													to_free);
-				  }
+				memfile_free_blocks_in_table ((block_p **) & memfile->
+												doubly_indirect[i],
+												to_free);
 			}
-		  memfile_free_blocks_in_table (&memfile->doubly_indirect, to_free);
+		}
+		memfile_free_blocks_in_table (&memfile->doubly_indirect, to_free);
 
-	  }
+	}
 
 	if (memfile->triply_indirect)
-	  {
-		  for (i = 0; i < IMFS_MEMFILE_BLOCK_SLOTS; i++)
+	{
+		for (i = 0; i < IMFS_MEMFILE_BLOCK_SLOTS; i++)
+		{
+			p = (block_p *) memfile->triply_indirect[i];
+			if (!p)			/* ensure we have a valid pointer */
+				break;
+			for (j = 0; j < IMFS_MEMFILE_BLOCK_SLOTS; j++)
 			{
-				p = (block_p *) memfile->triply_indirect[i];
-				if (!p)			/* ensure we have a valid pointer */
-					break;
-				for (j = 0; j < IMFS_MEMFILE_BLOCK_SLOTS; j++)
-				  {
-					  if (p[j])
-						{
-							memfile_free_blocks_in_table ((block_p **) & p[j],
-														  to_free);
-						}
-				  }
-				memfile_free_blocks_in_table ((block_p **) & memfile->
-											  triply_indirect[i], to_free);
+				if (p[j])
+				{
+					memfile_free_blocks_in_table ((block_p **) & p[j],
+												to_free);
+				}
 			}
-		  memfile_free_blocks_in_table ((block_p **) & memfile->triply_indirect,
+			memfile_free_blocks_in_table ((block_p **) & memfile->
+										triply_indirect[i], to_free);
+		}
+		memfile_free_blocks_in_table ((block_p **) & memfile->triply_indirect,
 										to_free);
-	  }
+	}
 
 	IMFS_node_destroy_default (the_jnode);
 }
@@ -383,9 +383,9 @@ static void IMFS_memfile_destroy (IMFS_jnode_t * the_jnode)
  *  read).
  */
 static ssize_t IMFS_memfile_read (IMFS_file_t * file,
-								  off_t start,
-								  unsigned char *destination,
-								  unsigned int length)
+								off_t start,
+								unsigned char *destination,
+								unsigned int length)
 {
 	block_p *block_ptr;
 	unsigned int block;
@@ -433,35 +433,35 @@ static ssize_t IMFS_memfile_read (IMFS_file_t * file,
 	start_offset = start % IMFS_MEMFILE_BYTES_PER_BLOCK;
 	block = start / IMFS_MEMFILE_BYTES_PER_BLOCK;
 	if (start_offset)
-	  {
-		  to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK - start_offset;
-		  if (to_copy > my_length)
-			  to_copy = my_length;
-		  block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
-		  memcpy (dest, &(*block_ptr)[start_offset], to_copy);
-		  dest += to_copy;
-		  block++;
-		  my_length -= to_copy;
-		  copied += to_copy;
-	  }
+	{
+		to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK - start_offset;
+		if (to_copy > my_length)
+			to_copy = my_length;
+		block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
+		if (!block_ptr)
+			return copied;
+		memcpy (dest, &(*block_ptr)[start_offset], to_copy);
+		dest += to_copy;
+		block++;
+		my_length -= to_copy;
+		copied += to_copy;
+	}
 
 	/*
 	 *  Phase 2: all of zero of more blocks
 	 */
 	to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK;
 	while (my_length >= IMFS_MEMFILE_BYTES_PER_BLOCK)
-	  {
-		  block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
-		  memcpy (dest, &(*block_ptr)[0], to_copy);
-		  dest += to_copy;
-		  block++;
-		  my_length -= to_copy;
-		  copied += to_copy;
-	  }
+	{
+		block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
+		if (!block_ptr)
+			return copied;
+		memcpy (dest, &(*block_ptr)[0], to_copy);
+		dest += to_copy;
+		block++;
+		my_length -= to_copy;
+		copied += to_copy;
+	}
 
 	/*
 	 *  Phase 3: possibly the first part of one block
@@ -469,13 +469,13 @@ static ssize_t IMFS_memfile_read (IMFS_file_t * file,
 	IMFS_assert (my_length < IMFS_MEMFILE_BYTES_PER_BLOCK);
 
 	if (my_length)
-	  {
-		  block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
-		  memcpy (dest, &(*block_ptr)[0], my_length);
-		  copied += my_length;
-	  }
+	{
+		block_ptr = IMFS_memfile_get_block_pointer (&file->Memfile, block, 0);
+		if (!block_ptr)
+			return copied;
+		memcpy (dest, &(*block_ptr)[0], my_length);
+		copied += my_length;
+	}
 
 	IMFS_update_atime (&file->Node);
 
@@ -518,13 +518,13 @@ ssize_t IMFS_memfile_write (IMFS_memfile_t * memfile,
 
 	last_byte = start + my_length;
 	if (last_byte > memfile->File.size)
-	  {
-		  bool zero_fill = start > memfile->File.size;
+	{
+		bool zero_fill = start > memfile->File.size;
 
-		  status = IMFS_memfile_extend (memfile, zero_fill, last_byte);
-		  if (status)
-			  return status;
-	  }
+		status = IMFS_memfile_extend (memfile, zero_fill, last_byte);
+		if (status)
+			return status;
+	}
 
 	copied = 0;
 
@@ -541,24 +541,24 @@ ssize_t IMFS_memfile_write (IMFS_memfile_t * memfile,
 	start_offset = start % IMFS_MEMFILE_BYTES_PER_BLOCK;
 	block = start / IMFS_MEMFILE_BYTES_PER_BLOCK;
 	if (start_offset)
-	  {
-		  to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK - start_offset;
-		  if (to_copy > my_length)
-			  to_copy = my_length;
-		  block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
+	{
+		to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK - start_offset;
+		if (to_copy > my_length)
+			to_copy = my_length;
+		block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
+		if (!block_ptr)
+			return copied;
 #if 0
-		  fprintf (stderr,
-				   "write %d at %d in %d: %*s\n",
-				   to_copy, start_offset, block, to_copy, src);
+		fprintf (stderr,
+				 "write %d at %d in %d: %*s\n",
+				 to_copy, start_offset, block, to_copy, src);
 #endif
-		  memcpy (&(*block_ptr)[start_offset], src, to_copy);
-		  src += to_copy;
-		  block++;
-		  my_length -= to_copy;
-		  copied += to_copy;
-	  }
+		memcpy (&(*block_ptr)[start_offset], src, to_copy);
+		src += to_copy;
+		block++;
+		my_length -= to_copy;
+		copied += to_copy;
+	}
 
 	/*
 	 *  Phase 2: all of zero of more blocks
@@ -566,20 +566,20 @@ ssize_t IMFS_memfile_write (IMFS_memfile_t * memfile,
 
 	to_copy = IMFS_MEMFILE_BYTES_PER_BLOCK;
 	while (my_length >= IMFS_MEMFILE_BYTES_PER_BLOCK)
-	  {
-		  block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
+	{
+		block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
+		if (!block_ptr)
+			return copied;
 #if 0
-		  fprintf (stdout, "write %d in %d: %*s\n", to_copy, block, to_copy,
-				   src);
+		fprintf (stdout, "write %d in %d: %*s\n", to_copy, block, to_copy,
+				 src);
 #endif
-		  memcpy (&(*block_ptr)[0], src, to_copy);
-		  src += to_copy;
-		  block++;
-		  my_length -= to_copy;
-		  copied += to_copy;
-	  }
+		memcpy (&(*block_ptr)[0], src, to_copy);
+		src += to_copy;
+		block++;
+		my_length -= to_copy;
+		copied += to_copy;
+	}
 
 	/*
 	 *  Phase 3: possibly the first part of one block
@@ -588,18 +588,18 @@ ssize_t IMFS_memfile_write (IMFS_memfile_t * memfile,
 
 	to_copy = my_length;
 	if (my_length)
-	  {
-		  block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
-		  if (!block_ptr)
-			  return copied;
+	{
+		block_ptr = IMFS_memfile_get_block_pointer (memfile, block, 0);
+		if (!block_ptr)
+			return copied;
 #if 0
-		  fprintf (stdout, "write %d in %d: %*s\n", to_copy, block, to_copy,
-				   src);
+		fprintf (stdout, "write %d in %d: %*s\n", to_copy, block, to_copy,
+				 src);
 #endif
-		  memcpy (&(*block_ptr)[0], src, my_length);
-		  my_length = 0;
-		  copied += to_copy;
-	  }
+		memcpy (&(*block_ptr)[0], src, my_length);
+		my_length = 0;
+		copied += to_copy;
+	}
 
 	IMFS_mtime_ctime_update (&memfile->File.Node);
 
@@ -615,8 +615,8 @@ ssize_t IMFS_memfile_write (IMFS_memfile_t * memfile,
  */
 #if 0
 block_p *IMFS_memfile_get_block_pointer_DEBUG (IMFS_jnode_t * the_jnode,
-											   unsigned int block,
-											   int malloc_it);
+											 unsigned int block,
+											 int malloc_it);
 
 block_p *IMFS_memfile_get_block_pointer (IMFS_jnode_t * the_jnode,
 										 unsigned int block, int malloc_it)
@@ -654,130 +654,130 @@ block_p *IMFS_memfile_get_block_pointer (
 	 *  Is the block number in the simple indirect portion?
 	 */
 	if (my_block <= LAST_INDIRECT)
-	  {
-		  p = memfile->indirect;
+	{
+		p = memfile->indirect;
 
-		  if (malloc_it)
+		if (malloc_it)
+		{
+
+			if (!p)
 			{
-
+				p = memfile_alloc_block ();
 				if (!p)
-				  {
-					  p = memfile_alloc_block ();
-					  if (!p)
-						  return 0;
-					  memfile->indirect = p;
-				  }
-				return &memfile->indirect[my_block];
+					return 0;
+				memfile->indirect = p;
 			}
+			return &memfile->indirect[my_block];
+		}
 
-		  if (!p)
-			  return 0;
+		if (!p)
+			return 0;
 
-		  return &memfile->indirect[my_block];
-	  }
+		return &memfile->indirect[my_block];
+	}
 
 	/*
 	 *  Is the block number in the doubly indirect portion?
 	 */
 
 	if (my_block <= LAST_DOUBLY_INDIRECT)
-	  {
-		  my_block -= FIRST_DOUBLY_INDIRECT;
+	{
+		my_block -= FIRST_DOUBLY_INDIRECT;
 
-		  singly = my_block % IMFS_MEMFILE_BLOCK_SLOTS;
-		  doubly = my_block / IMFS_MEMFILE_BLOCK_SLOTS;
+		singly = my_block % IMFS_MEMFILE_BLOCK_SLOTS;
+		doubly = my_block / IMFS_MEMFILE_BLOCK_SLOTS;
 
-		  p = memfile->doubly_indirect;
-		  if (malloc_it)
+		p = memfile->doubly_indirect;
+		if (malloc_it)
+		{
+
+			if (!p)
 			{
-
+				p = memfile_alloc_block ();
 				if (!p)
-				  {
-					  p = memfile_alloc_block ();
-					  if (!p)
-						  return 0;
-					  memfile->doubly_indirect = p;
-				  }
-
-				p1 = (block_p *) p[doubly];
-				if (!p1)
-				  {
-					  p1 = memfile_alloc_block ();
-					  if (!p1)
-						  return 0;
-					  p[doubly] = (block_p) p1;
-				  }
-
-				return (block_p *) & p1[singly];
+					return 0;
+				memfile->doubly_indirect = p;
 			}
 
-		  if (!p)
-			  return 0;
+			p1 = (block_p *) p[doubly];
+			if (!p1)
+			{
+				p1 = memfile_alloc_block ();
+				if (!p1)
+					return 0;
+				p[doubly] = (block_p) p1;
+			}
 
-		  p = (block_p *) p[doubly];
-		  if (!p)
-			  return 0;
+			return (block_p *) & p1[singly];
+		}
 
-		  return (block_p *) & p[singly];
-	  }
+		if (!p)
+			return 0;
+
+		p = (block_p *) p[doubly];
+		if (!p)
+			return 0;
+
+		return (block_p *) & p[singly];
+	}
 
 	/*
 	 *  Is the block number in the triply indirect portion?
 	 */
 	if (my_block <= LAST_TRIPLY_INDIRECT)
-	  {
-		  my_block -= FIRST_TRIPLY_INDIRECT;
+	{
+		my_block -= FIRST_TRIPLY_INDIRECT;
 
-		  singly = my_block % IMFS_MEMFILE_BLOCK_SLOTS;
-		  doubly = my_block / IMFS_MEMFILE_BLOCK_SLOTS;
-		  triply = doubly / IMFS_MEMFILE_BLOCK_SLOTS;
-		  doubly %= IMFS_MEMFILE_BLOCK_SLOTS;
+		singly = my_block % IMFS_MEMFILE_BLOCK_SLOTS;
+		doubly = my_block / IMFS_MEMFILE_BLOCK_SLOTS;
+		triply = doubly / IMFS_MEMFILE_BLOCK_SLOTS;
+		doubly %= IMFS_MEMFILE_BLOCK_SLOTS;
 
-		  p = memfile->triply_indirect;
+		p = memfile->triply_indirect;
 
-		  if (malloc_it)
+		if (malloc_it)
+		{
+			if (!p)
 			{
+				p = memfile_alloc_block ();
 				if (!p)
-				  {
-					  p = memfile_alloc_block ();
-					  if (!p)
-						  return 0;
-					  memfile->triply_indirect = p;
-				  }
-
-				p1 = (block_p *) p[triply];
-				if (!p1)
-				  {
-					  p1 = memfile_alloc_block ();
-					  if (!p1)
-						  return 0;
-					  p[triply] = (block_p) p1;
-				  }
-
-				p2 = (block_p *) p1[doubly];
-				if (!p2)
-				  {
-					  p2 = memfile_alloc_block ();
-					  if (!p2)
-						  return 0;
-					  p1[doubly] = (block_p) p2;
-				  }
-				return (block_p *) & p2[singly];
+					return 0;
+				memfile->triply_indirect = p;
 			}
 
-		  if (!p)
-			  return 0;
+			p1 = (block_p *) p[triply];
+			if (!p1)
+			{
+				p1 = memfile_alloc_block ();
+				if (!p1)
+					return 0;
+				p[triply] = (block_p) p1;
+			}
 
-		  p1 = (block_p *) p[triply];
-		  if (!p1)
-			  return 0;
+			p2 = (block_p *) p1[doubly];
+			if (!p2)
+			{
+				p2 = memfile_alloc_block ();
+				if (!p2)
+					return 0;
+				p1[doubly] = (block_p) p2;
+			}
+			return (block_p *) & p2[singly];
+		}
 
-		  p2 = (block_p *) p1[doubly];
-		  if (!p2)
-			  return 0;
+		if (!p)
+			return 0;
 
-		  return (block_p *) & p2[singly];
-	  }
+		p1 = (block_p *) p[triply];
+		if (!p1)
+			return 0;
+
+		p2 = (block_p *) p1[doubly];
+		if (!p2)
+			return 0;
+
+		return (block_p *) & p2[singly];
+	}
 
 	/*
 	 *  This means the requested block number is out of range.
@@ -814,7 +814,8 @@ void memfile_free_block (void *memory)
 	memfile_blocks_allocated--;
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_memfile_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_memfile_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = memfile_read,
@@ -832,11 +833,13 @@ static const rtems_filesystem_file_handlers_r IMFS_memfile_handlers = {
 	.writev_h = rtems_filesystem_default_writev
 };
 
-const IMFS_mknod_control IMFS_mknod_control_memfile = {
+const IMFS_mknod_control IMFS_mknod_control_memfile =
+{
 	{
-	 .handlers = &IMFS_memfile_handlers,
-	 .node_initialize = IMFS_node_initialize_default,
-	 .node_remove = IMFS_node_remove_default,
-	 .node_destroy = IMFS_memfile_destroy},
+		.handlers = &IMFS_memfile_handlers,
+		.node_initialize = IMFS_node_initialize_default,
+		.node_remove = IMFS_node_remove_default,
+		.node_destroy = IMFS_memfile_destroy
+	},
 	.node_size = sizeof (IMFS_file_t)
 };

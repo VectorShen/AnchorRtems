@@ -40,13 +40,13 @@ uint32_t _CORE_barrier_Release (CORE_barrier_Control * the_barrier,
 
 	count = 0;
 	while ((the_thread = _Thread_queue_Dequeue (&the_barrier->Wait_queue)))
-	  {
+	{
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (!_Objects_Is_local_id (the_thread->Object.id))
-			  (*api_barrier_mp_support) (the_thread, id);
+		if (!_Objects_Is_local_id (the_thread->Object.id))
+			(*api_barrier_mp_support) (the_thread, id);
 #endif
-		  count++;
-	  }
+		count++;
+	}
 	the_barrier->number_of_waiting_threads = 0;
 	return count;
 }

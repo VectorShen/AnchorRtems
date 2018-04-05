@@ -39,7 +39,7 @@
  */
 
 static
-	int _POSIX_Message_queue_Return_codes[CORE_MESSAGE_QUEUE_STATUS_LAST + 1] =
+int _POSIX_Message_queue_Return_codes[CORE_MESSAGE_QUEUE_STATUS_LAST + 1] =
 {
 	0,							/* CORE_MESSAGE_QUEUE_STATUS_SUCCESSFUL */
 	EMSGSIZE,					/* CORE_MESSAGE_QUEUE_STATUS_INVALID_SIZE */

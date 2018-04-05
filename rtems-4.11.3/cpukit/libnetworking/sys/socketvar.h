@@ -64,9 +64,9 @@ struct socket
  * and limit on number of queued connections for this socket.
  */
 	struct socket *so_head;		/* back pointer to accept socket */
-	  TAILQ_HEAD (, socket) so_incomp;	/* queue of partial unaccepted connections */
-	  TAILQ_HEAD (, socket) so_comp;	/* queue of complete unaccepted connections */
-	  TAILQ_ENTRY (socket) so_list;	/* list of unaccepted connections */
+	TAILQ_HEAD (, socket) so_incomp;	/* queue of partial unaccepted connections */
+	TAILQ_HEAD (, socket) so_comp;	/* queue of complete unaccepted connections */
+	TAILQ_ENTRY (socket) so_list;	/* list of unaccepted connections */
 	short so_qlen;				/* number of unaccepted connections */
 	short so_incqlen;			/* number of unaccepted incomplete
 								   connections */
@@ -109,7 +109,7 @@ struct socket
 /*
  * Socket state bits.
  */
-#define	SS_NOFDREF		0x0001	/* no file table ref any more */
+#define	SS_NOFDREF			0x0001	/* no file table ref any more */
 #define	SS_ISCONNECTED		0x0002	/* socket connected to a peer */
 #define	SS_ISCONNECTING		0x0004	/* in process of connecting to peer */
 #define	SS_ISDISCONNECTING	0x0008	/* in process of disconnecting */
@@ -117,13 +117,13 @@ struct socket
 #define	SS_CANTRCVMORE		0x0020	/* can't receive more data from peer */
 #define	SS_RCVATMARK		0x0040	/* at mark on input */
 
-#define	SS_PRIV			0x0080	/* privileged for broadcast, raw... */
-#define	SS_NBIO			0x0100	/* non-blocking ops */
-#define	SS_ASYNC		0x0200	/* async i/o notify */
+#define	SS_PRIV				0x0080	/* privileged for broadcast, raw... */
+#define	SS_NBIO				0x0100	/* non-blocking ops */
+#define	SS_ASYNC			0x0200	/* async i/o notify */
 #define	SS_ISCONFIRMING		0x0400	/* deciding to accept connection req */
 
-#define	SS_INCOMP		0x0800	/* unaccepted, incomplete connection */
-#define	SS_COMP			0x1000	/* unaccepted, complete connection */
+#define	SS_INCOMP			0x0800	/* unaccepted, incomplete connection */
+#define	SS_COMP				0x1000	/* unaccepted, complete connection */
 
 /*
  * Macros for sockets and socket buffering.

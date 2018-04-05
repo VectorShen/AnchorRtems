@@ -26,8 +26,8 @@
 #include <rtems/extensionimpl.h>
 
 rtems_status_code rtems_extension_create (rtems_name name,
-										  const rtems_extensions_table *
-										  extension_table, rtems_id * id)
+										const rtems_extensions_table *
+										extension_table, rtems_id * id)
 {
 	Extension_Control *the_extension;
 
@@ -40,10 +40,10 @@ rtems_status_code rtems_extension_create (rtems_name name,
 	the_extension = _Extension_Allocate ();
 
 	if (!the_extension)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 	_Thread_Disable_dispatch ();
 	_User_extensions_Add_set_with_table (&the_extension->Extension,
@@ -51,7 +51,7 @@ rtems_status_code rtems_extension_create (rtems_name name,
 	_Thread_Enable_dispatch ();
 
 	_Objects_Open (&_Extension_Information,
-				   &the_extension->Object, (Objects_Name) name);
+				 &the_extension->Object, (Objects_Name) name);
 
 	*id = the_extension->Object.id;
 	_Objects_Allocator_unlock ();

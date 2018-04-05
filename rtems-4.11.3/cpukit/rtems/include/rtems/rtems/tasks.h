@@ -77,7 +77,7 @@ extern "C"
 /**
  *  Define the type for an RTEMS API task priority.
  */
-	typedef Priority_Control rtems_task_priority;
+typedef Priority_Control rtems_task_priority;
 
 /**
  *  This is the constant used with the rtems_task_set_priority
@@ -154,22 +154,22 @@ extern "C"
 /**
  *  External API name for Thread_Control
  */
-	typedef Thread_Control rtems_tcb;
+typedef Thread_Control rtems_tcb;
 
 /**
  *  The following defines the "return type" of an RTEMS task.
  */
-	typedef void rtems_task;
+typedef void rtems_task;
 
 /**
  *  The following defines the argument to an RTEMS task.
  */
-	typedef Thread_Entry_numeric_type rtems_task_argument;
+typedef Thread_Entry_numeric_type rtems_task_argument;
 
 /**
  *  The following defines the type for the entry point of an RTEMS task.
  */
-	typedef rtems_task (*rtems_task_entry) (rtems_task_argument);
+typedef rtems_task (*rtems_task_entry) (rtems_task_argument);
 
 /**
  *  The following records define the Initialization Tasks Table.
@@ -177,23 +177,23 @@ extern "C"
  *  create and start a user task automatically at executive
  *  initialization time.
  */
-	typedef struct
-	{
-  /** This is the Initialization Task's name. */
-		rtems_name name;
-  /** This is the Initialization Task's stack size. */
-		size_t stack_size;
-  /** This is the Initialization Task's priority. */
-		rtems_task_priority initial_priority;
-  /** This is the Initialization Task's attributes. */
-		rtems_attribute attribute_set;
-  /** This is the Initialization Task's entry point. */
-		rtems_task_entry entry_point;
-  /** This is the Initialization Task's initial mode. */
-		rtems_mode mode_set;
-  /** This is the Initialization Task's argument. */
-		rtems_task_argument argument;
-	} rtems_initialization_tasks_table;
+typedef struct
+{
+/** This is the Initialization Task's name. */
+	rtems_name name;
+/** This is the Initialization Task's stack size. */
+	size_t stack_size;
+/** This is the Initialization Task's priority. */
+	rtems_task_priority initial_priority;
+/** This is the Initialization Task's attributes. */
+	rtems_attribute attribute_set;
+/** This is the Initialization Task's entry point. */
+	rtems_task_entry entry_point;
+/** This is the Initialization Task's initial mode. */
+	rtems_mode mode_set;
+/** This is the Initialization Task's argument. */
+	rtems_task_argument argument;
+} rtems_initialization_tasks_table;
 
 /**
  * @brief RTEMS Task Create
@@ -215,12 +215,12 @@ extern "C"
  * @retval RTEMS_SUCCESSFUL if successful or error code if unsuccessful
  *             	and *id thread id filled in
  */
-	rtems_status_code rtems_task_create (rtems_name name,
-										 rtems_task_priority initial_priority,
-										 size_t stack_size,
-										 rtems_mode initial_modes,
-										 rtems_attribute attribute_set,
-										 rtems_id * id);
+rtems_status_code rtems_task_create (rtems_name name,
+									 rtems_task_priority initial_priority,
+									 size_t stack_size,
+									 rtems_mode initial_modes,
+									 rtems_attribute attribute_set,
+									 rtems_id * id);
 
 /**
  * @brief RTEMS Task Name to Id
@@ -242,8 +242,8 @@ extern "C"
  *         source of the error. If successful, the id will
  *         be filled in with the thread id.
  */
-	rtems_status_code rtems_task_ident (rtems_name name,
-										uint32_t node, rtems_id * id);
+rtems_status_code rtems_task_ident (rtems_name name,
+									uint32_t node, rtems_id * id);
 
 /**
  * @brief RTEMS Delete Task
@@ -259,7 +259,7 @@ extern "C"
  *         returned indicating the source of the error. Nothing
  *         is returned if id is the requesting thread (always succeeds).
  */
-	rtems_status_code rtems_task_delete (rtems_id id);
+rtems_status_code rtems_task_delete (rtems_id id);
 
 /**
  * @brief RTEMS Get Task Node
@@ -276,11 +276,11 @@ extern "C"
  *
  * @retval RTEMS_SUCCESSFUL if successful or error code if unsuccessful
  */
-	rtems_status_code rtems_task_get_note (rtems_id id,
-										   uint32_t notepad,
-										   uint32_t *
-										   note)
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+rtems_status_code rtems_task_get_note (rtems_id id,
+									   uint32_t notepad,
+									   uint32_t *
+									   note)
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 
 /**
  * @brief RTEMS Set Task Note
@@ -299,10 +299,10 @@ extern "C"
  *         error. Otherwise, a status code is returned indicating the
  *         source of the error.
  */
-	rtems_status_code rtems_task_set_note (rtems_id id,
-										   uint32_t notepad,
-										   uint32_t note)
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+rtems_status_code rtems_task_set_note (rtems_id id,
+									   uint32_t notepad,
+									   uint32_t note)
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 
 /**
  * @brief RTEMS Task Mode
@@ -319,9 +319,9 @@ extern "C"
  * @retval RTEMS_SUCCESSFUL and previous_mode_set filled in with the
  * previous mode set
  */
-	rtems_status_code rtems_task_mode (rtems_mode mode_set,
-									   rtems_mode mask,
-									   rtems_mode * previous_mode_set);
+rtems_status_code rtems_task_mode (rtems_mode mode_set,
+								   rtems_mode mask,
+								   rtems_mode * previous_mode_set);
 
 /**
  * @brief RTEMS Task Restart
@@ -335,7 +335,7 @@ extern "C"
  *
  * @retval RTEMS_SUCCESSFUL if successful or error code if unsuccessful
  */
-	rtems_status_code rtems_task_restart (rtems_id id, uint32_t arg);
+rtems_status_code rtems_task_restart (rtems_id id, uint32_t arg);
 
 /**
  * @brief RTEMS Suspend Task
@@ -350,7 +350,7 @@ extern "C"
  *         error. Otherwise, a status code is returned indicating the
  *         source of the error.
  */
-	rtems_status_code rtems_task_suspend (rtems_id id);
+rtems_status_code rtems_task_suspend (rtems_id id);
 
 /**
  * @brief RTEMS Resume Task
@@ -364,7 +364,7 @@ extern "C"
  *         error. Otherwise, a status code is returned indicating the
  *         source of the error.
  */
-	rtems_status_code rtems_task_resume (rtems_id id);
+rtems_status_code rtems_task_resume (rtems_id id);
 
 /**
  * @brief RTEMS Set Task Priority
@@ -381,10 +381,10 @@ extern "C"
  * @retval RTEMS_SUCCESSFUL if successful or error code if unsuccessful and
  * and *old_priority filled in with the previous previous priority
  */
-	rtems_status_code rtems_task_set_priority (rtems_id id,
-											   rtems_task_priority new_priority,
-											   rtems_task_priority *
-											   old_priority);
+rtems_status_code rtems_task_set_priority (rtems_id id,
+										   rtems_task_priority new_priority,
+										   rtems_task_priority *
+										   old_priority);
 
 /**
  *  @brief RTEMS Start Task
@@ -395,9 +395,9 @@ extern "C"
  *  starting execution point of the task associated with ID is
  *  set to entry_point with the initial argument.
  */
-	rtems_status_code rtems_task_start (rtems_id id,
-										rtems_task_entry entry_point,
-										rtems_task_argument argument);
+rtems_status_code rtems_task_start (rtems_id id,
+									rtems_task_entry entry_point,
+									rtems_task_argument argument);
 
 /**
  * @brief RTEMS Task Wake When
@@ -410,7 +410,7 @@ extern "C"
  *
  * @retval RTEMS_SUCCESSFUL if successful or error code if unsuccessful
  */
-	rtems_status_code rtems_task_wake_when (rtems_time_of_day * time_buffer);
+rtems_status_code rtems_task_wake_when (rtems_time_of_day * time_buffer);
 
 /**
  * @brief RTEMS Task Wake After
@@ -422,7 +422,7 @@ extern "C"
  * @param[in] ticks is the number of ticks to wait
  * @retval RTEMS_SUCCESSFUL
  */
-	rtems_status_code rtems_task_wake_after (rtems_interval ticks);
+rtems_status_code rtems_task_wake_after (rtems_interval ticks);
 
 /**
  *  @brief rtems_task_is_suspended
@@ -430,7 +430,7 @@ extern "C"
  *  This directive returns a status indicating whether or not
  *  the specified task is suspended.
  */
-	rtems_status_code rtems_task_is_suspended (rtems_id id);
+rtems_status_code rtems_task_is_suspended (rtems_id id);
 
 #if !defined(RTEMS_SMP)
 /**
@@ -442,10 +442,10 @@ extern "C"
  *
  *  @note This service is not available in SMP configurations.
  */
-	rtems_status_code rtems_task_variable_add (rtems_id tid,
-											   void **ptr,
-											   void (*dtor) (void *))
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+rtems_status_code rtems_task_variable_add (rtems_id tid,
+										   void **ptr,
+										   void (*dtor) (void *))
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 
 /**
  *  @brief Get a per-task variable
@@ -456,10 +456,10 @@ extern "C"
  *
  *  @note This service is not available in SMP configurations.
  */
-	rtems_status_code rtems_task_variable_get (rtems_id tid,
-											   void **ptr,
-											   void **result)
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+rtems_status_code rtems_task_variable_get (rtems_id tid,
+										   void **ptr,
+										   void **result)
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 
 /**
  *  @brief RTEMS Delete Task Variable
@@ -470,9 +470,9 @@ extern "C"
  *
  *  @note This service is not available in SMP configurations.
  */
-	rtems_status_code rtems_task_variable_delete (rtems_id tid,
-												  void **ptr)
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+rtems_status_code rtems_task_variable_delete (rtems_id tid,
+											  void **ptr)
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 #endif
 
 #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
@@ -493,9 +493,9 @@ extern "C"
  * @retval RTEMS_INVALID_NUMBER The affinity set buffer is too small for the
  * current processor affinity set of the task.
  */
-	rtems_status_code rtems_task_get_affinity (rtems_id id,
-											   size_t cpusetsize,
-											   cpu_set_t * cpuset);
+rtems_status_code rtems_task_get_affinity (rtems_id id,
+										   size_t cpusetsize,
+										   cpu_set_t * cpuset);
 
 /**
  * @brief Sets the processor affinity set of a task.
@@ -524,9 +524,9 @@ extern "C"
  * @retval RTEMS_INVALID_ID Invalid task identifier.
  * @retval RTEMS_INVALID_NUMBER Invalid processor affinity set.
  */
-	rtems_status_code rtems_task_set_affinity (rtems_id id,
-											   size_t cpusetsize,
-											   const cpu_set_t * cpuset);
+rtems_status_code rtems_task_set_affinity (rtems_id id,
+										   size_t cpusetsize,
+										   const cpu_set_t * cpuset);
 #endif
 
 /**
@@ -540,8 +540,8 @@ extern "C"
  * @retval RTEMS_INVALID_ADDRESS The @a scheduler_id parameter is @c NULL.
  * @retval RTEMS_INVALID_ID Invalid task identifier.
  */
-	rtems_status_code rtems_task_get_scheduler (rtems_id task_id,
-												rtems_id * scheduler_id);
+rtems_status_code rtems_task_get_scheduler (rtems_id task_id,
+											rtems_id * scheduler_id);
 
 /**
  * @brief Sets the scheduler of a task.
@@ -558,15 +558,15 @@ extern "C"
  *
  * @see rtems_scheduler_ident().
  */
-	rtems_status_code rtems_task_set_scheduler (rtems_id task_id,
-												rtems_id scheduler_id);
+rtems_status_code rtems_task_set_scheduler (rtems_id task_id,
+											rtems_id scheduler_id);
 
 /**
  *  @brief RTEMS Get Self Task Id
  *
  *  This directive returns the ID of the currently executing task.
  */
-	rtems_id rtems_task_self (void);
+rtems_id rtems_task_self (void);
 
 /**
  * @brief Identifies a scheduler by its name.
@@ -582,7 +582,7 @@ extern "C"
  * @retval RTEMS_UNSATISFIED A scheduler with this name exists, but the
  * processor set of this scheduler is empty.
  */
-	rtems_status_code rtems_scheduler_ident (rtems_name name, rtems_id * id);
+rtems_status_code rtems_scheduler_ident (rtems_name name, rtems_id * id);
 
 #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
 /**
@@ -601,9 +601,9 @@ extern "C"
  * @retval RTEMS_INVALID_NUMBER The processor set buffer is too small for the
  * set of processors owned by the scheduler.
  */
-	rtems_status_code rtems_scheduler_get_processor_set (rtems_id scheduler_id,
-														 size_t cpusetsize,
-														 cpu_set_t * cpuset);
+rtems_status_code rtems_scheduler_get_processor_set (rtems_id scheduler_id,
+													 size_t cpusetsize,
+													 cpu_set_t * cpuset);
 #endif
 
 /**@}*/
@@ -616,30 +616,30 @@ extern "C"
  *        will be taken away from this structure when allocated if
  *        notespads are disabled by the application configuration.
  */
-	typedef struct
-	{
-  /** This field contains the event control for this task. */
-		Event_Control Event;
-  /** This field contains the system event control for this task. */
-		Event_Control System_event;
-  /** This field contains the Classic API Signal information for this task. */
-		ASR_Information Signal;
+typedef struct
+{
+/** This field contains the event control for this task. */
+	Event_Control Event;
+/** This field contains the system event control for this task. */
+	Event_Control System_event;
+/** This field contains the Classic API Signal information for this task. */
+	ASR_Information Signal;
 
-  /**
-   * @brief Signal post-switch action in case signals are pending.
-   */
-		Thread_Action Signal_action;
+/**
+* @brief Signal post-switch action in case signals are pending.
+*/
+	Thread_Action Signal_action;
 
-  /**
-   *  This field contains the notepads for this task.
-   * 
-   *  @deprecated Notepads are deprecated and will be removed.
-   *
-   *  @note MUST BE LAST ENTRY.
-   */
-		uint32_t Notepads[RTEMS_ZERO_LENGTH_ARRAY]
-			RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
-	} RTEMS_API_Control;
+/**
+*  This field contains the notepads for this task.
+*
+*  @deprecated Notepads are deprecated and will be removed.
+*
+*  @note MUST BE LAST ENTRY.
+*/
+	uint32_t Notepads[RTEMS_ZERO_LENGTH_ARRAY]
+		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+} RTEMS_API_Control;
 
 /**
  *  When the user configures a set of Classic API initialization tasks,
@@ -648,7 +648,7 @@ extern "C"
  *  @note It is instantiated and initialized by confdefs.h based upon
  *        application requirements.
  */
-	extern void (*_RTEMS_tasks_Initialize_user_tasks_p) (void);
+extern void (*_RTEMS_tasks_Initialize_user_tasks_p) (void);
 
 /**
  *  @brief _RTEMS_tasks_Initialize_user_tasks_body
@@ -663,7 +663,7 @@ extern "C"
  *  RTEMS Task Manager
  */
 
-	extern void _RTEMS_tasks_Initialize_user_tasks_body (void);
+extern void _RTEMS_tasks_Initialize_user_tasks_body (void);
 
 #ifdef __cplusplus
 }

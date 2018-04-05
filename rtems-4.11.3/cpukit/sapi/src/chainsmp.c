@@ -83,7 +83,7 @@ void rtems_chain_prepend (rtems_chain_control * chain, rtems_chain_node * node)
 }
 
 bool rtems_chain_append_with_empty_check (rtems_chain_control * chain,
-										  rtems_chain_node * node)
+										rtems_chain_node * node)
 {
 	bool was_empty;
 	SMP_lock_Context lock_context;
@@ -96,7 +96,7 @@ bool rtems_chain_append_with_empty_check (rtems_chain_control * chain,
 }
 
 bool rtems_chain_prepend_with_empty_check (rtems_chain_control * chain,
-										   rtems_chain_node * node)
+										 rtems_chain_node * node)
 {
 	bool was_empty;
 	SMP_lock_Context lock_context;
@@ -109,7 +109,7 @@ bool rtems_chain_prepend_with_empty_check (rtems_chain_control * chain,
 }
 
 bool rtems_chain_get_with_empty_check (rtems_chain_control * chain,
-									   rtems_chain_node ** node)
+									 rtems_chain_node ** node)
 {
 	bool is_empty_now;
 	SMP_lock_Context lock_context;

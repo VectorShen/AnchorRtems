@@ -40,25 +40,25 @@ Objects_Name_or_id_lookup_errors _Objects_Name_to_id_string (Objects_Information
 		return OBJECTS_INVALID_NAME;
 
 	if (information->maximum != 0)
-	  {
+	{
 
-		  for (index = 1; index <= information->maximum; index++)
+		for (index = 1; index <= information->maximum; index++)
+		{
+			the_object = information->local_table[index];
+			if (!the_object)
+				continue;
+
+			if (!the_object->name.name_p)
+				continue;
+
+			if (!strncmp
+				(name, the_object->name.name_p, information->name_length))
 			{
-				the_object = information->local_table[index];
-				if (!the_object)
-					continue;
-
-				if (!the_object->name.name_p)
-					continue;
-
-				if (!strncmp
-					(name, the_object->name.name_p, information->name_length))
-				  {
-					  *id = the_object->id;
-					  return OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL;
-				  }
+				*id = the_object->id;
+				return OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL;
 			}
-	  }
+		}
+	}
 
 	return OBJECTS_INVALID_NAME;
 }

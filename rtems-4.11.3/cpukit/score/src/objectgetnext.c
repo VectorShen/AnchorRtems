@@ -68,20 +68,20 @@ Objects_Control *_Objects_Get_next (Objects_Information * information,
 		next_id = id;
 
 	do
-	  {
-		  /* walked off end of list? */
-		  if (_Objects_Get_index (next_id) > information->maximum)
-			{
-				*location_p = OBJECTS_ERROR;
-				goto final;
-			}
+	{
+		/* walked off end of list? */
+		if (_Objects_Get_index (next_id) > information->maximum)
+		{
+			*location_p = OBJECTS_ERROR;
+			goto final;
+		}
 
-		  /* try to grab one */
-		  object = _Objects_Get (information, next_id, location_p);
+		/* try to grab one */
+		object = _Objects_Get (information, next_id, location_p);
 
-		  next_id++;
+		next_id++;
 
-	  }
+	}
 	while (*location_p != OBJECTS_LOCAL);
 
 	*next_id_p = next_id;

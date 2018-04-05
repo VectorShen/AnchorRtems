@@ -22,7 +22,8 @@
 #include <rtems/score/objectimpl.h>
 #include <rtems/assoc.h>
 
-static const rtems_assoc_t rtems_objects_api_assoc[] = {
+static const rtems_assoc_t rtems_objects_api_assoc[] =
+{
 	{"Internal", OBJECTS_INTERNAL_API, 0},
 	{"Classic", OBJECTS_CLASSIC_API, 0},
 	{"POSIX", OBJECTS_POSIX_API, 0},

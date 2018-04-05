@@ -26,8 +26,8 @@
 #include <rtems/score/thread.h>
 
 rtems_status_code rtems_rate_monotonic_get_statistics (rtems_id id,
-													   rtems_rate_monotonic_period_statistics
-													   * statistics)
+													 rtems_rate_monotonic_period_statistics
+													 * statistics)
 {
 	Objects_Locations location;
 	Rate_monotonic_Control *the_period;
@@ -39,31 +39,31 @@ rtems_status_code rtems_rate_monotonic_get_statistics (rtems_id id,
 
 	the_period = _Rate_monotonic_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  dst = statistics;
-			  src = &the_period->Statistics;
-			  dst->count = src->count;
-			  dst->missed_count = src->missed_count;
-			  _Timestamp_To_timespec (&src->min_cpu_time, &dst->min_cpu_time);
-			  _Timestamp_To_timespec (&src->max_cpu_time, &dst->max_cpu_time);
-			  _Timestamp_To_timespec (&src->total_cpu_time,
-									  &dst->total_cpu_time);
-			  _Timestamp_To_timespec (&src->min_wall_time, &dst->min_wall_time);
-			  _Timestamp_To_timespec (&src->max_wall_time, &dst->max_wall_time);
-			  _Timestamp_To_timespec (&src->total_wall_time,
-									  &dst->total_wall_time);
+		case OBJECTS_LOCAL:
+			dst = statistics;
+			src = &the_period->Statistics;
+			dst->count = src->count;
+			dst->missed_count = src->missed_count;
+			_Timestamp_To_timespec (&src->min_cpu_time, &dst->min_cpu_time);
+			_Timestamp_To_timespec (&src->max_cpu_time, &dst->max_cpu_time);
+			_Timestamp_To_timespec (&src->total_cpu_time,
+									&dst->total_cpu_time);
+			_Timestamp_To_timespec (&src->min_wall_time, &dst->min_wall_time);
+			_Timestamp_To_timespec (&src->max_wall_time, &dst->max_wall_time);
+			_Timestamp_To_timespec (&src->total_wall_time,
+									&dst->total_wall_time);
 
-			  _Objects_Put (&the_period->Object);
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Put (&the_period->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

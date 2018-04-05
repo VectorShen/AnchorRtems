@@ -230,34 +230,34 @@ static void clear_undo (struct editor *ed)
 {
 	struct undo *undo = ed->undohead;
 	while (undo)
-	  {
-		  struct undo *next = undo->next;
-		  free (undo->undobuf);
-		  free (undo->redobuf);
-		  free (undo);
-		  undo = next;
-	  }
+	{
+		struct undo *next = undo->next;
+		free (undo->undobuf);
+		free (undo->redobuf);
+		free (undo);
+		undo = next;
+	}
 	ed->undohead = ed->undotail = ed->undo = NULL;
 }
 
 static void reset_undo (struct editor *ed)
 {
 	while (ed->undotail != ed->undo)
-	  {
-		  struct undo *undo = ed->undotail;
-		  if (!undo)
-			{
-				ed->undohead = NULL;
-				ed->undotail = NULL;
-				break;
-			}
-		  ed->undotail = undo->prev;
-		  if (undo->prev)
-			  undo->prev->next = NULL;
-		  free (undo->undobuf);
-		  free (undo->redobuf);
-		  free (undo);
-	  }
+	{
+		struct undo *undo = ed->undotail;
+		if (!undo)
+		{
+			ed->undohead = NULL;
+			ed->undotail = NULL;
+			break;
+		}
+		ed->undotail = undo->prev;
+		if (undo->prev)
+			undo->prev->next = NULL;
+		free (undo->undobuf);
+		free (undo->redobuf);
+		free (undo);
+	}
 	ed->undo = ed->undotail;
 }
 
@@ -266,16 +266,16 @@ static struct editor *create_editor (struct env *env)
 	struct editor *ed = (struct editor *)malloc (sizeof (struct editor));
 	memset (ed, 0, sizeof (struct editor));
 	if (env->current)
-	  {
-		  ed->next = env->current->next;
-		  ed->prev = env->current;
-		  env->current->next->prev = ed;
-		  env->current->next = ed;
-	  }
+	{
+		ed->next = env->current->next;
+		ed->prev = env->current;
+		env->current->next->prev = ed;
+		env->current->next = ed;
+	}
 	else
-	  {
-		  ed->next = ed->prev = ed;
-	  }
+	{
+		ed->next = ed->prev = ed;
+	}
 	ed->env = env;
 	env->current = ed;
 	return ed;
@@ -284,13 +284,13 @@ static struct editor *create_editor (struct env *env)
 static void delete_editor (struct editor *ed)
 {
 	if (ed->next == ed)
-	  {
-		  ed->env->current = NULL;
-	  }
+	{
+		ed->env->current = NULL;
+	}
 	else
-	  {
-		  ed->env->current = ed->prev;
-	  }
+	{
+		ed->env->current = ed->prev;
+	}
 	ed->next->prev = ed->prev;
 	ed->prev->next = ed->next;
 	if (ed->start)
@@ -309,11 +309,11 @@ static struct editor *find_editor (struct env *env, char *filename)
 		strcpy (fn, filename);
 
 	do
-	  {
-		  if (strcmp (fn, ed->filename) == 0)
-			  return ed;
-		  ed = ed->next;
-	  }
+	{
+		if (strcmp (fn, ed->filename) == 0)
+			return ed;
+		ed = ed->next;
+	}
 	while (ed != start);
 	return NULL;
 }
@@ -321,14 +321,14 @@ static struct editor *find_editor (struct env *env, char *filename)
 static int new_file (struct editor *ed, char *filename)
 {
 	if (*filename)
-	  {
-		  strcpy (ed->filename, filename);
-	  }
+	{
+		strcpy (ed->filename, filename);
+	}
 	else
-	  {
-		  sprintf (ed->filename, "Untitled-%d", ++ed->env->untitled);
-		  ed->newfile = 1;
-	  }
+	{
+		sprintf (ed->filename, "Untitled-%d", ++ed->env->untitled);
+		ed->newfile = 1;
+	}
 	ed->permissions = 0644;
 
 	ed->start = (unsigned char *)malloc (MINEXTEND);
@@ -381,10 +381,10 @@ static int load_file (struct editor *ed, char *filename)
   err:
 	close (f);
 	if (ed->start)
-	  {
-		  free (ed->start);
-		  ed->start = NULL;
-	  }
+	{
+		free (ed->start);
+		ed->start = NULL;
+	}
 	return -1;
 }
 
@@ -432,57 +432,57 @@ static void move_gap (struct editor *ed, int pos, int minsize)
 		minsize = 0;
 
 	if (minsize <= gapsize)
-	  {
-		  if (p != ed->rest)
+	{
+		if (p != ed->rest)
+		{
+			if (p < ed->gap)
 			{
-				if (p < ed->gap)
-				  {
-					  memmove (p + gapsize, p, ed->gap - p);
-				  }
-				else
-				  {
-					  memmove (ed->gap, ed->rest, p - ed->rest);
-				  }
-				ed->gap = ed->start + pos;
-				ed->rest = ed->gap + gapsize;
+				memmove (p + gapsize, p, ed->gap - p);
 			}
-	  }
+			else
+			{
+				memmove (ed->gap, ed->rest, p - ed->rest);
+			}
+			ed->gap = ed->start + pos;
+			ed->rest = ed->gap + gapsize;
+		}
+	}
 	else
-	  {
-		  int newsize;
-		  unsigned char *start;
-		  unsigned char *gap;
-		  unsigned char *rest;
-		  unsigned char *end;
+	{
+		int newsize;
+		unsigned char *start;
+		unsigned char *gap;
+		unsigned char *rest;
+		unsigned char *end;
 
-		  if (gapsize + MINEXTEND > minsize)
-			  minsize = gapsize + MINEXTEND;
-		  newsize = (ed->end - ed->start) - gapsize + minsize;
-		  start = (unsigned char *)malloc (newsize);	// TODO check for out of memory
-		  gap = start + pos;
-		  rest = gap + minsize;
-		  end = start + newsize;
+		if (gapsize + MINEXTEND > minsize)
+			minsize = gapsize + MINEXTEND;
+		newsize = (ed->end - ed->start) - gapsize + minsize;
+		start = (unsigned char *)malloc (newsize);	// TODO check for out of memory
+		gap = start + pos;
+		rest = gap + minsize;
+		end = start + newsize;
 
-		  if (p < ed->gap)
-			{
-				memcpy (start, ed->start, pos);
-				memcpy (rest, p, ed->gap - p);
-				memcpy (end - (ed->end - ed->rest), ed->rest,
-						ed->end - ed->rest);
-			}
-		  else
-			{
-				memcpy (start, ed->start, ed->gap - ed->start);
-				memcpy (start + (ed->gap - ed->start), ed->rest, p - ed->rest);
-				memcpy (rest, p, ed->end - p);
-			}
+		if (p < ed->gap)
+		{
+			memcpy (start, ed->start, pos);
+			memcpy (rest, p, ed->gap - p);
+			memcpy (end - (ed->end - ed->rest), ed->rest,
+					ed->end - ed->rest);
+		}
+		else
+		{
+			memcpy (start, ed->start, ed->gap - ed->start);
+			memcpy (start + (ed->gap - ed->start), ed->rest, p - ed->rest);
+			memcpy (rest, p, ed->end - p);
+		}
 
-		  free (ed->start);
-		  ed->start = start;
-		  ed->gap = gap;
-		  ed->rest = rest;
-		  ed->end = end;
-	  }
+		free (ed->start);
+		ed->start = start;
+		ed->gap = gap;
+		ed->rest = rest;
+		ed->end = end;
+	}
 
 #ifdef DEBUG
 	memset (ed->gap, 0, ed->rest - ed->gap);
@@ -512,15 +512,15 @@ static int compare (struct editor *ed, unsigned char *buf, int pos, int len)
 		p += (ed->rest - ed->gap);
 
 	while (len > 0)
-	  {
-		  if (p == ed->end)
-			  return 0;
-		  if (*bufptr++ != *p)
-			  return 0;
-		  len--;
-		  if (++p == ed->gap)
-			  p = ed->rest;
-	  }
+	{
+		if (p == ed->end)
+			return 0;
+		if (*bufptr++ != *p)
+			return 0;
+		len--;
+		if (++p == ed->gap)
+			p = ed->rest;
+	}
 
 	return 1;
 }
@@ -533,14 +533,14 @@ static int copy (struct editor *ed, unsigned char *buf, int pos, int len)
 		p += (ed->rest - ed->gap);
 
 	while (len > 0)
-	  {
-		  if (p == ed->end)
-			  break;
-		  *bufptr++ = *p;
-		  len--;
-		  if (++p == ed->gap)
-			  p = ed->rest;
-	  }
+	{
+		if (p == ed->end)
+			break;
+		*bufptr++ = *p;
+		len--;
+		if (++p == ed->gap)
+			p = ed->rest;
+	}
 
 	return bufptr - buf;
 }
@@ -553,80 +553,80 @@ static void replace (struct editor *ed, int pos, int len, unsigned char *buf,
 
 	// Store undo information
 	if (doundo)
-	  {
-		  reset_undo (ed);
-		  undo = ed->undotail;
-		  if (undo && len == 0 && bufsize == 1 && undo->erased == 0
-			  && pos == undo->pos + undo->inserted)
-			{
-				// Insert character at end of current redo buffer
-				undo->redobuf = realloc (undo->redobuf, undo->inserted + 1);
-				undo->redobuf[undo->inserted] = *buf;
-				undo->inserted++;
-			}
-		  else if (undo && len == 1 && bufsize == 0 && undo->inserted == 0
-				   && pos == undo->pos)
-			{
-				// Erase character at end of current undo buffer
-				undo->undobuf = realloc (undo->undobuf, undo->erased + 1);
-				undo->undobuf[undo->erased] = get (ed, pos);
-				undo->erased++;
-			}
-		  else if (undo && len == 1 && bufsize == 0 && undo->inserted == 0
-				   && pos == undo->pos - 1)
-			{
-				// Erase character at beginning of current undo buffer
-				undo->pos--;
-				undo->undobuf = realloc (undo->undobuf, undo->erased + 1);
-				memmove (undo->undobuf + 1, undo->undobuf, undo->erased);
-				undo->undobuf[0] = get (ed, pos);
-				undo->erased++;
-			}
-		  else
-			{
-				// Create new undo buffer
-				undo = (struct undo *)malloc (sizeof (struct undo));
-				if (ed->undotail)
-					ed->undotail->next = undo;
-				undo->prev = ed->undotail;
-				undo->next = NULL;
-				ed->undotail = ed->undo = undo;
-				if (!ed->undohead)
-					ed->undohead = undo;
+	{
+		reset_undo (ed);
+		undo = ed->undotail;
+		if (undo && len == 0 && bufsize == 1 && undo->erased == 0
+			&& pos == undo->pos + undo->inserted)
+		{
+			// Insert character at end of current redo buffer
+			undo->redobuf = realloc (undo->redobuf, undo->inserted + 1);
+			undo->redobuf[undo->inserted] = *buf;
+			undo->inserted++;
+		}
+		else if (undo && len == 1 && bufsize == 0 && undo->inserted == 0
+				 && pos == undo->pos)
+		{
+			// Erase character at end of current undo buffer
+			undo->undobuf = realloc (undo->undobuf, undo->erased + 1);
+			undo->undobuf[undo->erased] = get (ed, pos);
+			undo->erased++;
+		}
+		else if (undo && len == 1 && bufsize == 0 && undo->inserted == 0
+				 && pos == undo->pos - 1)
+		{
+			// Erase character at beginning of current undo buffer
+			undo->pos--;
+			undo->undobuf = realloc (undo->undobuf, undo->erased + 1);
+			memmove (undo->undobuf + 1, undo->undobuf, undo->erased);
+			undo->undobuf[0] = get (ed, pos);
+			undo->erased++;
+		}
+		else
+		{
+			// Create new undo buffer
+			undo = (struct undo *)malloc (sizeof (struct undo));
+			if (ed->undotail)
+				ed->undotail->next = undo;
+			undo->prev = ed->undotail;
+			undo->next = NULL;
+			ed->undotail = ed->undo = undo;
+			if (!ed->undohead)
+				ed->undohead = undo;
 
-				undo->pos = pos;
-				undo->erased = len;
-				undo->inserted = bufsize;
-				undo->undobuf = undo->redobuf = NULL;
-				if (len > 0)
-				  {
-					  undo->undobuf = malloc (len);
-					  copy (ed, undo->undobuf, pos, len);
-				  }
-				if (bufsize > 0)
-				  {
-					  undo->redobuf = malloc (bufsize);
-					  memcpy (undo->redobuf, buf, bufsize);
-				  }
+			undo->pos = pos;
+			undo->erased = len;
+			undo->inserted = bufsize;
+			undo->undobuf = undo->redobuf = NULL;
+			if (len > 0)
+			{
+				undo->undobuf = malloc (len);
+				copy (ed, undo->undobuf, pos, len);
 			}
-	  }
+			if (bufsize > 0)
+			{
+				undo->redobuf = malloc (bufsize);
+				memcpy (undo->redobuf, buf, bufsize);
+			}
+		}
+	}
 
 	p = ed->start + pos;
 	if (bufsize == 0 && p <= ed->gap && p + len >= ed->gap)
-	  {
-		  // Handle deletions at the edges of the gap
-		  ed->rest += len - (ed->gap - p);
-		  ed->gap = p;
-	  }
+	{
+		// Handle deletions at the edges of the gap
+		ed->rest += len - (ed->gap - p);
+		ed->gap = p;
+	}
 	else
-	  {
-		  // Move the gap
-		  move_gap (ed, pos + len, bufsize - len);
+	{
+		// Move the gap
+		move_gap (ed, pos + len, bufsize - len);
 
-		  // Replace contents
-		  memcpy (ed->start + pos, buf, bufsize);
-		  ed->gap = ed->start + pos + bufsize;
-	  }
+		// Replace contents
+		memcpy (ed->start + pos, buf, bufsize);
+		ed->gap = ed->start + pos + bufsize;
+	}
 
 	// Mark buffer as dirty
 	ed->dirty = 1;
@@ -650,12 +650,12 @@ static int line_length (struct editor *ed, int linepos)
 {
 	int pos = linepos;
 	while (1)
-	  {
-		  int ch = get (ed, pos);
-		  if (ch < 0 || ch == '\n' || ch == '\r')
-			  break;
-		  pos++;
-	  }
+	{
+		int ch = get (ed, pos);
+		if (ch < 0 || ch == '\n' || ch == '\r')
+			break;
+		pos++;
+	}
 
 	return pos - linepos;
 }
@@ -663,13 +663,13 @@ static int line_length (struct editor *ed, int linepos)
 static int line_start (struct editor *ed, int pos)
 {
 	while (1)
-	  {
-		  if (pos == 0)
-			  break;
-		  if (get (ed, pos - 1) == '\n')
-			  break;
-		  pos--;
-	  }
+	{
+		if (pos == 0)
+			break;
+		if (get (ed, pos - 1) == '\n')
+			break;
+		pos--;
+	}
 
 	return pos;
 }
@@ -677,14 +677,14 @@ static int line_start (struct editor *ed, int pos)
 static int next_line (struct editor *ed, int pos)
 {
 	while (1)
-	  {
-		  int ch = get (ed, pos);
-		  if (ch < 0)
-			  return -1;
-		  pos++;
-		  if (ch == '\n')
-			  return pos;
-	  }
+	{
+		int ch = get (ed, pos);
+		if (ch < 0)
+			return -1;
+		pos++;
+		if (ch == '\n')
+			return pos;
+	}
 }
 
 static int prev_line (struct editor *ed, int pos)
@@ -693,18 +693,18 @@ static int prev_line (struct editor *ed, int pos)
 		return -1;
 
 	while (pos > 0)
-	  {
-		  int ch = get (ed, --pos);
-		  if (ch == '\n')
-			  break;
-	  }
+	{
+		int ch = get (ed, --pos);
+		if (ch == '\n')
+			break;
+	}
 
 	while (pos > 0)
-	  {
-		  int ch = get (ed, --pos);
-		  if (ch == '\n')
-			  return pos + 1;
-	  }
+	{
+		int ch = get (ed, --pos);
+		if (ch == '\n')
+			return pos + 1;
+	}
 
 	return 0;
 }
@@ -714,22 +714,22 @@ static int column (struct editor *ed, int linepos, int col)
 	unsigned char *p = text_ptr (ed, linepos);
 	int c = 0;
 	while (col > 0)
-	  {
-		  if (p == ed->end)
-			  break;
-		  if (*p == '\t')
-			{
-				int spaces = TABSIZE - c % TABSIZE;
-				c += spaces;
-			}
-		  else
-			{
-				c++;
-			}
-		  col--;
-		  if (++p == ed->gap)
-			  p = ed->rest;
-	  }
+	{
+		if (p == ed->end)
+			break;
+		if (*p == '\t')
+		{
+			int spaces = TABSIZE - c % TABSIZE;
+			c += spaces;
+		}
+		else
+		{
+			c++;
+		}
+		col--;
+		if (++p == ed->gap)
+			p = ed->rest;
+	}
 	return c;
 }
 
@@ -737,85 +737,85 @@ static void moveto (struct editor *ed, int pos, int center)
 {
 	int scroll = 0;
 	for (;;)
-	  {
-		  int cur = ed->linepos + ed->col;
-		  if (pos < cur)
+	{
+		int cur = ed->linepos + ed->col;
+		if (pos < cur)
+		{
+			if (pos >= ed->linepos)
 			{
-				if (pos >= ed->linepos)
-				  {
-					  ed->col = pos - ed->linepos;
-				  }
-				else
-				  {
-					  ed->col = 0;
-					  ed->linepos = prev_line (ed, ed->linepos);
-					  ed->line--;
-
-					  if (ed->topline > ed->line)
-						{
-							ed->toppos = ed->linepos;
-							ed->topline--;
-							ed->refresh = 1;
-							scroll = 1;
-						}
-				  }
+				ed->col = pos - ed->linepos;
 			}
-		  else if (pos > cur)
+			else
 			{
-				int next = next_line (ed, ed->linepos);
-				if (next == -1)
-				  {
-					  ed->col = line_length (ed, ed->linepos);
-					  break;
-				  }
-				else if (pos < next)
-				  {
-					  ed->col = pos - ed->linepos;
-				  }
-				else
-				  {
-					  ed->col = 0;
-					  ed->linepos = next;
-					  ed->line++;
+				ed->col = 0;
+				ed->linepos = prev_line (ed, ed->linepos);
+				ed->line--;
 
-					  if (ed->line >= ed->topline + ed->env->lines)
-						{
-							ed->toppos = next_line (ed, ed->toppos);
-							ed->topline++;
-							ed->refresh = 1;
-							scroll = 1;
-						}
-				  }
+				if (ed->topline > ed->line)
+				{
+					ed->toppos = ed->linepos;
+					ed->topline--;
+					ed->refresh = 1;
+					scroll = 1;
+				}
 			}
-		  else
+		}
+		else if (pos > cur)
+		{
+			int next = next_line (ed, ed->linepos);
+			if (next == -1)
+			{
+				ed->col = line_length (ed, ed->linepos);
+				break;
+			}
+			else if (pos < next)
+			{
+				ed->col = pos - ed->linepos;
+			}
+			else
+			{
+				ed->col = 0;
+				ed->linepos = next;
+				ed->line++;
+
+				if (ed->line >= ed->topline + ed->env->lines)
+				{
+					ed->toppos = next_line (ed, ed->toppos);
+					ed->topline++;
+					ed->refresh = 1;
+					scroll = 1;
+				}
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (scroll && center)
+	{
+		int tl = ed->line - ed->env->lines / 2;
+		if (tl < 0)
+			tl = 0;
+		for (;;)
+		{
+			if (ed->topline > tl)
+			{
+				ed->toppos = prev_line (ed, ed->toppos);
+				ed->topline--;
+			}
+			else if (ed->topline < tl)
+			{
+				ed->toppos = next_line (ed, ed->toppos);
+				ed->topline++;
+			}
+			else
 			{
 				break;
 			}
-	  }
-
-	if (scroll && center)
-	  {
-		  int tl = ed->line - ed->env->lines / 2;
-		  if (tl < 0)
-			  tl = 0;
-		  for (;;)
-			{
-				if (ed->topline > tl)
-				  {
-					  ed->toppos = prev_line (ed, ed->toppos);
-					  ed->topline--;
-				  }
-				else if (ed->topline < tl)
-				  {
-					  ed->toppos = next_line (ed, ed->toppos);
-					  ed->topline++;
-				  }
-				else
-				  {
-					  break;
-				  }
-			}
-	  }
+		}
+	}
 }
 
 //
@@ -825,29 +825,29 @@ static void moveto (struct editor *ed, int pos, int center)
 static int get_selection (struct editor *ed, int *start, int *end)
 {
 	if (ed->anchor == -1)
-	  {
-		  *start = *end = -1;
-		  return 0;
-	  }
+	{
+		*start = *end = -1;
+		return 0;
+	}
 	else
-	  {
-		  int pos = ed->linepos + ed->col;
-		  if (pos == ed->anchor)
-			{
-				*start = *end = -1;
-				return 0;
-			}
-		  else if (pos < ed->anchor)
-			{
-				*start = pos;
-				*end = ed->anchor;
-			}
-		  else
-			{
-				*start = ed->anchor;
-				*end = pos;
-			}
-	  }
+	{
+		int pos = ed->linepos + ed->col;
+		if (pos == ed->anchor)
+		{
+			*start = *end = -1;
+			return 0;
+		}
+		else if (pos < ed->anchor)
+		{
+			*start = pos;
+			*end = ed->anchor;
+		}
+		else
+		{
+			*start = ed->anchor;
+			*end = pos;
+		}
+	}
 	return 1;
 }
 
@@ -868,17 +868,17 @@ static int get_selected_text (struct editor *ed, char *buffer, int size)
 static void update_selection (struct editor *ed, int select)
 {
 	if (select)
-	  {
-		  if (ed->anchor == -1)
-			  ed->anchor = ed->linepos + ed->col;
-		  ed->refresh = 1;
-	  }
+	{
+		if (ed->anchor == -1)
+			ed->anchor = ed->linepos + ed->col;
+		ed->refresh = 1;
+	}
 	else
-	  {
-		  if (ed->anchor != -1)
-			  ed->refresh = 1;
-		  ed->anchor = -1;
-	  }
+	{
+		if (ed->anchor != -1)
+			ed->refresh = 1;
+		ed->anchor = -1;
+	}
 }
 
 static int erase_selection (struct editor *ed)
@@ -960,16 +960,16 @@ static void get_modifier_keys (int *shift, int *ctrl)
 	*shift = *ctrl = 0;
 #ifdef __linux__
 	if (linux_console)
-	  {
-		  char modifiers = 6;
-		  if (ioctl (0, TIOCLINUX, &modifiers) >= 0)
-			{
-				if (modifiers & 1)
-					*shift = 1;
-				if (modifiers & 4)
-					*ctrl = 1;
-			}
-	  }
+	{
+		char modifiers = 6;
+		if (ioctl (0, TIOCLINUX, &modifiers) >= 0)
+		{
+			if (modifiers & 1)
+				*shift = 1;
+			if (modifiers & 4)
+				*ctrl = 1;
+		}
+	}
 #endif
 }
 
@@ -988,314 +988,314 @@ static int getkey (void)
 		return ch;
 
 	switch (ch)
-	  {
-		  case 0x08:
-			  return KEY_BACKSPACE;
-		  case 0x09:
-			  get_modifier_keys (&shift, &ctrl);
-			  if (shift)
-				  return KEY_SHIFT_TAB;
-			  if (ctrl)
-				  return KEY_CTRL_TAB;
-			  return KEY_TAB;
+	{
+		case 0x08:
+			return KEY_BACKSPACE;
+		case 0x09:
+			get_modifier_keys (&shift, &ctrl);
+			if (shift)
+				return KEY_SHIFT_TAB;
+			if (ctrl)
+				return KEY_CTRL_TAB;
+			return KEY_TAB;
 #ifdef SANOS
-		  case 0x0D:
-			  return gettib ()->proc->term->type ==
-				  TERM_CONSOLE ? KEY_ENTER : KEY_UNKNOWN;
-		  case 0x0A:
-			  return gettib ()->proc->term->type !=
-				  TERM_CONSOLE ? KEY_ENTER : KEY_UNKNOWN;
+		case 0x0D:
+			return gettib ()->proc->term->type ==
+				TERM_CONSOLE ? KEY_ENTER : KEY_UNKNOWN;
+		case 0x0A:
+			return gettib ()->proc->term->type !=
+				TERM_CONSOLE ? KEY_ENTER : KEY_UNKNOWN;
 #else
-		  case 0x0D:
-			  return KEY_ENTER;
-		  case 0x0A:
-			  return KEY_ENTER;
+		case 0x0D:
+			return KEY_ENTER;
+		case 0x0A:
+			return KEY_ENTER;
 #endif
-		  case 0x1B:
-			  ch = getachar ();
-			  switch (ch)
-				{
-					case 0x1B:
-						return KEY_ESC;
-					case 0x4F:
+		case 0x1B:
+			ch = getachar ();
+			switch (ch)
+			{
+				case 0x1B:
+					return KEY_ESC;
+				case 0x4F:
+					ch = getachar ();
+					switch (ch)
+					{
+						case 0x46:
+							return KEY_END;
+						case 0x48:
+							return KEY_HOME;
+						case 0x50:
+							return KEY_F1;
+						case 0x51:
+							return KEY_F2;
+						case 0x52:
+							return KEY_F3;
+						case 0x53:
+							return KEY_F4;
+						case 0x54:
+							return KEY_F5;
+						default:
+							return KEY_UNKNOWN;
+					}
+					break;
+
+				case 0x5B:
+					get_modifier_keys (&shift, &ctrl);
+					ch = getachar ();
+					if (ch == 0x31)
+					{
 						ch = getachar ();
 						switch (ch)
-						  {
-							  case 0x46:
-								  return KEY_END;
-							  case 0x48:
-								  return KEY_HOME;
-							  case 0x50:
-								  return KEY_F1;
-							  case 0x51:
-								  return KEY_F2;
-							  case 0x52:
-								  return KEY_F3;
-							  case 0x53:
-								  return KEY_F4;
-							  case 0x54:
-								  return KEY_F5;
-							  default:
-								  return KEY_UNKNOWN;
-						  }
-						break;
+						{
+							case 0x35:
+								return getachar () ==
+									0x7E ? KEY_F5 : KEY_UNKNOWN;
+							case 0x37:
+								return getachar () ==
+									0x7E ? KEY_F6 : KEY_UNKNOWN;
+							case 0x3B:
+								ch = getachar ();
+								if (ch == 0x7E)
+									return KEY_F7;
+								if (ch == 0x32)
+									shift = 1;
+								if (ch == 0x35)
+									ctrl = 1;
+								if (ch == 0x36)
+									shift = ctrl = 1;
+								ch = getachar ();
+								break;
+							case 0x39:
+								return getachar () ==
+									0x7E ? KEY_F8 : KEY_UNKNOWN;
+							case 0x7E:
+								if (shift && ctrl)
+									return KEY_SHIFT_CTRL_HOME;
+								if (shift)
+									return KEY_SHIFT_HOME;
+								if (ctrl)
+									return KEY_CTRL_HOME;
+								return KEY_HOME;
+							default:
+								return KEY_UNKNOWN;
+						}
+					}
 
-					case 0x5B:
-						get_modifier_keys (&shift, &ctrl);
-						ch = getachar ();
-						if (ch == 0x31)
-						  {
-							  ch = getachar ();
-							  switch (ch)
-								{
-									case 0x35:
-										return getachar () ==
-											0x7E ? KEY_F5 : KEY_UNKNOWN;
-									case 0x37:
-										return getachar () ==
-											0x7E ? KEY_F6 : KEY_UNKNOWN;
-									case 0x3B:
-										ch = getachar ();
-										if (ch == 0x7E)
-											return KEY_F7;
-										if (ch == 0x32)
-											shift = 1;
-										if (ch == 0x35)
-											ctrl = 1;
-										if (ch == 0x36)
-											shift = ctrl = 1;
-										ch = getachar ();
-										break;
-									case 0x39:
-										return getachar () ==
-											0x7E ? KEY_F8 : KEY_UNKNOWN;
-									case 0x7E:
-										if (shift && ctrl)
-											return KEY_SHIFT_CTRL_HOME;
-										if (shift)
-											return KEY_SHIFT_HOME;
-										if (ctrl)
-											return KEY_CTRL_HOME;
-										return KEY_HOME;
-									default:
-										return KEY_UNKNOWN;
-								}
-						  }
+					switch (ch)
+					{
+						case 0x31:
+							ch = getachar ();
+							if (ch != 0x7E)
+								return KEY_UNKNOWN;
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_HOME;
+							if (shift)
+								return KEY_SHIFT_HOME;
+							if (ctrl)
+								return KEY_CTRL_HOME;
+							return KEY_HOME;
+						case 0x32:
+							ch = getachar ();
+							switch (ch)
+							{
+								case 0x30:
+									ch = getachar ();
+									return KEY_F9;
+								case 0x31:
+									ch = getachar ();
+									return KEY_F10;
+								case 0x7E:
+									return KEY_INS;
+								default:
+									break;
+							}
+							return KEY_UNKNOWN;
+						case 0x33:
+							return getachar () ==
+								0x7E ? KEY_DEL : KEY_UNKNOWN;
+						case 0x34:
+							if (getachar () != 0x7E)
+								return KEY_UNKNOWN;
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_END;
+							if (shift)
+								return KEY_SHIFT_END;
+							if (ctrl)
+								return KEY_CTRL_END;
+							return KEY_END;
+						case 0x35:
+							if (getachar () != 0x7E)
+								return KEY_UNKNOWN;
+							if (shift)
+								return KEY_SHIFT_PGUP;
+							return KEY_PGUP;
+						case 0x36:
+							if (getachar () != 0x7E)
+								return KEY_UNKNOWN;
+							if (shift)
+								return KEY_SHIFT_PGDN;
+							return KEY_PGDN;
+						case 0x41:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_UP;
+							if (shift)
+								return KEY_SHIFT_UP;
+							if (ctrl)
+								return KEY_CTRL_UP;
+							return KEY_UP;
+						case 0x42:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_DOWN;
+							if (shift)
+								return KEY_SHIFT_DOWN;
+							if (ctrl)
+								return KEY_CTRL_DOWN;
+							return KEY_DOWN;
+						case 0x43:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_RIGHT;
+							if (shift)
+								return KEY_SHIFT_RIGHT;
+							if (ctrl)
+								return KEY_CTRL_RIGHT;
+							return KEY_RIGHT;
+						case 0x44:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_LEFT;
+							if (shift)
+								return KEY_SHIFT_LEFT;
+							if (ctrl)
+								return KEY_CTRL_LEFT;
+							return KEY_LEFT;
+						case 0x46:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_END;
+							if (shift)
+								return KEY_SHIFT_END;
+							if (ctrl)
+								return KEY_CTRL_END;
+							return KEY_END;
+						case 0x48:
+							if (shift && ctrl)
+								return KEY_SHIFT_CTRL_HOME;
+							if (shift)
+								return KEY_SHIFT_HOME;
+							if (ctrl)
+								return KEY_CTRL_HOME;
+							return KEY_HOME;
+						case 0x5A:
+							return KEY_SHIFT_TAB;
+						case 0x5B:
+							ch = getachar ();
+							switch (ch)
+							{
+								case 0x41:
+									return KEY_F1;
+								case 0x43:
+									return KEY_F3;
+								case 0x45:
+									return KEY_F5;
+							}
+							return KEY_UNKNOWN;
 
-						switch (ch)
-						  {
-							  case 0x31:
-								  ch = getachar ();
-								  if (ch != 0x7E)
-									  return KEY_UNKNOWN;
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_HOME;
-								  if (shift)
-									  return KEY_SHIFT_HOME;
-								  if (ctrl)
-									  return KEY_CTRL_HOME;
-								  return KEY_HOME;
-							  case 0x32:
-								  ch = getachar ();
-								  switch (ch)
-									{
-										case 0x30:
-											ch = getachar ();
-											return KEY_F9;
-										case 0x31:
-											ch = getachar ();
-											return KEY_F10;
-										case 0x7E:
-											return KEY_INS;
-										default:
-											break;
-									}
-								  return KEY_UNKNOWN;
-							  case 0x33:
-								  return getachar () ==
-									  0x7E ? KEY_DEL : KEY_UNKNOWN;
-							  case 0x34:
-								  if (getachar () != 0x7E)
-									  return KEY_UNKNOWN;
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_END;
-								  if (shift)
-									  return KEY_SHIFT_END;
-								  if (ctrl)
-									  return KEY_CTRL_END;
-								  return KEY_END;
-							  case 0x35:
-								  if (getachar () != 0x7E)
-									  return KEY_UNKNOWN;
-								  if (shift)
-									  return KEY_SHIFT_PGUP;
-								  return KEY_PGUP;
-							  case 0x36:
-								  if (getachar () != 0x7E)
-									  return KEY_UNKNOWN;
-								  if (shift)
-									  return KEY_SHIFT_PGDN;
-								  return KEY_PGDN;
-							  case 0x41:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_UP;
-								  if (shift)
-									  return KEY_SHIFT_UP;
-								  if (ctrl)
-									  return KEY_CTRL_UP;
-								  return KEY_UP;
-							  case 0x42:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_DOWN;
-								  if (shift)
-									  return KEY_SHIFT_DOWN;
-								  if (ctrl)
-									  return KEY_CTRL_DOWN;
-								  return KEY_DOWN;
-							  case 0x43:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_RIGHT;
-								  if (shift)
-									  return KEY_SHIFT_RIGHT;
-								  if (ctrl)
-									  return KEY_CTRL_RIGHT;
-								  return KEY_RIGHT;
-							  case 0x44:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_LEFT;
-								  if (shift)
-									  return KEY_SHIFT_LEFT;
-								  if (ctrl)
-									  return KEY_CTRL_LEFT;
-								  return KEY_LEFT;
-							  case 0x46:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_END;
-								  if (shift)
-									  return KEY_SHIFT_END;
-								  if (ctrl)
-									  return KEY_CTRL_END;
-								  return KEY_END;
-							  case 0x48:
-								  if (shift && ctrl)
-									  return KEY_SHIFT_CTRL_HOME;
-								  if (shift)
-									  return KEY_SHIFT_HOME;
-								  if (ctrl)
-									  return KEY_CTRL_HOME;
-								  return KEY_HOME;
-							  case 0x5A:
-								  return KEY_SHIFT_TAB;
-							  case 0x5B:
-								  ch = getachar ();
-								  switch (ch)
-									{
-										case 0x41:
-											return KEY_F1;
-										case 0x43:
-											return KEY_F3;
-										case 0x45:
-											return KEY_F5;
-									}
-								  return KEY_UNKNOWN;
+						default:
+							return KEY_UNKNOWN;
+					}
+					break;
 
-							  default:
-								  return KEY_UNKNOWN;
-						  }
-						break;
+				default:
+					return KEY_UNKNOWN;
+			}
+			break;
 
-					default:
-						return KEY_UNKNOWN;
-				}
-			  break;
+		case 0x00:
+		case 0xE0:
+			ch = getachar ();
+			switch (ch)
+			{
+				case 0x0F:
+					return KEY_SHIFT_TAB;
+				case 0x3B:
+					return KEY_F1;
+				case 0x3D:
+					return KEY_F3;
+				case 0x3F:
+					return KEY_F5;
+				case 0x47:
+					return KEY_HOME;
+				case 0x48:
+					return KEY_UP;
+				case 0x49:
+					return KEY_PGUP;
+				case 0x4B:
+					return KEY_LEFT;
+				case 0x4D:
+					return KEY_RIGHT;
+				case 0x4F:
+					return KEY_END;
+				case 0x50:
+					return KEY_DOWN;
+				case 0x51:
+					return KEY_PGDN;
+				case 0x52:
+					return KEY_INS;
+				case 0x53:
+					return KEY_DEL;
+				case 0x73:
+					return KEY_CTRL_LEFT;
+				case 0x74:
+					return KEY_CTRL_RIGHT;
+				case 0x75:
+					return KEY_CTRL_END;
+				case 0x77:
+					return KEY_CTRL_HOME;
+				case 0x8D:
+					return KEY_CTRL_UP;
+				case 0x91:
+					return KEY_CTRL_DOWN;
+				case 0x94:
+					return KEY_CTRL_TAB;
+				case 0xB8:
+					return KEY_SHIFT_UP;
+				case 0xB7:
+					return KEY_SHIFT_HOME;
+				case 0xBF:
+					return KEY_SHIFT_END;
+				case 0xB9:
+					return KEY_SHIFT_PGUP;
+				case 0xBB:
+					return KEY_SHIFT_LEFT;
+				case 0xBD:
+					return KEY_SHIFT_RIGHT;
+				case 0xC0:
+					return KEY_SHIFT_DOWN;
+				case 0xC1:
+					return KEY_SHIFT_PGDN;
+				case 0xDB:
+					return KEY_SHIFT_CTRL_LEFT;
+				case 0xDD:
+					return KEY_SHIFT_CTRL_RIGHT;
+				case 0xD8:
+					return KEY_SHIFT_CTRL_UP;
+				case 0xE0:
+					return KEY_SHIFT_CTRL_DOWN;
+				case 0xD7:
+					return KEY_SHIFT_CTRL_HOME;
+				case 0xDF:
+					return KEY_SHIFT_CTRL_END;
 
-		  case 0x00:
-		  case 0xE0:
-			  ch = getachar ();
-			  switch (ch)
-				{
-					case 0x0F:
-						return KEY_SHIFT_TAB;
-					case 0x3B:
-						return KEY_F1;
-					case 0x3D:
-						return KEY_F3;
-					case 0x3F:
-						return KEY_F5;
-					case 0x47:
-						return KEY_HOME;
-					case 0x48:
-						return KEY_UP;
-					case 0x49:
-						return KEY_PGUP;
-					case 0x4B:
-						return KEY_LEFT;
-					case 0x4D:
-						return KEY_RIGHT;
-					case 0x4F:
-						return KEY_END;
-					case 0x50:
-						return KEY_DOWN;
-					case 0x51:
-						return KEY_PGDN;
-					case 0x52:
-						return KEY_INS;
-					case 0x53:
-						return KEY_DEL;
-					case 0x73:
-						return KEY_CTRL_LEFT;
-					case 0x74:
-						return KEY_CTRL_RIGHT;
-					case 0x75:
-						return KEY_CTRL_END;
-					case 0x77:
-						return KEY_CTRL_HOME;
-					case 0x8D:
-						return KEY_CTRL_UP;
-					case 0x91:
-						return KEY_CTRL_DOWN;
-					case 0x94:
-						return KEY_CTRL_TAB;
-					case 0xB8:
-						return KEY_SHIFT_UP;
-					case 0xB7:
-						return KEY_SHIFT_HOME;
-					case 0xBF:
-						return KEY_SHIFT_END;
-					case 0xB9:
-						return KEY_SHIFT_PGUP;
-					case 0xBB:
-						return KEY_SHIFT_LEFT;
-					case 0xBD:
-						return KEY_SHIFT_RIGHT;
-					case 0xC0:
-						return KEY_SHIFT_DOWN;
-					case 0xC1:
-						return KEY_SHIFT_PGDN;
-					case 0xDB:
-						return KEY_SHIFT_CTRL_LEFT;
-					case 0xDD:
-						return KEY_SHIFT_CTRL_RIGHT;
-					case 0xD8:
-						return KEY_SHIFT_CTRL_UP;
-					case 0xE0:
-						return KEY_SHIFT_CTRL_DOWN;
-					case 0xD7:
-						return KEY_SHIFT_CTRL_HOME;
-					case 0xDF:
-						return KEY_SHIFT_CTRL_END;
+				default:
+					return KEY_UNKNOWN;
+			}
+			break;
 
-					default:
-						return KEY_UNKNOWN;
-				}
-			  break;
+		case 0x7F:
+			return KEY_BACKSPACE;
 
-		  case 0x7F:
-			  return KEY_BACKSPACE;
-
-		  default:
-			  return ch;
-	  }
+		default:
+			return ch;
+	}
 }
 
 static int prompt (struct editor *ed, char *msg, int selection)
@@ -1311,38 +1311,38 @@ static int prompt (struct editor *ed, char *msg, int selection)
 	len = 0;
 	maxlen = ed->env->cols - strlen (msg) - 1;
 	if (selection)
-	  {
-		  len = get_selected_text (ed, buf, maxlen);
-		  outbuf ((unsigned char *)buf, len);
-	  }
+	{
+		len = get_selected_text (ed, buf, maxlen);
+		outbuf ((unsigned char *)buf, len);
+	}
 
 	for (;;)
-	  {
-		  fflush (stdout);
-		  ch = getkey ();
-		  if (ch == KEY_ESC)
+	{
+		fflush (stdout);
+		ch = getkey ();
+		if (ch == KEY_ESC)
+		{
+			return 0;
+		}
+		else if (ch == KEY_ENTER)
+		{
+			buf[len] = 0;
+			return len > 0;
+		}
+		else if (ch == KEY_BACKSPACE)
+		{
+			if (len > 0)
 			{
-				return 0;
+				outstr ("\b \b");
+				len--;
 			}
-		  else if (ch == KEY_ENTER)
-			{
-				buf[len] = 0;
-				return len > 0;
-			}
-		  else if (ch == KEY_BACKSPACE)
-			{
-				if (len > 0)
-				  {
-					  outstr ("\b \b");
-					  len--;
-				  }
-			}
-		  else if (ch >= ' ' && ch < 0x100 && len < maxlen)
-			{
-				outch (ch);
-				buf[len++] = ch;
-			}
-	  }
+		}
+		else if (ch >= ' ' && ch < 0x100 && len < maxlen)
+		{
+			outch (ch);
+			buf[len++] = ch;
+		}
+	}
 }
 
 static int ask (void)
@@ -1377,7 +1377,7 @@ static void draw_full_statusline (struct editor *ed)
 			 STATUS_COLOR "%*.*sF1=Help %c%c Ln %-6dCol %-4d" CLREOL TEXT_COLOR,
 			 -namewidth, namewidth, ed->filename, ed->selecting ? '+' : ' ',
 			 ed->dirty ? '*' : ' ', ed->line + 1, column (ed, ed->linepos,
-														  ed->col) + 1);
+														ed->col) + 1);
 	outstr ((char *)env->linebuf);
 }
 
@@ -1387,7 +1387,7 @@ static void draw_statusline (struct editor *ed)
 	sprintf ((char *)ed->env->linebuf,
 			 STATUS_COLOR "%c Ln %-6dCol %-4d" CLREOL TEXT_COLOR,
 			 ed->dirty ? '*' : ' ', ed->line + 1, column (ed, ed->linepos,
-														  ed->col) + 1);
+														ed->col) + 1);
 	outstr ((char *)ed->env->linebuf);
 }
 
@@ -1404,96 +1404,96 @@ static void display_line (struct editor *ed, int pos, int fullline)
 
 	get_selection (ed, &selstart, &selend);
 	while (col < maxcol)
-	  {
-		  if (margin == 0)
+	{
+		if (margin == 0)
+		{
+			if (!hilite && pos >= selstart && pos < selend)
 			{
-				if (!hilite && pos >= selstart && pos < selend)
-				  {
-					  for (s = SELECT_COLOR; *s; s++)
-						  *bufptr++ = *s;
-					  hilite = 1;
-				  }
-				else if (hilite && pos >= selend)
-				  {
-					  for (s = TEXT_COLOR; *s; s++)
-						  *bufptr++ = *s;
-					  hilite = 0;
-				  }
+				for (s = SELECT_COLOR; *s; s++)
+					*bufptr++ = *s;
+				hilite = 1;
 			}
-
-		  if (p == ed->end)
-			  break;
-		  ch = *p;
-		  if (ch == '\r' || ch == '\n')
-			  break;
-
-		  if (ch == '\t')
+			else if (hilite && pos >= selend)
 			{
-				int spaces = TABSIZE - col % TABSIZE;
-				while (spaces > 0 && col < maxcol)
-				  {
-					  if (margin > 0)
-						{
-							margin--;
-						}
-					  else
-						{
-							*bufptr++ = ' ';
-						}
-					  col++;
-					  spaces--;
-				  }
+				for (s = TEXT_COLOR; *s; s++)
+					*bufptr++ = *s;
+				hilite = 0;
 			}
-		  else
+		}
+
+		if (p == ed->end)
+			break;
+		ch = *p;
+		if (ch == '\r' || ch == '\n')
+			break;
+
+		if (ch == '\t')
+		{
+			int spaces = TABSIZE - col % TABSIZE;
+			while (spaces > 0 && col < maxcol)
 			{
 				if (margin > 0)
-				  {
-					  margin--;
-				  }
+				{
+					margin--;
+				}
 				else
-				  {
-					  *bufptr++ = ch;
-				  }
+				{
+					*bufptr++ = ' ';
+				}
 				col++;
+				spaces--;
 			}
+		}
+		else
+		{
+			if (margin > 0)
+			{
+				margin--;
+			}
+			else
+			{
+				*bufptr++ = ch;
+			}
+			col++;
+		}
 
-		  if (++p == ed->gap)
-			  p = ed->rest;
-		  pos++;
-	  }
+		if (++p == ed->gap)
+			p = ed->rest;
+		pos++;
+	}
 
 #if defined(__linux__)
 	if (hilite)
-	  {
-		  while (col < maxcol)
-			{
-				*bufptr++ = ' ';
-				col++;
-			}
-	  }
+	{
+		while (col < maxcol)
+		{
+			*bufptr++ = ' ';
+			col++;
+		}
+	}
 	else
-	  {
-		  if (col == margin)
-			  *bufptr++ = ' ';
-	  }
+	{
+		if (col == margin)
+			*bufptr++ = ' ';
+	}
 #endif
 
 	if (col < maxcol)
-	  {
-		  for (s = CLREOL; *s; s++)
-			  *bufptr++ = *s;
-		  if (fullline)
-			{
-				memcpy (bufptr, "\r\n", 2);
-				bufptr += 2;
-			}
-	  }
+	{
+		for (s = CLREOL; *s; s++)
+			*bufptr++ = *s;
+		if (fullline)
+		{
+			memcpy (bufptr, "\r\n", 2);
+			bufptr += 2;
+		}
+	}
 
 	if (hilite)
-	  {
-		  for (s = TEXT_COLOR; *s; s++)
-			  *bufptr++ = *s;
-	  }
+	{
+		for (s = TEXT_COLOR; *s; s++)
+			*bufptr++ = *s;
+	}
 
 	outbuf (ed->env->linebuf, bufptr - ed->env->linebuf);
 }
@@ -1513,17 +1513,17 @@ static void draw_screen (struct editor *ed)
 	outstr (TEXT_COLOR);
 	pos = ed->toppos;
 	for (i = 0; i < ed->env->lines; i++)
-	  {
-		  if (pos < 0)
-			{
-				outstr (CLREOL "\r\n");
-			}
-		  else
-			{
-				display_line (ed, pos, 1);
-				pos = next_line (ed, pos);
-			}
-	  }
+	{
+		if (pos < 0)
+		{
+			outstr (CLREOL "\r\n");
+		}
+		else
+		{
+			display_line (ed, pos, 1);
+			pos = next_line (ed, pos);
+		}
+	}
 }
 
 static void position_cursor (struct editor *ed)
@@ -1546,18 +1546,18 @@ static void adjust (struct editor *ed)
 
 	col = column (ed, ed->linepos, ed->col);
 	while (col < ed->margin)
-	  {
-		  ed->margin -= 4;
-		  if (ed->margin < 0)
-			  ed->margin = 0;
-		  ed->refresh = 1;
-	  }
+	{
+		ed->margin -= 4;
+		if (ed->margin < 0)
+			ed->margin = 0;
+		ed->refresh = 1;
+	}
 
 	while (col - ed->margin >= ed->env->cols)
-	  {
-		  ed->margin += 4;
-		  ed->refresh = 1;
-	  }
+	{
+		ed->margin += 4;
+		ed->refresh = 1;
+	}
 }
 
 static void select_toggle (struct editor *ed)
@@ -1580,11 +1580,11 @@ static void up (struct editor *ed, int select)
 	ed->linepos = newpos;
 	ed->line--;
 	if (ed->line < ed->topline)
-	  {
-		  ed->toppos = ed->linepos;
-		  ed->topline = ed->line;
-		  ed->refresh = 1;
-	  }
+	{
+		ed->toppos = ed->linepos;
+		ed->topline = ed->line;
+		ed->refresh = 1;
+	}
 
 	adjust (ed);
 }
@@ -1603,11 +1603,11 @@ static void down (struct editor *ed, int select)
 	ed->line++;
 
 	if (ed->line >= ed->topline + ed->env->lines)
-	  {
-		  ed->toppos = next_line (ed, ed->toppos);
-		  ed->topline++;
-		  ed->refresh = 1;
-	  }
+	{
+		ed->toppos = next_line (ed, ed->toppos);
+		ed->topline++;
+		ed->refresh = 1;
+	}
 
 	adjust (ed);
 }
@@ -1616,25 +1616,25 @@ static void left (struct editor *ed, int select)
 {
 	update_selection (ed, select);
 	if (ed->col > 0)
-	  {
-		  ed->col--;
-	  }
+	{
+		ed->col--;
+	}
 	else
-	  {
-		  int newpos = prev_line (ed, ed->linepos);
-		  if (newpos < 0)
-			  return;
+	{
+		int newpos = prev_line (ed, ed->linepos);
+		if (newpos < 0)
+			return;
 
-		  ed->col = line_length (ed, newpos);
-		  ed->linepos = newpos;
-		  ed->line--;
-		  if (ed->line < ed->topline)
-			{
-				ed->toppos = ed->linepos;
-				ed->topline = ed->line;
-				ed->refresh = 1;
-			}
-	  }
+		ed->col = line_length (ed, newpos);
+		ed->linepos = newpos;
+		ed->line--;
+		if (ed->line < ed->topline)
+		{
+			ed->toppos = ed->linepos;
+			ed->topline = ed->line;
+			ed->refresh = 1;
+		}
+	}
 
 	ed->lastcol = ed->col;
 	adjust (ed);
@@ -1644,26 +1644,26 @@ static void right (struct editor *ed, int select)
 {
 	update_selection (ed, select);
 	if (ed->col < line_length (ed, ed->linepos))
-	  {
-		  ed->col++;
-	  }
+	{
+		ed->col++;
+	}
 	else
-	  {
-		  int newpos = next_line (ed, ed->linepos);
-		  if (newpos < 0)
-			  return;
+	{
+		int newpos = next_line (ed, ed->linepos);
+		if (newpos < 0)
+			return;
 
-		  ed->col = 0;
-		  ed->linepos = newpos;
-		  ed->line++;
+		ed->col = 0;
+		ed->linepos = newpos;
+		ed->line++;
 
-		  if (ed->line >= ed->topline + ed->env->lines)
-			{
-				ed->toppos = next_line (ed, ed->toppos);
-				ed->topline++;
-				ed->refresh = 1;
-			}
-	  }
+		if (ed->line >= ed->topline + ed->env->lines)
+		{
+			ed->toppos = next_line (ed, ed->toppos);
+			ed->topline++;
+			ed->refresh = 1;
+		}
+	}
 
 	ed->lastcol = ed->col;
 	adjust (ed);
@@ -1684,33 +1684,33 @@ static void wordleft (struct editor *ed, int select)
 	pos = ed->linepos + ed->col;
 	phase = 0;
 	while (pos > 0)
-	  {
-		  int ch = get (ed, pos - 1);
-		  if (phase == 0)
-			{
-				if (wordchar (ch))
-					phase = 1;
-			}
-		  else
-			{
-				if (!wordchar (ch))
-					break;
-			}
+	{
+		int ch = get (ed, pos - 1);
+		if (phase == 0)
+		{
+			if (wordchar (ch))
+				phase = 1;
+		}
+		else
+		{
+			if (!wordchar (ch))
+				break;
+		}
 
-		  pos--;
-		  if (pos < ed->linepos)
-			{
-				ed->linepos = prev_line (ed, ed->linepos);
-				ed->line--;
-				ed->refresh = 1;
-			}
-	  }
+		pos--;
+		if (pos < ed->linepos)
+		{
+			ed->linepos = prev_line (ed, ed->linepos);
+			ed->line--;
+			ed->refresh = 1;
+		}
+	}
 	ed->col = pos - ed->linepos;
 	if (ed->line < ed->topline)
-	  {
-		  ed->toppos = ed->linepos;
-		  ed->topline = ed->line;
-	  }
+	{
+		ed->toppos = ed->linepos;
+		ed->topline = ed->line;
+	}
 
 	ed->lastcol = ed->col;
 	adjust (ed);
@@ -1726,34 +1726,34 @@ static void wordright (struct editor *ed, int select)
 	next = next_line (ed, ed->linepos);
 	phase = 0;
 	while (pos < end)
-	  {
-		  int ch = get (ed, pos);
-		  if (phase == 0)
-			{
-				if (wordchar (ch))
-					phase = 1;
-			}
-		  else
-			{
-				if (!wordchar (ch))
-					break;
-			}
+	{
+		int ch = get (ed, pos);
+		if (phase == 0)
+		{
+			if (wordchar (ch))
+				phase = 1;
+		}
+		else
+		{
+			if (!wordchar (ch))
+				break;
+		}
 
-		  pos++;
-		  if (pos == next)
-			{
-				ed->linepos = next;
-				next = next_line (ed, ed->linepos);
-				ed->line++;
-				ed->refresh = 1;
-			}
-	  }
+		pos++;
+		if (pos == next)
+		{
+			ed->linepos = next;
+			next = next_line (ed, ed->linepos);
+			ed->line++;
+			ed->refresh = 1;
+		}
+	}
 	ed->col = pos - ed->linepos;
 	if (ed->line >= ed->topline + ed->env->lines)
-	  {
-		  ed->toppos = next_line (ed, ed->toppos);
-		  ed->topline++;
-	  }
+	{
+		ed->toppos = next_line (ed, ed->toppos);
+		ed->topline++;
+	}
 
 	ed->lastcol = ed->col;
 	adjust (ed);
@@ -1785,21 +1785,21 @@ static void bottom (struct editor *ed, int select)
 {
 	update_selection (ed, select);
 	for (;;)
-	  {
-		  int newpos = next_line (ed, ed->linepos);
-		  if (newpos < 0)
-			  break;
+	{
+		int newpos = next_line (ed, ed->linepos);
+		if (newpos < 0)
+			break;
 
-		  ed->linepos = newpos;
-		  ed->line++;
+		ed->linepos = newpos;
+		ed->line++;
 
-		  if (ed->line >= ed->topline + ed->env->lines)
-			{
-				ed->toppos = next_line (ed, ed->toppos);
-				ed->topline++;
-				ed->refresh = 1;
-			}
-	  }
+		if (ed->line >= ed->topline + ed->env->lines)
+		{
+			ed->toppos = next_line (ed, ed->toppos);
+			ed->topline++;
+			ed->refresh = 1;
+		}
+	}
 	ed->col = ed->lastcol = line_length (ed, ed->linepos);
 	adjust (ed);
 }
@@ -1810,28 +1810,28 @@ static void pageup (struct editor *ed, int select)
 
 	update_selection (ed, select);
 	if (ed->line < ed->env->lines)
-	  {
-		  ed->linepos = ed->toppos = 0;
-		  ed->line = ed->topline = 0;
-	  }
+	{
+		ed->linepos = ed->toppos = 0;
+		ed->line = ed->topline = 0;
+	}
 	else
-	  {
-		  for (i = 0; i < ed->env->lines; i++)
+	{
+		for (i = 0; i < ed->env->lines; i++)
+		{
+			int newpos = prev_line (ed, ed->linepos);
+			if (newpos < 0)
+				return;
+
+			ed->linepos = newpos;
+			ed->line--;
+
+			if (ed->topline > 0)
 			{
-				int newpos = prev_line (ed, ed->linepos);
-				if (newpos < 0)
-					return;
-
-				ed->linepos = newpos;
-				ed->line--;
-
-				if (ed->topline > 0)
-				  {
-					  ed->toppos = prev_line (ed, ed->toppos);
-					  ed->topline--;
-				  }
+				ed->toppos = prev_line (ed, ed->toppos);
+				ed->topline--;
 			}
-	  }
+		}
+	}
 
 	ed->refresh = 1;
 	adjust (ed);
@@ -1843,17 +1843,17 @@ static void pagedown (struct editor *ed, int select)
 
 	update_selection (ed, select);
 	for (i = 0; i < ed->env->lines; i++)
-	  {
-		  int newpos = next_line (ed, ed->linepos);
-		  if (newpos < 0)
-			  break;
+	{
+		int newpos = next_line (ed, ed->linepos);
+		if (newpos < 0)
+			break;
 
-		  ed->linepos = newpos;
-		  ed->line++;
+		ed->linepos = newpos;
+		ed->line++;
 
-		  ed->toppos = next_line (ed, ed->toppos);
-		  ed->topline++;
-	  }
+		ed->toppos = next_line (ed, ed->toppos);
+		ed->topline++;
+	}
 
 	ed->refresh = 1;
 	adjust (ed);
@@ -1890,28 +1890,28 @@ static void newline (struct editor *ed)
 	p = ed->linepos;
 	ed->linepos = next_line (ed, ed->linepos);
 	for (;;)
-	  {
-		  ch = get (ed, p++);
-		  if (ch == ' ' || ch == '\t')
-			{
-				insert (ed, ed->linepos + ed->col, &ch, 1);
-				ed->col++;
-			}
-		  else
-			{
-				break;
-			}
-	  }
+	{
+		ch = get (ed, p++);
+		if (ch == ' ' || ch == '\t')
+		{
+			insert (ed, ed->linepos + ed->col, &ch, 1);
+			ed->col++;
+		}
+		else
+		{
+			break;
+		}
+	}
 	ed->lastcol = ed->col;
 
 	ed->refresh = 1;
 
 	if (ed->line >= ed->topline + ed->env->lines)
-	  {
-		  ed->toppos = next_line (ed, ed->toppos);
-		  ed->topline++;
-		  ed->refresh = 1;
-	  }
+	{
+		ed->toppos = next_line (ed, ed->toppos);
+		ed->topline++;
+		ed->refresh = 1;
+	}
 
 	adjust (ed);
 }
@@ -1923,29 +1923,29 @@ static void backspace (struct editor *ed)
 	if (ed->linepos + ed->col == 0)
 		return;
 	if (ed->col == 0)
-	  {
-		  int pos = ed->linepos;
-		  erase (ed, --pos, 1);
-		  if (get (ed, pos - 1) == '\r')
-			  erase (ed, --pos, 1);
+	{
+		int pos = ed->linepos;
+		erase (ed, --pos, 1);
+		if (get (ed, pos - 1) == '\r')
+			erase (ed, --pos, 1);
 
-		  ed->line--;
-		  ed->linepos = line_start (ed, pos);
-		  ed->col = pos - ed->linepos;
-		  ed->refresh = 1;
+		ed->line--;
+		ed->linepos = line_start (ed, pos);
+		ed->col = pos - ed->linepos;
+		ed->refresh = 1;
 
-		  if (ed->line < ed->topline)
-			{
-				ed->toppos = ed->linepos;
-				ed->topline = ed->line;
-			}
-	  }
+		if (ed->line < ed->topline)
+		{
+			ed->toppos = ed->linepos;
+			ed->topline = ed->line;
+		}
+	}
 	else
-	  {
-		  ed->col--;
-		  erase (ed, ed->linepos + ed->col, 1);
-		  ed->lineupdate = 1;
-	  }
+	{
+		ed->col--;
+		erase (ed, ed->linepos + ed->col, 1);
+		ed->lineupdate = 1;
+	}
 
 	ed->lastcol = ed->col;
 	adjust (ed);
@@ -1964,20 +1964,20 @@ static void del (struct editor *ed)
 
 	erase (ed, pos, 1);
 	if (ch == '\r')
-	  {
-		  ch = get (ed, pos);
-		  if (ch == '\n')
-			  erase (ed, pos, 1);
-	  }
+	{
+		ch = get (ed, pos);
+		if (ch == '\n')
+			erase (ed, pos, 1);
+	}
 
 	if (ch == '\n')
-	  {
-		  ed->refresh = 1;
-	  }
+	{
+		ed->refresh = 1;
+	}
 	else
-	  {
-		  ed->lineupdate = 1;
-	  }
+	{
+		ed->lineupdate = 1;
+	}
 }
 
 static void indent (struct editor *ed, unsigned char *indentation)
@@ -1989,26 +1989,26 @@ static void indent (struct editor *ed, unsigned char *indentation)
 	int pos = ed->linepos + ed->col;
 
 	if (!get_selection (ed, &start, &end))
-	  {
-		  insert_char (ed, '\t');
-		  return;
-	  }
+	{
+		insert_char (ed, '\t');
+		return;
+	}
 
 	lines = 0;
 	toplines = 0;
 	newline = 1;
 	for (i = start; i < end; i++)
-	  {
-		  if (i == ed->toppos)
-			  toplines = lines;
-		  if (newline)
-			{
-				lines++;
-				newline = 0;
-			}
-		  if (get (ed, i) == '\n')
-			  newline = 1;
-	  }
+	{
+		if (i == ed->toppos)
+			toplines = lines;
+		if (newline)
+		{
+			lines++;
+			newline = 0;
+		}
+		if (get (ed, i) == '\n')
+			newline = 1;
+	}
 	buflen = end - start + lines * width;
 	buffer = malloc (buflen);
 	if (!buffer)
@@ -2017,30 +2017,30 @@ static void indent (struct editor *ed, unsigned char *indentation)
 	newline = 1;
 	p = buffer;
 	for (i = start; i < end; i++)
-	  {
-		  if (newline)
-			{
-				memcpy (p, indentation, width);
-				p += width;
-				newline = 0;
-			}
-		  ch = get (ed, i);
-		  *p++ = ch;
-		  if (ch == '\n')
-			  newline = 1;
-	  }
+	{
+		if (newline)
+		{
+			memcpy (p, indentation, width);
+			p += width;
+			newline = 0;
+		}
+		ch = get (ed, i);
+		*p++ = ch;
+		if (ch == '\n')
+			newline = 1;
+	}
 
 	replace (ed, start, end - start, buffer, buflen, 1);
 	free (buffer);
 
 	if (ed->anchor < pos)
-	  {
-		  pos += width * lines;
-	  }
+	{
+		pos += width * lines;
+	}
 	else
-	  {
-		  ed->anchor += width * lines;
-	  }
+	{
+		ed->anchor += width * lines;
+	}
 
 	ed->toppos += width * toplines;
 	ed->linepos = line_start (ed, pos);
@@ -2070,42 +2070,42 @@ static void unindent (struct editor *ed, unsigned char *indentation)
 	shrinkage = 0;
 	topofs = 0;
 	while (i < end)
-	  {
-		  if (newline)
+	{
+		if (newline)
+		{
+			newline = 0;
+			if (compare (ed, indentation, i, width))
 			{
-				newline = 0;
-				if (compare (ed, indentation, i, width))
-				  {
-					  i += width;
-					  shrinkage += width;
-					  if (i < ed->toppos)
-						  topofs -= width;
-					  continue;
-				  }
+				i += width;
+				shrinkage += width;
+				if (i < ed->toppos)
+					topofs -= width;
+				continue;
 			}
-		  ch = get (ed, i++);
-		  *p++ = ch;
-		  if (ch == '\n')
-			  newline = 1;
-	  }
+		}
+		ch = get (ed, i++);
+		*p++ = ch;
+		if (ch == '\n')
+			newline = 1;
+	}
 
 	if (!shrinkage)
-	  {
-		  free (buffer);
-		  return;
-	  }
+	{
+		free (buffer);
+		return;
+	}
 
 	replace (ed, start, end - start, buffer, p - buffer, 1);
 	free (buffer);
 
 	if (ed->anchor < pos)
-	  {
-		  pos -= shrinkage;
-	  }
+	{
+		pos -= shrinkage;
+	}
 	else
-	  {
-		  ed->anchor -= shrinkage;
-	  }
+	{
+		ed->anchor -= shrinkage;
+	}
 
 	ed->toppos += topofs;
 	ed->linepos = line_start (ed, pos);
@@ -2133,17 +2133,17 @@ static void undo (struct editor *ed)
 static void redo (struct editor *ed)
 {
 	if (ed->undo)
-	  {
-		  if (!ed->undo->next)
-			  return;
-		  ed->undo = ed->undo->next;
-	  }
+	{
+		if (!ed->undo->next)
+			return;
+		ed->undo = ed->undo->next;
+	}
 	else
-	  {
-		  if (!ed->undohead)
-			  return;
-		  ed->undo = ed->undohead;
-	  }
+	{
+		if (!ed->undohead)
+			return;
+		ed->undo = ed->undohead;
+	}
 	replace (ed, ed->undo->pos, ed->undo->erased, ed->undo->redobuf,
 			 ed->undo->inserted, 0);
 	moveto (ed, ed->undo->pos, 0);
@@ -2198,30 +2198,30 @@ static void open_editor (struct editor *ed)
 	struct env *env = ed->env;
 
 	if (!prompt (ed, "Open file: ", 1))
-	  {
-		  ed->refresh = 1;
-		  return;
-	  }
+	{
+		ed->refresh = 1;
+		return;
+	}
 	filename = (char *)ed->env->linebuf;
 
 	ed = find_editor (ed->env, filename);
 	if (ed)
-	  {
-		  env->current = ed;
-	  }
+	{
+		env->current = ed;
+	}
 	else
-	  {
-		  ed = create_editor (env);
-		  rc = load_file (ed, filename);
-		  if (rc < 0)
-			{
-				display_message (ed, "Error %d opening %s (%s)", errno,
-								 filename, strerror (errno));
-				sleep (5);
-				delete_editor (ed);
-				ed = env->current;
-			}
-	  }
+	{
+		ed = create_editor (env);
+		rc = load_file (ed, filename);
+		if (rc < 0)
+		{
+			display_message (ed, "Error %d opening %s (%s)", errno,
+							 filename, strerror (errno));
+			sleep (5);
+			delete_editor (ed);
+			ed = env->current;
+		}
+	}
 	ed->refresh = 1;
 }
 
@@ -2239,10 +2239,10 @@ static void read_from_stdin (struct editor *ed)
 
 	pos = 0;
 	while ((n = fread (buffer, 1, sizeof (buffer), stdin)) > 0)
-	  {
-		  insert (ed, pos, (unsigned char *)buffer, n);
-		  pos += n;
-	  }
+	{
+		insert (ed, pos, (unsigned char *)buffer, n);
+		pos += n;
+	}
 	strcpy (ed->filename, "<stdin>");
 	ed->newfile = 1;
 	ed->dirty = 0;
@@ -2256,33 +2256,33 @@ static void save_editor (struct editor *ed)
 		return;
 
 	if (ed->newfile)
-	  {
-		  if (!prompt (ed, "Save as: ", 1))
+	{
+		if (!prompt (ed, "Save as: ", 1))
+		{
+			ed->refresh = 1;
+			return;
+		}
+
+		if (access ((const char *)ed->env->linebuf, F_OK) == 0)
+		{
+			display_message (ed, "Overwrite %s (y/n)? ", ed->env->linebuf);
+			if (!ask ())
 			{
 				ed->refresh = 1;
 				return;
 			}
-
-		  if (access ((const char *)ed->env->linebuf, F_OK) == 0)
-			{
-				display_message (ed, "Overwrite %s (y/n)? ", ed->env->linebuf);
-				if (!ask ())
-				  {
-					  ed->refresh = 1;
-					  return;
-				  }
-			}
-		  strcpy (ed->filename, (const char *)ed->env->linebuf);
-		  ed->newfile = 0;
-	  }
+		}
+		strcpy (ed->filename, (const char *)ed->env->linebuf);
+		ed->newfile = 0;
+	}
 
 	rc = save_file (ed);
 	if (rc < 0)
-	  {
-		  display_message (ed, "Error %d saving document (%s)", errno,
-						   strerror (errno));
-		  sleep (5);
-	  }
+	{
+		display_message (ed, "Error %d saving document (%s)", errno,
+						 strerror (errno));
+		sleep (5);
+	}
 
 	ed->refresh = 1;
 }
@@ -2292,24 +2292,24 @@ static void close_editor (struct editor *ed)
 	struct env *env = ed->env;
 
 	if (ed->dirty)
-	  {
-		  display_message (ed, "Close %s without saving changes (y/n)? ",
-						   ed->filename);
-		  if (!ask ())
-			{
-				ed->refresh = 1;
-				return;
-			}
-	  }
+	{
+		display_message (ed, "Close %s without saving changes (y/n)? ",
+						 ed->filename);
+		if (!ask ())
+		{
+			ed->refresh = 1;
+			return;
+		}
+	}
 
 	delete_editor (ed);
 
 	ed = env->current;
 	if (!ed)
-	  {
-		  ed = create_editor (env);
-		  new_file (ed, "");
-	  }
+	{
+		ed = create_editor (env);
+		new_file (ed, "");
+	}
 	ed->refresh = 1;
 }
 
@@ -2325,10 +2325,10 @@ static void pipe_command (struct editor *ed)
 	int pos;
 
 	if (!prompt (ed, "Command: ", 1))
-	  {
-		  ed->refresh = 1;
-		  return;
-	  }
+	{
+		ed->refresh = 1;
+		return;
+	}
 
 #ifdef SANOS
 	f = popen (ed->env->linebuf, "r2");
@@ -2336,23 +2336,23 @@ static void pipe_command (struct editor *ed)
 	f = popen (ed->env->linebuf, "r");
 #endif
 	if (!f)
-	  {
-		  display_message (ed, "Error %d running command (%s)", errno,
-						   strerror (errno));
-		  sleep (5);
-	  }
+	{
+		display_message (ed, "Error %d running command (%s)", errno,
+						 strerror (errno));
+		sleep (5);
+	}
 	else
-	  {
-		  erase_selection (ed);
-		  pos = ed->linepos + ed->col;
-		  while ((n = fread (buffer, 1, sizeof (buffer), f)) > 0)
-			{
-				insert (ed, pos, buffer, n);
-				pos += n;
-			}
-		  moveto (ed, pos, 0);
-		  pclose (f);
-	  }
+	{
+		erase_selection (ed);
+		pos = ed->linepos + ed->col;
+		while ((n = fread (buffer, 1, sizeof (buffer), f)) > 0)
+		{
+			insert (ed, pos, buffer, n);
+			pos += n;
+		}
+		moveto (ed, pos, 0);
+		pclose (f);
+	}
 	ed->refresh = 1;
 #endif
 }
@@ -2362,40 +2362,40 @@ static void find_text (struct editor *ed, int next)
 	int slen;
 
 	if (!next)
-	  {
-		  if (!prompt (ed, "Find: ", 1))
-			{
-				ed->refresh = 1;
-				return;
-			}
-		  if (ed->env->search)
-			  free (ed->env->search);
-		  ed->env->search =
-			  (unsigned char *)strdup ((const char *)ed->env->linebuf);
-	  }
+	{
+		if (!prompt (ed, "Find: ", 1))
+		{
+			ed->refresh = 1;
+			return;
+		}
+		if (ed->env->search)
+			free (ed->env->search);
+		ed->env->search =
+			(unsigned char *)strdup ((const char *)ed->env->linebuf);
+	}
 
 	if (!ed->env->search)
 		return;
 	slen = strlen ((const char *)ed->env->search);
 	if (slen > 0)
-	  {
-		  unsigned char *match;
+	{
+		unsigned char *match;
 
-		  close_gap (ed);
-		  match =
-			  (unsigned char *)strstr ((char *)ed->start + ed->linepos +
-									   ed->col, (char *)ed->env->search);
-		  if (match != NULL)
-			{
-				int pos = match - ed->start;
-				ed->anchor = pos;
-				moveto (ed, pos + slen, 1);
-			}
-		  else
-			{
-				outch ('\007');
-			}
-	  }
+		close_gap (ed);
+		match =
+			(unsigned char *)strstr ((char *)ed->start + ed->linepos +
+									 ed->col, (char *)ed->env->search);
+		if (match != NULL)
+		{
+			int pos = match - ed->start;
+			ed->anchor = pos;
+			moveto (ed, pos + slen, 1);
+		}
+		else
+		{
+			outch ('\007');
+		}
+	}
 	ed->refresh = 1;
 }
 
@@ -2405,32 +2405,32 @@ static void goto_line (struct editor *ed)
 
 	ed->anchor = -1;
 	if (prompt (ed, "Goto line: ", 1))
-	  {
-		  lineno = atoi ((char *)ed->env->linebuf);
-		  if (lineno > 0)
+	{
+		lineno = atoi ((char *)ed->env->linebuf);
+		if (lineno > 0)
+		{
+			pos = 0;
+			for (l = 0; l < lineno - 1; l++)
 			{
-				pos = 0;
-				for (l = 0; l < lineno - 1; l++)
-				  {
-					  pos = next_line (ed, pos);
-					  if (pos < 0)
-						  break;
-				  }
+				pos = next_line (ed, pos);
+				if (pos < 0)
+					break;
 			}
-		  else
-			{
-				pos = -1;
-			}
+		}
+		else
+		{
+			pos = -1;
+		}
 
-		  if (pos >= 0)
-			{
-				moveto (ed, pos, 1);
-			}
-		  else
-			{
-				outch ('\007');
-			}
-	  }
+		if (pos >= 0)
+		{
+			moveto (ed, pos, 1);
+		}
+		else
+		{
+			outch ('\007');
+		}
+	}
 	ed->refresh = 1;
 }
 
@@ -2448,74 +2448,74 @@ static void jump_to_editor (struct editor *ed)
 	int lineno = 0;
 
 	if (!get_selected_text (ed, filename, FILENAME_MAX))
-	  {
-		  int pos = ed->linepos + ed->col;
-		  char *p = filename;
-		  int left = FILENAME_MAX - 1;
-		  while (left > 0)
+	{
+		int pos = ed->linepos + ed->col;
+		char *p = filename;
+		int left = FILENAME_MAX - 1;
+		while (left > 0)
+		{
+			int ch = get (ed, pos);
+			if (ch < 0)
+				break;
+			if (strchr ("!@\"'#%&()[]{}*?+:;\r\n\t ", ch))
+				break;
+			*p++ = ch;
+			left--;
+			pos++;
+		}
+		*p = 0;
+
+		if (get (ed, pos) == ':')
+		{
+			pos++;
+			for (;;)
 			{
 				int ch = get (ed, pos);
 				if (ch < 0)
 					break;
-				if (strchr ("!@\"'#%&()[]{}*?+:;\r\n\t ", ch))
+				if (ch >= '0' && ch <= '9')
+				{
+					lineno = lineno * 10 + (ch - '0');
+				}
+				else
+				{
 					break;
-				*p++ = ch;
-				left--;
+				}
 				pos++;
 			}
-		  *p = 0;
-
-		  if (get (ed, pos) == ':')
-			{
-				pos++;
-				for (;;)
-				  {
-					  int ch = get (ed, pos);
-					  if (ch < 0)
-						  break;
-					  if (ch >= '0' && ch <= '9')
-						{
-							lineno = lineno * 10 + (ch - '0');
-						}
-					  else
-						{
-							break;
-						}
-					  pos++;
-				  }
-			}
-	  }
+		}
+	}
 	if (!*filename)
 		return;
 
 	ed = find_editor (env, filename);
 	if (ed)
-	  {
-		  env->current = ed;
-	  }
+	{
+		env->current = ed;
+	}
 	else
-	  {
-		  ed = create_editor (env);
-		  if (load_file (ed, filename) < 0)
-			{
-				outch ('\007');
-				delete_editor (ed);
-				ed = env->current;
-			}
-	  }
+	{
+		ed = create_editor (env);
+		if (load_file (ed, filename) < 0)
+		{
+			outch ('\007');
+			delete_editor (ed);
+			ed = env->current;
+		}
+	}
 
 	if (lineno > 0)
-	  {
-		  int pos = 0;
-		  while (--lineno > 0)
-			{
-				pos = next_line (ed, pos);
-				if (pos < 0)
-					break;
-			}
-		  if (pos >= 0)
-			  moveto (ed, pos, 1);
-	  }
+	{
+		int pos = 0;
+		while (--lineno > 0)
+		{
+			pos = next_line (ed, pos);
+			if (pos < 0)
+				break;
+		}
+		if (pos >= 0)
+			moveto (ed, pos, 1);
+	}
 
 	ed->refresh = 1;
 }
@@ -2532,16 +2532,16 @@ static int quit (struct env *env)
 	struct editor *start = ed;
 
 	do
-	  {
-		  if (ed->dirty)
-			{
-				display_message (ed, "Close %s without saving changes (y/n)? ",
-								 ed->filename);
-				if (!ask ())
-					return 0;
-			}
-		  ed = ed->next;
-	  }
+	{
+		if (ed->dirty)
+		{
+			display_message (ed, "Close %s without saving changes (y/n)? ",
+							 ed->filename);
+			if (!ask ())
+				return 0;
+		}
+		ed = ed->next;
+	}
 	while (ed != start);
 
 	return 1;
@@ -2602,253 +2602,253 @@ static void edit (struct editor *ed)
 
 	ed->refresh = 1;
 	while (!done)
-	  {
-		  if (ed->refresh)
-			{
-				draw_screen (ed);
-				draw_full_statusline (ed);
-				ed->refresh = 0;
-				ed->lineupdate = 0;
-			}
-		  else if (ed->lineupdate)
-			{
-				update_line (ed);
-				ed->lineupdate = 0;
-				draw_statusline (ed);
-			}
-		  else
-			{
-				draw_statusline (ed);
-			}
+	{
+		if (ed->refresh)
+		{
+			draw_screen (ed);
+			draw_full_statusline (ed);
+			ed->refresh = 0;
+			ed->lineupdate = 0;
+		}
+		else if (ed->lineupdate)
+		{
+			update_line (ed);
+			ed->lineupdate = 0;
+			draw_statusline (ed);
+		}
+		else
+		{
+			draw_statusline (ed);
+		}
 
-		  position_cursor (ed);
-		  fflush (stdout);
-		  key = getkey ();
+		position_cursor (ed);
+		fflush (stdout);
+		key = getkey ();
 
-		  if (key >= ' ' && key <= 0x7F)
-			{
+		if (key >= ' ' && key <= 0x7F)
+		{
 #ifdef LESS
-				switch (key)
-				  {
-					  case 'q':
-						  done = 1;
-						  break;
-					  case '/':
-						  find_text (ed, 0);
-						  break;
-				  }
-#else
-				insert_char (ed, (unsigned char)key);
-#endif
-			}
-		  else
+			switch (key)
 			{
-				switch (key)
-				  {
-					  case KEY_F1:
-						  help (ed);
-						  break;
-					  case KEY_F2:
-						  select_toggle (ed);
-						  break;
-					  case KEY_F3:
-						  jump_to_editor (ed);
-						  ed = ed->env->current;
-						  break;
-					  case KEY_F4:
-						  copy_selection (ed);
-						  break;
-					  case KEY_F5:
-						  redraw_screen (ed);
-						  break;
-					  case KEY_F9:
-						  save_editor (ed);
-						  break;
-					  case KEY_F10:
-						  done = 1;
-						  break;
+				case 'q':
+					done = 1;
+					break;
+				case '/':
+					find_text (ed, 0);
+					break;
+			}
+#else
+			insert_char (ed, (unsigned char)key);
+#endif
+		}
+		else
+		{
+			switch (key)
+			{
+				case KEY_F1:
+					help (ed);
+					break;
+				case KEY_F2:
+					select_toggle (ed);
+					break;
+				case KEY_F3:
+					jump_to_editor (ed);
+					ed = ed->env->current;
+					break;
+				case KEY_F4:
+					copy_selection (ed);
+					break;
+				case KEY_F5:
+					redraw_screen (ed);
+					break;
+				case KEY_F9:
+					save_editor (ed);
+					break;
+				case KEY_F10:
+					done = 1;
+					break;
 
 #if defined(__linux__) || defined(__rtems__)
-					  case ctrl ('y'):
-						  help (ed);
-						  break;
-					  case ctrl ('t'):
-						  top (ed, 0);
-						  break;
-					  case ctrl ('b'):
-						  bottom (ed, 0);
-						  break;
+				case ctrl ('y'):
+					help (ed);
+					break;
+				case ctrl ('t'):
+					top (ed, 0);
+					break;
+				case ctrl ('b'):
+					bottom (ed, 0);
+					break;
 #endif
 
-					  case KEY_UP:
-						  up (ed, ed->selecting);
-						  break;
-					  case KEY_DOWN:
-						  down (ed, ed->selecting);
-						  break;
-					  case KEY_LEFT:
-						  left (ed, ed->selecting);
-						  break;
-					  case KEY_RIGHT:
-						  right (ed, ed->selecting);
-						  break;
-					  case KEY_HOME:
-						  home (ed, ed->selecting);
-						  break;
-					  case KEY_END:
-						  end (ed, ed->selecting);
-						  break;
-					  case KEY_PGUP:
-						  pageup (ed, ed->selecting);
-						  break;
-					  case KEY_PGDN:
-						  pagedown (ed, ed->selecting);
-						  break;
+				case KEY_UP:
+					up (ed, ed->selecting);
+					break;
+				case KEY_DOWN:
+					down (ed, ed->selecting);
+					break;
+				case KEY_LEFT:
+					left (ed, ed->selecting);
+					break;
+				case KEY_RIGHT:
+					right (ed, ed->selecting);
+					break;
+				case KEY_HOME:
+					home (ed, ed->selecting);
+					break;
+				case KEY_END:
+					end (ed, ed->selecting);
+					break;
+				case KEY_PGUP:
+					pageup (ed, ed->selecting);
+					break;
+				case KEY_PGDN:
+					pagedown (ed, ed->selecting);
+					break;
 
-					  case KEY_CTRL_RIGHT:
-						  wordright (ed, ed->selecting);
-						  break;
-					  case KEY_CTRL_LEFT:
-						  wordleft (ed, ed->selecting);
-						  break;
-					  case KEY_CTRL_HOME:
-						  top (ed, ed->selecting);
-						  break;
-					  case KEY_CTRL_END:
-						  bottom (ed, ed->selecting);
-						  break;
+				case KEY_CTRL_RIGHT:
+					wordright (ed, ed->selecting);
+					break;
+				case KEY_CTRL_LEFT:
+					wordleft (ed, ed->selecting);
+					break;
+				case KEY_CTRL_HOME:
+					top (ed, ed->selecting);
+					break;
+				case KEY_CTRL_END:
+					bottom (ed, ed->selecting);
+					break;
 
 #if SHIFT_SELECT
-					  case KEY_SHIFT_UP:
-						  up (ed, 1);
-						  break;
-					  case KEY_SHIFT_DOWN:
-						  down (ed, 1);
-						  break;
-					  case KEY_SHIFT_LEFT:
-						  left (ed, 1);
-						  break;
-					  case KEY_SHIFT_RIGHT:
-						  right (ed, 1);
-						  break;
-					  case KEY_SHIFT_PGUP:
-						  pageup (ed, 1);
-						  break;
-					  case KEY_SHIFT_PGDN:
-						  pagedown (ed, 1);
-						  break;
-					  case KEY_SHIFT_HOME:
-						  home (ed, 1);
-						  break;
-					  case KEY_SHIFT_END:
-						  end (ed, 1);
-						  break;
+				case KEY_SHIFT_UP:
+					up (ed, 1);
+					break;
+				case KEY_SHIFT_DOWN:
+					down (ed, 1);
+					break;
+				case KEY_SHIFT_LEFT:
+					left (ed, 1);
+					break;
+				case KEY_SHIFT_RIGHT:
+					right (ed, 1);
+					break;
+				case KEY_SHIFT_PGUP:
+					pageup (ed, 1);
+					break;
+				case KEY_SHIFT_PGDN:
+					pagedown (ed, 1);
+					break;
+				case KEY_SHIFT_HOME:
+					home (ed, 1);
+					break;
+				case KEY_SHIFT_END:
+					end (ed, 1);
+					break;
 
-					  case KEY_SHIFT_CTRL_RIGHT:
-						  wordright (ed, 1);
-						  break;
-					  case KEY_SHIFT_CTRL_LEFT:
-						  wordleft (ed, 1);
-						  break;
-					  case KEY_SHIFT_CTRL_HOME:
-						  top (ed, 1);
-						  break;
-					  case KEY_SHIFT_CTRL_END:
-						  bottom (ed, 1);
-						  break;
+				case KEY_SHIFT_CTRL_RIGHT:
+					wordright (ed, 1);
+					break;
+				case KEY_SHIFT_CTRL_LEFT:
+					wordleft (ed, 1);
+					break;
+				case KEY_SHIFT_CTRL_HOME:
+					top (ed, 1);
+					break;
+				case KEY_SHIFT_CTRL_END:
+					bottom (ed, 1);
+					break;
 #endif
 
-					  case KEY_CTRL_TAB:
-						  ed = next_file (ed);
-						  break;
+				case KEY_CTRL_TAB:
+					ed = next_file (ed);
+					break;
 
-					  case ctrl ('e'):
-						  select_toggle (ed);
-						  break;
-					  case ctrl ('a'):
-						  select_all (ed);
-						  break;
-					  case ctrl ('c'):
-						  copy_selection (ed);
-						  break;
-					  case ctrl ('f'):
-						  find_text (ed, 0);
-						  break;
-					  case ctrl ('l'):
-						  goto_line (ed);
-						  break;
-					  case ctrl ('g'):
-						  find_text (ed, 1);
-						  break;
-					  case ctrl ('q'):
-						  done = 1;
-						  break;
+				case ctrl ('e'):
+					select_toggle (ed);
+					break;
+				case ctrl ('a'):
+					select_all (ed);
+					break;
+				case ctrl ('c'):
+					copy_selection (ed);
+					break;
+				case ctrl ('f'):
+					find_text (ed, 0);
+					break;
+				case ctrl ('l'):
+					goto_line (ed);
+					break;
+				case ctrl ('g'):
+					find_text (ed, 1);
+					break;
+				case ctrl ('q'):
+					done = 1;
+					break;
 #ifdef LESS
-					  case KEY_ESC:
-						  done = 1;
-						  break;
+				case KEY_ESC:
+					done = 1;
+					break;
 #else
-					  case KEY_TAB:
-						  indent (ed, (unsigned char *)INDENT);
-						  break;
-					  case KEY_SHIFT_TAB:
-						  unindent (ed, (unsigned char *)INDENT);
-						  break;
+				case KEY_TAB:
+					indent (ed, (unsigned char *)INDENT);
+					break;
+				case KEY_SHIFT_TAB:
+					unindent (ed, (unsigned char *)INDENT);
+					break;
 
-					  case KEY_ENTER:
-						  newline (ed);
-						  break;
-					  case KEY_BACKSPACE:
-						  backspace (ed);
-						  break;
-					  case KEY_DEL:
-						  del (ed);
-						  break;
-					  case ctrl ('x'):
-						  cut_selection (ed);
-						  break;
-					  case ctrl ('z'):
-						  undo (ed);
-						  break;
-					  case ctrl ('r'):
-						  redo (ed);
-						  break;
-					  case ctrl ('v'):
-						  paste_selection (ed);
-						  break;
-					  case ctrl ('o'):
-						  open_editor (ed);
-						  ed = ed->env->current;
-						  break;
-					  case ctrl ('n'):
-						  new_editor (ed);
-						  ed = ed->env->current;
-						  break;
-					  case ctrl ('s'):
-						  save_editor (ed);
-						  break;
-					  case ctrl ('p'):
-						  pipe_command (ed);
-						  break;
+				case KEY_ENTER:
+					newline (ed);
+					break;
+				case KEY_BACKSPACE:
+					backspace (ed);
+					break;
+				case KEY_DEL:
+					del (ed);
+					break;
+				case ctrl ('x'):
+					cut_selection (ed);
+					break;
+				case ctrl ('z'):
+					undo (ed);
+					break;
+				case ctrl ('r'):
+					redo (ed);
+					break;
+				case ctrl ('v'):
+					paste_selection (ed);
+					break;
+				case ctrl ('o'):
+					open_editor (ed);
+					ed = ed->env->current;
+					break;
+				case ctrl ('n'):
+					new_editor (ed);
+					ed = ed->env->current;
+					break;
+				case ctrl ('s'):
+					save_editor (ed);
+					break;
+				case ctrl ('p'):
+					pipe_command (ed);
+					break;
 #endif
 #if defined(__rtems__)
-						  /*
-						   * Coverity spotted this as using ed after free() so changing
-						   * the order of the statements.
-						   */
-					  case ctrl ('w'):
-						  ed = ed->env->current;
-						  close_editor (ed);
-						  break;
+					/*
+					 * Coverity spotted this as using ed after free() so changing
+					 * the order of the statements.
+					 */
+				case ctrl ('w'):
+					ed = ed->env->current;
+					close_editor (ed);
+					break;
 #else
-					  case ctrl ('w'):
-						  close_editor (ed);
-						  ed = ed->env->current;
-						  break;
+				case ctrl ('w'):
+					close_editor (ed);
+					ed = ed->env->current;
+					break;
 #endif
-				  }
 			}
-	  }
+		}
+	}
 }
 
 //
@@ -2872,29 +2872,29 @@ static int rtems_shell_main_edit (int argc, char *argv[])
 
 	memset (&env, 0, sizeof (env));
 	for (i = 1; i < argc; i++)
-	  {
-		  struct editor *ed = create_editor (&env);
-		  rc = load_file (ed, argv[i]);
-		  if (rc < 0 && errno == ENOENT)
-			  rc = new_file (ed, argv[i]);
-		  if (rc < 0)
-			{
-				perror (argv[i]);
-				return 0;
-			}
-	  }
+	{
+		struct editor *ed = create_editor (&env);
+		rc = load_file (ed, argv[i]);
+		if (rc < 0 && errno == ENOENT)
+			rc = new_file (ed, argv[i]);
+		if (rc < 0)
+		{
+			perror (argv[i]);
+			return 0;
+		}
+	}
 	if (env.current == NULL)
-	  {
-		  struct editor *ed = create_editor (&env);
-		  if (isatty (fileno (stdin)))
-			{
-				new_file (ed, "");
-			}
-		  else
-			{
-				read_from_stdin (ed);
-			}
-	  }
+	{
+		struct editor *ed = create_editor (&env);
+		if (isatty (fileno (stdin)))
+		{
+			new_file (ed, "");
+		}
+		else
+		{
+			read_from_stdin (ed);
+		}
+	}
 	env.current = env.current->next;
 
 #ifdef SANOS
@@ -2905,10 +2905,10 @@ static int rtems_shell_main_edit (int argc, char *argv[])
 		dup2 (term->ttyout, fdout);
 #elif !defined(__rtems__)
 	if (!isatty (fileno (stdin)))
-	  {
-		  if (!freopen ("/dev/tty", "r", stdin))
-			  perror ("/dev/tty");
-	  }
+	{
+		if (!freopen ("/dev/tty", "r", stdin))
+			perror ("/dev/tty");
+	}
 #endif
 
 	setvbuf (stdout, NULL, 0, 8192);
@@ -2920,15 +2920,15 @@ static int rtems_shell_main_edit (int argc, char *argv[])
 	tcsetattr (0, TCSANOW, &tio);
 #endif
 	if (getenv ("TERM") && strcmp (getenv ("TERM"), "linux") == 0)
-	  {
-		  linux_console = 1;
-	  }
+	{
+		linux_console = 1;
+	}
 	else
-	  {
-		  outstr (CLRSCR);
-		  outstr ("\033[3 q");	// xterm
-		  outstr ("\033]50;CursorShape=2\a");	// KDE
-	  }
+	{
+		outstr (CLRSCR);
+		outstr ("\033[3 q");	// xterm
+		outstr ("\033]50;CursorShape=2\a");	// KDE
+	}
 #endif
 
 	get_console_size (&env);
@@ -2940,13 +2940,13 @@ static int rtems_shell_main_edit (int argc, char *argv[])
 	sigprocmask (SIG_BLOCK, &blocked_sigmask, &orig_sigmask);
 
 	for (;;)
-	  {
-		  if (!env.current)
-			  break;
-		  edit (env.current);
-		  if (quit (&env))
-			  break;
-	  }
+	{
+		if (!env.current)
+			break;
+		edit (env.current);
+		if (quit (&env))
+			break;
+	}
 
 	gotoxy (0, env.lines + 1);
 	outstr (RESET_COLOR CLREOL);
@@ -2970,7 +2970,8 @@ static int rtems_shell_main_edit (int argc, char *argv[])
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_EDIT_Command = {
+rtems_shell_cmd_t rtems_shell_EDIT_Command =
+{
 	"edit",						/* name */
 	"edit [file ...]",			/* usage */
 	"files",					/* topic */

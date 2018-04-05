@@ -38,27 +38,27 @@ extern "C"
 #define RTEMS_DHCP_FAILSAFE_DHCP_MONITOR_PRIORITY 250
 #endif
 
-	void rtems_bsdnet_do_dhcp_failsafe (void);
+void rtems_bsdnet_do_dhcp_failsafe (void);
 
 /** Set the DHCP fallback options.  See the commentary at the top of the
- * implementation.
- @note Some of these options can be compile-time disabled - see the code.
- */
-	void rtems_bsdnet_dhcp_failsafe_config (int network_fail_timeout,
-							/**< The number of seconds before the interface is
-                              *  considered disconnected
-                              */
-											int network_down_time,
-							/**< The number of seconds the interface
-                              *  remains down.
-                              */
-											int broadcast_delay,
-							/**< The delay in seconds before broadcasts
-                              * are sent.
-                              */
-											int dhcp_monitor_priority
-							/**< The monitor priority.*/
-		);
+* implementation.
+@note Some of these options can be compile-time disabled - see the code.
+*/
+void rtems_bsdnet_dhcp_failsafe_config (int network_fail_timeout,
+						/**< The number of seconds before the interface is
+						  *  considered disconnected
+						  */
+										int network_down_time,
+						/**< The number of seconds the interface
+						  *  remains down.
+						  */
+										int broadcast_delay,
+						/**< The delay in seconds before broadcasts
+						  * are sent.
+						  */
+										int dhcp_monitor_priority
+						/**< The monitor priority.*/
+	);
 
 #ifdef __cplusplus
 }

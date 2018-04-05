@@ -75,19 +75,19 @@ int safe_print (rtems_shell_ls_globals * globals, const char *src)
 
 	len = strlen (src);
 	if (len != 0 && SIZE_T_MAX / len <= 4)
-	  {
-		  errx (exit_jump, EXIT_FAILURE, "%s: name too long", src);
-		  /* NOTREACHED */
-	  }
+	{
+		errx (exit_jump, EXIT_FAILURE, "%s: name too long", src);
+		/* NOTREACHED */
+	}
 
 	name = (char *)malloc (4 * len + 1);
 	if (name != NULL)
-	  {
-		  len = strvis (name, src, flags);
-		  printf ("%s", name);
-		  free (name);
-		  return len;
-	  }
+	{
+		len = strvis (name, src, flags);
+		printf ("%s", name);
+		free (name);
+		return len;
+	}
 	else
 		errx (exit_jump, EXIT_FAILURE, "out of memory!");
 	/* NOTREACHED */
@@ -95,7 +95,7 @@ int safe_print (rtems_shell_ls_globals * globals, const char *src)
 
 int
 printescaped (rtems_shell_ls_globals * globals
-			  __attribute__ ((unused)), const char *src)
+			__attribute__ ((unused)), const char *src)
 {
 	unsigned char c;
 	int n;
@@ -112,8 +112,8 @@ void usage (rtems_shell_ls_globals * globals)
 {
 
 	(void)fprintf (stderr,
-				   "usage: %s [-AaBbCcdFfghikLlmnopqRrSsTtuWwx1] [file ...]\n",
-				   "ls");
+				 "usage: %s [-AaBbCcdFfghikLlmnopqRrSsTtuWwx1] [file ...]\n",
+				 "ls");
 	exit (EXIT_FAILURE);
 	/* NOTREACHED */
 }

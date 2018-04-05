@@ -23,12 +23,12 @@
 
 void _Thread_queue_Flush (Thread_queue_Control * the_thread_queue,
 #if defined(RTEMS_MULTIPROCESSING)
-						  Thread_queue_Flush_callout remote_extract_callout,
+						Thread_queue_Flush_callout remote_extract_callout,
 #else
-						  Thread_queue_Flush_callout remote_extract_callout
-						  __attribute__ ((unused)),
+						Thread_queue_Flush_callout remote_extract_callout
+						__attribute__ ((unused)),
 #endif
-						  uint32_t status)
+						uint32_t status)
 {
 	ISR_lock_Context lock_context;
 	Thread_Control *the_thread;
@@ -36,22 +36,22 @@ void _Thread_queue_Flush (Thread_queue_Control * the_thread_queue,
 	_Thread_queue_Acquire (the_thread_queue, &lock_context);
 
 	while ((the_thread = _Thread_queue_First_locked (the_thread_queue)))
-	  {
+	{
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (_Objects_Is_local_id (the_thread->Object.id))
+		if (_Objects_Is_local_id (the_thread->Object.id))
 #endif
-			  the_thread->Wait.return_code = status;
+			the_thread->Wait.return_code = status;
 
-		  _Thread_queue_Extract_critical (the_thread_queue,
-										  the_thread, &lock_context);
+		_Thread_queue_Extract_critical (the_thread_queue,
+										the_thread, &lock_context);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (!_Objects_Is_local_id (the_thread->Object.id))
-			  (*remote_extract_callout) (the_thread);
+		if (!_Objects_Is_local_id (the_thread->Object.id))
+			(*remote_extract_callout) (the_thread);
 #endif
 
-		  _Thread_queue_Acquire (the_thread_queue, &lock_context);
-	  }
+		_Thread_queue_Acquire (the_thread_queue, &lock_context);
+	}
 
 	_Thread_queue_Release (the_thread_queue, &lock_context);
 }

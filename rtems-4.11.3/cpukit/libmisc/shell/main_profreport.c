@@ -31,7 +31,8 @@ static int rtems_shell_main_profreport (int argc, char **argv)
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_PROFREPORT_Command = {
+rtems_shell_cmd_t rtems_shell_PROFREPORT_Command =
+{
 	.name = "profreport",
 	.usage = "profreport",
 	.topic = "rtems",

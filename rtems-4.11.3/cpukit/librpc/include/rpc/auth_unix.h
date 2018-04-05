@@ -77,7 +77,7 @@ __END_DECLS
  * then the body of the response verifier encapsulates the following structure;
  * again it is serialized in the obvious fashion.
  */
-	struct short_hand_verf
+struct short_hand_verf
 {
 	struct opaque_auth new_cred;
 };

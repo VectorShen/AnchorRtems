@@ -40,10 +40,10 @@ extern "C" {
 /**@{*/
 
 #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
-  /**
-   *  This type defines the prototype of the Predriver Hook.
-   */
-  typedef void (*API_extensions_Predriver_hook)(void);
+/**
+*  This type defines the prototype of the Predriver Hook.
+*/
+typedef void (*API_extensions_Predriver_hook)(void);
 #endif
 
 /**
@@ -55,27 +55,28 @@ typedef void (*API_extensions_Postdriver_hook)(void);
  *  The control structure which defines the points at which an API
  *  can add an extension to the system initialization thread.
  */
-typedef struct {
-  /** This field allows this structure to be used with the Chain Handler. */
-  Chain_Node                      Node;
-  #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
-    /**
-     * This field is the callout invoked during RTEMS initialization after
-     * RTEMS data structures are initialized before device driver initialization
-     * has occurred.
-     *
-     * @note If this field is NULL, no extension is invoked.
-     */
-    API_extensions_Predriver_hook   predriver_hook;
-  #endif
-  /**
-   * This field is the callout invoked during RTEMS initialization after
-   * RTEMS data structures and device driver initialization has occurred
-   * but before multitasking is initiated.
-   *
-   * @note If this field is NULL, no extension is invoked.
-   */
-  API_extensions_Postdriver_hook  postdriver_hook;
+typedef struct
+{
+	/** This field allows this structure to be used with the Chain Handler. */
+	Chain_Node                      Node;
+	#if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
+	/**
+	 * This field is the callout invoked during RTEMS initialization after
+	 * RTEMS data structures are initialized before device driver initialization
+	 * has occurred.
+	 *
+	 * @note If this field is NULL, no extension is invoked.
+	 */
+	API_extensions_Predriver_hook   predriver_hook;
+	#endif
+	/**
+	* This field is the callout invoked during RTEMS initialization after
+	* RTEMS data structures and device driver initialization has occurred
+	* but before multitasking is initiated.
+	*
+	* @note If this field is NULL, no extension is invoked.
+	*/
+	API_extensions_Postdriver_hook  postdriver_hook;
 }  API_extensions_Control;
 
 /**
@@ -98,7 +99,7 @@ void _API_extensions_Initialization( void );
  *  @param[in] the_extension is the extension set to add.
  */
 void _API_extensions_Add(
-  API_extensions_Control *the_extension
+	API_extensions_Control *the_extension
 );
 
 #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
@@ -107,7 +108,7 @@ void _API_extensions_Add(
  *
  *  This routine executes all of the predriver callouts.
  */
-  void _API_extensions_Run_predriver( void );
+void _API_extensions_Run_predriver( void );
 #endif
 
 /**

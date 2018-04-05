@@ -27,21 +27,21 @@ static int rtems_shell_main_top (int argc, char *argv[])
 	 *  When invoked with no arguments, print the report.
 	 */
 	if (argc == 1)
-	  {
-		  rtems_cpu_usage_top_with_plugin (stdout,
-										   (rtems_printk_plugin_t) fprintf);
-		  return 0;
-	  }
+	{
+		rtems_cpu_usage_top_with_plugin (stdout,
+										 (rtems_printk_plugin_t) fprintf);
+		return 0;
+	}
 
 	/*
 	 *  When invoked with the single argument -r, reset the statistics.
 	 */
 	if (argc == 2 && !strcmp (argv[1], "-r"))
-	  {
-		  printf ("Resetting CPU Usage information\n");
-		  rtems_cpu_usage_reset ();
-		  return 0;
-	  }
+	{
+		printf ("Resetting CPU Usage information\n");
+		rtems_cpu_usage_reset ();
+		return 0;
+	}
 
 	/*
 	 *  OK.  The user did something wrong.
@@ -50,7 +50,8 @@ static int rtems_shell_main_top (int argc, char *argv[])
 	return -1;
 }
 
-rtems_shell_cmd_t rtems_shell_TOP_Command = {
+rtems_shell_cmd_t rtems_shell_TOP_Command =
+{
 	"top",						/* name */
 	"[-r] print or reset per thread cpu usage",	/* usage */
 	"rtems",					/* topic */

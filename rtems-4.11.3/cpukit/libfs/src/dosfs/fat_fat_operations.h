@@ -39,19 +39,19 @@ extern "C"
 
 #include "fat.h"
 
-	int fat_get_fat_cluster (fat_fs_info_t * fs_info,
-							 uint32_t cln, uint32_t * ret_val);
+int fat_get_fat_cluster (fat_fs_info_t * fs_info,
+						 uint32_t cln, uint32_t * ret_val);
 
-	int fat_set_fat_cluster (fat_fs_info_t * fs_info,
-							 uint32_t cln, uint32_t in_val);
+int fat_set_fat_cluster (fat_fs_info_t * fs_info,
+						 uint32_t cln, uint32_t in_val);
 
-	int fat_scan_fat_for_free_clusters (fat_fs_info_t * fs_info,
-										uint32_t * chain,
-										uint32_t count,
-										uint32_t * cls_added,
-										uint32_t * last_cl, bool zero_fill);
+int fat_scan_fat_for_free_clusters (fat_fs_info_t * fs_info,
+									uint32_t * chain,
+									uint32_t count,
+									uint32_t * cls_added,
+									uint32_t * last_cl, bool zero_fill);
 
-	int fat_free_fat_clusters_chain (fat_fs_info_t * fs_info, uint32_t chain);
+int fat_free_fat_clusters_chain (fat_fs_info_t * fs_info, uint32_t chain);
 
 #ifdef __cplusplus
 }

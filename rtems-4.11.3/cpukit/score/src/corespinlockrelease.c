@@ -35,10 +35,10 @@ CORE_spinlock_Status _CORE_spinlock_Release (CORE_spinlock_Control *
 	 */
 	if (the_spinlock->lock != CORE_SPINLOCK_LOCKED
 		|| the_spinlock->holder != _Thread_Executing)
-	  {
-		  _ISR_Enable (level);
-		  return CORE_SPINLOCK_NOT_HOLDER;
-	  }
+	{
+		_ISR_Enable (level);
+		return CORE_SPINLOCK_NOT_HOLDER;
+	}
 
 	/*
 	 *  Let it be unlocked.

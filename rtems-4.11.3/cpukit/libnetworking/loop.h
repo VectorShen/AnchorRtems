@@ -8,7 +8,7 @@ extern "C"
 
 #define NLOOP 1
 
-	void rtems_bsdnet_initialize_loop (void);
+void rtems_bsdnet_initialize_loop (void);
 
 #ifdef __cplusplus
 }

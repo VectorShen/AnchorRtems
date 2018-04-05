@@ -136,10 +136,10 @@ static void gettimeofday (struct timeval *__restrict tv, void *__restrict dummy)
 	n = (((uint64_t) ftime.dwHighDateTime << 32)
 		 + (uint64_t) ftime.dwLowDateTime);
 	if (n)
-	  {
-		  n /= 10;
-		  n -= ((369 * 365 + 89) * (uint64_t) 86400) * 1000000;
-	  }
+	{
+		n /= 10;
+		n -= ((369 * 365 + 89) * (uint64_t) 86400) * 1000000;
+	}
 
 	tv->tv_sec = n / 1000000;
 	tv->tv_usec = n % 1000000;
@@ -158,27 +158,27 @@ static int get_random_fd (void)
 	int i;
 
 	if (fd == -2)
-	  {
-		  gettimeofday (&tv, 0);
+	{
+		gettimeofday (&tv, 0);
 #ifndef _WIN32
-		  fd = open ("/dev/urandom", O_RDONLY);
-		  if (fd == -1)
-			  fd = open ("/dev/random", O_RDONLY | O_NONBLOCK);
-		  if (fd >= 0)
-			{
-				i = fcntl (fd, F_GETFD);
-				if (i >= 0)
-					fcntl (fd, F_SETFD, i | FD_CLOEXEC);
-			}
+		fd = open ("/dev/urandom", O_RDONLY);
+		if (fd == -1)
+			fd = open ("/dev/random", O_RDONLY | O_NONBLOCK);
+		if (fd >= 0)
+		{
+			i = fcntl (fd, F_GETFD);
+			if (i >= 0)
+				fcntl (fd, F_SETFD, i | FD_CLOEXEC);
+		}
 #endif
-		  srand ((getpid () << ((sizeof (pid_t) * CHAR_BIT) >> 1)) ^ getuid () ^
+		srand ((getpid () << ((sizeof (pid_t) * CHAR_BIT) >> 1)) ^ getuid () ^
 				 tv.tv_sec ^ tv.tv_usec);
 #ifdef DO_JRAND_MIX
-		  jrand_seed[0] = getpid () ^ (tv.tv_sec & 0xFFFF);
-		  jrand_seed[1] = getppid () ^ (tv.tv_usec & 0xFFFF);
-		  jrand_seed[2] = (tv.tv_sec ^ tv.tv_usec) >> 16;
+		jrand_seed[0] = getpid () ^ (tv.tv_sec & 0xFFFF);
+		jrand_seed[1] = getppid () ^ (tv.tv_usec & 0xFFFF);
+		jrand_seed[2] = (tv.tv_sec ^ tv.tv_usec) >> 16;
 #endif
-	  }
+	}
 	/* Crank the random number generator a few times */
 	gettimeofday (&tv, 0);
 	for (i = (tv.tv_sec ^ tv.tv_usec) & 0x1F; i > 0; i--)
@@ -200,21 +200,21 @@ static void get_random_bytes (void *buf, int nbytes)
 #endif
 
 	if (fd >= 0)
-	  {
-		  while (n > 0)
+	{
+		while (n > 0)
+		{
+			i = read (fd, cp, n);
+			if (i <= 0)
 			{
-				i = read (fd, cp, n);
-				if (i <= 0)
-				  {
-					  if (lose_counter++ > 16)
-						  break;
-					  continue;
-				  }
-				n -= i;
-				cp += i;
-				lose_counter = 0;
+				if (lose_counter++ > 16)
+					break;
+				continue;
 			}
-	  }
+			n -= i;
+			cp += i;
+			lose_counter = 0;
+		}
+	}
 
 	/*
 	 * We do this all the time, but this is the only source of
@@ -273,56 +273,56 @@ static int get_node_id (unsigned char *node_id)
 
 	sd = socket (AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	if (sd < 0)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 	memset (buf, 0, sizeof (buf));
 	ifc.ifc_len = sizeof (buf);
 	ifc.ifc_buf = buf;
 	if (ioctl (sd, SIOCGIFCONF, (char *)&ifc) < 0)
-	  {
-		  close (sd);
-		  return -1;
-	  }
+	{
+		close (sd);
+		return -1;
+	}
 	n = ifc.ifc_len;
 	for (i = 0; i < n; i += ifreq_size (*ifrp))
-	  {
-		  ifrp = (struct ifreq *)((char *)ifc.ifc_buf + i);
-		  strncpy (ifr.ifr_name, ifrp->ifr_name, IFNAMSIZ);
+	{
+		ifrp = (struct ifreq *)((char *)ifc.ifc_buf + i);
+		strncpy (ifr.ifr_name, ifrp->ifr_name, IFNAMSIZ);
 #ifdef SIOCGIFHWADDR
-		  if (ioctl (sd, SIOCGIFHWADDR, &ifr) < 0)
-			  continue;
-		  a = (unsigned char *)&ifr.ifr_hwaddr.sa_data;
+		if (ioctl (sd, SIOCGIFHWADDR, &ifr) < 0)
+			continue;
+		a = (unsigned char *)&ifr.ifr_hwaddr.sa_data;
 #else
 #ifdef SIOCGENADDR
-		  if (ioctl (sd, SIOCGENADDR, &ifr) < 0)
-			  continue;
-		  a = (unsigned char *)ifr.ifr_enaddr;
+		if (ioctl (sd, SIOCGENADDR, &ifr) < 0)
+			continue;
+		a = (unsigned char *)ifr.ifr_enaddr;
 #else
 #ifdef HAVE_NET_IF_DL_H
-		  sdlp = (struct sockaddr_dl *)&ifrp->ifr_addr;
-		  if ((sdlp->sdl_family != AF_LINK) || (sdlp->sdl_alen != 6))
-			  continue;
-		  a = (unsigned char *)&sdlp->sdl_data[sdlp->sdl_nlen];
+		sdlp = (struct sockaddr_dl *)&ifrp->ifr_addr;
+		if ((sdlp->sdl_family != AF_LINK) || (sdlp->sdl_alen != 6))
+			continue;
+		a = (unsigned char *)&sdlp->sdl_data[sdlp->sdl_nlen];
 #else
-		  /*
-		   * XXX we don't have a way of getting the hardware
-		   * address
-		   */
-		  close (sd);
-		  return 0;
+		/*
+		 * XXX we don't have a way of getting the hardware
+		 * address
+		 */
+		close (sd);
+		return 0;
 #endif /* HAVE_NET_IF_DL_H */
 #endif /* SIOCGENADDR */
 #endif /* SIOCGIFHWADDR */
-		  if (!a[0] && !a[1] && !a[2] && !a[3] && !a[4] && !a[5])
-			  continue;
-		  if (node_id)
-			{
-				memcpy (node_id, a, 6);
-				close (sd);
-				return 1;
-			}
-	  }
+		if (!a[0] && !a[1] && !a[2] && !a[3] && !a[4] && !a[5])
+			continue;
+		if (node_id)
+		{
+			memcpy (node_id, a, 6);
+			close (sd);
+			return 1;
+		}
+	}
 	close (sd);
 #endif
 	return 0;
@@ -332,7 +332,7 @@ static int get_node_id (unsigned char *node_id)
 #define MAX_ADJUSTMENT 10
 
 static int get_clock (uint32_t * clock_high, uint32_t * clock_low,
-					  uint16_t * ret_clock_seq, int *num)
+					uint16_t * ret_clock_seq, int *num)
 {
 	THREAD_LOCAL int adjustment = 0;
 	THREAD_LOCAL struct timeval last = { 0, 0 };
@@ -346,111 +346,111 @@ static int get_clock (uint32_t * clock_high, uint32_t * clock_low,
 	int len;
 
 	if (state_fd == -2)
-	  {
-		  save_umask = umask (0);
-		  state_fd = open ("/var/lib/libuuid/clock.txt",
-						   O_RDWR | O_CREAT, 0660);
-		  (void)umask (save_umask);
-		  state_f = fdopen (state_fd, "r+");
-		  if (!state_f)
-			{
-				close (state_fd);
-				state_fd = -1;
-			}
-	  }
+	{
+		save_umask = umask (0);
+		state_fd = open ("/var/lib/libuuid/clock.txt",
+						 O_RDWR | O_CREAT, 0660);
+		(void)umask (save_umask);
+		state_f = fdopen (state_fd, "r+");
+		if (!state_f)
+		{
+			close (state_fd);
+			state_fd = -1;
+		}
+	}
 	fl.l_type = F_WRLCK;
 	fl.l_whence = SEEK_SET;
 	fl.l_start = 0;
 	fl.l_len = 0;
 	fl.l_pid = 0;
 	if (state_fd >= 0)
-	  {
-		  rewind (state_f);
-		  while (fcntl (state_fd, F_SETLKW, &fl) < 0)
-			{
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				fclose (state_f);
-				close (state_fd);
-				state_fd = -1;
-				break;
-			}
-	  }
+	{
+		rewind (state_f);
+		while (fcntl (state_fd, F_SETLKW, &fl) < 0)
+		{
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			fclose (state_f);
+			close (state_fd);
+			state_fd = -1;
+			break;
+		}
+	}
 	if (state_fd >= 0)
-	  {
-		  unsigned int cl;
-		  utime_t tv1;
-		  unsigned long tv2;
-		  int a;
+	{
+		unsigned int cl;
+		utime_t tv1;
+		unsigned long tv2;
+		int a;
 
-		  if (fscanf (state_f, "clock: %04x tv: %" SCNutime_t " %lu adj: %d\n",
-					  &cl, &tv1, &tv2, &a) == 4)
-			{
-				clock_seq = cl & 0x3FFF;
-				last.tv_sec = tv1;
-				last.tv_usec = tv2;
-				adjustment = a;
-			}
-	  }
+		if (fscanf (state_f, "clock: %04x tv: %" SCNutime_t " %lu adj: %d\n",
+					&cl, &tv1, &tv2, &a) == 4)
+		{
+			clock_seq = cl & 0x3FFF;
+			last.tv_sec = tv1;
+			last.tv_usec = tv2;
+			adjustment = a;
+		}
+	}
 
 	if ((last.tv_sec == 0) && (last.tv_usec == 0))
-	  {
-		  get_random_bytes (&clock_seq, sizeof (clock_seq));
-		  clock_seq &= 0x3FFF;
-		  gettimeofday (&last, 0);
-		  last.tv_sec--;
-	  }
+	{
+		get_random_bytes (&clock_seq, sizeof (clock_seq));
+		clock_seq &= 0x3FFF;
+		gettimeofday (&last, 0);
+		last.tv_sec--;
+	}
 
   try_again:
 	gettimeofday (&tv, 0);
 	if ((tv.tv_sec < last.tv_sec) ||
 		((tv.tv_sec == last.tv_sec) && (tv.tv_usec < last.tv_usec)))
-	  {
-		  clock_seq = (clock_seq + 1) & 0x3FFF;
-		  adjustment = 0;
-		  last = tv;
-	  }
+	{
+		clock_seq = (clock_seq + 1) & 0x3FFF;
+		adjustment = 0;
+		last = tv;
+	}
 	else if ((tv.tv_sec == last.tv_sec) && (tv.tv_usec == last.tv_usec))
-	  {
-		  if (adjustment >= MAX_ADJUSTMENT)
-			  goto try_again;
-		  adjustment++;
-	  }
+	{
+		if (adjustment >= MAX_ADJUSTMENT)
+			goto try_again;
+		adjustment++;
+	}
 	else
-	  {
-		  adjustment = 0;
-		  last = tv;
-	  }
+	{
+		adjustment = 0;
+		last = tv;
+	}
 
 	clock_reg = ((uint64_t) tv.tv_usec) * 10 + adjustment;
 	clock_reg += ((uint64_t) tv.tv_sec) * 10000000;
 	clock_reg += (((uint64_t) 0x01B21DD2) << 32) + 0x13814000;
 
 	if (num && (*num > 1))
-	  {
-		  adjustment += *num - 1;
-		  last.tv_usec += adjustment / 10;
-		  adjustment = adjustment % 10;
-		  last.tv_sec += last.tv_usec / 1000000;
-		  last.tv_usec = last.tv_usec % 1000000;
-	  }
+	{
+		adjustment += *num - 1;
+		last.tv_usec += adjustment / 10;
+		adjustment = adjustment % 10;
+		last.tv_sec += last.tv_usec / 1000000;
+		last.tv_usec = last.tv_usec % 1000000;
+	}
 
 	if (state_fd > 0)
-	  {
-		  rewind (state_f);
-		  len = fprintf (state_f,
+	{
+		rewind (state_f);
+		len = fprintf (state_f,
 						 "clock: %04x tv: %016" PRIutime_t " %08lu adj: %08d\n",
 						 clock_seq, last.tv_sec, last.tv_usec, adjustment);
-		  fflush (state_f);
-		  if (ftruncate (state_fd, len) < 0)
-			{
-				fprintf (state_f, "                   \n");
-				fflush (state_f);
-			}
-		  rewind (state_f);
-		  fl.l_type = F_UNLCK;
-		  fcntl (state_fd, F_SETLK, &fl);
-	  }
+		fflush (state_f);
+		if (ftruncate (state_fd, len) < 0)
+		{
+			fprintf (state_f, "                   \n");
+			fflush (state_f);
+		}
+		rewind (state_f);
+		fl.l_type = F_UNLCK;
+		fcntl (state_fd, F_SETLK, &fl);
+	}
 
 	*clock_high = clock_reg >> 32;
 	*clock_low = clock_reg;
@@ -467,18 +467,18 @@ static ssize_t read_all (int fd, char *buf, size_t count)
 
 	memset (buf, 0, count);
 	while (count > 0)
-	  {
-		  ret = read (fd, buf, count);
-		  if (ret < 0)
-			{
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				return -1;
-			}
-		  count -= ret;
-		  buf += ret;
-		  c += ret;
-	  }
+	{
+		ret = read (fd, buf, count);
+		if (ret < 0)
+		{
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			return -1;
+		}
+		count -= ret;
+		buf += ret;
+		c += ret;
+	}
 	return c;
 }
 #endif
@@ -538,33 +538,33 @@ static int get_uuid_via_daemon (int op, uuid_t out, int *num)
 
 	if (connect (s, (const struct sockaddr *)&srv_addr,
 				 sizeof (struct sockaddr_un)) < 0)
-	  {
-		  if (access_ret == -2)
-			  access_ret = access (uuidd_path, X_OK);
-		  if (access_ret == 0 && start_attempts++ < 5)
+	{
+		if (access_ret == -2)
+			access_ret = access (uuidd_path, X_OK);
+		if (access_ret == 0 && start_attempts++ < 5)
+		{
+			if ((pid = fork ()) == 0)
 			{
-				if ((pid = fork ()) == 0)
-				  {
-					  close_all_fds ();
-					  execl (uuidd_path, "uuidd", "-qT", "300", (char *)NULL);
-					  exit (1);
-				  }
-				(void)waitpid (pid, 0, 0);
-				if (connect (s, (const struct sockaddr *)&srv_addr,
-							 sizeof (struct sockaddr_un)) < 0)
-					goto fail;
+				close_all_fds ();
+				execl (uuidd_path, "uuidd", "-qT", "300", (char *)NULL);
+				exit (1);
 			}
-		  else
-			  goto fail;
-	  }
+			(void)waitpid (pid, 0, 0);
+			if (connect (s, (const struct sockaddr *)&srv_addr,
+						 sizeof (struct sockaddr_un)) < 0)
+				goto fail;
+		}
+		else
+			goto fail;
+	}
 	op_buf[0] = op;
 	op_len = 1;
 	if (op == UUIDD_OP_BULK_TIME_UUID)
-	  {
-		  memcpy (op_buf + 1, num, sizeof (*num));
-		  op_len += sizeof (*num);
-		  expected += sizeof (*num);
-	  }
+	{
+		memcpy (op_buf + 1, num, sizeof (*num));
+		op_len += sizeof (*num);
+		expected += sizeof (*num);
+	}
 
 	ret = write (s, op_buf, op_len);
 	if (ret < 1)
@@ -601,19 +601,19 @@ void uuid__generate_time (uuid_t out, int *num)
 	uint32_t clock_mid;
 
 	if (!has_init)
-	  {
-		  if (get_node_id (node_id) <= 0)
-			{
-				get_random_bytes (node_id, 6);
-				/*
-				 * Set multicast bit, to prevent conflicts
-				 * with IEEE 802 addresses obtained from
-				 * network cards
-				 */
-				node_id[0] |= 0x01;
-			}
-		  has_init = 1;
-	  }
+	{
+		if (get_node_id (node_id) <= 0)
+		{
+			get_random_bytes (node_id, 6);
+			/*
+			 * Set multicast bit, to prevent conflicts
+			 * with IEEE 802 addresses obtained from
+			 * network cards
+			 */
+			node_id[0] |= 0x01;
+		}
+		has_init = 1;
+	}
 	get_clock (&clock_mid, &uu.time_low, &uu.clock_seq, num);
 	uu.clock_seq |= 0x8000;
 	uu.time_mid = (uint16_t) clock_mid;
@@ -631,36 +631,36 @@ void uuid_generate_time (uuid_t out)
 	time_t now;
 
 	if (num > 0)
-	  {
-		  now = time (0);
-		  if (now > last_time + 1)
-			  num = 0;
-	  }
+	{
+		now = time (0);
+		if (now > last_time + 1)
+			num = 0;
+	}
 	if (num <= 0)
-	  {
-		  num = 1000;
-		  if (get_uuid_via_daemon (UUIDD_OP_BULK_TIME_UUID, out, &num) == 0)
-			{
-				last_time = time (0);
-				uuid_unpack (out, &uu);
-				num--;
-				return;
-			}
-		  num = 0;
-	  }
+	{
+		num = 1000;
+		if (get_uuid_via_daemon (UUIDD_OP_BULK_TIME_UUID, out, &num) == 0)
+		{
+			last_time = time (0);
+			uuid_unpack (out, &uu);
+			num--;
+			return;
+		}
+		num = 0;
+	}
 	if (num > 0)
-	  {
-		  uu.time_low++;
-		  if (uu.time_low == 0)
-			{
-				uu.time_mid++;
-				if (uu.time_mid == 0)
-					uu.time_hi_and_version++;
-			}
-		  num--;
-		  uuid_pack (&uu, out);
-		  return;
-	  }
+	{
+		uu.time_low++;
+		if (uu.time_low == 0)
+		{
+			uu.time_mid++;
+			if (uu.time_mid == 0)
+				uu.time_hi_and_version++;
+		}
+		num--;
+		uuid_pack (&uu, out);
+		return;
+	}
 #else
 	if (get_uuid_via_daemon (UUIDD_OP_TIME_UUID, out, 0) == 0)
 		return;
@@ -681,15 +681,15 @@ void uuid__generate_random (uuid_t out, int *num)
 		n = *num;
 
 	for (i = 0; i < n; i++)
-	  {
-		  get_random_bytes (buf, sizeof (buf));
-		  uuid_unpack (buf, &uu);
+	{
+		get_random_bytes (buf, sizeof (buf));
+		uuid_unpack (buf, &uu);
 
-		  uu.clock_seq = (uu.clock_seq & 0x3FFF) | 0x8000;
-		  uu.time_hi_and_version = (uu.time_hi_and_version & 0x0FFF) | 0x4000;
-		  uuid_pack (&uu, out);
-		  out += sizeof (uuid_t);
-	  }
+		uu.clock_seq = (uu.clock_seq & 0x3FFF) | 0x8000;
+		uu.time_hi_and_version = (uu.time_hi_and_version & 0x0FFF) | 0x4000;
+		uuid_pack (&uu, out);
+		out += sizeof (uuid_t);
+	}
 }
 
 void uuid_generate_random (uuid_t out)

@@ -51,34 +51,34 @@ rtems_status_code rtems_task_start (rtems_id id,
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  successfully_started = _Thread_Start (the_thread,
+		case OBJECTS_LOCAL:
+			successfully_started = _Thread_Start (the_thread,
 													THREAD_START_NUMERIC,
 													entry_point,
 													NULL, argument, NULL);
 
-			  _Objects_Put (&the_thread->Object);
+			_Objects_Put (&the_thread->Object);
 
-			  if (successfully_started)
-				{
-					return RTEMS_SUCCESSFUL;
-				}
-			  else
-				{
-					return RTEMS_INCORRECT_STATE;
-				}
+			if (successfully_started)
+			{
+				return RTEMS_SUCCESSFUL;
+			}
+			else
+			{
+				return RTEMS_INCORRECT_STATE;
+			}
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Dispatch ();
-			  return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+		case OBJECTS_REMOTE:
+			_Thread_Dispatch ();
+			return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

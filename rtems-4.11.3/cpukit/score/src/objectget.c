@@ -21,7 +21,7 @@
 #include <rtems/score/objectimpl.h>
 
 Objects_Control *_Objects_Get (Objects_Information * information,
-							   Objects_Id id, Objects_Locations * location)
+							 Objects_Id id, Objects_Locations * location)
 {
 	Objects_Control *the_object;
 	uint32_t index;
@@ -46,22 +46,22 @@ Objects_Control *_Objects_Get (Objects_Information * information,
 	 *  index into the local_table array.
 	 */
 	if (index <= information->maximum)
-	  {
-		  _Thread_Disable_dispatch ();
-		  if ((the_object = information->local_table[index]) != NULL)
-			{
-				*location = OBJECTS_LOCAL;
-				return the_object;
-			}
+	{
+		_Thread_Disable_dispatch ();
+		if ((the_object = information->local_table[index]) != NULL)
+		{
+			*location = OBJECTS_LOCAL;
+			return the_object;
+		}
 
-		  /*
-		   *  Valid Id for this API, Class and Node but the object has not
-		   *  been allocated yet.
-		   */
-		  _Thread_Enable_dispatch ();
-		  *location = OBJECTS_ERROR;
-		  return NULL;
-	  }
+		/*
+		 *  Valid Id for this API, Class and Node but the object has not
+		 *  been allocated yet.
+		 */
+		_Thread_Enable_dispatch ();
+		*location = OBJECTS_ERROR;
+		return NULL;
+	}
 
 	/*
 	 *  Object Id is not within this API and Class on this node.  So

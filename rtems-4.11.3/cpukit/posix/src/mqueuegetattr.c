@@ -59,30 +59,30 @@ int mq_getattr (mqd_t mqdes, struct mq_attr *mqstat)
 
 	the_mq_fd = _POSIX_Message_queue_Get_fd (mqdes, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  the_mq = the_mq_fd->Queue;
+		case OBJECTS_LOCAL:
+			the_mq = the_mq_fd->Queue;
 
-			  /*
-			   *  Return the old values.
-			   */
-			  mqstat->mq_flags = the_mq_fd->oflag;
-			  mqstat->mq_msgsize = the_mq->Message_queue.maximum_message_size;
-			  mqstat->mq_maxmsg =
-				  the_mq->Message_queue.maximum_pending_messages;
-			  mqstat->mq_curmsgs =
-				  the_mq->Message_queue.number_of_pending_messages;
+			/*
+			 *  Return the old values.
+			 */
+			mqstat->mq_flags = the_mq_fd->oflag;
+			mqstat->mq_msgsize = the_mq->Message_queue.maximum_message_size;
+			mqstat->mq_maxmsg =
+				the_mq->Message_queue.maximum_pending_messages;
+			mqstat->mq_curmsgs =
+				the_mq->Message_queue.number_of_pending_messages;
 
-			  _Objects_Put (&the_mq_fd->Object);
-			  return 0;
+			_Objects_Put (&the_mq_fd->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EBADF);
 }

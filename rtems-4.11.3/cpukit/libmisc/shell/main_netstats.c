@@ -52,99 +52,100 @@ static int rtems_shell_main_netstats (	/* command */
 
 	memset (&getopt_reent, 0, sizeof (getopt_data));
 	while ((option = getopt_r (argc, argv, "Aimfpcutv", &getopt_reent)) != -1)
-	  {
+	{
 
-		  switch ((char)option)
-			{
-				case 'A':
-					doAll = 1;
-					break;
-				case 'i':
-					doInetRoutes = 1;
-					break;
-				case 'm':
-					doMBUFStats = 1;
-					break;
-				case 'f':
-					doIFStats = 1;
-					break;
-				case 'p':
-					doIPStats = 1;
-					break;
-				case 'c':
-					doICMPStats = 1;
-					break;
-				case 'u':
-					doUDPStats = 1;
-					break;
-				case 't':
-					doTCPStats = 1;
-					break;
-				case 'v':
-					verbose = 1;
-					break;
-				case '?':
-				default:
-					netstats_usage ();
-					return -1;
-			}
-	  }
+		switch ((char)option)
+		{
+			case 'A':
+				doAll = 1;
+				break;
+			case 'i':
+				doInetRoutes = 1;
+				break;
+			case 'm':
+				doMBUFStats = 1;
+				break;
+			case 'f':
+				doIFStats = 1;
+				break;
+			case 'p':
+				doIPStats = 1;
+				break;
+			case 'c':
+				doICMPStats = 1;
+				break;
+			case 'u':
+				doUDPStats = 1;
+				break;
+			case 't':
+				doTCPStats = 1;
+				break;
+			case 'v':
+				verbose = 1;
+				break;
+			case '?':
+			default:
+				netstats_usage ();
+				return -1;
+		}
+	}
 
 	if (verbose)
-	  {
-		  printf ("doAll=%d\n"
-				  "doInetRoutes=%d\n"
-				  "doMBUFStats=%d\n"
-				  "doIFStats=%d\n"
-				  "doIPStats=%d\n"
-				  "doICMPStats=%d\n"
-				  "doUDPStats=%d\n"
-				  "doTCPStats=%d\n",
-				  doAll,
-				  doInetRoutes,
-				  doMBUFStats,
-				  doIFStats, doIPStats, doICMPStats, doUDPStats, doTCPStats);
-	  }
+	{
+		printf ("doAll=%d\n"
+				"doInetRoutes=%d\n"
+				"doMBUFStats=%d\n"
+				"doIFStats=%d\n"
+				"doIPStats=%d\n"
+				"doICMPStats=%d\n"
+				"doUDPStats=%d\n"
+				"doTCPStats=%d\n",
+				doAll,
+				doInetRoutes,
+				doMBUFStats,
+				doIFStats, doIPStats, doICMPStats, doUDPStats, doTCPStats);
+	}
 
 	if (doInetRoutes == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_inet_routes ();
-	  }
+	{
+		rtems_bsdnet_show_inet_routes ();
+	}
 
 	if (doMBUFStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_mbuf_stats ();
-	  }
+	{
+		rtems_bsdnet_show_mbuf_stats ();
+	}
 
 	if (doIFStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_if_stats ();
-	  }
+	{
+		rtems_bsdnet_show_if_stats ();
+	}
 
 	if (doIPStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_ip_stats ();
-	  }
+	{
+		rtems_bsdnet_show_ip_stats ();
+	}
 
 	if (doICMPStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_icmp_stats ();
-	  }
+	{
+		rtems_bsdnet_show_icmp_stats ();
+	}
 
 	if (doUDPStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_udp_stats ();
-	  }
+	{
+		rtems_bsdnet_show_udp_stats ();
+	}
 
 	if (doTCPStats == 1 || doAll == 1)
-	  {
-		  rtems_bsdnet_show_tcp_stats ();
-	  }
+	{
+		rtems_bsdnet_show_tcp_stats ();
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_NETSTATS_Command = {
+rtems_shell_cmd_t rtems_shell_NETSTATS_Command =
+{
 	"netstats",					/* name */
 	"netstats [-Aimfpcutv]",	/* usage */
 	"network",					/* topic */

@@ -67,38 +67,38 @@ CLIENT *clnt_create (const char *hostname,
 
 #ifndef __rtems__
 	if (!strcmp (proto, "unix"))
-	  {
-		  bzero ((char *)&sun, sizeof (sun));
-		  sun.sun_family = AF_UNIX;
-		  strcpy (sun.sun_path, hostname);
-		  sun.sun_len = sizeof (sun.sun_len) + sizeof (sun.sun_family) +
-			  strlen (sun.sun_path) + 1;
-		  sock = RPC_ANYSOCK;
-		  client = clntunix_create (&sun, prog, vers, &sock, 0, 0);
-		  if (client == NULL)
-			  return (NULL);
-		  tv.tv_sec = 25;
-		  tv.tv_usec = 0;
-		  clnt_control (client, CLSET_TIMEOUT, &tv);
-		  return (client);
-	  }
+	{
+		bzero ((char *)&sun, sizeof (sun));
+		sun.sun_family = AF_UNIX;
+		strcpy (sun.sun_path, hostname);
+		sun.sun_len = sizeof (sun.sun_len) + sizeof (sun.sun_family) +
+			strlen (sun.sun_path) + 1;
+		sock = RPC_ANYSOCK;
+		client = clntunix_create (&sun, prog, vers, &sock, 0, 0);
+		if (client == NULL)
+			return (NULL);
+		tv.tv_sec = 25;
+		tv.tv_usec = 0;
+		clnt_control (client, CLSET_TIMEOUT, &tv);
+		return (client);
+	}
 #endif
 
 	h = gethostbyname (hostname);
 	if (h == NULL)
-	  {
-		  rpc_createerr.cf_stat = RPC_UNKNOWNHOST;
-		  return (NULL);
-	  }
+	{
+		rpc_createerr.cf_stat = RPC_UNKNOWNHOST;
+		return (NULL);
+	}
 	if (h->h_addrtype != AF_INET)
-	  {
-		  /*
-		   * Only support INET for now
-		   */
-		  rpc_createerr.cf_stat = RPC_SYSTEMERROR;
-		  rpc_createerr.cf_error.re_errno = EAFNOSUPPORT;
-		  return (NULL);
-	  }
+	{
+		/*
+		 * Only support INET for now
+		 */
+		rpc_createerr.cf_stat = RPC_SYSTEMERROR;
+		rpc_createerr.cf_error.re_errno = EAFNOSUPPORT;
+		return (NULL);
+	}
 	memset (&sin, 0, sizeof (sin));
 	sin.sin_len = sizeof (struct sockaddr_in);
 	sin.sin_family = h->h_addrtype;
@@ -106,44 +106,44 @@ CLIENT *clnt_create (const char *hostname,
 	memcpy ((char *)&sin.sin_addr, h->h_addr, h->h_length);
 	p = getprotobyname (proto);
 	if (p == NULL)
-	  {
-		  rpc_createerr.cf_stat = RPC_UNKNOWNPROTO;
-		  rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
-		  return (NULL);
-	  }
+	{
+		rpc_createerr.cf_stat = RPC_UNKNOWNPROTO;
+		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
+		return (NULL);
+	}
 	sock = RPC_ANYSOCK;
 	switch (p->p_proto)
-	  {
-		  case IPPROTO_UDP:
-			  tv.tv_sec = 5;
-			  tv.tv_usec = 0;
-			  client = clntudp_create (&sin, prog, vers, tv, &sock);
-			  if (client == NULL)
-				{
-					return (NULL);
-				}
+	{
+		case IPPROTO_UDP:
+			tv.tv_sec = 5;
+			tv.tv_usec = 0;
+			client = clntudp_create (&sin, prog, vers, tv, &sock);
+			if (client == NULL)
+			{
+				return (NULL);
+			}
 #if 0							/* XXX do we need this? */
-			  tv.tv_sec = 25;
-			  tv.tv_usec = 0;
-			  clnt_control (client, CLSET_TIMEOUT, &tv);
+			tv.tv_sec = 25;
+			tv.tv_usec = 0;
+			clnt_control (client, CLSET_TIMEOUT, &tv);
 #endif
-			  break;
-		  case IPPROTO_TCP:
-			  client = clnttcp_create (&sin, prog, vers, &sock, 0, 0);
-			  if (client == NULL)
-				{
-					return (NULL);
-				}
+			break;
+		case IPPROTO_TCP:
+			client = clnttcp_create (&sin, prog, vers, &sock, 0, 0);
+			if (client == NULL)
+			{
+				return (NULL);
+			}
 #if 0							/* XXX do we need this? */
-			  tv.tv_sec = 25;
-			  tv.tv_usec = 0;
-			  clnt_control (client, CLSET_TIMEOUT, &tv);
+			tv.tv_sec = 25;
+			tv.tv_usec = 0;
+			clnt_control (client, CLSET_TIMEOUT, &tv);
 #endif
-			  break;
-		  default:
-			  rpc_createerr.cf_stat = RPC_SYSTEMERROR;
-			  rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
-			  return (NULL);
-	  }
+			break;
+		default:
+			rpc_createerr.cf_stat = RPC_SYSTEMERROR;
+			rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
+			return (NULL);
+	}
 	return (client);
 }

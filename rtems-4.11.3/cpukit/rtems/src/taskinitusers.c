@@ -69,28 +69,28 @@ void _RTEMS_tasks_Initialize_user_tasks_body (void)
 	 *  Now iterate over the initialization tasks and create/start them.
 	 */
 	for (index = 0; index < maximum; index++)
-	  {
-		  return_value = rtems_task_create (user_tasks[index].name,
+	{
+		return_value = rtems_task_create (user_tasks[index].name,
 											user_tasks[index].initial_priority,
 											user_tasks[index].stack_size,
 											user_tasks[index].mode_set,
 											user_tasks[index].attribute_set,
 											&id);
-		  if (!rtems_is_status_successful (return_value))
-			  _Terminate (INTERNAL_ERROR_RTEMS_API, true, return_value);
+		if (!rtems_is_status_successful (return_value))
+			_Terminate (INTERNAL_ERROR_RTEMS_API, true, return_value);
 
-		  entry_point = user_tasks[index].entry_point;
+		entry_point = user_tasks[index].entry_point;
 
-		  if (register_global_construction && entry_point != NULL)
-			{
-				register_global_construction = false;
-				entry_point = (rtems_task_entry) _Thread_Global_construction;
-			}
+		if (register_global_construction && entry_point != NULL)
+		{
+			register_global_construction = false;
+			entry_point = (rtems_task_entry) _Thread_Global_construction;
+		}
 
-		  return_value = rtems_task_start (id,
-										   entry_point,
-										   user_tasks[index].argument);
-		  if (!rtems_is_status_successful (return_value))
-			  _Terminate (INTERNAL_ERROR_RTEMS_API, true, return_value);
-	  }
+		return_value = rtems_task_start (id,
+										 entry_point,
+										 user_tasks[index].argument);
+		if (!rtems_is_status_successful (return_value))
+			_Terminate (INTERNAL_ERROR_RTEMS_API, true, return_value);
+	}
 }

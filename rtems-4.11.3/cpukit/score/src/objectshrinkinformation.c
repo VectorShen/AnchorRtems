@@ -40,44 +40,44 @@ void _Objects_Shrink_information (Objects_Information * information)
 		information->allocation_size;
 
 	for (block = 0; block < block_count; block++)
-	  {
-		  if (information->inactive_per_block[block] ==
-			  information->allocation_size)
+	{
+		if (information->inactive_per_block[block] ==
+			information->allocation_size)
+		{
+			Chain_Node *node = _Chain_First (&information->Inactive);
+			const Chain_Node *tail =
+				_Chain_Immutable_tail (&information->Inactive);
+			uint32_t index_end = index_base + information->allocation_size;
+
+			while (node != tail)
 			{
-				Chain_Node *node = _Chain_First (&information->Inactive);
-				const Chain_Node *tail =
-					_Chain_Immutable_tail (&information->Inactive);
-				uint32_t index_end = index_base + information->allocation_size;
-
-				while (node != tail)
-				  {
-					  Objects_Control *object = (Objects_Control *) node;
-					  uint32_t index = _Objects_Get_index (object->id);
-
-					  /*
-					   *  Get the next node before the node is extracted
-					   */
-					  node = _Chain_Next (node);
-
-					  if (index >= index_base && index < index_end)
-						{
-							_Chain_Extract_unprotected (&object->Node);
-						}
-				  }
+				Objects_Control *object = (Objects_Control *) node;
+				uint32_t index = _Objects_Get_index (object->id);
 
 				/*
-				 *  Free the memory and reset the structures in the object' information
+				 *  Get the next node before the node is extracted
 				 */
+				node = _Chain_Next (node);
 
-				_Workspace_Free (information->object_blocks[block]);
-				information->object_blocks[block] = NULL;
-				information->inactive_per_block[block] = 0;
-
-				information->inactive -= information->allocation_size;
-
-				return;
+				if (index >= index_base && index < index_end)
+				{
+					_Chain_Extract_unprotected (&object->Node);
+				}
 			}
 
-		  index_base += information->allocation_size;
-	  }
+			/*
+			 *  Free the memory and reset the structures in the object' information
+			 */
+
+			_Workspace_Free (information->object_blocks[block]);
+			information->object_blocks[block] = NULL;
+			information->inactive_per_block[block] = 0;
+
+			information->inactive -= information->allocation_size;
+
+			return;
+		}
+
+		index_base += information->allocation_size;
+	}
 }

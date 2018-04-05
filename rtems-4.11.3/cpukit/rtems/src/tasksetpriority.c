@@ -22,8 +22,8 @@
 #include <rtems/score/threadimpl.h>
 
 rtems_status_code rtems_task_set_priority (rtems_id id,
-										   rtems_task_priority new_priority,
-										   rtems_task_priority * old_priority)
+										 rtems_task_priority new_priority,
+										 rtems_task_priority * old_priority)
 {
 	Thread_Control *the_thread;
 	Objects_Locations location;
@@ -37,37 +37,37 @@ rtems_status_code rtems_task_set_priority (rtems_id id,
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  if (new_priority != RTEMS_CURRENT_PRIORITY)
-				{
-					_Thread_Set_priority (the_thread,
-										  _RTEMS_tasks_Priority_to_Core
-										  (new_priority), old_priority, false);
-					*old_priority =
-						_RTEMS_tasks_Priority_from_Core (*old_priority);
-				}
-			  else
-				{
-					*old_priority =
-						_RTEMS_tasks_Priority_from_Core (the_thread->
-														 current_priority);
-				}
-			  _Objects_Put (&the_thread->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			if (new_priority != RTEMS_CURRENT_PRIORITY)
+			{
+				_Thread_Set_priority (the_thread,
+									_RTEMS_tasks_Priority_to_Core
+									(new_priority), old_priority, false);
+				*old_priority =
+					_RTEMS_tasks_Priority_from_Core (*old_priority);
+			}
+			else
+			{
+				*old_priority =
+					_RTEMS_tasks_Priority_from_Core (the_thread->
+													 current_priority);
+			}
+			_Objects_Put (&the_thread->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Executing->Wait.return_argument = old_priority;
-			  return _RTEMS_tasks_MP_Send_request_packet (RTEMS_TASKS_MP_SET_PRIORITY_REQUEST, id, new_priority, 0,	/* Not used */
-														  0	/* Not used */
-				  );
+		case OBJECTS_REMOTE:
+			_Thread_Executing->Wait.return_argument = old_priority;
+			return _RTEMS_tasks_MP_Send_request_packet (RTEMS_TASKS_MP_SET_PRIORITY_REQUEST, id, new_priority, 0,	/* Not used */
+														0	/* Not used */
+				);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

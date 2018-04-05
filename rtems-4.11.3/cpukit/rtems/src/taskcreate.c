@@ -80,23 +80,23 @@ rtems_status_code rtems_task_create (rtems_name name,
 	 */
 
 	if (!_Attributes_Is_system_task (the_attribute_set))
-	  {
-		  if (!_RTEMS_tasks_Priority_is_valid (initial_priority))
-			  return RTEMS_INVALID_PRIORITY;
-	  }
+	{
+		if (!_RTEMS_tasks_Priority_is_valid (initial_priority))
+			return RTEMS_INVALID_PRIORITY;
+	}
 
 	core_priority = _RTEMS_tasks_Priority_to_Core (initial_priority);
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_Attributes_Is_global (the_attribute_set))
-	  {
+	{
 
-		  is_global = true;
+		is_global = true;
 
-		  if (!_System_state_Is_multiprocessing)
-			  return RTEMS_MP_NOT_CONFIGURED;
+		if (!_System_state_Is_multiprocessing)
+			return RTEMS_MP_NOT_CONFIGURED;
 
-	  }
+	}
 	else
 		is_global = false;
 #endif
@@ -118,23 +118,23 @@ rtems_status_code rtems_task_create (rtems_name name,
 	the_thread = _RTEMS_tasks_Allocate ();
 
 	if (!the_thread)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (is_global)
-	  {
-		  the_global_object = _Objects_MP_Allocate_global_object ();
+	{
+		the_global_object = _Objects_MP_Allocate_global_object ();
 
-		  if (_Objects_MP_Is_null_global_object (the_global_object))
-			{
-				_RTEMS_tasks_Free (the_thread);
-				_Objects_Allocator_unlock ();
-				return RTEMS_TOO_MANY;
-			}
-	  }
+		if (_Objects_MP_Is_null_global_object (the_global_object))
+		{
+			_RTEMS_tasks_Free (the_thread);
+			_Objects_Allocator_unlock ();
+			return RTEMS_TOO_MANY;
+		}
+	}
 #endif
 
 	/*
@@ -146,15 +146,15 @@ rtems_status_code rtems_task_create (rtems_name name,
 								 (Objects_Name) name);
 
 	if (!status)
-	  {
+	{
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (is_global)
-			  _Objects_MP_Free_global_object (the_global_object);
+		if (is_global)
+			_Objects_MP_Free_global_object (the_global_object);
 #endif
-		  _RTEMS_tasks_Free (the_thread);
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_UNSATISFIED;
-	  }
+		_RTEMS_tasks_Free (the_thread);
+		_Objects_Allocator_unlock ();
+		return RTEMS_UNSATISFIED;
+	}
 
 	api = the_thread->API_Extensions[THREAD_API_RTEMS];
 	asr = &api->Signal;
@@ -166,15 +166,15 @@ rtems_status_code rtems_task_create (rtems_name name,
 #if defined(RTEMS_MULTIPROCESSING)
 	the_thread->is_global = is_global;
 	if (is_global)
-	  {
+	{
 
-		  _Objects_MP_Open (&_RTEMS_tasks_Information,
+		_Objects_MP_Open (&_RTEMS_tasks_Information,
 							the_global_object, name, the_thread->Object.id);
 
-		  _RTEMS_tasks_MP_Send_process_packet (RTEMS_TASKS_MP_ANNOUNCE_CREATE,
-											   the_thread->Object.id, name);
+		_RTEMS_tasks_MP_Send_process_packet (RTEMS_TASKS_MP_ANNOUNCE_CREATE,
+											 the_thread->Object.id, name);
 
-	  }
+	}
 #endif
 
 	_Objects_Allocator_unlock ();

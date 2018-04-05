@@ -69,17 +69,17 @@ struct servent *getservbyname (const char *name, const char *proto)
 
 	setservent (_serv_stayopen);
 	while ((p = getservent ()))
-	  {
-		  if (strcmp (name, p->s_name) == 0)
-			  goto gotname;
-		  for (cp = p->s_aliases; *cp; cp++)
-			  if (strcmp (name, *cp) == 0)
-				  goto gotname;
-		  continue;
+	{
+		if (strcmp (name, p->s_name) == 0)
+			goto gotname;
+		for (cp = p->s_aliases; *cp; cp++)
+			if (strcmp (name, *cp) == 0)
+				goto gotname;
+		continue;
 		gotname:
-		  if (proto == 0 || strcmp (p->s_proto, proto) == 0)
-			  break;
-	  }
+		if (proto == 0 || strcmp (p->s_proto, proto) == 0)
+			break;
+	}
 	if (!_serv_stayopen)
 		endservent ();
 

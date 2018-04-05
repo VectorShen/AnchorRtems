@@ -53,10 +53,10 @@ rtems_monitor_config_canonical (rtems_monitor_config_t * canonical_config,
  */
 
 const void *rtems_monitor_config_next (void *object_info
-									   __attribute__ ((unused)),
-									   rtems_monitor_config_t * canonical_config
-									   __attribute__ ((unused)),
-									   rtems_id * next_id)
+									 __attribute__ ((unused)),
+									 rtems_monitor_config_t * canonical_config
+									 __attribute__ ((unused)),
+									 rtems_id * next_id)
 {
 	const rtems_configuration_table *c = &Configuration;
 	int n = rtems_object_id_get_index (*next_id);
@@ -85,7 +85,7 @@ INITIAL (startup) Configuration Info\n");
 
 int
 rtems_monitor_config_dump (rtems_monitor_config_t * monitor_config,
-						   bool verbose __attribute__ ((unused)))
+						 bool verbose __attribute__ ((unused)))
 {
 	int length = 0;
 
@@ -93,8 +93,8 @@ rtems_monitor_config_dump (rtems_monitor_config_t * monitor_config,
 	length += fprintf (stdout, "WORKSPACE");
 	length += rtems_monitor_pad (DATACOL, length);
 	length += fprintf (stdout, "start: %p;  size: 0x%" PRIx32 "\n",
-					   monitor_config->work_space_start,
-					   monitor_config->work_space_size);
+					 monitor_config->work_space_start,
+					 monitor_config->work_space_size);
 
 	length = 0;
 	length += fprintf (stdout, "TIME");

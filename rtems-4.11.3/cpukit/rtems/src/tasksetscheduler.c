@@ -26,34 +26,34 @@ rtems_status_code rtems_task_set_scheduler (rtems_id task_id,
 	const Scheduler_Control *scheduler;
 
 	if (_Scheduler_Get_by_id (scheduler_id, &scheduler))
-	  {
-		  Thread_Control *the_thread;
-		  Objects_Locations location;
+	{
+		Thread_Control *the_thread;
+		Objects_Locations location;
 
-		  the_thread = _Thread_Get (task_id, &location);
+		the_thread = _Thread_Get (task_id, &location);
 
-		  switch (location)
-			{
-				case OBJECTS_LOCAL:
-					_Scheduler_Set (scheduler, the_thread);
-					_Objects_Put (&the_thread->Object);
-					sc = RTEMS_SUCCESSFUL;
-					break;
+		switch (location)
+		{
+			case OBJECTS_LOCAL:
+				_Scheduler_Set (scheduler, the_thread);
+				_Objects_Put (&the_thread->Object);
+				sc = RTEMS_SUCCESSFUL;
+				break;
 #if defined(RTEMS_MULTIPROCESSING)
-				case OBJECTS_REMOTE:
-					_Thread_Dispatch ();
-					sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
-					break;
+			case OBJECTS_REMOTE:
+				_Thread_Dispatch ();
+				sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+				break;
 #endif
-				default:
-					sc = RTEMS_INVALID_ID;
-					break;
-			}
-	  }
+			default:
+				sc = RTEMS_INVALID_ID;
+				break;
+		}
+	}
 	else
-	  {
-		  sc = RTEMS_INVALID_ID;
-	  }
+	{
+		sc = RTEMS_INVALID_ID;
+	}
 
 	return sc;
 }

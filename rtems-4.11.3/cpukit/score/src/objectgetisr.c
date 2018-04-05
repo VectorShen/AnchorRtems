@@ -21,9 +21,9 @@
 #include <rtems/score/objectimpl.h>
 
 Objects_Control *_Objects_Get_isr_disable (Objects_Information * information,
-										   Objects_Id id,
-										   Objects_Locations * location,
-										   ISR_lock_Context * lock_context)
+										 Objects_Id id,
+										 Objects_Locations * location,
+										 ISR_lock_Context * lock_context)
 {
 	Objects_Control *the_object;
 	uint32_t index;
@@ -31,17 +31,17 @@ Objects_Control *_Objects_Get_isr_disable (Objects_Information * information,
 	index = id - information->minimum_id + 1;
 
 	if (information->maximum >= index)
-	  {
-		  _ISR_lock_ISR_disable (lock_context);
-		  if ((the_object = information->local_table[index]) != NULL)
-			{
-				*location = OBJECTS_LOCAL;
-				return the_object;
-			}
-		  _ISR_lock_ISR_enable (lock_context);
-		  *location = OBJECTS_ERROR;
-		  return NULL;
-	  }
+	{
+		_ISR_lock_ISR_disable (lock_context);
+		if ((the_object = information->local_table[index]) != NULL)
+		{
+			*location = OBJECTS_LOCAL;
+			return the_object;
+		}
+		_ISR_lock_ISR_enable (lock_context);
+		*location = OBJECTS_ERROR;
+		return NULL;
+	}
 	*location = OBJECTS_ERROR;
 
 #if defined(RTEMS_MULTIPROCESSING)

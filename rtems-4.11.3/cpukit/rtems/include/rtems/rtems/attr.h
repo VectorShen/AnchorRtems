@@ -42,7 +42,7 @@ extern "C"
  *  This defines the type used to contain Classic API attributes.  These
  *  are primarily used when creating objects.
  */
-	typedef uint32_t rtems_attribute;
+typedef uint32_t rtems_attribute;
 
 /** This is the default value for an attribute set. */
 

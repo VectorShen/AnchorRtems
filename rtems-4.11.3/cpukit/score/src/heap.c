@@ -123,7 +123,7 @@
 
 #ifdef HEAP_PROTECTION
 static void _Heap_Protection_block_initialize_default (Heap_Control * heap,
-													   Heap_Block * block)
+													 Heap_Block * block)
 {
 	block->Protection_begin.protector[0] = HEAP_BEGIN_PROTECTOR_0;
 	block->Protection_begin.protector[1] = HEAP_BEGIN_PROTECTOR_1;
@@ -135,19 +135,19 @@ static void _Heap_Protection_block_initialize_default (Heap_Control * heap,
 }
 
 static void _Heap_Protection_block_check_default (Heap_Control * heap,
-												  Heap_Block * block)
+												Heap_Block * block)
 {
 	if (block->Protection_begin.protector[0] != HEAP_BEGIN_PROTECTOR_0
 		|| block->Protection_begin.protector[1] != HEAP_BEGIN_PROTECTOR_1
 		|| block->Protection_end.protector[0] != HEAP_END_PROTECTOR_0
 		|| block->Protection_end.protector[1] != HEAP_END_PROTECTOR_1)
-	  {
-		  _Heap_Protection_block_error (heap, block);
-	  }
+	{
+		_Heap_Protection_block_error (heap, block);
+	}
 }
 
 static void _Heap_Protection_block_error_default (Heap_Control * heap,
-												  Heap_Block * block)
+												Heap_Block * block)
 {
 	/* FIXME */
 	_Terminate (INTERNAL_ERROR_CORE, false, 0xdeadbeef);
@@ -176,10 +176,10 @@ bool _Heap_Get_first_and_last_block (uintptr_t heap_area_begin,
 
 	if (heap_area_end < heap_area_begin
 		|| heap_area_size <= overhead || first_block_size < min_block_size)
-	  {
-		  /* Invalid area or area too small */
-		  return false;
-	  }
+	{
+		/* Invalid area or area too small */
+		return false;
+	}
 
 	*first_block_ptr = first_block;
 	*last_block_ptr = last_block;
@@ -203,31 +203,31 @@ uintptr_t _Heap_Initialize (Heap_Control * heap,
 	Heap_Block *last_block = NULL;
 
 	if (page_size == 0)
-	  {
-		  page_size = CPU_ALIGNMENT;
-	  }
+	{
+		page_size = CPU_ALIGNMENT;
+	}
 	else
-	  {
-		  page_size = _Heap_Align_up (page_size, CPU_ALIGNMENT);
+	{
+		page_size = _Heap_Align_up (page_size, CPU_ALIGNMENT);
 
-		  if (page_size < CPU_ALIGNMENT)
-			{
-				/* Integer overflow */
-				return 0;
-			}
-	  }
+		if (page_size < CPU_ALIGNMENT)
+		{
+			/* Integer overflow */
+			return 0;
+		}
+	}
 
 	min_block_size = _Heap_Min_block_size (page_size);
 
 	area_ok = _Heap_Get_first_and_last_block (heap_area_begin,
-											  heap_area_size,
-											  page_size,
-											  min_block_size,
-											  &first_block, &last_block);
+											heap_area_size,
+											page_size,
+											min_block_size,
+											&first_block, &last_block);
 	if (!area_ok)
-	  {
-		  return 0;
-	  }
+	{
+		return 0;
+	}
 
 	memset (heap, 0, sizeof (*heap));
 
@@ -277,17 +277,17 @@ uintptr_t _Heap_Initialize (Heap_Control * heap,
 	_HAssert (_Heap_Is_aligned (heap->page_size, CPU_ALIGNMENT));
 	_HAssert (_Heap_Is_aligned (heap->min_block_size, page_size));
 	_HAssert (_Heap_Is_aligned
-			  (_Heap_Alloc_area_of_block (first_block), page_size));
+			(_Heap_Alloc_area_of_block (first_block), page_size));
 	_HAssert (_Heap_Is_aligned
-			  (_Heap_Alloc_area_of_block (last_block), page_size));
+			(_Heap_Alloc_area_of_block (last_block), page_size));
 
 	return first_block_size;
 }
 
 static void _Heap_Block_split (Heap_Control * heap,
-							   Heap_Block * block,
-							   Heap_Block * free_list_anchor,
-							   uintptr_t alloc_size)
+							 Heap_Block * block,
+							 Heap_Block * free_list_anchor,
+							 uintptr_t alloc_size)
 {
 	Heap_Statistics *const stats = &heap->stats;
 
@@ -310,47 +310,47 @@ static void _Heap_Block_split (Heap_Control * heap,
 	_HAssert (used_size + free_size == block_size + HEAP_ALLOC_BONUS);
 
 	if (free_size >= free_size_limit)
-	  {
-		  Heap_Block *const free_block =
-			  _Heap_Block_at (block, used_block_size);
-		  uintptr_t free_block_size = block_size - used_block_size;
+	{
+		Heap_Block *const free_block =
+			_Heap_Block_at (block, used_block_size);
+		uintptr_t free_block_size = block_size - used_block_size;
 
-		  _HAssert (used_block_size + free_block_size == block_size);
+		_HAssert (used_block_size + free_block_size == block_size);
 
-		  _Heap_Block_set_size (block, used_block_size);
+		_Heap_Block_set_size (block, used_block_size);
 
-		  /* Statistics */
-		  stats->free_size += free_block_size;
+		/* Statistics */
+		stats->free_size += free_block_size;
 
-		  if (_Heap_Is_used (next_block))
-			{
-				_Heap_Free_list_insert_after (free_list_anchor, free_block);
+		if (_Heap_Is_used (next_block))
+		{
+			_Heap_Free_list_insert_after (free_list_anchor, free_block);
 
-				/* Statistics */
-				++stats->free_blocks;
-			}
-		  else
-			{
-				uintptr_t const next_block_size = _Heap_Block_size (next_block);
+			/* Statistics */
+			++stats->free_blocks;
+		}
+		else
+		{
+			uintptr_t const next_block_size = _Heap_Block_size (next_block);
 
-				_Heap_Free_list_replace (next_block, free_block);
+			_Heap_Free_list_replace (next_block, free_block);
 
-				free_block_size += next_block_size;
+			free_block_size += next_block_size;
 
-				next_block = _Heap_Block_at (free_block, free_block_size);
-			}
+			next_block = _Heap_Block_at (free_block, free_block_size);
+		}
 
-		  free_block->size_and_flag = free_block_size | HEAP_PREV_BLOCK_USED;
+		free_block->size_and_flag = free_block_size | HEAP_PREV_BLOCK_USED;
 
-		  next_block->prev_size = free_block_size;
-		  next_block->size_and_flag &= ~HEAP_PREV_BLOCK_USED;
+		next_block->prev_size = free_block_size;
+		next_block->size_and_flag &= ~HEAP_PREV_BLOCK_USED;
 
-		  _Heap_Protection_block_initialize (heap, free_block);
-	  }
+		_Heap_Protection_block_initialize (heap, free_block);
+	}
 	else
-	  {
-		  next_block->size_and_flag |= HEAP_PREV_BLOCK_USED;
-	  }
+	{
+		next_block->size_and_flag |= HEAP_PREV_BLOCK_USED;
+	}
 }
 
 static Heap_Block *_Heap_Block_allocate_from_begin (Heap_Control * heap,
@@ -365,10 +365,10 @@ static Heap_Block *_Heap_Block_allocate_from_begin (Heap_Control * heap,
 }
 
 static Heap_Block *_Heap_Block_allocate_from_end (Heap_Control * heap,
-												  Heap_Block * block,
-												  Heap_Block * free_list_anchor,
-												  uintptr_t alloc_begin,
-												  uintptr_t alloc_size)
+												Heap_Block * block,
+												Heap_Block * free_list_anchor,
+												uintptr_t alloc_begin,
+												uintptr_t alloc_size)
 {
 	Heap_Statistics *const stats = &heap->stats;
 
@@ -391,22 +391,22 @@ static Heap_Block *_Heap_Block_allocate_from_end (Heap_Control * heap,
 	stats->free_size += block_size;
 
 	if (_Heap_Is_prev_used (block))
-	  {
-		  _Heap_Free_list_insert_after (free_list_anchor, block);
+	{
+		_Heap_Free_list_insert_after (free_list_anchor, block);
 
-		  free_list_anchor = block;
+		free_list_anchor = block;
 
-		  /* Statistics */
-		  ++stats->free_blocks;
-	  }
+		/* Statistics */
+		++stats->free_blocks;
+	}
 	else
-	  {
-		  Heap_Block *const prev_block = _Heap_Prev_block (block);
-		  uintptr_t const prev_block_size = _Heap_Block_size (prev_block);
+	{
+		Heap_Block *const prev_block = _Heap_Prev_block (block);
+		uintptr_t const prev_block_size = _Heap_Block_size (prev_block);
 
-		  block = prev_block;
-		  block_size += prev_block_size;
-	  }
+		block = prev_block;
+		block_size += prev_block_size;
+	}
 
 	block->size_and_flag = block_size | HEAP_PREV_BLOCK_USED;
 
@@ -419,8 +419,8 @@ static Heap_Block *_Heap_Block_allocate_from_end (Heap_Control * heap,
 }
 
 Heap_Block *_Heap_Block_allocate (Heap_Control * heap,
-								  Heap_Block * block,
-								  uintptr_t alloc_begin, uintptr_t alloc_size)
+								Heap_Block * block,
+								uintptr_t alloc_begin, uintptr_t alloc_size)
 {
 	Heap_Statistics *const stats = &heap->stats;
 
@@ -432,43 +432,43 @@ Heap_Block *_Heap_Block_allocate (Heap_Control * heap,
 	_HAssert (alloc_area_begin <= alloc_begin);
 
 	if (_Heap_Is_free (block))
-	  {
-		  free_list_anchor = block->prev;
+	{
+		free_list_anchor = block->prev;
 
-		  _Heap_Free_list_remove (block);
+		_Heap_Free_list_remove (block);
 
-		  /* Statistics */
-		  --stats->free_blocks;
-		  ++stats->used_blocks;
-		  stats->free_size -= _Heap_Block_size (block);
-	  }
+		/* Statistics */
+		--stats->free_blocks;
+		++stats->used_blocks;
+		stats->free_size -= _Heap_Block_size (block);
+	}
 	else
-	  {
-		  free_list_anchor = _Heap_Free_list_head (heap);
-	  }
+	{
+		free_list_anchor = _Heap_Free_list_head (heap);
+	}
 
 	if (alloc_area_offset < heap->page_size)
-	  {
-		  alloc_size += alloc_area_offset;
+	{
+		alloc_size += alloc_area_offset;
 
-		  block = _Heap_Block_allocate_from_begin (heap,
-												   block,
-												   free_list_anchor,
-												   alloc_size);
-	  }
+		block = _Heap_Block_allocate_from_begin (heap,
+												 block,
+												 free_list_anchor,
+												 alloc_size);
+	}
 	else
-	  {
-		  block = _Heap_Block_allocate_from_end (heap,
+	{
+		block = _Heap_Block_allocate_from_end (heap,
 												 block,
 												 free_list_anchor,
 												 alloc_begin, alloc_size);
-	  }
+	}
 
 	/* Statistics */
 	if (stats->min_free_size > stats->free_size)
-	  {
-		  stats->min_free_size = stats->free_size;
-	  }
+	{
+		stats->min_free_size = stats->free_size;
+	}
 
 	_Heap_Protection_block_initialize (heap, block);
 

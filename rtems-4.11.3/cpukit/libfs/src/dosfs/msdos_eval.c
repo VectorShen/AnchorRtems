@@ -66,45 +66,46 @@ static bool msdos_is_directory (rtems_filesystem_eval_path_context_t * ctx,
 
 static rtems_filesystem_eval_path_generic_status
 msdos_eval_token (rtems_filesystem_eval_path_context_t * ctx, void *arg,
-				  const char *token, size_t tokenlen)
+				const char *token, size_t tokenlen)
 {
 	rtems_filesystem_eval_path_generic_status status =
 		RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_DONE;
 
 	if (rtems_filesystem_is_current_directory (token, tokenlen))
-	  {
-		  rtems_filesystem_eval_path_clear_token (ctx);
-		  status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
-	  }
+	{
+		rtems_filesystem_eval_path_clear_token (ctx);
+		status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
+	}
 	else
-	  {
-		  rtems_filesystem_location_info_t *currentloc =
-			  rtems_filesystem_eval_path_get_currentloc (ctx);
-		  int rc = msdos_find_name (currentloc, token, tokenlen);
+	{
+		rtems_filesystem_location_info_t *currentloc =
+			rtems_filesystem_eval_path_get_currentloc (ctx);
+		int rc = msdos_find_name (currentloc, token, tokenlen);
 
-		  if (rc == RC_OK)
+		if (rc == RC_OK)
+		{
+			rtems_filesystem_eval_path_clear_token (ctx);
+			msdos_set_handlers (currentloc);
+			if (rtems_filesystem_eval_path_has_path (ctx))
 			{
-				rtems_filesystem_eval_path_clear_token (ctx);
-				msdos_set_handlers (currentloc);
-				if (rtems_filesystem_eval_path_has_path (ctx))
-				  {
-					  status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
-				  }
+				status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
 			}
-		  else if (rc == MSDOS_NAME_NOT_FOUND_ERR)
-			{
-				status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_NO_ENTRY;
-			}
-		  else
-			{
-				rtems_filesystem_eval_path_error (ctx, 0);
-			}
-	  }
+		}
+		else if (rc == MSDOS_NAME_NOT_FOUND_ERR)
+		{
+			status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_NO_ENTRY;
+		}
+		else
+		{
+			rtems_filesystem_eval_path_error (ctx, 0);
+		}
+	}
 
 	return status;
 }
 
-static const rtems_filesystem_eval_path_generic_config msdos_eval_config = {
+static const rtems_filesystem_eval_path_generic_config msdos_eval_config =
+{
 	.is_directory = msdos_is_directory,
 	.eval_token = msdos_eval_token
 };

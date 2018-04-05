@@ -49,9 +49,9 @@ void _ARMV7M_Interrupt_service_leave (void)
 	 * dispatch is allowed.
 	 */
 	if (cpu_self->dispatch_necessary)
-	  {
-		  _ARMV7M_SCB->icsr = ARMV7M_SCB_ICSR_PENDSVSET;
-	  }
+	{
+		_ARMV7M_SCB->icsr = ARMV7M_SCB_ICSR_PENDSVSET;
+	}
 }
 
 #endif /* ARM_MULTILIB_ARCH_V7M */

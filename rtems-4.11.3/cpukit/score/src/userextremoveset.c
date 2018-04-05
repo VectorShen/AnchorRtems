@@ -31,11 +31,11 @@ void _User_extensions_Remove_set (User_extensions_Control * the_extension)
 	 */
 
 	if (the_extension->Callouts.thread_switch != NULL)
-	  {
-		  ISR_Level level;
+	{
+		ISR_Level level;
 
-		  _Per_CPU_Acquire_all (level);
-		  _Chain_Extract_unprotected (&the_extension->Switch.Node);
-		  _Per_CPU_Release_all (level);
-	  }
+		_Per_CPU_Acquire_all (level);
+		_Chain_Extract_unprotected (&the_extension->Switch.Node);
+		_Per_CPU_Release_all (level);
+	}
 }

@@ -35,54 +35,54 @@ extern "C"
 #ifdef CONFIGURE_INIT
 
 /*
- * fallback for baud rate to use
- */
+* fallback for baud rate to use
+*/
 #ifndef CONFIGURE_SERDBG_BAUDRATE
 #define CONFIGURE_SERDBG_BAUDRATE 9600
 #endif
 
 /*
- * fallback for device name to use
- */
+* fallback for device name to use
+*/
 #ifndef CONFIGURE_SERDBG_DEVNAME
 #define CONFIGURE_SERDBG_DEVNAME "/dev/tty01"
 #endif
 
 /*
- * fill in serdbg_conf structure
- */
-	serdbg_conf_t serdbg_conf = {
-		CONFIGURE_SERDBG_BAUDRATE,
+* fill in serdbg_conf structure
+*/
+serdbg_conf_t serdbg_conf = {
+	CONFIGURE_SERDBG_BAUDRATE,
 
 #ifdef CONFIGURE_SERDBG_CALLOUT
-		CONFIGURE_SERDBG_CALLOUT,
+	CONFIGURE_SERDBG_CALLOUT,
 #else
-		NULL,
+	NULL,
 #endif
 
 #ifdef CONFIGURE_SERDBG_USE_POLLED_TERMIOS
-		serdbg_open,
+	serdbg_open,
 #else
-		NULL,
+	NULL,
 #endif
 
-		CONFIGURE_SERDBG_DEVNAME,
+	CONFIGURE_SERDBG_DEVNAME,
 
 #ifdef CONFIGURE_SERDBG_SKIP_INIT_BKPT
-		true,
+	true,
 #else
-		false,
+	false,
 #endif
-	};
+};
 
-	int serdbg_init (void)
-	{
+int serdbg_init (void)
+{
 #ifdef CONFIGURE_USE_SERDBG
-		return serdbg_init_dbg ();
+	return serdbg_init_dbg ();
 #else
-		return 0;
+	return 0;
 #endif
-	}
+}
 
 #endif /* CONFIGURE_INIT */
 

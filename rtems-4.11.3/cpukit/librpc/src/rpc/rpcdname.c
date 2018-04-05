@@ -58,13 +58,13 @@ static char *get_default_domain (void)
 	if (getdomainname (temp, sizeof (temp)) < 0)
 		return (0);
 	if (strlen (temp) > 0)
-	  {
-		  default_domain = (char *)malloc ((strlen (temp) + (size_t) 1));
-		  if (default_domain == 0)
-			  return (0);
-		  (void)strcpy (default_domain, temp);
-		  return (default_domain);
-	  }
+	{
+		default_domain = (char *)malloc ((strlen (temp) + (size_t) 1));
+		if (default_domain == 0)
+			return (0);
+		(void)strcpy (default_domain, temp);
+		return (default_domain);
+	}
 	return (0);
 }
 

@@ -104,7 +104,8 @@ static uint32_t dummy_get_timecount (struct timecounter *tc)
 #endif /* __rtems__ */
 }
 
-static struct timecounter dummy_timecounter = {
+static struct timecounter dummy_timecounter =
+{
 	dummy_get_timecount, 0, ~0u, 1000000, "dummy", -1000000
 };
 
@@ -148,7 +149,8 @@ static struct timehands th2 =
 static struct timehands th1 =
 	{ NULL, 0, 0, 0, {0, 0}, {0, 0}, {0, 0}, 0, &th2 };
 #endif
-static struct timehands th0 = {
+static struct timehands th0 =
+{
 	&dummy_timecounter,
 	0,
 	(uint64_t) - 1 / 1000000,
@@ -219,11 +221,11 @@ static int sysctl_kern_boottime (SYSCTL_HANDLER_ARGS)
 	int tv[2];
 
 	if (req->flags & SCTL_MASK32)
-	  {
-		  tv[0] = boottime.tv_sec;
-		  tv[1] = boottime.tv_usec;
-		  return SYSCTL_OUT (req, tv, sizeof (tv));
-	  }
+	{
+		tv[0] = boottime.tv_sec;
+		tv[1] = boottime.tv_usec;
+		return SYSCTL_OUT (req, tv, sizeof (tv));
+	}
 	else
 #endif
 #endif
@@ -308,12 +310,12 @@ void fbclock_binuptime (struct bintime *bt)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-		  bintime_addx (bt, th->th_scale * tc_delta (th));
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+		bintime_addx (bt, th->th_scale * tc_delta (th));
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -362,11 +364,11 @@ void fbclock_getbinuptime (struct bintime *bt)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -376,11 +378,11 @@ void fbclock_getnanouptime (struct timespec *tsp)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  bintime2timespec (&th->th_offset, tsp);
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		bintime2timespec (&th->th_offset, tsp);
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -390,11 +392,11 @@ void fbclock_getmicrouptime (struct timeval *tvp)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  bintime2timeval (&th->th_offset, tvp);
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		bintime2timeval (&th->th_offset, tvp);
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -404,11 +406,11 @@ void fbclock_getbintime (struct bintime *bt)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 	bintime_add (bt, &boottimebin);
 }
@@ -419,11 +421,11 @@ void fbclock_getnanotime (struct timespec *tsp)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *tsp = th->th_nanotime;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*tsp = th->th_nanotime;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -433,11 +435,11 @@ void fbclock_getmicrotime (struct timeval *tvp)
 	unsigned int gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *tvp = th->th_microtime;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*tvp = th->th_microtime;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 #else /* !FFCLOCK */
@@ -447,12 +449,12 @@ void binuptime (struct bintime *bt)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-		  bintime_addx (bt, th->th_scale * tc_delta (th));
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+		bintime_addx (bt, th->th_scale * tc_delta (th));
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -501,11 +503,11 @@ void getbinuptime (struct bintime *bt)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -515,11 +517,11 @@ void getnanouptime (struct timespec *tsp)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  bintime2timespec (&th->th_offset, tsp);
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		bintime2timespec (&th->th_offset, tsp);
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -529,11 +531,11 @@ void getmicrouptime (struct timeval *tvp)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  bintime2timeval (&th->th_offset, tvp);
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		bintime2timeval (&th->th_offset, tvp);
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -543,11 +545,11 @@ void getbintime (struct bintime *bt)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *bt = th->th_offset;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*bt = th->th_offset;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 	bintime_add (bt, &boottimebin);
 }
@@ -558,11 +560,11 @@ void getnanotime (struct timespec *tsp)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *tsp = th->th_nanotime;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*tsp = th->th_nanotime;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 
@@ -572,11 +574,11 @@ void getmicrotime (struct timeval *tvp)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *tvp = th->th_microtime;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*tvp = th->th_microtime;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 #endif /* FFCLOCK */
@@ -681,17 +683,17 @@ ffclock_convert_delta (ffcounter ffdelta, uint64_t period, struct bintime *bt)
 	delta_max = (1ULL << (8 * sizeof (unsigned int))) - 1;
 	bintime_clear (bt);
 	do
-	  {
-		  if (ffdelta > delta_max)
-			  delta = delta_max;
-		  else
-			  delta = ffdelta;
-		  bt2.sec = 0;
-		  bt2.frac = period;
-		  bintime_mul (&bt2, (unsigned int)delta);
-		  bintime_add (bt, &bt2);
-		  ffdelta -= delta;
-	  }
+	{
+		if (ffdelta > delta_max)
+			delta = delta_max;
+		else
+			delta = ffdelta;
+		bt2.sec = 0;
+		bt2.frac = period;
+		bintime_mul (&bt2, (unsigned int)delta);
+		bintime_add (bt, &bt2);
+		ffdelta -= delta;
+	}
 	while (ffdelta > 0);
 }
 
@@ -742,12 +744,12 @@ static void ffclock_windup (unsigned int delta)
 	 * running.
 	 */
 	if (ffclock_updated == 0)
-	  {
-		  ffdelta = ffth->tick_ffcount - cest->update_ffcount;
-		  ffclock_convert_delta (ffdelta, cest->period, &bt);
-		  if (bt.sec > 2 * FFCLOCK_SKM_SCALE)
-			  ffclock_status |= FFCLOCK_STA_UNSYNC;
-	  }
+	{
+		ffdelta = ffth->tick_ffcount - cest->update_ffcount;
+		ffclock_convert_delta (ffdelta, cest->period, &bt);
+		if (bt.sec > 2 * FFCLOCK_SKM_SCALE)
+			ffclock_status |= FFCLOCK_STA_UNSYNC;
+	}
 
 	/*
 	 * If available, grab updated clock estimates and make them current.
@@ -759,93 +761,93 @@ static void ffclock_windup (unsigned int delta)
 	 * clock ids requesting it.
 	 */
 	if (ffclock_updated > 0)
-	  {
-		  bcopy (&ffclock_estimate, cest, sizeof (struct ffclock_estimate));
-		  ffdelta = ffth->tick_ffcount - cest->update_ffcount;
-		  ffth->tick_time = cest->update_time;
-		  ffclock_convert_delta (ffdelta, cest->period, &bt);
-		  bintime_add (&ffth->tick_time, &bt);
+	{
+		bcopy (&ffclock_estimate, cest, sizeof (struct ffclock_estimate));
+		ffdelta = ffth->tick_ffcount - cest->update_ffcount;
+		ffth->tick_time = cest->update_time;
+		ffclock_convert_delta (ffdelta, cest->period, &bt);
+		bintime_add (&ffth->tick_time, &bt);
 
-		  /* ffclock_reset sets ffclock_updated to INT8_MAX */
-		  if (ffclock_updated == INT8_MAX)
-			  ffth->tick_time_lerp = ffth->tick_time;
+		/* ffclock_reset sets ffclock_updated to INT8_MAX */
+		if (ffclock_updated == INT8_MAX)
+			ffth->tick_time_lerp = ffth->tick_time;
 
-		  if (bintime_cmp (&ffth->tick_time, &ffth->tick_time_lerp, >))
-			  forward_jump = 1;
-		  else
-			  forward_jump = 0;
+		if (bintime_cmp (&ffth->tick_time, &ffth->tick_time_lerp, >))
+			forward_jump = 1;
+		else
+			forward_jump = 0;
 
-		  bintime_clear (&gap_lerp);
-		  if (forward_jump)
+		bintime_clear (&gap_lerp);
+		if (forward_jump)
+		{
+			gap_lerp = ffth->tick_time;
+			bintime_sub (&gap_lerp, &ffth->tick_time_lerp);
+		}
+		else
+		{
+			gap_lerp = ffth->tick_time_lerp;
+			bintime_sub (&gap_lerp, &ffth->tick_time);
+		}
+
+		/*
+		 * The reset from the RTC clock may be far from accurate, and
+		 * reducing the gap between real time and interpolated time
+		 * could take a very long time if the interpolated clock insists
+		 * on strict monotonicity. The clock is reset under very strict
+		 * conditions (kernel time is known to be wrong and
+		 * synchronization daemon has been restarted recently.
+		 * ffclock_boottime absorbs the jump to ensure boot time is
+		 * correct and uptime functions stay consistent.
+		 */
+		if (((ffclock_status & FFCLOCK_STA_UNSYNC) == FFCLOCK_STA_UNSYNC) &&
+			((cest->status & FFCLOCK_STA_UNSYNC) == 0) &&
+			((cest->status & FFCLOCK_STA_WARMUP) == FFCLOCK_STA_WARMUP))
+		{
+			if (forward_jump)
+				bintime_add (&ffclock_boottime, &gap_lerp);
+			else
+				bintime_sub (&ffclock_boottime, &gap_lerp);
+			ffth->tick_time_lerp = ffth->tick_time;
+			bintime_clear (&gap_lerp);
+		}
+
+		ffclock_status = cest->status;
+		ffth->period_lerp = cest->period;
+
+		/*
+		 * Compute corrected period used for the linear interpolation of
+		 * time. The rate of linear interpolation is capped to 5000PPM
+		 * (5ms/s).
+		 */
+		if (bintime_isset (&gap_lerp))
+		{
+			ffdelta = cest->update_ffcount;
+			ffdelta -= fftimehands->cest.update_ffcount;
+			ffclock_convert_delta (ffdelta, cest->period, &bt);
+			polling = bt.sec;
+			bt.sec = 0;
+			bt.frac = 5000000 * (uint64_t) 18446744073LL;
+			bintime_mul (&bt, polling);
+			if (bintime_cmp (&gap_lerp, &bt, >))
+				gap_lerp = bt;
+
+			/* Approximate 1 sec by 1-(1/2^64) to ease arithmetic */
+			frac = 0;
+			if (gap_lerp.sec > 0)
 			{
-				gap_lerp = ffth->tick_time;
-				bintime_sub (&gap_lerp, &ffth->tick_time_lerp);
+				frac -= 1;
+				frac /= ffdelta / gap_lerp.sec;
 			}
-		  else
-			{
-				gap_lerp = ffth->tick_time_lerp;
-				bintime_sub (&gap_lerp, &ffth->tick_time);
-			}
+			frac += gap_lerp.frac / ffdelta;
 
-		  /*
-		   * The reset from the RTC clock may be far from accurate, and
-		   * reducing the gap between real time and interpolated time
-		   * could take a very long time if the interpolated clock insists
-		   * on strict monotonicity. The clock is reset under very strict
-		   * conditions (kernel time is known to be wrong and
-		   * synchronization daemon has been restarted recently.
-		   * ffclock_boottime absorbs the jump to ensure boot time is
-		   * correct and uptime functions stay consistent.
-		   */
-		  if (((ffclock_status & FFCLOCK_STA_UNSYNC) == FFCLOCK_STA_UNSYNC) &&
-			  ((cest->status & FFCLOCK_STA_UNSYNC) == 0) &&
-			  ((cest->status & FFCLOCK_STA_WARMUP) == FFCLOCK_STA_WARMUP))
-			{
-				if (forward_jump)
-					bintime_add (&ffclock_boottime, &gap_lerp);
-				else
-					bintime_sub (&ffclock_boottime, &gap_lerp);
-				ffth->tick_time_lerp = ffth->tick_time;
-				bintime_clear (&gap_lerp);
-			}
+			if (forward_jump)
+				ffth->period_lerp += frac;
+			else
+				ffth->period_lerp -= frac;
+		}
 
-		  ffclock_status = cest->status;
-		  ffth->period_lerp = cest->period;
-
-		  /*
-		   * Compute corrected period used for the linear interpolation of
-		   * time. The rate of linear interpolation is capped to 5000PPM
-		   * (5ms/s).
-		   */
-		  if (bintime_isset (&gap_lerp))
-			{
-				ffdelta = cest->update_ffcount;
-				ffdelta -= fftimehands->cest.update_ffcount;
-				ffclock_convert_delta (ffdelta, cest->period, &bt);
-				polling = bt.sec;
-				bt.sec = 0;
-				bt.frac = 5000000 * (uint64_t) 18446744073LL;
-				bintime_mul (&bt, polling);
-				if (bintime_cmp (&gap_lerp, &bt, >))
-					gap_lerp = bt;
-
-				/* Approximate 1 sec by 1-(1/2^64) to ease arithmetic */
-				frac = 0;
-				if (gap_lerp.sec > 0)
-				  {
-					  frac -= 1;
-					  frac /= ffdelta / gap_lerp.sec;
-				  }
-				frac += gap_lerp.frac / ffdelta;
-
-				if (forward_jump)
-					ffth->period_lerp += frac;
-				else
-					ffth->period_lerp -= frac;
-			}
-
-		  ffclock_updated = 0;
-	  }
+		ffclock_updated = 0;
+	}
 	if (++ogen == 0)
 		ogen = 1;
 	ffth->gen = ogen;
@@ -908,15 +910,15 @@ void ffclock_last_tick (ffcounter * ffcount, struct bintime *bt, uint32_t flags)
 	 * sure ffdelta is positive, i.e. ffcount > tick_ffcount.
 	 */
 	do
-	  {
-		  ffth = fftimehands;
-		  gen = ffth->gen;
-		  if ((flags & FFCLOCK_LERP) == FFCLOCK_LERP)
-			  *bt = ffth->tick_time_lerp;
-		  else
-			  *bt = ffth->tick_time;
-		  *ffcount = ffth->tick_ffcount;
-	  }
+	{
+		ffth = fftimehands;
+		gen = ffth->gen;
+		if ((flags & FFCLOCK_LERP) == FFCLOCK_LERP)
+			*bt = ffth->tick_time_lerp;
+		else
+			*bt = ffth->tick_time;
+		*ffcount = ffth->tick_ffcount;
+	}
 	while (gen == 0 || gen != ffth->gen);
 }
 
@@ -939,30 +941,30 @@ void ffclock_convert_abs (ffcounter ffcount, struct bintime *bt, uint32_t flags)
 	 * sure ffdelta is positive, i.e. ffcount > tick_ffcount.
 	 */
 	do
-	  {
-		  ffth = fftimehands;
-		  gen = ffth->gen;
-		  if (ffcount > ffth->tick_ffcount)
-			  ffdelta = ffcount - ffth->tick_ffcount;
-		  else
-			  ffdelta = ffth->tick_ffcount - ffcount;
+	{
+		ffth = fftimehands;
+		gen = ffth->gen;
+		if (ffcount > ffth->tick_ffcount)
+			ffdelta = ffcount - ffth->tick_ffcount;
+		else
+			ffdelta = ffth->tick_ffcount - ffcount;
 
-		  if ((flags & FFCLOCK_LERP) == FFCLOCK_LERP)
-			{
-				*bt = ffth->tick_time_lerp;
-				ffclock_convert_delta (ffdelta, ffth->period_lerp, &bt2);
-			}
-		  else
-			{
-				*bt = ffth->tick_time;
-				ffclock_convert_delta (ffdelta, ffth->cest.period, &bt2);
-			}
+		if ((flags & FFCLOCK_LERP) == FFCLOCK_LERP)
+		{
+			*bt = ffth->tick_time_lerp;
+			ffclock_convert_delta (ffdelta, ffth->period_lerp, &bt2);
+		}
+		else
+		{
+			*bt = ffth->tick_time;
+			ffclock_convert_delta (ffdelta, ffth->cest.period, &bt2);
+		}
 
-		  if (ffcount > ffth->tick_ffcount)
-			  bintime_add (bt, &bt2);
-		  else
-			  bintime_sub (bt, &bt2);
-	  }
+		if (ffcount > ffth->tick_ffcount)
+			bintime_add (bt, &bt2);
+		else
+			bintime_sub (bt, &bt2);
+	}
 	while (gen == 0 || gen != ffth->gen);
 }
 
@@ -979,11 +981,11 @@ void ffclock_convert_diff (ffcounter ffdelta, struct bintime *bt)
 
 	/* No locking but check generation has not changed. */
 	do
-	  {
-		  ffth = fftimehands;
-		  gen = ffth->gen;
-		  ffclock_convert_delta (ffdelta, ffth->cest.period, bt);
-	  }
+	{
+		ffth = fftimehands;
+		gen = ffth->gen;
+		ffclock_convert_delta (ffdelta, ffth->cest.period, bt);
+	}
 	while (gen == 0 || gen != ffth->gen);
 }
 
@@ -1001,13 +1003,13 @@ void ffclock_read_counter (ffcounter * ffcount)
 	 * th->th_generation only, for correct delta and ffcounter.
 	 */
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  ffth = fftimehands;
-		  delta = tc_delta (th);
-		  *ffcount = ffth->tick_ffcount;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		ffth = fftimehands;
+		delta = tc_delta (th);
+		*ffcount = ffth->tick_ffcount;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 
 	*ffcount += delta;
@@ -1099,11 +1101,11 @@ void dtrace_getnanotime (struct timespec *tsp)
 	uint32_t gen;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  *tsp = th->th_nanotime;
-	  }
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		*tsp = th->th_nanotime;
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 }
 #endif /* __rtems__ */
@@ -1144,23 +1146,23 @@ void sysclock_getsnapshot (struct sysclock_snap *clock_snap, int fast)
 	delta = 0;
 
 	do
-	  {
-		  th = timehands;
-		  gen = tc_getgen (th);
-		  fbi->th_scale = th->th_scale;
-		  fbi->tick_time = th->th_offset;
+	{
+		th = timehands;
+		gen = tc_getgen (th);
+		fbi->th_scale = th->th_scale;
+		fbi->tick_time = th->th_offset;
 #ifdef FFCLOCK
-		  ffth = fftimehands;
-		  ffi->tick_time = ffth->tick_time_lerp;
-		  ffi->tick_time_lerp = ffth->tick_time_lerp;
-		  ffi->period = ffth->cest.period;
-		  ffi->period_lerp = ffth->period_lerp;
-		  clock_snap->ffcount = ffth->tick_ffcount;
-		  cest = ffth->cest;
+		ffth = fftimehands;
+		ffi->tick_time = ffth->tick_time_lerp;
+		ffi->tick_time_lerp = ffth->tick_time_lerp;
+		ffi->period = ffth->cest.period;
+		ffi->period_lerp = ffth->period_lerp;
+		clock_snap->ffcount = ffth->tick_ffcount;
+		cest = ffth->cest;
 #endif
-		  if (!fast)
-			  delta = tc_delta (th);
-	  }
+		if (!fast)
+			delta = tc_delta (th);
+	}
 	while (gen == 0 || gen != tc_getgen (th));
 
 	clock_snap->delta = delta;
@@ -1203,7 +1205,7 @@ void sysclock_getsnapshot (struct sysclock_snap *clock_snap, int fast)
  */
 int
 sysclock_snap2bintime (struct sysclock_snap *cs, struct bintime *bt,
-					   int whichclock, uint32_t flags)
+					 int whichclock, uint32_t flags)
 {
 #ifdef FFCLOCK
 	struct bintime bt2;
@@ -1211,50 +1213,50 @@ sysclock_snap2bintime (struct sysclock_snap *cs, struct bintime *bt,
 #endif
 
 	switch (whichclock)
-	  {
-		  case SYSCLOCK_FBCK:
-			  *bt = cs->fb_info.tick_time;
+	{
+		case SYSCLOCK_FBCK:
+			*bt = cs->fb_info.tick_time;
 
-			  /* If snapshot was created with !fast, delta will be >0. */
-			  if (cs->delta > 0)
-				  bintime_addx (bt, cs->fb_info.th_scale * cs->delta);
+			/* If snapshot was created with !fast, delta will be >0. */
+			if (cs->delta > 0)
+				bintime_addx (bt, cs->fb_info.th_scale * cs->delta);
 
-			  if ((flags & FBCLOCK_UPTIME) == 0)
-				  bintime_add (bt, &boottimebin);
-			  break;
+			if ((flags & FBCLOCK_UPTIME) == 0)
+				bintime_add (bt, &boottimebin);
+			break;
 #ifdef FFCLOCK
-		  case SYSCLOCK_FFWD:
-			  if (flags & FFCLOCK_LERP)
-				{
-					*bt = cs->ff_info.tick_time_lerp;
-					period = cs->ff_info.period_lerp;
-				}
-			  else
-				{
-					*bt = cs->ff_info.tick_time;
-					period = cs->ff_info.period;
-				}
+		case SYSCLOCK_FFWD:
+			if (flags & FFCLOCK_LERP)
+			{
+				*bt = cs->ff_info.tick_time_lerp;
+				period = cs->ff_info.period_lerp;
+			}
+			else
+			{
+				*bt = cs->ff_info.tick_time;
+				period = cs->ff_info.period;
+			}
 
-			  /* If snapshot was created with !fast, delta will be >0. */
-			  if (cs->delta > 0)
-				{
-					ffclock_convert_delta (cs->delta, period, &bt2);
-					bintime_add (bt, &bt2);
-				}
+			/* If snapshot was created with !fast, delta will be >0. */
+			if (cs->delta > 0)
+			{
+				ffclock_convert_delta (cs->delta, period, &bt2);
+				bintime_add (bt, &bt2);
+			}
 
-			  /* Leap second adjustment. */
-			  if (flags & FFCLOCK_LEAPSEC)
-				  bt->sec -= cs->ff_info.leapsec_adjustment;
+			/* Leap second adjustment. */
+			if (flags & FFCLOCK_LEAPSEC)
+				bt->sec -= cs->ff_info.leapsec_adjustment;
 
-			  /* Boot time adjustment, for uptime/monotonic clocks. */
-			  if (flags & FFCLOCK_UPTIME)
-				  bintime_sub (bt, &ffclock_boottime);
-			  break;
+			/* Boot time adjustment, for uptime/monotonic clocks. */
+			if (flags & FFCLOCK_UPTIME)
+				bintime_sub (bt, &ffclock_boottime);
+			break;
 #endif
-		  default:
-			  return (EINVAL);
-			  break;
-	  }
+		default:
+			return (EINVAL);
+			break;
+	}
 
 	return (0);
 }
@@ -1274,20 +1276,20 @@ void tc_init (struct timecounter *tc)
 	u *= 11;
 	u /= 10;
 	if (u > hz && tc->tc_quality >= 0)
-	  {
-		  tc->tc_quality = -2000;
-		  if (bootverbose)
-			{
-				printf ("Timecounter \"%s\" frequency %ju Hz",
-						tc->tc_name, (uintmax_t) tc->tc_frequency);
-				printf (" -- Insufficient hz, needs at least %u\n", u);
-			}
-	  }
+	{
+		tc->tc_quality = -2000;
+		if (bootverbose)
+		{
+			printf ("Timecounter \"%s\" frequency %ju Hz",
+					tc->tc_name, (uintmax_t) tc->tc_frequency);
+			printf (" -- Insufficient hz, needs at least %u\n", u);
+		}
+	}
 	else if (tc->tc_quality >= 0 || bootverbose)
-	  {
-		  printf ("Timecounter \"%s\" frequency %ju Hz quality %d\n",
-				  tc->tc_name, (uintmax_t) tc->tc_frequency, tc->tc_quality);
-	  }
+	{
+		printf ("Timecounter \"%s\" frequency %ju Hz quality %d\n",
+				tc->tc_name, (uintmax_t) tc->tc_frequency, tc->tc_quality);
+	}
 #endif /* __rtems__ */
 
 	tc->tc_next = timecounters;
@@ -1297,9 +1299,9 @@ void tc_init (struct timecounter *tc)
 	 * Set up sysctl tree for this counter.
 	 */
 	tc_root = SYSCTL_ADD_NODE (NULL,
-							   SYSCTL_STATIC_CHILDREN (_kern_timecounter_tc),
-							   OID_AUTO, tc->tc_name, CTLFLAG_RW, 0,
-							   "timecounter description");
+							 SYSCTL_STATIC_CHILDREN (_kern_timecounter_tc),
+							 OID_AUTO, tc->tc_name, CTLFLAG_RW, 0,
+							 "timecounter description");
 	SYSCTL_ADD_UINT (NULL, SYSCTL_CHILDREN (tc_root), OID_AUTO, "mask",
 					 CTLFLAG_RD, &(tc->tc_counter_mask), 0,
 					 "mask for implemented bits");
@@ -1378,13 +1380,13 @@ void _Timecounter_Set_clock (const struct timespec *ts)
 #ifndef __rtems__
 	nanotime (&taft);
 	if (timestepwarnings)
-	  {
-		  log (LOG_INFO,
-			   "Time stepped from %jd.%09ld to %jd.%09ld (%jd.%09ld)\n",
-			   (intmax_t) tbef.tv_sec, tbef.tv_nsec,
-			   (intmax_t) taft.tv_sec, taft.tv_nsec,
-			   (intmax_t) ts->tv_sec, ts->tv_nsec);
-	  }
+	{
+		log (LOG_INFO,
+			 "Time stepped from %jd.%09ld to %jd.%09ld (%jd.%09ld)\n",
+			 (intmax_t) tbef.tv_sec, tbef.tv_nsec,
+			 (intmax_t) taft.tv_sec, taft.tv_nsec,
+			 (intmax_t) ts->tv_sec, ts->tv_nsec);
+	}
 	cpu_tick_calibrate (1);
 #endif /* __rtems__ */
 }
@@ -1435,17 +1437,17 @@ static void tc_windup (void)
 	th->th_offset_count += delta;
 	th->th_offset_count &= th->th_counter->tc_counter_mask;
 	while (delta > th->th_counter->tc_frequency)
-	  {
-		  /* Eat complete unadjusted seconds. */
-		  delta -= th->th_counter->tc_frequency;
-		  th->th_offset.sec++;
-	  }
+	{
+		/* Eat complete unadjusted seconds. */
+		delta -= th->th_counter->tc_frequency;
+		th->th_offset.sec++;
+	}
 	if ((delta > th->th_counter->tc_frequency / 2) &&
 		(th->th_scale * delta < ((uint64_t) 1 << 63)))
-	  {
-		  /* The product th_scale * delta just barely overflows. */
-		  th->th_offset.sec++;
-	  }
+	{
+		/* The product th_scale * delta just barely overflows. */
+		th->th_offset.sec++;
+	}
 	bintime_addx (&th->th_offset, th->th_scale * delta);
 
 	/*
@@ -1474,12 +1476,12 @@ static void tc_windup (void)
 	if (i > LARGE_STEP)
 		i = 2;
 	for (; i > 0; i--)
-	  {
-		  t = bt.sec;
-		  ntp_update_second (&th->th_adjustment, &bt.sec);
-		  if (bt.sec != t)
-			  boottimebin.sec += bt.sec - t;
-	  }
+	{
+		t = bt.sec;
+		ntp_update_second (&th->th_adjustment, &bt.sec);
+		if (bt.sec != t)
+			boottimebin.sec += bt.sec - t;
+	}
 	/* Update the UTC timestamps used by the get*() functions. */
 	/* XXX shouldn't do this here.  Should force non-`get' versions. */
 	bintime2timeval (&bt, &th->th_microtime);
@@ -1487,26 +1489,26 @@ static void tc_windup (void)
 
 	/* Now is a good time to change timecounters. */
 	if (th->th_counter != timecounter)
-	  {
+	{
 #ifndef __rtems__
 #ifndef __arm__
-		  if ((timecounter->tc_flags & TC_FLAGS_C2STOP) != 0)
-			  cpu_disable_c2_sleep++;
-		  if ((th->th_counter->tc_flags & TC_FLAGS_C2STOP) != 0)
-			  cpu_disable_c2_sleep--;
+		if ((timecounter->tc_flags & TC_FLAGS_C2STOP) != 0)
+			cpu_disable_c2_sleep++;
+		if ((th->th_counter->tc_flags & TC_FLAGS_C2STOP) != 0)
+			cpu_disable_c2_sleep--;
 #endif
 #endif /* __rtems__ */
-		  th->th_counter = timecounter;
-		  th->th_offset_count = ncount;
+		th->th_counter = timecounter;
+		th->th_offset_count = ncount;
 #ifndef __rtems__
-		  tc_min_ticktock_freq = max (1, timecounter->tc_frequency /
-									  (((uint64_t) timecounter->
+		tc_min_ticktock_freq = max (1, timecounter->tc_frequency /
+									(((uint64_t) timecounter->
 										tc_counter_mask + 1) / 3));
 #endif /* __rtems__ */
 #ifdef FFCLOCK
-		  ffclock_change_tc (th);
+		ffclock_change_tc (th);
 #endif
-	  }
+	}
 
 	/*-
 	 * Recalculate the scaling factor.  We want the number of 1/2^64
@@ -1547,19 +1549,19 @@ static void tc_windup (void)
 	/* Go live with the new struct timehands. */
 #ifdef FFCLOCK
 	switch (sysclock_active)
-	  {
-		  case SYSCLOCK_FBCK:
+	{
+		case SYSCLOCK_FBCK:
 #endif
-			  time_second = th->th_microtime.tv_sec;
-			  time_uptime = th->th_offset.sec;
+			time_second = th->th_microtime.tv_sec;
+			time_uptime = th->th_offset.sec;
 #ifdef FFCLOCK
-			  break;
-		  case SYSCLOCK_FFWD:
-			  time_second = fftimehands->tick_time_lerp.sec;
-			  time_uptime =
-				  fftimehands->tick_time_lerp.sec - ffclock_boottime.sec;
-			  break;
-	  }
+			break;
+		case SYSCLOCK_FFWD:
+			time_second = fftimehands->tick_time_lerp.sec;
+			time_uptime =
+				fftimehands->tick_time_lerp.sec - ffclock_boottime.sec;
+			break;
+	}
 #endif
 
 	timehands = th;
@@ -1586,26 +1588,26 @@ static int sysctl_kern_timecounter_hardware (SYSCTL_HANDLER_ARGS)
 	if (error != 0 || req->newptr == NULL || strcmp (newname, tc->tc_name) == 0)
 		return (error);
 	for (newtc = timecounters; newtc != NULL; newtc = newtc->tc_next)
-	  {
-		  if (strcmp (newname, newtc->tc_name) != 0)
-			  continue;
+	{
+		if (strcmp (newname, newtc->tc_name) != 0)
+			continue;
 
-		  /* Warm up new timecounter. */
-		  (void)newtc->tc_get_timecount (newtc);
-		  (void)newtc->tc_get_timecount (newtc);
+		/* Warm up new timecounter. */
+		(void)newtc->tc_get_timecount (newtc);
+		(void)newtc->tc_get_timecount (newtc);
 
-		  timecounter = newtc;
+		timecounter = newtc;
 
-		  /*
-		   * The vdso timehands update is deferred until the next
-		   * 'tc_windup()'.
-		   *
-		   * This is prudent given that 'timekeep_push_vdso()' does not
-		   * use any locking and that it can be called in hard interrupt
-		   * context via 'tc_windup()'.
-		   */
-		  return (0);
-	  }
+		/*
+		 * The vdso timehands update is deferred until the next
+		 * 'tc_windup()'.
+		 *
+		 * This is prudent given that 'timekeep_push_vdso()' does not
+		 * use any locking and that it can be called in hard interrupt
+		 * context via 'tc_windup()'.
+		 */
+		return (0);
+	}
 	return (EINVAL);
 }
 
@@ -1622,11 +1624,11 @@ static int sysctl_kern_timecounter_choice (SYSCTL_HANDLER_ARGS)
 
 	sbuf_new_for_sysctl (&sb, NULL, 0, req);
 	for (tc = timecounters; tc != NULL; tc = tc->tc_next)
-	  {
-		  if (tc != timecounters)
-			  sbuf_putc (&sb, ' ');
-		  sbuf_printf (&sb, "%s(%d)", tc->tc_name, tc->tc_quality);
-	  }
+	{
+		if (tc != timecounters)
+			sbuf_putc (&sb, ' ');
+		sbuf_printf (&sb, "%s(%d)", tc->tc_name, tc->tc_quality);
+	}
 	error = sbuf_finish (&sb);
 	sbuf_delete (&sb);
 	return (error);
@@ -1669,47 +1671,47 @@ static int pps_fetch (struct pps_fetch_args *fapi, struct pps_state *pps)
 	 * sleep a long time.
 	 */
 	if (fapi->timeout.tv_sec || fapi->timeout.tv_nsec)
-	  {
-		  if (fapi->timeout.tv_sec == -1)
-			  timo = 0x7fffffff;
-		  else
-			{
-				tv.tv_sec = fapi->timeout.tv_sec;
-				tv.tv_usec = fapi->timeout.tv_nsec / 1000;
-				timo = tvtohz (&tv);
-			}
-		  aseq = pps->ppsinfo.assert_sequence;
-		  cseq = pps->ppsinfo.clear_sequence;
-		  while (aseq == pps->ppsinfo.assert_sequence &&
+	{
+		if (fapi->timeout.tv_sec == -1)
+			timo = 0x7fffffff;
+		else
+		{
+			tv.tv_sec = fapi->timeout.tv_sec;
+			tv.tv_usec = fapi->timeout.tv_nsec / 1000;
+			timo = tvtohz (&tv);
+		}
+		aseq = pps->ppsinfo.assert_sequence;
+		cseq = pps->ppsinfo.clear_sequence;
+		while (aseq == pps->ppsinfo.assert_sequence &&
 				 cseq == pps->ppsinfo.clear_sequence)
+		{
+			if (abi_aware (pps, 1) && pps->driver_mtx != NULL)
 			{
-				if (abi_aware (pps, 1) && pps->driver_mtx != NULL)
-				  {
-					  if (pps->flags & PPSFLAG_MTX_SPIN)
-						{
-							err = msleep_spin (pps, pps->driver_mtx,
-											   "ppsfch", timo);
-						}
-					  else
-						{
-							err = msleep (pps, pps->driver_mtx, PCATCH,
-										  "ppsfch", timo);
-						}
-				  }
+				if (pps->flags & PPSFLAG_MTX_SPIN)
+				{
+					err = msleep_spin (pps, pps->driver_mtx,
+									 "ppsfch", timo);
+				}
 				else
-				  {
-					  err = tsleep (pps, PCATCH, "ppsfch", timo);
-				  }
-				if (err == EWOULDBLOCK && fapi->timeout.tv_sec == -1)
-				  {
-					  continue;
-				  }
-				else if (err != 0)
-				  {
-					  return (err);
-				  }
+				{
+					err = msleep (pps, pps->driver_mtx, PCATCH,
+								"ppsfch", timo);
+				}
 			}
-	  }
+			else
+			{
+				err = tsleep (pps, PCATCH, "ppsfch", timo);
+			}
+			if (err == EWOULDBLOCK && fapi->timeout.tv_sec == -1)
+			{
+				continue;
+			}
+			else if (err != 0)
+			{
+				return (err);
+			}
+		}
+	}
 
 	pps->ppsinfo.current_mode = pps->ppsparam.mode;
 	fapi->pps_info_buf = pps->ppsinfo;
@@ -1730,77 +1732,77 @@ int pps_ioctl (u_long cmd, caddr_t data, struct pps_state *pps)
 
 	KASSERT (pps != NULL, ("NULL pps pointer in pps_ioctl"));
 	switch (cmd)
-	  {
-		  case PPS_IOC_CREATE:
-			  return (0);
-		  case PPS_IOC_DESTROY:
-			  return (0);
-		  case PPS_IOC_SETPARAMS:
-			  app = (pps_params_t *) data;
-			  if (app->mode & ~pps->ppscap)
-				  return (EINVAL);
+	{
+		case PPS_IOC_CREATE:
+			return (0);
+		case PPS_IOC_DESTROY:
+			return (0);
+		case PPS_IOC_SETPARAMS:
+			app = (pps_params_t *) data;
+			if (app->mode & ~pps->ppscap)
+				return (EINVAL);
 #ifdef FFCLOCK
-			  /* Ensure only a single clock is selected for ffc timestamp. */
-			  if ((app->mode & PPS_TSCLK_MASK) == PPS_TSCLK_MASK)
-				  return (EINVAL);
+			/* Ensure only a single clock is selected for ffc timestamp. */
+			if ((app->mode & PPS_TSCLK_MASK) == PPS_TSCLK_MASK)
+				return (EINVAL);
 #endif
-			  pps->ppsparam = *app;
-			  return (0);
-		  case PPS_IOC_GETPARAMS:
-			  app = (pps_params_t *) data;
-			  *app = pps->ppsparam;
-			  app->api_version = PPS_API_VERS_1;
-			  return (0);
-		  case PPS_IOC_GETCAP:
-			  *(int *)data = pps->ppscap;
-			  return (0);
-		  case PPS_IOC_FETCH:
-			  fapi = (struct pps_fetch_args *)data;
-			  return (pps_fetch (fapi, pps));
+			pps->ppsparam = *app;
+			return (0);
+		case PPS_IOC_GETPARAMS:
+			app = (pps_params_t *) data;
+			*app = pps->ppsparam;
+			app->api_version = PPS_API_VERS_1;
+			return (0);
+		case PPS_IOC_GETCAP:
+			*(int *)data = pps->ppscap;
+			return (0);
+		case PPS_IOC_FETCH:
+			fapi = (struct pps_fetch_args *)data;
+			return (pps_fetch (fapi, pps));
 #ifdef FFCLOCK
-		  case PPS_IOC_FETCH_FFCOUNTER:
-			  fapi_ffc = (struct pps_fetch_ffc_args *)data;
-			  if (fapi_ffc->tsformat && fapi_ffc->tsformat != PPS_TSFMT_TSPEC)
-				  return (EINVAL);
-			  if (fapi_ffc->timeout.tv_sec || fapi_ffc->timeout.tv_nsec)
-				  return (EOPNOTSUPP);
-			  pps->ppsinfo_ffc.current_mode = pps->ppsparam.mode;
-			  fapi_ffc->pps_info_buf_ffc = pps->ppsinfo_ffc;
-			  /* Overwrite timestamps if feedback clock selected. */
-			  switch (pps->ppsparam.mode & PPS_TSCLK_MASK)
-				{
-					case PPS_TSCLK_FBCK:
-						fapi_ffc->pps_info_buf_ffc.assert_timestamp =
-							pps->ppsinfo.assert_timestamp;
-						fapi_ffc->pps_info_buf_ffc.clear_timestamp =
-							pps->ppsinfo.clear_timestamp;
-						break;
-					case PPS_TSCLK_FFWD:
-						break;
-					default:
-						break;
-				}
-			  return (0);
+		case PPS_IOC_FETCH_FFCOUNTER:
+			fapi_ffc = (struct pps_fetch_ffc_args *)data;
+			if (fapi_ffc->tsformat && fapi_ffc->tsformat != PPS_TSFMT_TSPEC)
+				return (EINVAL);
+			if (fapi_ffc->timeout.tv_sec || fapi_ffc->timeout.tv_nsec)
+				return (EOPNOTSUPP);
+			pps->ppsinfo_ffc.current_mode = pps->ppsparam.mode;
+			fapi_ffc->pps_info_buf_ffc = pps->ppsinfo_ffc;
+			/* Overwrite timestamps if feedback clock selected. */
+			switch (pps->ppsparam.mode & PPS_TSCLK_MASK)
+			{
+				case PPS_TSCLK_FBCK:
+					fapi_ffc->pps_info_buf_ffc.assert_timestamp =
+						pps->ppsinfo.assert_timestamp;
+					fapi_ffc->pps_info_buf_ffc.clear_timestamp =
+						pps->ppsinfo.clear_timestamp;
+					break;
+				case PPS_TSCLK_FFWD:
+					break;
+				default:
+					break;
+			}
+			return (0);
 #endif /* FFCLOCK */
-		  case PPS_IOC_KCBIND:
+		case PPS_IOC_KCBIND:
 #ifdef PPS_SYNC
-			  kapi = (struct pps_kcbind_args *)data;
-			  /* XXX Only root should be able to do this */
-			  if (kapi->tsformat && kapi->tsformat != PPS_TSFMT_TSPEC)
-				  return (EINVAL);
-			  if (kapi->kernel_consumer != PPS_KC_HARDPPS)
-				  return (EINVAL);
-			  if (kapi->edge & ~pps->ppscap)
-				  return (EINVAL);
-			  pps->kcmode = (kapi->edge & KCMODE_EDGEMASK) |
-				  (pps->kcmode & KCMODE_ABIFLAG);
-			  return (0);
+			kapi = (struct pps_kcbind_args *)data;
+			/* XXX Only root should be able to do this */
+			if (kapi->tsformat && kapi->tsformat != PPS_TSFMT_TSPEC)
+				return (EINVAL);
+			if (kapi->kernel_consumer != PPS_KC_HARDPPS)
+				return (EINVAL);
+			if (kapi->edge & ~pps->ppscap)
+				return (EINVAL);
+			pps->kcmode = (kapi->edge & KCMODE_EDGEMASK) |
+				(pps->kcmode & KCMODE_ABIFLAG);
+			return (0);
 #else
-			  return (EOPNOTSUPP);
+			return (EOPNOTSUPP);
 #endif
-		  default:
-			  return (ENOIOCTL);
-	  }
+		default:
+			return (ENOIOCTL);
+	}
 }
 
 void pps_init (struct pps_state *pps)
@@ -1821,10 +1823,10 @@ void pps_init_abi (struct pps_state *pps)
 
 	pps_init (pps);
 	if (pps->driver_abi > 0)
-	  {
-		  pps->kcmode |= KCMODE_ABIFLAG;
-		  pps->kernel_abi = PPS_ABI_VERSION;
-	  }
+	{
+		pps->kcmode |= KCMODE_ABIFLAG;
+		pps->kernel_abi = PPS_ABI_VERSION;
+	}
 }
 
 void pps_capture (struct pps_state *pps)
@@ -1863,45 +1865,45 @@ void pps_event (struct pps_state *pps, int event)
 
 	/* Things would be easier with arrays. */
 	if (event == PPS_CAPTUREASSERT)
-	  {
-		  tsp = &pps->ppsinfo.assert_timestamp;
-		  osp = &pps->ppsparam.assert_offset;
-		  foff = pps->ppsparam.mode & PPS_OFFSETASSERT;
-		  fhard = pps->kcmode & PPS_CAPTUREASSERT;
-		  pcount = &pps->ppscount[0];
-		  pseq = &pps->ppsinfo.assert_sequence;
+	{
+		tsp = &pps->ppsinfo.assert_timestamp;
+		osp = &pps->ppsparam.assert_offset;
+		foff = pps->ppsparam.mode & PPS_OFFSETASSERT;
+		fhard = pps->kcmode & PPS_CAPTUREASSERT;
+		pcount = &pps->ppscount[0];
+		pseq = &pps->ppsinfo.assert_sequence;
 #ifdef FFCLOCK
-		  ffcount = &pps->ppsinfo_ffc.assert_ffcount;
-		  tsp_ffc = &pps->ppsinfo_ffc.assert_timestamp;
-		  pseq_ffc = &pps->ppsinfo_ffc.assert_sequence;
+		ffcount = &pps->ppsinfo_ffc.assert_ffcount;
+		tsp_ffc = &pps->ppsinfo_ffc.assert_timestamp;
+		pseq_ffc = &pps->ppsinfo_ffc.assert_sequence;
 #endif
-	  }
+	}
 	else
-	  {
-		  tsp = &pps->ppsinfo.clear_timestamp;
-		  osp = &pps->ppsparam.clear_offset;
-		  foff = pps->ppsparam.mode & PPS_OFFSETCLEAR;
-		  fhard = pps->kcmode & PPS_CAPTURECLEAR;
-		  pcount = &pps->ppscount[1];
-		  pseq = &pps->ppsinfo.clear_sequence;
+	{
+		tsp = &pps->ppsinfo.clear_timestamp;
+		osp = &pps->ppsparam.clear_offset;
+		foff = pps->ppsparam.mode & PPS_OFFSETCLEAR;
+		fhard = pps->kcmode & PPS_CAPTURECLEAR;
+		pcount = &pps->ppscount[1];
+		pseq = &pps->ppsinfo.clear_sequence;
 #ifdef FFCLOCK
-		  ffcount = &pps->ppsinfo_ffc.clear_ffcount;
-		  tsp_ffc = &pps->ppsinfo_ffc.clear_timestamp;
-		  pseq_ffc = &pps->ppsinfo_ffc.clear_sequence;
+		ffcount = &pps->ppsinfo_ffc.clear_ffcount;
+		tsp_ffc = &pps->ppsinfo_ffc.clear_timestamp;
+		pseq_ffc = &pps->ppsinfo_ffc.clear_sequence;
 #endif
-	  }
+	}
 
 	/*
 	 * If the timecounter changed, we cannot compare the count values, so
 	 * we have to drop the rest of the PPS-stuff until the next event.
 	 */
 	if (pps->ppstc != pps->capth->th_counter)
-	  {
-		  pps->ppstc = pps->capth->th_counter;
-		  *pcount = pps->capcount;
-		  pps->ppscount[2] = pps->capcount;
-		  return;
-	  }
+	{
+		pps->ppstc = pps->capth->th_counter;
+		*pcount = pps->capcount;
+		pps->ppscount[2] = pps->capcount;
+		return;
+	}
 
 	/* Convert the count to a timespec. */
 	tcount = pps->capcount - pps->capth->th_offset_count;
@@ -1920,14 +1922,14 @@ void pps_event (struct pps_state *pps, int event)
 	*tsp = ts;
 
 	if (foff)
-	  {
-		  timespecadd (tsp, osp);
-		  if (tsp->tv_nsec < 0)
-			{
-				tsp->tv_nsec += 1000000000;
-				tsp->tv_sec -= 1;
-			}
-	  }
+	{
+		timespecadd (tsp, osp);
+		if (tsp->tv_nsec < 0)
+		{
+			tsp->tv_nsec += 1000000000;
+			tsp->tv_sec -= 1;
+		}
+	}
 
 #ifdef FFCLOCK
 	*ffcount = pps->capffth->tick_ffcount + tcount;
@@ -1941,26 +1943,26 @@ void pps_event (struct pps_state *pps, int event)
 
 #ifdef PPS_SYNC
 	if (fhard)
-	  {
-		  uint64_t scale;
+	{
+		uint64_t scale;
 
-		  /*
-		   * Feed the NTP PLL/FLL.
-		   * The FLL wants to know how many (hardware) nanoseconds
-		   * elapsed since the previous event.
-		   */
-		  tcount = pps->capcount - pps->ppscount[2];
-		  pps->ppscount[2] = pps->capcount;
-		  tcount &= pps->capth->th_counter->tc_counter_mask;
-		  scale = (uint64_t) 1 << 63;
-		  scale /= pps->capth->th_counter->tc_frequency;
-		  scale *= 2;
-		  bt.sec = 0;
-		  bt.frac = 0;
-		  bintime_addx (&bt, scale * tcount);
-		  bintime2timespec (&bt, &ts);
-		  hardpps (tsp, ts.tv_nsec + 1000000000 * ts.tv_sec);
-	  }
+		/*
+		 * Feed the NTP PLL/FLL.
+		 * The FLL wants to know how many (hardware) nanoseconds
+		 * elapsed since the previous event.
+		 */
+		tcount = pps->capcount - pps->ppscount[2];
+		pps->ppscount[2] = pps->capcount;
+		tcount &= pps->capth->th_counter->tc_counter_mask;
+		scale = (uint64_t) 1 << 63;
+		scale /= pps->capth->th_counter->tc_frequency;
+		scale *= 2;
+		bt.sec = 0;
+		bt.frac = 0;
+		bintime_addx (&bt, scale * tcount);
+		bintime2timespec (&bt, &ts);
+		hardpps (tsp, ts.tv_nsec + 1000000000 * ts.tv_sec);
+	}
 #endif
 
 	/* Wakeup anyone sleeping in pps_fetch().  */
@@ -2005,7 +2007,7 @@ void _Timecounter_Tick (void)
 #ifdef __rtems__
 void
 _Timecounter_Tick_simple (uint32_t delta, uint32_t offset,
-						  ISR_lock_Context * lock_context)
+						ISR_lock_Context * lock_context)
 {
 	struct bintime bt;
 	struct timehands *th;
@@ -2048,21 +2050,21 @@ static void __inline tc_adjprecision (void)
 	int t;
 
 	if (tc_timepercentage > 0)
-	  {
-		  t = (99 + tc_timepercentage) / tc_timepercentage;
-		  tc_precexp = fls (t + (t >> 1)) - 1;
-		  FREQ2BT (hz / tc_tick, &bt_timethreshold);
-		  FREQ2BT (hz, &bt_tickthreshold);
-		  bintime_shift (&bt_timethreshold, tc_precexp);
-		  bintime_shift (&bt_tickthreshold, tc_precexp);
-	  }
+	{
+		t = (99 + tc_timepercentage) / tc_timepercentage;
+		tc_precexp = fls (t + (t >> 1)) - 1;
+		FREQ2BT (hz / tc_tick, &bt_timethreshold);
+		FREQ2BT (hz, &bt_tickthreshold);
+		bintime_shift (&bt_timethreshold, tc_precexp);
+		bintime_shift (&bt_tickthreshold, tc_precexp);
+	}
 	else
-	  {
-		  tc_precexp = 31;
-		  bt_timethreshold.sec = INT_MAX;
-		  bt_timethreshold.frac = ~(uint64_t) 0;
-		  bt_tickthreshold = bt_timethreshold;
-	  }
+	{
+		tc_precexp = 31;
+		bt_timethreshold.sec = INT_MAX;
+		bt_timethreshold.frac = ~(uint64_t) 0;
+		bt_tickthreshold = bt_timethreshold;
+	}
 	sbt_timethreshold = bttosbt (bt_timethreshold);
 	sbt_tickthreshold = bttosbt (bt_tickthreshold);
 }
@@ -2157,10 +2159,10 @@ void cpu_tick_calibration (void)
 	static time_t last_calib;
 
 	if (time_uptime != last_calib && !(time_uptime & 0xf))
-	  {
-		  cpu_tick_calibrate (0);
-		  last_calib = time_uptime;
-	  }
+	{
+		cpu_tick_calibrate (0);
+		last_calib = time_uptime;
+	}
 }
 
 /*
@@ -2180,11 +2182,11 @@ static void cpu_tick_calibrate (int reset)
 	uint32_t divi;
 
 	if (reset)
-	  {
-		  /* The clock was stepped, abort & reset */
-		  t_last.sec = 0;
-		  return;
-	  }
+	{
+		/* The clock was stepped, abort & reset */
+		t_last.sec = 0;
+		return;
+	}
 
 	/* we don't calibrate fixed rate cputicks */
 	if (!cpu_tick_variable)
@@ -2193,28 +2195,28 @@ static void cpu_tick_calibrate (int reset)
 	getbinuptime (&t_this);
 	c_this = cpu_ticks ();
 	if (t_last.sec != 0)
-	  {
-		  c_delta = c_this - c_last;
-		  t_delta = t_this;
-		  bintime_sub (&t_delta, &t_last);
-		  /*
-		   * Headroom:
-		   *  2^(64-20) / 16[s] =
-		   *  2^(44) / 16[s] =
-		   *  17.592.186.044.416 / 16 =
-		   *  1.099.511.627.776 [Hz]
-		   */
-		  divi = t_delta.sec << 20;
-		  divi |= t_delta.frac >> (64 - 20);
-		  c_delta <<= 20;
-		  c_delta /= divi;
-		  if (c_delta > cpu_tick_frequency)
-			{
-				if (0 && bootverbose)
-					printf ("cpu_tick increased to %ju Hz\n", c_delta);
-				cpu_tick_frequency = c_delta;
-			}
-	  }
+	{
+		c_delta = c_this - c_last;
+		t_delta = t_this;
+		bintime_sub (&t_delta, &t_last);
+		/*
+		 * Headroom:
+		 *  2^(64-20) / 16[s] =
+		 *  2^(44) / 16[s] =
+		 *  17.592.186.044.416 / 16 =
+		 *  1.099.511.627.776 [Hz]
+		 */
+		divi = t_delta.sec << 20;
+		divi |= t_delta.frac >> (64 - 20);
+		c_delta <<= 20;
+		c_delta /= divi;
+		if (c_delta > cpu_tick_frequency)
+		{
+			if (0 && bootverbose)
+				printf ("cpu_tick increased to %ju Hz\n", c_delta);
+			cpu_tick_frequency = c_delta;
+		}
+	}
 	c_last = c_this;
 	t_last = t_this;
 }
@@ -2223,15 +2225,15 @@ void set_cputicker (cpu_tick_f * func, uint64_t freq, unsigned var)
 {
 
 	if (func == NULL)
-	  {
-		  cpu_ticks = tc_cpu_ticks;
-	  }
+	{
+		cpu_ticks = tc_cpu_ticks;
+	}
 	else
-	  {
-		  cpu_tick_frequency = freq;
-		  cpu_tick_variable = var;
-		  cpu_ticks = func;
-	  }
+	{
+		cpu_tick_frequency = freq;
+		cpu_tick_variable = var;
+		cpu_ticks = func;
+	}
 }
 
 uint64_t cpu_tickrate (void)

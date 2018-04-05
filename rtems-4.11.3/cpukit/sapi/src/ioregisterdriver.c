@@ -32,7 +32,7 @@ static inline bool rtems_io_is_empty_table (const rtems_driver_address_table *
 }
 
 static rtems_status_code rtems_io_obtain_major_number (rtems_device_major_number
-													   * major)
+													 * major)
 {
 	rtems_device_major_number n = _IO_Number_of_drivers;
 	rtems_device_major_number m = 0;
@@ -40,13 +40,13 @@ static rtems_status_code rtems_io_obtain_major_number (rtems_device_major_number
 	/* major is error checked by caller */
 
 	for (m = 0; m < n; ++m)
-	  {
-		  rtems_driver_address_table *const table =
-			  _IO_Driver_address_table + m;
+	{
+		rtems_driver_address_table *const table =
+			_IO_Driver_address_table + m;
 
-		  if (rtems_io_is_empty_table (table))
-			  break;
-	  }
+		if (rtems_io_is_empty_table (table))
+			break;
+	}
 
 	/* Assigns invalid value in case of failure */
 	*major = m;
@@ -86,47 +86,47 @@ rtems_status_code rtems_io_register_driver (rtems_device_major_number major,
 	_Thread_Disable_dispatch ();
 
 	if (major == 0)
-	  {
-		  rtems_status_code sc =
-			  rtems_io_obtain_major_number (registered_major);
+	{
+		rtems_status_code sc =
+			rtems_io_obtain_major_number (registered_major);
 
-		  if (sc != RTEMS_SUCCESSFUL)
-			{
-				_Thread_Enable_dispatch ();
-				return sc;
-			}
-		  major = *registered_major;
-	  }
+		if (sc != RTEMS_SUCCESSFUL)
+		{
+			_Thread_Enable_dispatch ();
+			return sc;
+		}
+		major = *registered_major;
+	}
 	else
-	  {
-		  rtems_driver_address_table *const table =
-			  _IO_Driver_address_table + major;
+	{
+		rtems_driver_address_table *const table =
+			_IO_Driver_address_table + major;
 
-		  if (!rtems_io_is_empty_table (table))
-			{
-				_Thread_Enable_dispatch ();
-				return RTEMS_RESOURCE_IN_USE;
-			}
+		if (!rtems_io_is_empty_table (table))
+		{
+			_Thread_Enable_dispatch ();
+			return RTEMS_RESOURCE_IN_USE;
+		}
 
-		  *registered_major = major;
-	  }
+		*registered_major = major;
+	}
 
 	_IO_Driver_address_table[major] = *driver_table;
 
 	_Thread_Enable_dispatch ();
 
 	if (_IO_All_drivers_initialized)
-	  {
-		  /* Other drivers have already been initialized, we initialize
-		   * the driver directly.
-		   */
-		  return rtems_io_initialize (major, 0, NULL);
-	  }
+	{
+		/* Other drivers have already been initialized, we initialize
+		 * the driver directly.
+		 */
+		return rtems_io_initialize (major, 0, NULL);
+	}
 	else
-	  {
-		  /* The driver will be initialized together with all other drivers
-		   * in a later stage by _IO_Initialize_all_drivers().
-		   */
-		  return RTEMS_SUCCESSFUL;
-	  }
+	{
+		/* The driver will be initialized together with all other drivers
+		 * in a later stage by _IO_Initialize_all_drivers().
+		 */
+		return RTEMS_SUCCESSFUL;
+	}
 }

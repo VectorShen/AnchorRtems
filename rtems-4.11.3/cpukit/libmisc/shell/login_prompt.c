@@ -84,7 +84,7 @@ static int rtems_shell_discard (int c, FILE * stream)
 }
 
 static bool rtems_shell_get_text (FILE * in,
-								  FILE * out, char *line, size_t size)
+								FILE * out, char *line, size_t size)
 {
 	int fd_in = fileno (in);
 	int (*put) (int, FILE *) =
@@ -92,72 +92,72 @@ static bool rtems_shell_get_text (FILE * in,
 	size_t i = 0;
 
 	if (size < 1)
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 
 	tcdrain (fd_in);
 	if (out != NULL)
-	  {
-		  tcdrain (fileno (out));
-	  }
+	{
+		tcdrain (fileno (out));
+	}
 
 	while (true)
-	  {
-		  int c = fgetc (in);
+	{
+		int c = fgetc (in);
 
-		  switch (c)
-			{
-				case EOF:
-					clearerr (in);
-					return false;
-				case '\n':
-				case '\r':
-					put ('\n', out);
-					line[i] = '\0';
-					return true;
-				case 127:
-				case '\b':
-					if (i > 0)
-					  {
-						  put ('\b', out);
-						  put (' ', out);
-						  put ('\b', out);
-						  --i;
-					  }
+		switch (c)
+		{
+			case EOF:
+				clearerr (in);
+				return false;
+			case '\n':
+			case '\r':
+				put ('\n', out);
+				line[i] = '\0';
+				return true;
+			case 127:
+			case '\b':
+				if (i > 0)
+				{
+					put ('\b', out);
+					put (' ', out);
+					put ('\b', out);
+					--i;
+				}
+				else
+				{
+					put ('\a', out);
+				}
+				break;
+			default:
+				if (!iscntrl (c))
+				{
+					if (i < size - 1)
+					{
+						line[i] = (char)c;
+						++i;
+						put (c, out);
+					}
 					else
-					  {
-						  put ('\a', out);
-					  }
-					break;
-				default:
-					if (!iscntrl (c))
-					  {
-						  if (i < size - 1)
-							{
-								line[i] = (char)c;
-								++i;
-								put (c, out);
-							}
-						  else
-							{
-								put ('\a', out);
-							}
-					  }
-					else
-					  {
-						  put ('\a', out);
-					  }
-					break;
-			}
-	  }
+					{
+						put ('\a', out);
+					}
+				}
+				else
+				{
+					put ('\a', out);
+				}
+				break;
+		}
+	}
 	return true;
 }
 
 bool rtems_shell_login_prompt (FILE * in,
-							   FILE * out,
-							   const char *device,
-							   rtems_shell_login_check_t check)
+							 FILE * out,
+							 const char *device,
+							 rtems_shell_login_check_t check)
 {
 	int fd_in = fileno (in);
 	struct termios termios_previous;
@@ -166,53 +166,53 @@ bool rtems_shell_login_prompt (FILE * in,
 	bool result = false;
 
 	if (tcgetattr (fd_in, &termios_previous) == 0)
-	  {
-		  struct termios termios_new = termios_previous;
+	{
+		struct termios termios_new = termios_previous;
 
-		  /*
-		   *  Stay in canonical mode so we can tell EOF and dropped connections.
-		   *  But read one character at a time and do not echo it.
-		   */
-		  termios_new.c_lflag &= (unsigned char)~ECHO;
-		  termios_new.c_cc[VTIME] = 0;
-		  termios_new.c_cc[VMIN] = 1;
+		/*
+		 *  Stay in canonical mode so we can tell EOF and dropped connections.
+		 *  But read one character at a time and do not echo it.
+		 */
+		termios_new.c_lflag &= (unsigned char)~ECHO;
+		termios_new.c_cc[VTIME] = 0;
+		termios_new.c_cc[VMIN] = 1;
 
-		  restore_termios = tcsetattr (fd_in, TCSANOW, &termios_new) == 0;
-	  }
+		restore_termios = tcsetattr (fd_in, TCSANOW, &termios_new) == 0;
+	}
 
 	for (i = 0; i < 3; ++i)
-	  {
-		  char user[32];
-		  char passphrase[128];
+	{
+		char user[32];
+		char passphrase[128];
 
-		  fprintf (out, "%s login: ", device);
-		  fflush (out);
-		  result = rtems_shell_get_text (in, out, user, sizeof (user));
-		  if (!result)
-			  break;
+		fprintf (out, "%s login: ", device);
+		fflush (out);
+		result = rtems_shell_get_text (in, out, user, sizeof (user));
+		if (!result)
+			break;
 
-		  fflush (in);
-		  fprintf (out, "Password: ");
-		  fflush (out);
-		  result =
-			  rtems_shell_get_text (in, NULL, passphrase, sizeof (passphrase));
-		  if (!result)
-			  break;
-		  fputc ('\n', out);
+		fflush (in);
+		fprintf (out, "Password: ");
+		fflush (out);
+		result =
+			rtems_shell_get_text (in, NULL, passphrase, sizeof (passphrase));
+		if (!result)
+			break;
+		fputc ('\n', out);
 
-		  result = check (user, passphrase);
-		  if (result)
-			  break;
+		result = check (user, passphrase);
+		if (result)
+			break;
 
-		  fprintf (out, "Login incorrect\n\n");
-		  sleep (2);
-	  }
+		fprintf (out, "Login incorrect\n\n");
+		sleep (2);
+	}
 
 	if (restore_termios)
-	  {
-		  /* What to do if restoring the flags fails? */
-		  tcsetattr (fd_in, TCSANOW, &termios_previous);
-	  }
+	{
+		/* What to do if restoring the flags fails? */
+		tcsetattr (fd_in, TCSANOW, &termios_previous);
+	}
 
 	return result;
 }

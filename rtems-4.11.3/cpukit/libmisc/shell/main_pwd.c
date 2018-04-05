@@ -31,7 +31,8 @@ static int rtems_shell_main_pwd (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_PWD_Command = {
+rtems_shell_cmd_t rtems_shell_PWD_Command =
+{
 	"pwd",						/* name */
 	"pwd          # print work directory",	/* usage */
 	"files",					/* topic */

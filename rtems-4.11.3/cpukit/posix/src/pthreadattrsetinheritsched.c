@@ -32,13 +32,13 @@ int pthread_attr_setinheritsched (pthread_attr_t * attr, int inheritsched)
 		return EINVAL;
 
 	switch (inheritsched)
-	  {
-		  case PTHREAD_INHERIT_SCHED:
-		  case PTHREAD_EXPLICIT_SCHED:
-			  attr->inheritsched = inheritsched;
-			  return 0;
+	{
+		case PTHREAD_INHERIT_SCHED:
+		case PTHREAD_EXPLICIT_SCHED:
+			attr->inheritsched = inheritsched;
+			return 0;
 
-		  default:
-			  return ENOTSUP;
-	  }
+		default:
+			return ENOTSUP;
+	}
 }

@@ -62,14 +62,14 @@ static struct netent *_getnetbynis (const char *name, char *map, int af)
 	static char ypbuf[YPMAXRECORD + 2];
 
 	switch (af)
-	  {
-		  case AF_INET:
-			  break;
-		  default:
-		  case AF_INET6:
-			  errno = EAFNOSUPPORT;
-			  return NULL;
-	  }
+	{
+		case AF_INET:
+			break;
+		default:
+		case AF_INET6:
+			errno = EAFNOSUPPORT;
+			return NULL;
+	}
 
 	if (domain == (char *)NULL)
 		if (yp_get_default_domain (&domain))
@@ -101,18 +101,18 @@ static struct netent *_getnetbynis (const char *name, char *map, int af)
 	if (cp != NULL)
 		*cp++ = '\0';
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &host_aliases[MAXALIASES - 1])
-			  *q++ = cp;
-		  cp = strpbrk (cp, " \t");
-		  if (cp != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &host_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = strpbrk (cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	return (&h);
 #else
@@ -134,41 +134,41 @@ struct netent *_getnetbynisaddr (unsigned long addr, int af)
 	char buf[MAXDNAME];
 
 	if (af != AF_INET)
-	  {
-		  errno = EAFNOSUPPORT;
-		  return (NULL);
-	  }
+	{
+		errno = EAFNOSUPPORT;
+		return (NULL);
+	}
 
 	for (nn = 4, net2 = addr; net2; net2 >>= 8)
-	  {
-		  netbr[--nn] = net2 & 0xff;
-	  }
+	{
+		netbr[--nn] = net2 & 0xff;
+	}
 
 	switch (nn)
-	  {
-		  case 3:				/* Class A */
-			  sprintf (buf, "%u", netbr[3]);
-			  break;
-		  case 2:				/* Class B */
-			  sprintf (buf, "%u.%u", netbr[2], netbr[3]);
-			  break;
-		  case 1:				/* Class C */
-			  sprintf (buf, "%u.%u.%u", netbr[1], netbr[2], netbr[3]);
-			  break;
-		  case 0:				/* Class D - E */
-			  sprintf (buf, "%u.%u.%u.%u", netbr[0], netbr[1],
-					   netbr[2], netbr[3]);
-			  break;
-	  }
+	{
+		case 3:				/* Class A */
+			sprintf (buf, "%u", netbr[3]);
+			break;
+		case 2:				/* Class B */
+			sprintf (buf, "%u.%u", netbr[2], netbr[3]);
+			break;
+		case 1:				/* Class C */
+			sprintf (buf, "%u.%u.%u", netbr[1], netbr[2], netbr[3]);
+			break;
+		case 0:				/* Class D - E */
+			sprintf (buf, "%u.%u.%u.%u", netbr[0], netbr[1],
+					 netbr[2], netbr[3]);
+			break;
+	}
 
 	str = (char *)&buf;
 	cp = str + (strlen (str) - 2);
 
 	while (!strcmp (cp, ".0"))
-	  {
-		  *cp = '\0';
-		  cp = str + (strlen (str) - 2);
-	  }
+	{
+		*cp = '\0';
+		cp = str + (strlen (str) - 2);
+	}
 
 	return _getnetbynis (str, "networks.byaddr", af);
 }

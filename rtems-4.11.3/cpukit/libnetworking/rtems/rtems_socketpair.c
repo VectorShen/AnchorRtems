@@ -33,10 +33,10 @@
 int socketpair (int domain, int type, int protocol, int *rsv)
 {
 	if (!rsv)
-	  {
-		  errno = EFAULT;
-		  return -1;
-	  }
+	{
+		errno = EFAULT;
+		return -1;
+	}
 
 	/*
 	 *  Yes, we do not support socketpair() so this is really paranoid.

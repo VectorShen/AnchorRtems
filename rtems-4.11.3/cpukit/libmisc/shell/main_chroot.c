@@ -31,15 +31,16 @@ static int rtems_shell_main_chroot (int argc, char *argv[])
 		new_root = argv[1];
 
 	if (chroot (new_root) < 0)
-	  {
-		  fprintf (stderr, "chroot %s (%s)\n", new_root, strerror (errno));
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "chroot %s (%s)\n", new_root, strerror (errno));
+		return -1;
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CHROOT_Command = {
+rtems_shell_cmd_t rtems_shell_CHROOT_Command =
+{
 	"chroot",					/* name */
 	"chroot [dir] # change the root directory",	/* usage */
 	"files",					/* topic */

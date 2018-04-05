@@ -55,8 +55,8 @@ struct rpcent
 };
 
 __BEGIN_DECLS
-	extern struct rpcent *getrpcbyname_r (const char *, struct rpcent *,
-										  char *, int);
+extern struct rpcent *getrpcbyname_r (const char *, struct rpcent *,
+									  char *, int);
 extern struct rpcent *getrpcbynumber_r (int, struct rpcent *, char *, int);
 extern struct rpcent *getrpcent_r (struct rpcent *, char *, int);
 

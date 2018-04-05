@@ -60,7 +60,8 @@ static void rtems_capture_exitted_task (rtems_tcb * exitted_task);
 
 static void rtems_capture_terminated_task (rtems_tcb * terminated_task);
 
-static const rtems_extensions_table capture_extensions = {
+static const rtems_extensions_table capture_extensions =
+{
 	.thread_create = rtems_capture_create_task,
 	.thread_start = rtems_capture_start_task,
 	.thread_restart = rtems_capture_restart_task,
@@ -102,10 +103,10 @@ rtems_status_code rtems_capture_user_extension_open (void)
 	if (sc != RTEMS_SUCCESSFUL)
 		capture_id = 0;
 	else
-	  {
-		  index = rtems_object_id_get_index (capture_id);
-		  rtems_capture_set_extension_index (index);
-	  }
+	{
+		index = rtems_object_id_get_index (capture_id);
+		rtems_capture_set_extension_index (index);
+	}
 
 	return sc;
 }
@@ -135,10 +136,10 @@ static bool rtems_capture_create_task (rtems_tcb * ct, rtems_tcb * nt)
 	rtems_capture_initialize_task (nt);
 
 	if (rtems_capture_trigger (ct, nt, RTEMS_CAPTURE_CREATE))
-	  {
-		  rtems_capture_record (ct, RTEMS_CAPTURE_CREATED_BY_EVENT);
-		  rtems_capture_record (nt, RTEMS_CAPTURE_CREATED_EVENT);
-	  }
+	{
+		rtems_capture_record (ct, RTEMS_CAPTURE_CREATED_BY_EVENT);
+		rtems_capture_record (nt, RTEMS_CAPTURE_CREATED_EVENT);
+	}
 
 	return 1 == 1;
 }
@@ -160,10 +161,10 @@ static void rtems_capture_start_task (rtems_tcb * ct, rtems_tcb * st)
 		rtems_capture_initialize_task (st);
 
 	if (rtems_capture_trigger (ct, st, RTEMS_CAPTURE_START))
-	  {
-		  rtems_capture_record (ct, RTEMS_CAPTURE_STARTED_BY_EVENT);
-		  rtems_capture_record (st, RTEMS_CAPTURE_STARTED_EVENT);
-	  }
+	{
+		rtems_capture_record (ct, RTEMS_CAPTURE_STARTED_BY_EVENT);
+		rtems_capture_record (st, RTEMS_CAPTURE_STARTED_EVENT);
+	}
 }
 
 /*
@@ -182,10 +183,10 @@ static void rtems_capture_restart_task (rtems_tcb * ct, rtems_tcb * rt)
 		rtems_capture_initialize_task (rt);
 
 	if (rtems_capture_trigger (ct, rt, RTEMS_CAPTURE_RESTART))
-	  {
-		  rtems_capture_record (ct, RTEMS_CAPTURE_RESTARTED_BY_EVENT);
-		  rtems_capture_record (rt, RTEMS_CAPTURE_RESTARTED_EVENT);
-	  }
+	{
+		rtems_capture_record (ct, RTEMS_CAPTURE_RESTARTED_BY_EVENT);
+		rtems_capture_record (rt, RTEMS_CAPTURE_RESTARTED_EVENT);
+	}
 }
 
 /*
@@ -200,10 +201,10 @@ static void rtems_capture_delete_task (rtems_tcb * ct, rtems_tcb * dt)
 		rtems_capture_initialize_task (dt);
 
 	if (rtems_capture_trigger (ct, dt, RTEMS_CAPTURE_DELETE))
-	  {
-		  rtems_capture_record (ct, RTEMS_CAPTURE_DELETED_BY_EVENT);
-		  rtems_capture_record (dt, RTEMS_CAPTURE_DELETED_EVENT);
-	  }
+	{
+		rtems_capture_record (ct, RTEMS_CAPTURE_DELETED_BY_EVENT);
+		rtems_capture_record (dt, RTEMS_CAPTURE_DELETED_EVENT);
+	}
 }
 
 /*
@@ -270,24 +271,24 @@ static void rtems_capture_switch_task (rtems_tcb * ct, rtems_tcb * ht)
 	 * enabled.
 	 */
 	if (flags & RTEMS_CAPTURE_ON)
-	  {
-		  rtems_capture_time_t time;
-		  if (!rtems_capture_task_initialized (ct))
-			  rtems_capture_initialize_task (ct);
+	{
+		rtems_capture_time_t time;
+		if (!rtems_capture_task_initialized (ct))
+			rtems_capture_initialize_task (ct);
 
-		  if (!rtems_capture_task_initialized (ht))
-			  rtems_capture_initialize_task (ht);
+		if (!rtems_capture_task_initialized (ht))
+			rtems_capture_initialize_task (ht);
 
-		  /*
-		   * Update the execution time. Assume the time will not overflow
-		   * for now. This may need to change.
-		   */
-		  rtems_capture_get_time (&time);
+		/*
+		 * Update the execution time. Assume the time will not overflow
+		 * for now. This may need to change.
+		 */
+		rtems_capture_get_time (&time);
 
-		  if (rtems_capture_trigger (ct, ht, RTEMS_CAPTURE_SWITCH))
-			{
-				rtems_capture_record (ct, RTEMS_CAPTURE_SWITCHED_OUT_EVENT);
-				rtems_capture_record (ht, RTEMS_CAPTURE_SWITCHED_IN_EVENT);
-			}
-	  }
+		if (rtems_capture_trigger (ct, ht, RTEMS_CAPTURE_SWITCH))
+		{
+			rtems_capture_record (ct, RTEMS_CAPTURE_SWITCHED_OUT_EVENT);
+			rtems_capture_record (ht, RTEMS_CAPTURE_SWITCHED_IN_EVENT);
+		}
+	}
 }

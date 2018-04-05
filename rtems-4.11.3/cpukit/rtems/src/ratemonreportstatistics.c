@@ -58,10 +58,10 @@ ididididid NNNN ccccc mmmmmm X
 \n");
 */
 	(*print) (context,
-			  "   ID     OWNER COUNT MISSED     "
-			  "     CPU TIME                  WALL TIME\n"
-			  "                               "
-			  "     MIN/MAX/AVG                MIN/MAX/AVG\n");
+			"   ID     OWNER COUNT MISSED     "
+			"     CPU TIME                  WALL TIME\n"
+			"                               "
+			"     MIN/MAX/AVG                MIN/MAX/AVG\n");
 
 	/*
 	 * Cycle through all possible ids and try to report on each one.  If it
@@ -69,50 +69,50 @@ ididididid NNNN ccccc mmmmmm X
 	 */
 	for (id = _Rate_monotonic_Information.minimum_id;
 		 id <= _Rate_monotonic_Information.maximum_id; id++)
-	  {
-		  status = rtems_rate_monotonic_get_statistics (id, &the_stats);
-		  if (status != RTEMS_SUCCESSFUL)
-			  continue;
+	{
+		status = rtems_rate_monotonic_get_statistics (id, &the_stats);
+		if (status != RTEMS_SUCCESSFUL)
+			continue;
 
-		  /* If the above passed, so should this but check it anyway */
+		/* If the above passed, so should this but check it anyway */
 #if defined(RTEMS_DEBUG)
-		  status = rtems_rate_monotonic_get_status (id, &the_status);
-		  if (status != RTEMS_SUCCESSFUL)
-			  continue;
+		status = rtems_rate_monotonic_get_status (id, &the_status);
+		if (status != RTEMS_SUCCESSFUL)
+			continue;
 #else
-		  (void)rtems_rate_monotonic_get_status (id, &the_status);
+		(void)rtems_rate_monotonic_get_status (id, &the_status);
 #endif
 
-		  rtems_object_get_name (the_status.owner, sizeof (name), name);
+		rtems_object_get_name (the_status.owner, sizeof (name), name);
 
-		  /*
-		   *  Print part of report line that is not dependent on granularity
-		   */
-		  (*print) (context,
+		/*
+		 *  Print part of report line that is not dependent on granularity
+		 */
+		(*print) (context,
 					"0x%08" PRIx32 " %4s %5" PRId32 " %6" PRId32 " ",
 					id, name, the_stats.count, the_stats.missed_count);
 
-		  /*
-		   *  If the count is zero, don't print statistics
-		   */
-		  if (the_stats.count == 0)
-			{
-				(*print) (context, "\n");
-				continue;
-			}
+		/*
+		 *  If the count is zero, don't print statistics
+		 */
+		if (the_stats.count == 0)
+		{
+			(*print) (context, "\n");
+			continue;
+		}
 
-		  /*
-		   *  print CPU Usage part of statistics
-		   */
-		  {
-			  struct timespec cpu_average;
-			  struct timespec *min_cpu = &the_stats.min_cpu_time;
-			  struct timespec *max_cpu = &the_stats.max_cpu_time;
-			  struct timespec *total_cpu = &the_stats.total_cpu_time;
+		/*
+		 *  print CPU Usage part of statistics
+		 */
+		{
+			struct timespec cpu_average;
+			struct timespec *min_cpu = &the_stats.min_cpu_time;
+			struct timespec *max_cpu = &the_stats.max_cpu_time;
+			struct timespec *total_cpu = &the_stats.total_cpu_time;
 
-			  _Timespec_Divide_by_integer (total_cpu, the_stats.count,
-										   &cpu_average);
-			  (*print) (context, "%" PRId32 "." NANOSECONDS_FMT "/"	/* min cpu time */
+			_Timespec_Divide_by_integer (total_cpu, the_stats.count,
+										 &cpu_average);
+			(*print) (context, "%" PRId32 "." NANOSECONDS_FMT "/"	/* min cpu time */
 						"%" PRId32 "." NANOSECONDS_FMT "/"	/* max cpu time */
 						"%" PRId32 "." NANOSECONDS_FMT " ",	/* avg cpu time */
 						_Timespec_Get_seconds (min_cpu),
@@ -123,20 +123,20 @@ ididididid NNNN ccccc mmmmmm X
 						_Timespec_Get_seconds (&cpu_average),
 						_Timespec_Get_nanoseconds (&cpu_average) /
 						NANOSECONDS_DIVIDER);
-		  }
+		}
 
-		  /*
-		   *  print wall time part of statistics
-		   */
-		  {
-			  struct timespec wall_average;
-			  struct timespec *min_wall = &the_stats.min_wall_time;
-			  struct timespec *max_wall = &the_stats.max_wall_time;
-			  struct timespec *total_wall = &the_stats.total_wall_time;
+		/*
+		 *  print wall time part of statistics
+		 */
+		{
+			struct timespec wall_average;
+			struct timespec *min_wall = &the_stats.min_wall_time;
+			struct timespec *max_wall = &the_stats.max_wall_time;
+			struct timespec *total_wall = &the_stats.total_wall_time;
 
-			  _Timespec_Divide_by_integer (total_wall, the_stats.count,
-										   &wall_average);
-			  (*print) (context, "%" PRId32 "." NANOSECONDS_FMT "/"	/* min wall time */
+			_Timespec_Divide_by_integer (total_wall, the_stats.count,
+										 &wall_average);
+			(*print) (context, "%" PRId32 "." NANOSECONDS_FMT "/"	/* min wall time */
 						"%" PRId32 "." NANOSECONDS_FMT "/"	/* max wall time */
 						"%" PRId32 "." NANOSECONDS_FMT "\n",	/* avg wall time */
 						_Timespec_Get_seconds (min_wall),
@@ -147,8 +147,8 @@ ididididid NNNN ccccc mmmmmm X
 						_Timespec_Get_seconds (&wall_average),
 						_Timespec_Get_nanoseconds (&wall_average) /
 						NANOSECONDS_DIVIDER);
-		  }
-	  }
+		}
+	}
 }
 
 void rtems_rate_monotonic_report_statistics (void)

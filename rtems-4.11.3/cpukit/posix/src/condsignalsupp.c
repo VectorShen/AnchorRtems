@@ -35,7 +35,7 @@
  */
 
 int _POSIX_Condition_variables_Signal_support (pthread_cond_t * cond,
-											   bool is_broadcast)
+											 bool is_broadcast)
 {
 	POSIX_Condition_variables_Control *the_cond;
 	Objects_Locations location;
@@ -43,27 +43,27 @@ int _POSIX_Condition_variables_Signal_support (pthread_cond_t * cond,
 
 	the_cond = _POSIX_Condition_variables_Get (cond, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  do
-				{
-					the_thread = _Thread_queue_Dequeue (&the_cond->Wait_queue);
-					if (!the_thread)
-						the_cond->Mutex = POSIX_CONDITION_VARIABLES_NO_MUTEX;
-				}
-			  while (is_broadcast && the_thread);
+		case OBJECTS_LOCAL:
+			do
+			{
+				the_thread = _Thread_queue_Dequeue (&the_cond->Wait_queue);
+				if (!the_thread)
+					the_cond->Mutex = POSIX_CONDITION_VARIABLES_NO_MUTEX;
+			}
+			while (is_broadcast && the_thread);
 
-			  _Objects_Put (&the_cond->Object);
+			_Objects_Put (&the_cond->Object);
 
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

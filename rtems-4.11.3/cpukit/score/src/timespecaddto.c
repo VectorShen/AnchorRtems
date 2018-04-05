@@ -32,11 +32,11 @@ uint32_t _Timespec_Add_to (struct timespec *time, const struct timespec *add)
 
 	/* Now adjust it so nanoseconds is in range */
 	while (time->tv_nsec >= TOD_NANOSECONDS_PER_SECOND)
-	  {
-		  time->tv_nsec -= TOD_NANOSECONDS_PER_SECOND;
-		  time->tv_sec++;
-		  seconds++;
-	  }
+	{
+		time->tv_nsec -= TOD_NANOSECONDS_PER_SECOND;
+		time->tv_sec++;
+		seconds++;
+	}
 
 	return seconds;
 }

@@ -139,13 +139,13 @@ static struct netent *getnetanswer (querybuf * answer, int anslen, int net_i)
 	buflen = sizeof (netbuf);
 	cp = answer->buf + HFIXEDSZ;
 	if (!qdcount)
-	  {
-		  if (hp->aa)
-			  h_errno = HOST_NOT_FOUND;
-		  else
-			  h_errno = TRY_AGAIN;
-		  return (NULL);
-	  }
+	{
+		if (hp->aa)
+			h_errno = HOST_NOT_FOUND;
+		else
+			h_errno = TRY_AGAIN;
+		return (NULL);
+	}
 	while (qdcount-- > 0)
 		cp += __dn_skipname (cp, eom) + QFIXEDSZ;
 	ap = net_aliases;
@@ -153,69 +153,69 @@ static struct netent *getnetanswer (querybuf * answer, int anslen, int net_i)
 	net_entry.n_aliases = net_aliases;
 	haveanswer = 0;
 	while (--ancount >= 0 && cp < eom)
-	  {
-		  n = dn_expand (answer->buf, eom, cp, bp, buflen);
-		  if ((n < 0) || !res_dnok (bp))
-			  break;
-		  cp += n;
-		  ans[0] = '\0';
-		  (void)strncpy (&ans[0], bp, sizeof (ans) - 1);
-		  ans[sizeof (ans) - 1] = '\0';
-		  GETSHORT (type, cp);
-		  GETSHORT (class, cp);
-		  cp += INT32SZ;		/* TTL */
-		  GETSHORT (n, cp);
-		  if (class == C_IN && type == T_PTR)
+	{
+		n = dn_expand (answer->buf, eom, cp, bp, buflen);
+		if ((n < 0) || !res_dnok (bp))
+			break;
+		cp += n;
+		ans[0] = '\0';
+		(void)strncpy (&ans[0], bp, sizeof (ans) - 1);
+		ans[sizeof (ans) - 1] = '\0';
+		GETSHORT (type, cp);
+		GETSHORT (class, cp);
+		cp += INT32SZ;		/* TTL */
+		GETSHORT (n, cp);
+		if (class == C_IN && type == T_PTR)
+		{
+			n = dn_expand (answer->buf, eom, cp, bp, buflen);
+			if ((n < 0) || !res_hnok (bp))
 			{
-				n = dn_expand (answer->buf, eom, cp, bp, buflen);
-				if ((n < 0) || !res_hnok (bp))
-				  {
-					  cp += n;
-					  return (NULL);
-				  }
 				cp += n;
-				*ap++ = bp;
-				bp += strlen (bp) + 1;
-				net_entry.n_addrtype = (class == C_IN) ? AF_INET : AF_UNSPEC;
-				haveanswer++;
+				return (NULL);
 			}
-	  }
+			cp += n;
+			*ap++ = bp;
+			bp += strlen (bp) + 1;
+			net_entry.n_addrtype = (class == C_IN) ? AF_INET : AF_UNSPEC;
+			haveanswer++;
+		}
+	}
 	if (haveanswer)
-	  {
-		  *ap = NULL;
-		  switch (net_i)
-			{
-				case BYADDR:
-					net_entry.n_name = *net_entry.n_aliases;
-					net_entry.n_net = 0L;
-					break;
-				case BYNAME:
-					in = *net_entry.n_aliases;
-					net_entry.n_name = &ans[0];
-					aux2[0] = '\0';
-					for (i = 0; i < 4; i++)
-					  {
-						  for (st = in, nchar = 0; *st != '.'; st++, nchar++)
-							  ;
-						  if (nchar != 1 || *in != '0' || flag)
-							{
-								flag = 1;
-								(void)strncpy (paux1,
-											   (i == 0) ? in : in - 1,
-											   (i == 0) ? nchar : nchar + 1);
-								paux1[(i == 0) ? nchar : nchar + 1] = '\0';
-								pauxt = paux2;
-								paux2 = strcat (paux1, paux2);
-								paux1 = pauxt;
-							}
-						  in = ++st;
-					  }
-					net_entry.n_net = inet_network (paux2);
-					break;
-			}
-		  net_entry.n_aliases++;
-		  return (&net_entry);
-	  }
+	{
+		*ap = NULL;
+		switch (net_i)
+		{
+			case BYADDR:
+				net_entry.n_name = *net_entry.n_aliases;
+				net_entry.n_net = 0L;
+				break;
+			case BYNAME:
+				in = *net_entry.n_aliases;
+				net_entry.n_name = &ans[0];
+				aux2[0] = '\0';
+				for (i = 0; i < 4; i++)
+				{
+					for (st = in, nchar = 0; *st != '.'; st++, nchar++)
+						;
+					if (nchar != 1 || *in != '0' || flag)
+					{
+						flag = 1;
+						(void)strncpy (paux1,
+									 (i == 0) ? in : in - 1,
+									 (i == 0) ? nchar : nchar + 1);
+						paux1[(i == 0) ? nchar : nchar + 1] = '\0';
+						pauxt = paux2;
+						paux2 = strcat (paux1, paux2);
+						paux1 = pauxt;
+					}
+					in = ++st;
+				}
+				net_entry.n_net = inet_network (paux2);
+				break;
+		}
+		net_entry.n_aliases++;
+		return (&net_entry);
+	}
 	h_errno = TRY_AGAIN;
 	return (NULL);
 }
@@ -236,42 +236,42 @@ struct netent *_getnetbydnsaddr (register unsigned long net,
 	for (nn = 4, net2 = net; net2; net2 >>= 8)
 		netbr[--nn] = net2 & 0xff;
 	switch (nn)
-	  {
-		  case 3:				/* Class A */
-			  sprintf (qbuf, "0.0.0.%u.in-addr.arpa", netbr[3]);
-			  break;
-		  case 2:				/* Class B */
-			  sprintf (qbuf, "0.0.%u.%u.in-addr.arpa", netbr[3], netbr[2]);
-			  break;
-		  case 1:				/* Class C */
-			  sprintf (qbuf, "0.%u.%u.%u.in-addr.arpa", netbr[3], netbr[2],
-					   netbr[1]);
-			  break;
-		  case 0:				/* Class D - E */
-			  sprintf (qbuf, "%u.%u.%u.%u.in-addr.arpa", netbr[3], netbr[2],
-					   netbr[1], netbr[0]);
-			  break;
-	  }
+	{
+		case 3:				/* Class A */
+			sprintf (qbuf, "0.0.0.%u.in-addr.arpa", netbr[3]);
+			break;
+		case 2:				/* Class B */
+			sprintf (qbuf, "0.0.%u.%u.in-addr.arpa", netbr[3], netbr[2]);
+			break;
+		case 1:				/* Class C */
+			sprintf (qbuf, "0.%u.%u.%u.in-addr.arpa", netbr[3], netbr[2],
+					 netbr[1]);
+			break;
+		case 0:				/* Class D - E */
+			sprintf (qbuf, "%u.%u.%u.%u.in-addr.arpa", netbr[3], netbr[2],
+					 netbr[1], netbr[0]);
+			break;
+	}
 	anslen = res_query (qbuf, C_IN, T_PTR, (u_char *) & buf, sizeof (buf));
 	if (anslen < 0)
-	  {
+	{
 #ifdef DEBUG
-		  if (_res.options & RES_DEBUG)
-			  printf ("res_query failed\n");
+		if (_res.options & RES_DEBUG)
+			printf ("res_query failed\n");
 #endif
-		  return (NULL);
-	  }
+		return (NULL);
+	}
 	net_entry = getnetanswer (&buf, anslen, BYADDR);
 	if (net_entry)
-	  {
-		  unsigned u_net = net;	/* maybe net should be unsigned ? */
+	{
+		unsigned u_net = net;	/* maybe net should be unsigned ? */
 
-		  /* Strip trailing zeros */
-		  while ((u_net & 0xff) == 0 && u_net != 0)
-			  u_net >>= 8;
-		  net_entry->n_net = u_net;
-		  return (net_entry);
-	  }
+		/* Strip trailing zeros */
+		while ((u_net & 0xff) == 0 && u_net != 0)
+			u_net >>= 8;
+		net_entry->n_net = u_net;
+		return (net_entry);
+	}
 	return (NULL);
 }
 
@@ -282,21 +282,21 @@ struct netent *_getnetbydnsname (register const char *net)
 	char qbuf[MAXDNAME];
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (NULL);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (NULL);
+	}
 	strncpy (qbuf, net, sizeof (qbuf) - 1);
 	qbuf[sizeof (qbuf) - 1] = '\0';
 	anslen = res_search (qbuf, C_IN, T_PTR, (u_char *) & buf, sizeof (buf));
 	if (anslen < 0)
-	  {
+	{
 #ifdef DEBUG
-		  if (_res.options & RES_DEBUG)
-			  printf ("res_query failed\n");
+		if (_res.options & RES_DEBUG)
+			printf ("res_query failed\n");
 #endif
-		  return (NULL);
-	  }
+		return (NULL);
+	}
 	return getnetanswer (&buf, anslen, BYNAME);
 }
 

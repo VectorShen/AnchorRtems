@@ -21,8 +21,8 @@
 #include <rtems/score/schedulercbs.h>
 
 int _Scheduler_CBS_Create_server (Scheduler_CBS_Parameters * params,
-								  Scheduler_CBS_Budget_overrun
-								  budget_overrun_callback, rtems_id * server_id)
+								Scheduler_CBS_Budget_overrun
+								budget_overrun_callback, rtems_id * server_id)
 {
 	unsigned int i;
 	Scheduler_CBS_Server *the_server;
@@ -34,10 +34,10 @@ int _Scheduler_CBS_Create_server (Scheduler_CBS_Parameters * params,
 		return SCHEDULER_CBS_ERROR_INVALID_PARAMETER;
 
 	for (i = 0; i < _Scheduler_CBS_Maximum_servers; i++)
-	  {
-		  if (!_Scheduler_CBS_Server_list[i].initialized)
-			  break;
-	  }
+	{
+		if (!_Scheduler_CBS_Server_list[i].initialized)
+			break;
+	}
 
 	if (i == _Scheduler_CBS_Maximum_servers)
 		return SCHEDULER_CBS_ERROR_FULL;

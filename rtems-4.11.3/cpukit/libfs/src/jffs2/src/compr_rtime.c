@@ -43,31 +43,31 @@ uint16_t rtems_jffs2_compressor_rtime_compress (rtems_jffs2_compressor_control *
 	memset (positions, 0, sizeof (positions));
 
 	while (pos < (*sourcelen) && outpos <= (*dstlen) - 2)
-	  {
-		  int backpos, runlen = 0;
-		  unsigned char value;
+	{
+		int backpos, runlen = 0;
+		unsigned char value;
 
-		  value = data_in[pos];
+		value = data_in[pos];
 
-		  cpage_out[outpos++] = data_in[pos++];
+		cpage_out[outpos++] = data_in[pos++];
 
-		  backpos = positions[value];
-		  positions[value] = pos;
+		backpos = positions[value];
+		positions[value] = pos;
 
-		  while ((backpos < pos) && (pos < (*sourcelen)) &&
+		while ((backpos < pos) && (pos < (*sourcelen)) &&
 				 (data_in[pos] == data_in[backpos++]) && (runlen < 255))
-			{
-				pos++;
-				runlen++;
-			}
-		  cpage_out[outpos++] = runlen;
-	  }
+		{
+			pos++;
+			runlen++;
+		}
+		cpage_out[outpos++] = runlen;
+	}
 
 	if (outpos >= pos)
-	  {
-		  /* We failed */
-		  return JFFS2_COMPR_NONE;
-	  }
+	{
+		/* We failed */
+		return JFFS2_COMPR_NONE;
+	}
 
 	/* Tell the caller how much we managed to compress, and how much space it took */
 	*sourcelen = pos;
@@ -88,40 +88,40 @@ int rtems_jffs2_compressor_rtime_decompress (rtems_jffs2_compressor_control *
 	(void)self;
 
 	if (comprtype != JFFS2_COMPR_RTIME)
-	  {
-		  return -EIO;
-	  }
+	{
+		return -EIO;
+	}
 
 	memset (positions, 0, sizeof (positions));
 
 	while (outpos < destlen)
-	  {
-		  unsigned char value;
-		  int backoffs;
-		  int repeat;
+	{
+		unsigned char value;
+		int backoffs;
+		int repeat;
 
-		  value = data_in[pos++];
-		  cpage_out[outpos++] = value;	/* first the verbatim copied byte */
-		  repeat = data_in[pos++];
-		  backoffs = positions[value];
+		value = data_in[pos++];
+		cpage_out[outpos++] = value;	/* first the verbatim copied byte */
+		repeat = data_in[pos++];
+		backoffs = positions[value];
 
-		  positions[value] = outpos;
-		  if (repeat)
+		positions[value] = outpos;
+		if (repeat)
+		{
+			if (backoffs + repeat >= outpos)
 			{
-				if (backoffs + repeat >= outpos)
-				  {
-					  while (repeat)
-						{
-							cpage_out[outpos++] = cpage_out[backoffs++];
-							repeat--;
-						}
-				  }
-				else
-				  {
-					  memcpy (&cpage_out[outpos], &cpage_out[backoffs], repeat);
-					  outpos += repeat;
-				  }
+				while (repeat)
+				{
+					cpage_out[outpos++] = cpage_out[backoffs++];
+					repeat--;
+				}
 			}
-	  }
+			else
+			{
+				memcpy (&cpage_out[outpos], &cpage_out[backoffs], repeat);
+				outpos += repeat;
+			}
+		}
+	}
 	return 0;
 }

@@ -65,9 +65,9 @@ static size_t ifreqSize (struct ifreq *pifreq)
 {
 	size_t size = pifreq->ifr_addr.sa_len + sizeof (pifreq->ifr_name);
 	if (size < sizeof (*pifreq))
-	  {
-		  size = sizeof (*pifreq);
-	  }
+	{
+		size = sizeof (*pifreq);
+	}
 	return size;
 }
 
@@ -85,61 +85,61 @@ int get_myaddress (struct sockaddr_in *addr)
 	int loopback = 0, gotit = 0;
 
 	if ((s = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
-	  {
-		  return (-1);
-	  }
+	{
+		return (-1);
+	}
   again:
 	ifc.ifc_len = sizeof (struct ifreq) * 8u;
 	ifc.ifc_buf = malloc (ifc.ifc_len);
 	if (!ifc.ifc_buf)
-	  {
-		  _RPC_close (s);
-		  return -1;
-	  }
+	{
+		_RPC_close (s);
+		return -1;
+	}
 	if (ioctl (s, SIOCGIFCONF, (char *)&ifc) < 0)
-	  {
-		  _RPC_close (s);
-		  free (ifc.ifc_buf);
-		  return (-1);
-	  }
+	{
+		_RPC_close (s);
+		free (ifc.ifc_buf);
+		return (-1);
+	}
 	ifr = ifc.ifc_req;
 
 	while (ifc.ifc_len >= ifreqSize (ifr))
-	  {
-		  ifreq = *ifr;
-		  if (ioctl (s, SIOCGIFFLAGS, (char *)&ifreq) < 0)
-			{
-				_RPC_close (s);
-				free (ifc.ifc_buf);
-				return (-1);
-			}
-		  if (((ifreq.ifr_flags & IFF_UP) &&
-			   ifr->ifr_addr.sa_family == AF_INET &&
-			   !(ifreq.ifr_flags & IFF_LOOPBACK)) ||
-			  (loopback == 1 && (ifreq.ifr_flags & IFF_LOOPBACK)
-			   && (ifr->ifr_addr.sa_family == AF_INET)
-			   && (ifreq.ifr_flags & IFF_UP)))
-			{
-				*addr = *((struct sockaddr_in *)&ifr->ifr_addr);
-				addr->sin_port = htons (PMAPPORT);
-				gotit = 1;
-				break;
-			}
+	{
+		ifreq = *ifr;
+		if (ioctl (s, SIOCGIFFLAGS, (char *)&ifreq) < 0)
+		{
+			_RPC_close (s);
+			free (ifc.ifc_buf);
+			return (-1);
+		}
+		if (((ifreq.ifr_flags & IFF_UP) &&
+			 ifr->ifr_addr.sa_family == AF_INET &&
+			 !(ifreq.ifr_flags & IFF_LOOPBACK)) ||
+			(loopback == 1 && (ifreq.ifr_flags & IFF_LOOPBACK)
+			 && (ifr->ifr_addr.sa_family == AF_INET)
+			 && (ifreq.ifr_flags & IFF_UP)))
+		{
+			*addr = *((struct sockaddr_in *)&ifr->ifr_addr);
+			addr->sin_port = htons (PMAPPORT);
+			gotit = 1;
+			break;
+		}
 
-		  const size_t len = ifreqSize (ifr);
-		  ifc.ifc_len -= len;
-		  /* 
-		   * RTEMS seems to require copy up to properly aligned 
-		   * boundary at the beginning of the buffer?
-		   */
-		  memmove (ifr, len + (char *)ifr, ifc.ifc_len);
-	  }
+		const size_t len = ifreqSize (ifr);
+		ifc.ifc_len -= len;
+		/*
+		 * RTEMS seems to require copy up to properly aligned
+		 * boundary at the beginning of the buffer?
+		 */
+		memmove (ifr, len + (char *)ifr, ifc.ifc_len);
+	}
 	if (gotit == 0 && loopback == 0)
-	  {
-		  free (ifc.ifc_buf);
-		  loopback = 1;
-		  goto again;
-	  }
+	{
+		free (ifc.ifc_buf);
+		loopback = 1;
+		goto again;
+	}
 	(void)_RPC_close (s);
 	free (ifc.ifc_buf);
 	return (gotit ? 0 : -1);

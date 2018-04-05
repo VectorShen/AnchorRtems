@@ -73,7 +73,7 @@ static int _getgroups (char *, gid_t *);
  */
 int
 netname2user (char netname[MAXNETNAMELEN + 1],
-			  uid_t * uidp, gid_t * gidp, int *gidlenp, gid_t * gidlist)
+			uid_t * uidp, gid_t * gidp, int *gidlenp, gid_t * gidlist)
 {
 	char *p;
 	int gidlen;
@@ -87,29 +87,29 @@ netname2user (char netname[MAXNETNAMELEN + 1],
 	int err;
 
 	if (getnetid (netname, val))
-	  {
-		  p = strtok (val, ":");
-		  if (p == NULL)
-			  return (0);
-		  *uidp = (uid_t) atol (val);
-		  p = strtok (NULL, "\n,");
-		  *gidp = (gid_t) atol (p);
-		  if (p == NULL)
-			{
-				return (0);
-			}
-		  gidlen = 0;
-		  for (gidlen = 0; gidlen < NGROUPS; gidlen++)
-			{
-				p = strtok (NULL, "\n,");
-				if (p == NULL)
-					break;
-				gidlist[gidlen] = (gid_t) atol (p);
-			}
-		  *gidlenp = gidlen;
+	{
+		p = strtok (val, ":");
+		if (p == NULL)
+			return (0);
+		*uidp = (uid_t) atol (val);
+		p = strtok (NULL, "\n,");
+		*gidp = (gid_t) atol (p);
+		if (p == NULL)
+		{
+			return (0);
+		}
+		gidlen = 0;
+		for (gidlen = 0; gidlen < NGROUPS; gidlen++)
+		{
+			p = strtok (NULL, "\n,");
+			if (p == NULL)
+				break;
+			gidlist[gidlen] = (gid_t) atol (p);
+		}
+		*gidlenp = gidlen;
 
-		  return (1);
-	  }
+		return (1);
+	}
 	val1 = strchr (netname, '.');
 	if (val1 == NULL)
 		return (0);
@@ -160,31 +160,31 @@ static int _getgroups (char *uname, gid_t groups[NGROUPS])
 
 	setgrent ();
 	while ((grp = getgrent ()))
-	  {
-		  for (i = 0; grp->gr_mem[i]; i++)
-			  if (!strcmp (grp->gr_mem[i], uname))
+	{
+		for (i = 0; grp->gr_mem[i]; i++)
+			if (!strcmp (grp->gr_mem[i], uname))
+			{
+				if (ngroups == NGROUPS)
 				{
-					if (ngroups == NGROUPS)
-					  {
 #ifdef DEBUG
-						  fprintf (stderr,
-								   "initgroups: %s is in too many groups\n",
-								   uname);
+					fprintf (stderr,
+							 "initgroups: %s is in too many groups\n",
+							 uname);
 #endif
-						  goto toomany;
-					  }
-					/* filter out duplicate group entries */
-					filter = 0;
-					for (j = 0; j < ngroups; j++)
-						if (groups[j] == grp->gr_gid)
-						  {
-							  filter++;
-							  break;
-						  }
-					if (!filter)
-						groups[ngroups++] = grp->gr_gid;
+					goto toomany;
 				}
-	  }
+				/* filter out duplicate group entries */
+				filter = 0;
+				for (j = 0; j < ngroups; j++)
+					if (groups[j] == grp->gr_gid)
+					{
+						filter++;
+						break;
+					}
+				if (!filter)
+					groups[ngroups++] = grp->gr_gid;
+			}
+	}
   toomany:
 	endgrent ();
 	return (ngroups);
@@ -203,14 +203,14 @@ int netname2host (char netname[MAXNETNAMELEN + 1], char *hostname, int hostlen)
 	char *domain;
 
 	if (getnetid (netname, valbuf))
-	  {
-		  val = valbuf;
-		  if ((*val == '0') && (val[1] == ':'))
-			{
-				(void)strncpy (hostname, val + 2, hostlen);
-				return (1);
-			}
-	  }
+	{
+		val = valbuf;
+		if ((*val == '0') && (val[1] == ':'))
+		{
+			(void)strncpy (hostname, val + 2, hostlen);
+			return (1);
+		}
+	}
 	val = strchr (netname, '.');
 	if (val == NULL)
 		return (0);
@@ -256,84 +256,84 @@ int getnetid (char *key, char *ret)
 
 	fd = fopen (NETIDFILE, "r");
 	if (fd == (FILE *) 0)
-	  {
+	{
 #ifdef YP
-		  res = "+";
-		  goto getnetidyp;
+		res = "+";
+		goto getnetidyp;
 #else
-		  return (0);
+		return (0);
 #endif
-	  }
+	}
 	for (;;)
-	  {
-		  if (fd == (FILE *) 0)
-			  return (0);		/* getnetidyp brings us here */
-		  res = fgets (buf, 1024, fd);
-		  if (res == 0)
-			{
-				fclose (fd);
-				return (0);
-			}
-		  if (res[0] == '#')
-			  continue;
-		  else if (res[0] == '+')
-			{
+	{
+		if (fd == (FILE *) 0)
+			return (0);		/* getnetidyp brings us here */
+		res = fgets (buf, 1024, fd);
+		if (res == 0)
+		{
+			fclose (fd);
+			return (0);
+		}
+		if (res[0] == '#')
+			continue;
+		else if (res[0] == '+')
+		{
 #ifdef YP
-			  getnetidyp:
-				err = yp_get_default_domain (&domain);
-				if (err)
-				  {
-					  continue;
-				  }
-				lookup = NULL;
-				err = yp_match (domain, NETID, key,
-								strlen (key), &lookup, &len);
-				if (err)
-				  {
+		getnetidyp:
+			err = yp_get_default_domain (&domain);
+			if (err)
+			{
+				continue;
+			}
+			lookup = NULL;
+			err = yp_match (domain, NETID, key,
+							strlen (key), &lookup, &len);
+			if (err)
+			{
 #ifdef DEBUG
-					  fprintf (stderr, "match failed error %d\n", err);
-#endif
-					  continue;
-				  }
-				lookup[len] = 0;
-				strcpy (ret, lookup);
-				free (lookup);
-				if (fd != NULL)
-					fclose (fd);
-				return (2);
-#else /* YP */
-#ifdef DEBUG
-				fprintf (stderr,
-						 "Bad record in %s '+' -- NIS not supported in this library copy\n",
-						 NETIDFILE);
+				fprintf (stderr, "match failed error %d\n", err);
 #endif
 				continue;
+			}
+			lookup[len] = 0;
+			strcpy (ret, lookup);
+			free (lookup);
+			if (fd != NULL)
+				fclose (fd);
+			return (2);
+#else /* YP */
+#ifdef DEBUG
+			fprintf (stderr,
+					 "Bad record in %s '+' -- NIS not supported in this library copy\n",
+					 NETIDFILE);
+#endif
+			continue;
 #endif /* YP */
-			}
-		  else
+		}
+		else
+		{
+			mkey = strtok (buf, "\t ");
+			if (mkey == NULL)
 			{
-				mkey = strtok (buf, "\t ");
-				if (mkey == NULL)
-				  {
-					  fprintf (stderr,
-							   "Bad record in %s -- %s", NETIDFILE, buf);
-					  continue;
-				  }
-				mval = strtok (NULL, " \t#\n");
-				if (mval == NULL)
-				  {
-					  fprintf (stderr,
-							   "Bad record in %s val problem - %s", NETIDFILE,
-							   buf);
-					  continue;
-				  }
-				if (strcmp (mkey, key) == 0)
-				  {
-					  strcpy (ret, mval);
-					  fclose (fd);
-					  return (1);
-
-				  }
+				fprintf (stderr,
+						 "Bad record in %s -- %s", NETIDFILE, buf);
+				continue;
 			}
-	  }
+			mval = strtok (NULL, " \t#\n");
+			if (mval == NULL)
+			{
+				fprintf (stderr,
+						 "Bad record in %s val problem - %s", NETIDFILE,
+						 buf);
+				continue;
+			}
+			if (strcmp (mkey, key) == 0)
+			{
+				strcpy (ret, mval);
+				fclose (fd);
+				return (1);
+
+			}
+		}
+	}
 }

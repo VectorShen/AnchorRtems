@@ -19,21 +19,22 @@
 static int rtems_shell_main_unsetenv (int argc, char *argv[])
 {
 	if (argc != 2)
-	  {
-		  printf ("error: only argument is the variable name\n");
-		  return 1;
-	  }
+	{
+		printf ("error: only argument is the variable name\n");
+		return 1;
+	}
 
 	if (unsetenv (argv[1]) < 0)
-	  {
-		  printf ("error: %s\n", strerror (errno));
-		  return 1;
-	  }
+	{
+		printf ("error: %s\n", strerror (errno));
+		return 1;
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_UNSETENV_Command = {
+rtems_shell_cmd_t rtems_shell_UNSETENV_Command =
+{
 	"unsetenv",					/* name */
 	"unsetenv [var]",			/* usage */
 	"misc",						/* topic */

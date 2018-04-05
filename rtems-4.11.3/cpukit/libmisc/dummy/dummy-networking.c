@@ -21,7 +21,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-struct rtems_bsdnet_config rtems_bsdnet_config = {
+struct rtems_bsdnet_config rtems_bsdnet_config =
+{
 	NULL,						/* Network interface */
 	NULL,						/* Use fixed network configuration */
 	0,							/* Default network task priority */

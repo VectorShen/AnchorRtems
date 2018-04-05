@@ -43,26 +43,26 @@ Scheduler_Void_or_thread _Scheduler_CBS_Unblock (const Scheduler_Control *
 	 * miss of another task.
 	 */
 	if (serv_info)
-	  {
-		  time_t deadline = serv_info->parameters.deadline;
-		  time_t budget = serv_info->parameters.budget;
-		  time_t deadline_left = the_thread->cpu_time_budget;
-		  time_t budget_left = the_thread->real_priority -
-			  _Watchdog_Ticks_since_boot;
+	{
+		time_t deadline = serv_info->parameters.deadline;
+		time_t budget = serv_info->parameters.budget;
+		time_t deadline_left = the_thread->cpu_time_budget;
+		time_t budget_left = the_thread->real_priority -
+			_Watchdog_Ticks_since_boot;
 
-		  if (deadline * budget_left > budget * deadline_left)
+		if (deadline * budget_left > budget * deadline_left)
+		{
+			/* Put late unblocked task to background until the end of period. */
+			new_priority = the_thread->Start.initial_priority;
+			the_thread->real_priority = new_priority;
+			if (the_thread->current_priority != new_priority)
 			{
-				/* Put late unblocked task to background until the end of period. */
-				new_priority = the_thread->Start.initial_priority;
-				the_thread->real_priority = new_priority;
-				if (the_thread->current_priority != new_priority)
-				  {
-					  the_thread->current_priority = new_priority;
-					  _Scheduler_Change_priority (the_thread, new_priority,
-												  true);
-				  }
+				the_thread->current_priority = new_priority;
+				_Scheduler_Change_priority (the_thread, new_priority,
+											true);
 			}
-	  }
+		}
+	}
 
 	/*
 	 *  If the thread that was unblocked is more important than the heir,
@@ -79,11 +79,11 @@ Scheduler_Void_or_thread _Scheduler_CBS_Unblock (const Scheduler_Control *
 	if (_Scheduler_Is_priority_higher_than (scheduler,
 											the_thread->current_priority,
 											_Thread_Heir->current_priority))
-	  {
-		  _Scheduler_Update_heir (the_thread,
-								  the_thread->current_priority ==
-								  PRIORITY_PSEUDO_ISR);
-	  }
+	{
+		_Scheduler_Update_heir (the_thread,
+								the_thread->current_priority ==
+								PRIORITY_PSEUDO_ISR);
+	}
 
 	SCHEDULER_RETURN_VOID_OR_NULL;
 }

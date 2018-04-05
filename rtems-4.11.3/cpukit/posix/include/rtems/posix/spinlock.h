@@ -34,26 +34,26 @@ extern "C"
 #endif
 
 /**
- * @defgroup POSIX_SPINLOCK POSIX Spinlock Support
- *
- * @ingroup POSIXAPI
- *
- * @brief Constants and Structures Associated with the POSIX Spinlock Manager
- * 
- */
+* @defgroup POSIX_SPINLOCK POSIX Spinlock Support
+*
+* @ingroup POSIXAPI
+*
+* @brief Constants and Structures Associated with the POSIX Spinlock Manager
+*
+*/
 /**@{**/
 
 /**
- * This type defines the control block used to manage each spinlock.
- */
+* This type defines the control block used to manage each spinlock.
+*/
 
-	typedef struct
-	{
-  /** This is used to manage a spinlock as an object. */
-		Objects_Control Object;
-  /** This is used to implement the spinlock. */
-		CORE_spinlock_Control Spinlock;
-	} POSIX_Spinlock_Control;
+typedef struct
+{
+/** This is used to manage a spinlock as an object. */
+	Objects_Control Object;
+/** This is used to implement the spinlock. */
+	CORE_spinlock_Control Spinlock;
+} POSIX_Spinlock_Control;
 
 /** @} */
 

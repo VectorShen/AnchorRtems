@@ -23,8 +23,8 @@
 static const IMFS_node_control IMFS_node_control_hard_link;
 
 int IMFS_link (const rtems_filesystem_location_info_t * parentloc,
-			   const rtems_filesystem_location_info_t * targetloc,
-			   const char *name, size_t namelen)
+			 const rtems_filesystem_location_info_t * targetloc,
+			 const char *name, size_t namelen)
 {
 	IMFS_jnode_t *new_node;
 	IMFS_jnode_t *target;
@@ -73,7 +73,8 @@ static int IMFS_stat_hard_link (const rtems_filesystem_location_info_t * loc,
 	return (targetloc.handlers->fstat_h) (&targetloc, buf);
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_link_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_link_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = rtems_filesystem_default_read,
@@ -109,33 +110,34 @@ static IMFS_jnode_t *IMFS_node_remove_hard_link (IMFS_jnode_t * node)
 	_Assert (target != NULL);
 
 	if (target->st_nlink == 1)
-	  {
-		  target = (*target->control->node_remove) (target);
-		  if (target == NULL)
-			{
-				node = NULL;
-			}
-	  }
+	{
+		target = (*target->control->node_remove) (target);
+		if (target == NULL)
+		{
+			node = NULL;
+		}
+	}
 	else
-	  {
-		  --target->st_nlink;
-		  IMFS_update_ctime (target);
-	  }
+	{
+		--target->st_nlink;
+		IMFS_update_ctime (target);
+	}
 
 	if (target != NULL)
-	  {
-		  --target->reference_count;
+	{
+		--target->reference_count;
 
-		  if (target->reference_count == 0)
-			{
-				IMFS_node_destroy (target);
-			}
-	  }
+		if (target->reference_count == 0)
+		{
+			IMFS_node_destroy (target);
+		}
+	}
 
 	return node;
 }
 
-static const IMFS_node_control IMFS_node_control_hard_link = {
+static const IMFS_node_control IMFS_node_control_hard_link =
+{
 	.handlers = &IMFS_link_handlers,
 	.node_initialize = IMFS_node_initialize_hard_link,
 	.node_remove = IMFS_node_remove_hard_link,

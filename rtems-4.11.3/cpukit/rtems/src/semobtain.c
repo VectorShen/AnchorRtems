@@ -32,8 +32,8 @@
 #include <rtems/score/interr.h>
 
 rtems_status_code rtems_semaphore_obtain (rtems_id id,
-										  rtems_option option_set,
-										  rtems_interval timeout)
+										rtems_option option_set,
+										rtems_interval timeout)
 {
 	Semaphore_Control *the_semaphore;
 	Objects_Locations location;
@@ -43,58 +43,58 @@ rtems_status_code rtems_semaphore_obtain (rtems_id id,
 	bool wait;
 
 	the_semaphore = _Semaphore_Get_interrupt_disable (id,
-													  &location, &lock_context);
+													&location, &lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  executing = _Thread_Executing;
-			  attribute_set = the_semaphore->attribute_set;
-			  wait = !_Options_Is_no_wait (option_set);
+		case OBJECTS_LOCAL:
+			executing = _Thread_Executing;
+			attribute_set = the_semaphore->attribute_set;
+			wait = !_Options_Is_no_wait (option_set);
 #if defined(RTEMS_SMP)
-			  if (_Attributes_Is_multiprocessor_resource_sharing
-				  (attribute_set))
-				{
-					MRSP_Status mrsp_status;
+			if (_Attributes_Is_multiprocessor_resource_sharing
+				(attribute_set))
+			{
+				MRSP_Status mrsp_status;
 
-					mrsp_status =
-						_MRSP_Obtain (&the_semaphore->Core_control.mrsp,
-									  executing, wait, timeout, &lock_context);
-					return _Semaphore_Translate_MRSP_status_code (mrsp_status);
-				}
-			  else
+				mrsp_status =
+					_MRSP_Obtain (&the_semaphore->Core_control.mrsp,
+								executing, wait, timeout, &lock_context);
+				return _Semaphore_Translate_MRSP_status_code (mrsp_status);
+			}
+			else
 #endif
-			  if (!_Attributes_Is_counting_semaphore (attribute_set))
-				{
-					_CORE_mutex_Seize (&the_semaphore->Core_control.mutex,
-									   executing,
-									   id, wait, timeout, &lock_context);
-					return
-						_Semaphore_Translate_core_mutex_return_code (executing->
-																	 Wait.
-																	 return_code);
-				}
+			if (!_Attributes_Is_counting_semaphore (attribute_set))
+			{
+				_CORE_mutex_Seize (&the_semaphore->Core_control.mutex,
+								 executing,
+								 id, wait, timeout, &lock_context);
+				return
+					_Semaphore_Translate_core_mutex_return_code (executing->
+																 Wait.
+																 return_code);
+			}
 
-			  /* must be a counting semaphore */
-			  _CORE_semaphore_Seize (&the_semaphore->Core_control.semaphore,
+			/* must be a counting semaphore */
+			_CORE_semaphore_Seize (&the_semaphore->Core_control.semaphore,
 									 executing,
 									 id, wait, timeout, &lock_context);
-			  return
-				  _Semaphore_Translate_core_semaphore_return_code (executing->
-																   Wait.
-																   return_code);
+			return
+				_Semaphore_Translate_core_semaphore_return_code (executing->
+																 Wait.
+																 return_code);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  return
-				  _Semaphore_MP_Send_request_packet
-				  (SEMAPHORE_MP_OBTAIN_REQUEST, id, option_set, timeout);
+		case OBJECTS_REMOTE:
+			return
+				_Semaphore_MP_Send_request_packet
+				(SEMAPHORE_MP_OBTAIN_REQUEST, id, option_set, timeout);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
+		case OBJECTS_ERROR:
+			break;
 
-	  }
+	}
 
 	return RTEMS_INVALID_ID;
 }

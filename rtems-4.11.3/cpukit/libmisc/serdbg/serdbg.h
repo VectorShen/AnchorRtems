@@ -27,32 +27,32 @@ extern "C"
 {
 #endif
 
-	typedef struct
-	{
-		uint32_t baudrate;		/* debug baud rate, e.g. 57600            */
-		void (*callout) (void);	/* callout pointer during polling         */
-		int (*open_io) (const char *dev_name, uint32_t baudrate);	/* I/O open fnc */
-		const char *devname;	/* debug device, e.g. "/dev/tty01"        */
-		bool skip_init_bkpt;	/* if TRUE, do not stop when initializing */
-	} serdbg_conf_t;
+typedef struct
+{
+	uint32_t baudrate;		/* debug baud rate, e.g. 57600            */
+	void (*callout) (void);	/* callout pointer during polling         */
+	int (*open_io) (const char *dev_name, uint32_t baudrate);	/* I/O open fnc */
+	const char *devname;	/* debug device, e.g. "/dev/tty01"        */
+	bool skip_init_bkpt;	/* if TRUE, do not stop when initializing */
+} serdbg_conf_t;
 
 /*
- * must be defined in init module...
- */
-	extern serdbg_conf_t serdbg_conf;
+* must be defined in init module...
+*/
+extern serdbg_conf_t serdbg_conf;
 
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	void putDebugChar (
+void putDebugChar (
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |   send character to remote debugger                                       |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-						  char c	/* char to send                    */
-		);
+					  char c	/* char to send                    */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    <none>                                                                 |
@@ -61,15 +61,15 @@ extern "C"
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	int getDebugChar (
+int getDebugChar (
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |   get character from remote debugger                                      |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-						 void	/* <none>                          */
-		);
+					 void	/* <none>                          */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    <none>                                                                 |
@@ -78,16 +78,16 @@ extern "C"
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	void serdbg_exceptionHandler (
+void serdbg_exceptionHandler (
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |   hook directly to an exception vector                                    |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-									 int vecnum,	/* vector index to hook at         */
-									 void *vector	/* address of handler function     */
-		);
+								 int vecnum,	/* vector index to hook at         */
+								 void *vector	/* address of handler function     */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    <none>                                                                 |
@@ -96,47 +96,47 @@ extern "C"
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	int serdbg_init (
+int serdbg_init (
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |   initialize remote gdb session over serial line                          |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-						void);
+					void);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    rtems_status_code                                                      |
 \*=========================================================================*/
 
 /*
- * stuff from serdbgio.c
- */
+* stuff from serdbgio.c
+*/
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	int serdbg_open
+int serdbg_open
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |    try to open given serial debug port                                    |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-	  (const char *dev_name,	/* name of device to open */
-	   uint32_t baudrate		/* baud rate to use       */
-		);
+  (const char *dev_name,	/* name of device to open */
+   uint32_t baudrate		/* baud rate to use       */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    0 on success, -1 and errno otherwise                                   |
 \*=========================================================================*/
 
-	extern int serdbg_init_dbg (void);
+extern int serdbg_init_dbg (void);
 
 /*
- * Assumed to be provided by the BSP
- */
-	extern void set_debug_traps (void);
-	extern void breakpoint (void);
+* Assumed to be provided by the BSP
+*/
+extern void set_debug_traps (void);
+extern void breakpoint (void);
 #ifdef __cplusplus
 }
 #endif

@@ -50,29 +50,29 @@ extern "C"
     dev_zero_control \
   }
 
-	rtems_device_driver dev_zero_initialize (rtems_device_major_number major,
-											 rtems_device_minor_number minor,
-											 void *arg);
+rtems_device_driver dev_zero_initialize (rtems_device_major_number major,
+										 rtems_device_minor_number minor,
+										 void *arg);
 
-	rtems_device_driver dev_zero_open (rtems_device_major_number major,
-									   rtems_device_minor_number minor,
-									   void *arg);
+rtems_device_driver dev_zero_open (rtems_device_major_number major,
+								   rtems_device_minor_number minor,
+								   void *arg);
 
-	rtems_device_driver dev_zero_close (rtems_device_major_number major,
-										rtems_device_minor_number minor,
-										void *arg);
+rtems_device_driver dev_zero_close (rtems_device_major_number major,
+									rtems_device_minor_number minor,
+									void *arg);
 
-	rtems_device_driver dev_zero_read (rtems_device_major_number major,
-									   rtems_device_minor_number minor,
-									   void *arg);
+rtems_device_driver dev_zero_read (rtems_device_major_number major,
+								   rtems_device_minor_number minor,
+								   void *arg);
 
-	rtems_device_driver dev_zero_write (rtems_device_major_number major,
-										rtems_device_minor_number minor,
-										void *arg);
+rtems_device_driver dev_zero_write (rtems_device_major_number major,
+									rtems_device_minor_number minor,
+									void *arg);
 
-	rtems_device_driver dev_zero_control (rtems_device_major_number major,
-										  rtems_device_minor_number minor,
-										  void *arg);
+rtems_device_driver dev_zero_control (rtems_device_major_number major,
+									  rtems_device_minor_number minor,
+									  void *arg);
 
 #ifdef __cplusplus
 }

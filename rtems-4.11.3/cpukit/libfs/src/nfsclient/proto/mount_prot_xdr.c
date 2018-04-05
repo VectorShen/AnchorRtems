@@ -24,14 +24,14 @@ bool_t xdr_fhstatus (XDR * xdrs, fhstatus * objp)
 	if (!xdr_u_int (xdrs, &objp->fhs_status))
 		return FALSE;
 	switch (objp->fhs_status)
-	  {
-		  case 0:
-			  if (!xdr_fhandle (xdrs, objp->fhstatus_u.fhs_fhandle))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case 0:
+			if (!xdr_fhandle (xdrs, objp->fhstatus_u.fhs_fhandle))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 

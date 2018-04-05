@@ -23,7 +23,7 @@
 #include <rtems/score/threadimpl.h>
 
 RBTree_Compare_result _Thread_queue_Compare_priority (const RBTree_Node * left,
-													  const RBTree_Node * right)
+													const RBTree_Node * right)
 {
 	const Thread_Control *left_thread;
 	const Thread_Control *right_thread;
@@ -42,21 +42,21 @@ RBTree_Compare_result _Thread_queue_Compare_priority (const RBTree_Node * left,
 }
 
 void _Thread_queue_Initialize (Thread_queue_Control * the_thread_queue,
-							   Thread_queue_Disciplines the_discipline)
+							 Thread_queue_Disciplines the_discipline)
 {
 	const Thread_queue_Operations *operations;
 
 	_ISR_lock_Initialize (&the_thread_queue->Lock, "Thread Queue");
 
 	if (the_discipline == THREAD_QUEUE_DISCIPLINE_PRIORITY)
-	  {
-		  operations = &_Thread_queue_Operations_priority;
-	  }
+	{
+		operations = &_Thread_queue_Operations_priority;
+	}
 	else
-	  {
-		  _Assert (the_discipline == THREAD_QUEUE_DISCIPLINE_FIFO);
-		  operations = &_Thread_queue_Operations_FIFO;
-	  }
+	{
+		_Assert (the_discipline == THREAD_QUEUE_DISCIPLINE_FIFO);
+		operations = &_Thread_queue_Operations_FIFO;
+	}
 
 	the_thread_queue->operations = operations;
 	(*operations->initialize) (the_thread_queue);

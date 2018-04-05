@@ -45,10 +45,10 @@ int uid_open_queue (const char *q_name,
 	 * regarding multi-threading is taken in consideration here.
 	 */
 	if (open_count)
-	  {
-		  open_count++;
-		  return 0;
-	  }
+	{
+		open_count++;
+		return 0;
+	}
 
 	status =
 		rtems_message_queue_create (rtems_build_name
@@ -57,12 +57,12 @@ int uid_open_queue (const char *q_name,
 									sizeof (struct MW_UID_MESSAGE),
 									RTEMS_FIFO | RTEMS_LOCAL, &queue_id);
 	if (status != RTEMS_SUCCESSFUL)
-	  {
+	{
 #ifdef MW_DEBUG_ON
-		  printk ("UID_Queue: error creating queue: %d\n", status);
+		printk ("UID_Queue: error creating queue: %d\n", status);
 #endif
-		  return -1;
-	  }
+		return -1;
+	}
 #ifdef MW_DEBUG_ON
 	printk ("UID_Queue: id=%X\n", queue_id);
 #endif
@@ -74,10 +74,10 @@ int uid_open_queue (const char *q_name,
 int uid_close_queue (void)
 {
 	if (open_count == 1)
-	  {
-		  rtems_message_queue_delete (queue_id);
-		  queue_id = 0;
-	  }
+	{
+		rtems_message_queue_delete (queue_id);
+		queue_id = 0;
+	}
 	open_count--;
 	return 0;
 }
@@ -91,31 +91,31 @@ int uid_read_message (struct MW_UID_MESSAGE *m, unsigned long timeout)
 	int ticks = RTEMS_MICROSECONDS_TO_TICKS (timeout * 1000);
 
 	if (timeout == (unsigned long)-1)
-	  {
-		  ticks = RTEMS_NO_TIMEOUT;
-	  }
+	{
+		ticks = RTEMS_NO_TIMEOUT;
+	}
 	else if (timeout && ticks == 0)
-	  {
-		  /* if timeout greater than 0 and smaller than a tick, round up to avoid
-		   * unintentionally RTEMS_NO_TIMEOUT
-		   */
-		  ticks = 1;
-	  }
+	{
+		/* if timeout greater than 0 and smaller than a tick, round up to avoid
+		 * unintentionally RTEMS_NO_TIMEOUT
+		 */
+		ticks = 1;
+	}
 
 	status = rtems_message_queue_receive (queue_id,
-										  (void *)m,
-										  &size,
-										  wait ? RTEMS_WAIT : RTEMS_NO_WAIT,
-										  ticks);
+										(void *)m,
+										&size,
+										wait ? RTEMS_WAIT : RTEMS_NO_WAIT,
+										ticks);
 
 	if (status == RTEMS_SUCCESSFUL)
-	  {
-		  return size;
-	  }
+	{
+		return size;
+	}
 	else if ((status == RTEMS_UNSATISFIED) || (status == RTEMS_TIMEOUT))
-	  {
-		  rtems_set_errno_and_return_minus_one (ETIMEDOUT);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ETIMEDOUT);
+	}
 	/* Here we have one error condition */
 #ifdef MW_DEBUG_ON
 	printk ("UID_Queue: error reading queue: %d\n", status);
@@ -133,7 +133,7 @@ int uid_send_message (struct MW_UID_MESSAGE *m)
 	rtems_status_code status;
 	status =
 		rtems_message_queue_send (queue_id, (void *)m,
-								  sizeof (struct MW_UID_MESSAGE));
+								sizeof (struct MW_UID_MESSAGE));
 	return (status == RTEMS_SUCCESSFUL) ? 0 : -1;
 }
 
@@ -156,12 +156,12 @@ int uid_unregister_device (int fd)
 int uid_set_kbd_mode (int fd, int mode, int *old_mode)
 {
 	if (ioctl (fd, MV_KDGKBMODE, old_mode) < 0)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 	if (ioctl (fd, MV_KDSKBMODE, mode) < 0)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 	return 0;
 }

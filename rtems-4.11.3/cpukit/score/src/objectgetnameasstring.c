@@ -55,48 +55,48 @@ char *_Objects_Get_name_as_string (Objects_Id id, size_t length, char *name)
 
 	the_object = _Objects_Get (information, tmpId, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
 #if defined(RTEMS_SCORE_OBJECT_ENABLE_STRING_NAMES)
-			  if (information->is_string)
-				{
-					s = the_object->name.name_p;
-				}
-			  else
+			if (information->is_string)
+			{
+				s = the_object->name.name_p;
+			}
+			else
 #endif
+			{
+				uint32_t u32_name = (uint32_t) the_object->name.name_u32;
+
+				lname[0] = (u32_name >> 24) & 0xff;
+				lname[1] = (u32_name >> 16) & 0xff;
+				lname[2] = (u32_name >> 8) & 0xff;
+				lname[3] = (u32_name >> 0) & 0xff;
+				lname[4] = '\0';
+				s = lname;
+			}
+
+			d = name;
+			if (s)
+			{
+				for (i = 0; i < (length - 1) && *s; i++, s++, d++)
 				{
-					uint32_t u32_name = (uint32_t) the_object->name.name_u32;
-
-					lname[0] = (u32_name >> 24) & 0xff;
-					lname[1] = (u32_name >> 16) & 0xff;
-					lname[2] = (u32_name >> 8) & 0xff;
-					lname[3] = (u32_name >> 0) & 0xff;
-					lname[4] = '\0';
-					s = lname;
+					*d = (isprint ((unsigned char)*s)) ? *s : '*';
 				}
+			}
+			*d = '\0';
 
-			  d = name;
-			  if (s)
-				{
-					for (i = 0; i < (length - 1) && *s; i++, s++, d++)
-					  {
-						  *d = (isprint ((unsigned char)*s)) ? *s : '*';
-					  }
-				}
-			  *d = '\0';
-
-			  _Objects_Put (the_object);
-			  return name;
+			_Objects_Put (the_object);
+			return name;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  /* not supported */
+		case OBJECTS_REMOTE:
+			/* not supported */
 #endif
-		  case OBJECTS_ERROR:
-			  return NULL;
+		case OBJECTS_ERROR:
+			return NULL;
 
-	  }
+	}
 	return NULL;				/* unreachable path */
 }

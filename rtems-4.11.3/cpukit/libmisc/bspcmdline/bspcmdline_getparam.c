@@ -28,16 +28,16 @@ static void copy_string (const char *start, char *value, size_t length)
 
 	quotes = 0;
 	for (i = 0; *p && i < length - 1;)
-	  {
-		  if (*p == '\"')
-			{
-				quotes++;
-			}
-		  else if (((quotes % 2) == 0) && *p == ' ')
-			  break;
-		  value[i++] = *p++;
-		  value[i] = '\0';
-	  }
+	{
+		if (*p == '\"')
+		{
+			quotes++;
+		}
+		else if (((quotes % 2) == 0) && *p == ' ')
+			break;
+		value[i++] = *p++;
+		value[i] = '\0';
+	}
 
 }
 

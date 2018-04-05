@@ -41,7 +41,7 @@
 
 static int
 rtems_rfs_rtems_file_open (rtems_libio_t * iop,
-						   const char *pathname, int oflag, mode_t mode)
+						 const char *pathname, int oflag, mode_t mode)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (&iop->pathinfo);
 	rtems_rfs_ino ino;
@@ -62,10 +62,10 @@ rtems_rfs_rtems_file_open (rtems_libio_t * iop,
 
 	rc = rtems_rfs_file_open (fs, ino, flags, &file);
 	if (rc > 0)
-	  {
-		  rtems_rfs_rtems_unlock (fs);
-		  return rtems_rfs_rtems_error ("file-open: open", rc);
-	  }
+	{
+		rtems_rfs_rtems_unlock (fs);
+		return rtems_rfs_rtems_error ("file-open: open", rc);
+	}
 
 	if (rtems_rfs_rtems_trace (RTEMS_RFS_RTEMS_DEBUG_FILE_OPEN))
 		printf ("rtems-rfs: file-open: handle:%p\n", file);
@@ -127,41 +127,41 @@ rtems_rfs_rtems_file_read (rtems_libio_t * iop, void *buffer, size_t count)
 	pos = iop->offset;
 
 	if (pos < rtems_rfs_file_size (file))
-	  {
-		  while (count)
+	{
+		while (count)
+		{
+			size_t size;
+
+			rc = rtems_rfs_file_io_start (file, &size, true);
+			if (rc > 0)
 			{
-				size_t size;
-
-				rc = rtems_rfs_file_io_start (file, &size, true);
-				if (rc > 0)
-				  {
-					  read =
-						  rtems_rfs_rtems_error ("file-read: read: io-start",
-												 rc);
-					  break;
-				  }
-
-				if (size == 0)
-					break;
-
-				if (size > count)
-					size = count;
-
-				memcpy (data, rtems_rfs_file_data (file), size);
-
-				data += size;
-				count -= size;
-				read += size;
-
-				rc = rtems_rfs_file_io_end (file, size, true);
-				if (rc > 0)
-				  {
-					  read =
-						  rtems_rfs_rtems_error ("file-read: read: io-end", rc);
-					  break;
-				  }
+				read =
+					rtems_rfs_rtems_error ("file-read: read: io-start",
+											 rc);
+				break;
 			}
-	  }
+
+			if (size == 0)
+				break;
+
+			if (size > count)
+				size = count;
+
+			memcpy (data, rtems_rfs_file_data (file), size);
+
+			data += size;
+			count -= size;
+			read += size;
+
+			rc = rtems_rfs_file_io_end (file, size, true);
+			if (rc > 0)
+			{
+				read =
+					rtems_rfs_rtems_error ("file-read: read: io-end", rc);
+				break;
+			}
+		}
+	}
 
 	if (read >= 0)
 		iop->offset = pos + read;
@@ -198,67 +198,67 @@ rtems_rfs_rtems_file_write (rtems_libio_t * iop,
 	pos = iop->offset;
 	file_size = rtems_rfs_file_size (file);
 	if (pos > file_size)
-	  {
-		  /*
-		   * If the iop position is past the physical end of the file we need to set
-		   * the file size to the new length before writing.  The
-		   * rtems_rfs_file_io_end() will grow the file subsequently.
-		   */
-		  rc = rtems_rfs_file_set_size (file, pos);
-		  if (rc)
-			{
-				rtems_rfs_rtems_unlock (rtems_rfs_file_fs (file));
-				return rtems_rfs_rtems_error ("file-write: write extend", rc);
-			}
+	{
+		/*
+		 * If the iop position is past the physical end of the file we need to set
+		 * the file size to the new length before writing.  The
+		 * rtems_rfs_file_io_end() will grow the file subsequently.
+		 */
+		rc = rtems_rfs_file_set_size (file, pos);
+		if (rc)
+		{
+			rtems_rfs_rtems_unlock (rtems_rfs_file_fs (file));
+			return rtems_rfs_rtems_error ("file-write: write extend", rc);
+		}
 
-		  rtems_rfs_file_set_bpos (file, pos);
-	  }
+		rtems_rfs_file_set_bpos (file, pos);
+	}
 	else if (pos < file_size && (iop->flags & LIBIO_FLAGS_APPEND) != 0)
-	  {
-		  pos = file_size;
-		  rc = rtems_rfs_file_seek (file, pos, &pos);
-		  if (rc)
-			{
-				rtems_rfs_rtems_unlock (rtems_rfs_file_fs (file));
-				return rtems_rfs_rtems_error ("file-write: write append seek",
-											  rc);
-			}
-	  }
+	{
+		pos = file_size;
+		rc = rtems_rfs_file_seek (file, pos, &pos);
+		if (rc)
+		{
+			rtems_rfs_rtems_unlock (rtems_rfs_file_fs (file));
+			return rtems_rfs_rtems_error ("file-write: write append seek",
+										rc);
+		}
+	}
 
 	while (count)
-	  {
-		  size_t size = count;
+	{
+		size_t size = count;
 
-		  rc = rtems_rfs_file_io_start (file, &size, false);
-		  if (rc)
-			{
-				/*
-				 * If we have run out of space and have written some data return that
-				 * amount first as the inode will have accounted for it. This means
-				 * there was no error and the return code from can be ignored.
-				 */
-				if (!write)
-					write =
-						rtems_rfs_rtems_error ("file-write: write open", rc);
-				break;
-			}
+		rc = rtems_rfs_file_io_start (file, &size, false);
+		if (rc)
+		{
+			/*
+			 * If we have run out of space and have written some data return that
+			 * amount first as the inode will have accounted for it. This means
+			 * there was no error and the return code from can be ignored.
+			 */
+			if (!write)
+				write =
+					rtems_rfs_rtems_error ("file-write: write open", rc);
+			break;
+		}
 
-		  if (size > count)
-			  size = count;
+		if (size > count)
+			size = count;
 
-		  memcpy (rtems_rfs_file_data (file), data, size);
+		memcpy (rtems_rfs_file_data (file), data, size);
 
-		  data += size;
-		  count -= size;
-		  write += size;
+		data += size;
+		count -= size;
+		write += size;
 
-		  rc = rtems_rfs_file_io_end (file, size, false);
-		  if (rc)
-			{
-				write = rtems_rfs_rtems_error ("file-write: write close", rc);
-				break;
-			}
-	  }
+		rc = rtems_rfs_file_io_end (file, size, false);
+		if (rc)
+		{
+			write = rtems_rfs_rtems_error ("file-write: write close", rc);
+			break;
+		}
+	}
 
 	if (write >= 0)
 		iop->offset = pos + write;
@@ -292,17 +292,17 @@ rtems_rfs_rtems_file_lseek (rtems_libio_t * iop, off_t offset, int whence)
 	old_offset = iop->offset;
 	new_offset = rtems_filesystem_default_lseek_file (iop, offset, whence);
 	if (new_offset != -1)
-	  {
-		  rtems_rfs_pos pos = iop->offset;
-		  int rc = rtems_rfs_file_seek (file, pos, &pos);
+	{
+		rtems_rfs_pos pos = iop->offset;
+		int rc = rtems_rfs_file_seek (file, pos, &pos);
 
-		  if (rc)
-			{
-				rtems_rfs_rtems_error ("file_lseek: lseek", rc);
-				iop->offset = old_offset;
-				new_offset = -1;
-			}
-	  }
+		if (rc)
+		{
+			rtems_rfs_rtems_error ("file_lseek: lseek", rc);
+			iop->offset = old_offset;
+			new_offset = -1;
+		}
+	}
 
 	rtems_rfs_rtems_unlock (rtems_rfs_file_fs (file));
 
@@ -340,7 +340,8 @@ static int rtems_rfs_rtems_file_ftruncate (rtems_libio_t * iop, off_t length)
  *  Set of operations handlers for operations on RFS files.
  */
 
-const rtems_filesystem_file_handlers_r rtems_rfs_rtems_file_handlers = {
+const rtems_filesystem_file_handlers_r rtems_rfs_rtems_file_handlers =
+{
 	.open_h = rtems_rfs_rtems_file_open,
 	.close_h = rtems_rfs_rtems_file_close,
 	.read_h = rtems_rfs_rtems_file_read,

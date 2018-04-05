@@ -108,38 +108,38 @@ char *telnet_get_pty (int socket)
 	int ndx;
 
 	if (telnet_pty_inited)
-	  {
+	{
 #if 0
-		  if (rtems_telnetd_maximum_ptys < 5)
-			  rtems_telnetd_maximum_ptys = 5;
+		if (rtems_telnetd_maximum_ptys < 5)
+			rtems_telnetd_maximum_ptys = 5;
 
-		  telnet_ptys = malloc (rtems_telnetd_maximum_ptys * sizeof (pty_t));
+		telnet_ptys = malloc (rtems_telnetd_maximum_ptys * sizeof (pty_t));
 #endif
-		  if (!telnet_ptys)
+		if (!telnet_ptys)
+		{
+			return NULL;
+		}
+
+		for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
+		{
+
+			if (telnet_ptys[ndx].socket < 0)
 			{
-				return NULL;
+				struct timeval t;
+				/* set a long polling interval to save CPU time */
+				t.tv_sec = 2;
+				t.tv_usec = 00000;
+				setsockopt (socket, SOL_SOCKET, SO_RCVTIMEO, &t,
+							sizeof (t));
+				telnet_ptys[ndx].socket = socket;
+
+				/* inform the client that we will echo */
+				send_iac (ndx, IAC_WILL, 1);
+
+				return telnet_ptys[ndx].devname;
 			}
-
-		  for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
-			{
-
-				if (telnet_ptys[ndx].socket < 0)
-				  {
-					  struct timeval t;
-					  /* set a long polling interval to save CPU time */
-					  t.tv_sec = 2;
-					  t.tv_usec = 00000;
-					  setsockopt (socket, SOL_SOCKET, SO_RCVTIMEO, &t,
-								  sizeof (t));
-					  telnet_ptys[ndx].socket = socket;
-
-					  /* inform the client that we will echo */
-					  send_iac (ndx, IAC_WILL, 1);
-
-					  return telnet_ptys[ndx].devname;
-				  };
-			};
-	  }
+		}
+	}
 	close (socket);
 	return NULL;
 }
@@ -158,19 +158,19 @@ static const char IAC_IP_RSP[] = "<*Interrupt*>";
 static int handleSB (pty_t * pty)
 {
 	switch (pty->sb_buf[0])
-	  {
-		  case 31:				/* NAWS */
-			  pty->width = (pty->sb_buf[1] << 8) + pty->sb_buf[2];
-			  pty->height = (pty->sb_buf[3] << 8) + pty->sb_buf[4];
+	{
+		case 31:				/* NAWS */
+			pty->width = (pty->sb_buf[1] << 8) + pty->sb_buf[2];
+			pty->height = (pty->sb_buf[3] << 8) + pty->sb_buf[4];
 #if DEBUG & DEBUG_WH
-			  fprintf (stderr,
-					   "Setting width/height to %ix%i\n",
-					   pty->width, pty->height);
+			fprintf (stderr,
+					 "Setting width/height to %ix%i\n",
+					 pty->width, pty->height);
 #endif
-			  break;
-		  default:
-			  break;
-	  }
+			break;
+		default:
+			break;
+	}
 	return 0;
 }
 
@@ -187,158 +187,158 @@ static int read_pty (int minor)
 		return -1;
 
 	if (count < 1)
-	  {
-		  /* Unfortunately, there is no way of passing an EOF
-		   * condition through the termios driver. Hence, we
-		   * resort to an ugly hack. Setting cindex>ccount
-		   * causes the termios driver to return a read count
-		   * of '0' which is what we want here. We leave
-		   * 'errno' untouched.
-		   */
-		  pty->ttyp->cindex = pty->ttyp->ccount + 1;
-		  return pty->ttyp->termios.c_cc[VEOF];
-	  };
+	{
+		/* Unfortunately, there is no way of passing an EOF
+		 * condition through the termios driver. Hence, we
+		 * resort to an ugly hack. Setting cindex>ccount
+		 * causes the termios driver to return a read count
+		 * of '0' which is what we want here. We leave
+		 * 'errno' untouched.
+		 */
+		pty->ttyp->cindex = pty->ttyp->ccount + 1;
+		return pty->ttyp->termios.c_cc[VEOF];
+	};
 
 	omod = pty->iac_mode;
 	pty->iac_mode = 0;
 	switch (omod & 0xff)
-	  {
-		  case IAC_ESC:
-			  switch (value)
-				{
-					case IAC_ESC:
-						/* in case this is an ESC ESC sequence in SB mode */
-						pty->iac_mode = omod >> 8;
-						return IAC_ESC;
-					case IAC_DONT:
-					case IAC_DO:
-					case IAC_WONT:
-					case IAC_WILL:
-						pty->iac_mode = value;
-						return -1;
-					case IAC_SB:
-#if DEBUG & DEBUG_DETAIL
-						printk ("SB\n");
-#endif
-						pty->iac_mode = value;
-						pty->sb_ind = 0;
-						return -100;
-					case IAC_GA:
-						return -1;
-					case IAC_EL:
-						return 0x03;	/* Ctrl-C */
-					case IAC_EC:
-						return '\b';
-					case IAC_AYT:
-						write (pty->socket, IAC_AYT_RSP, strlen (IAC_AYT_RSP));
-						return -1;
-					case IAC_AO:
-						return -1;
-					case IAC_IP:
-						write (pty->socket, IAC_IP_RSP, strlen (IAC_IP_RSP));
-						return -1;
-					case IAC_BRK:
-						write (pty->socket, IAC_BRK_RSP, strlen (IAC_BRK_RSP));
-						return -1;
-					case IAC_DMARK:
-						return -2;
-					case IAC_NOP:
-						return -1;
-					case IAC_SE:
-#if DEBUG & DEBUG_DETAIL
-						{
-							int i;
-							printk ("SE");
-							for (i = 0; i < pty->sb_ind; i++)
-								printk (" %02x", pty->sb_buf[i]);
-							printk ("\n");
-						}
-#endif
-						handleSB (pty);
-						return -101;
-					case IAC_EOR:
-						return -102;
-					default:
-						return -1;
-				};
-			  break;
-
-		  case IAC_SB:
-			  pty->iac_mode = omod;
-			  if (IAC_ESC == value)
-				{
-					pty->iac_mode = (omod << 8) | value;
-				}
-			  else
-				{
-					if (pty->sb_ind < SB_MAX)
-						pty->sb_buf[pty->sb_ind++] = value;
-				}
-			  return -1;
-
-		  case IAC_WILL:
-			  if (value == 34)
-				{
-					send_iac (minor, IAC_DONT, 34);
-					/*LINEMODE*/ send_iac (minor, IAC_DO, 1);	/*ECHO    */
-				}
-			  else if (value == 31)
-				{
-					send_iac (minor, IAC_DO, 31);	/*NAWS    */
-#if DEBUG & DEBUG_DETAIL
-					printk ("replied DO NAWS\n");
-#endif
-				}
-			  else
-				{
-					send_iac (minor, IAC_DONT, value);
-				}
-			  return -1;
-		  case IAC_DONT:
-			  return -1;
-		  case IAC_DO:
-			  if (value == 3)
-				{
-					send_iac (minor, IAC_WILL, 3);	/* GO AHEAD */
-				}
-			  else if (value == 1)
-				{
-					send_iac (minor, IAC_WILL, 1);	/* ECHO */
-				}
-			  else
-				{
-					send_iac (minor, IAC_WONT, value);
-				};
-			  return -1;
-		  case IAC_WONT:
-			  if (value == 1)
-				{
-					send_iac (minor, IAC_WILL, 1);
-				}
-			  else
-				{				/* ECHO */
-					send_iac (minor, IAC_WONT, value);
-				}
-			  return -1;
-		  default:
-			  if (value == IAC_ESC)
-				{
+	{
+		case IAC_ESC:
+			switch (value)
+			{
+				case IAC_ESC:
+					/* in case this is an ESC ESC sequence in SB mode */
+					pty->iac_mode = omod >> 8;
+					return IAC_ESC;
+				case IAC_DONT:
+				case IAC_DO:
+				case IAC_WONT:
+				case IAC_WILL:
 					pty->iac_mode = value;
 					return -1;
-				}
-			  else
-				{
-					result = value;
-					if (0
-						/* map CRLF to CR for symmetry */
-						|| ((value == '\n') && pty->last_cr)
-						/* map telnet CRNUL to CR down here */
-						|| ((value == 0) && pty->last_cr))
-						result = -1;
-					pty->last_cr = (value == '\r');
-					return result;
-				};
-	  };
+				case IAC_SB:
+#if DEBUG & DEBUG_DETAIL
+					printk ("SB\n");
+#endif
+					pty->iac_mode = value;
+					pty->sb_ind = 0;
+					return -100;
+				case IAC_GA:
+					return -1;
+				case IAC_EL:
+					return 0x03;	/* Ctrl-C */
+				case IAC_EC:
+					return '\b';
+				case IAC_AYT:
+					write (pty->socket, IAC_AYT_RSP, strlen (IAC_AYT_RSP));
+					return -1;
+				case IAC_AO:
+					return -1;
+				case IAC_IP:
+					write (pty->socket, IAC_IP_RSP, strlen (IAC_IP_RSP));
+					return -1;
+				case IAC_BRK:
+					write (pty->socket, IAC_BRK_RSP, strlen (IAC_BRK_RSP));
+					return -1;
+				case IAC_DMARK:
+					return -2;
+				case IAC_NOP:
+					return -1;
+				case IAC_SE:
+#if DEBUG & DEBUG_DETAIL
+					{
+						int i;
+						printk ("SE");
+						for (i = 0; i < pty->sb_ind; i++)
+							printk (" %02x", pty->sb_buf[i]);
+						printk ("\n");
+					}
+#endif
+					handleSB (pty);
+					return -101;
+				case IAC_EOR:
+					return -102;
+				default:
+					return -1;
+			}
+			break;
+
+		case IAC_SB:
+			pty->iac_mode = omod;
+			if (IAC_ESC == value)
+			{
+				pty->iac_mode = (omod << 8) | value;
+			}
+			else
+			{
+				if (pty->sb_ind < SB_MAX)
+					pty->sb_buf[pty->sb_ind++] = value;
+			}
+			return -1;
+
+		case IAC_WILL:
+			if (value == 34)
+			{
+				send_iac (minor, IAC_DONT, 34);
+				/*LINEMODE*/ send_iac (minor, IAC_DO, 1);	/*ECHO    */
+			}
+			else if (value == 31)
+			{
+				send_iac (minor, IAC_DO, 31);	/*NAWS    */
+#if DEBUG & DEBUG_DETAIL
+				printk ("replied DO NAWS\n");
+#endif
+			}
+			else
+			{
+				send_iac (minor, IAC_DONT, value);
+			}
+			return -1;
+		case IAC_DONT:
+			return -1;
+		case IAC_DO:
+			if (value == 3)
+			{
+				send_iac (minor, IAC_WILL, 3);	/* GO AHEAD */
+			}
+			else if (value == 1)
+			{
+				send_iac (minor, IAC_WILL, 1);	/* ECHO */
+			}
+			else
+			{
+				send_iac (minor, IAC_WONT, value);
+			};
+			return -1;
+		case IAC_WONT:
+			if (value == 1)
+			{
+				send_iac (minor, IAC_WILL, 1);
+			}
+			else
+			{				/* ECHO */
+				send_iac (minor, IAC_WONT, value);
+			}
+			return -1;
+		default:
+			if (value == IAC_ESC)
+			{
+				pty->iac_mode = value;
+				return -1;
+			}
+			else
+			{
+				result = value;
+				if (0
+					/* map CRLF to CR for symmetry */
+					|| ((value == '\n') && pty->last_cr)
+					/* map telnet CRNUL to CR down here */
+					|| ((value == 0) && pty->last_cr))
+					result = -1;
+				pty->last_cr = (value == '\r');
+				return result;
+			}
+	};
 	/* should never get here but keep compiler happy */
 	return -1;
 }
@@ -356,13 +356,13 @@ static const rtems_termios_callbacks *pty_get_termios_handlers (int polled);
 static int ptySetAttributes (int minor, const struct termios *t)
 {
 	if (minor < rtems_telnetd_maximum_ptys)
-	  {
-		  telnet_ptys[minor].c_cflag = t->c_cflag;
-	  }
+	{
+		telnet_ptys[minor].c_cflag = t->c_cflag;
+	}
 	else
-	  {
-		  return -1;
-	  };
+	{
+		return -1;
+	};
 	return 0;
 }
 
@@ -372,40 +372,40 @@ static int ptyPollInitialize (int major, int minor, void *arg)
 	rtems_libio_open_close_args_t *args = (rtems_libio_open_close_args_t *) arg;
 	struct termios t;
 	if (minor < rtems_telnetd_maximum_ptys)
-	  {
-		  if (telnet_ptys[minor].socket < 0)
-			  return -1;
-		  telnet_ptys[minor].opened = TRUE;
-		  telnet_ptys[minor].ttyp =
-			  (struct rtems_termios_tty *)args->iop->data1;
-		  telnet_ptys[minor].iac_mode = 0;
-		  telnet_ptys[minor].sb_ind = 0;
-		  telnet_ptys[minor].width = 0;
-		  telnet_ptys[minor].height = 0;
-		  t.c_cflag = B9600 | CS8;	/* termios default */
-		  return ptySetAttributes (minor, &t);
-	  }
+	{
+		if (telnet_ptys[minor].socket < 0)
+			return -1;
+		telnet_ptys[minor].opened = TRUE;
+		telnet_ptys[minor].ttyp =
+			(struct rtems_termios_tty *)args->iop->data1;
+		telnet_ptys[minor].iac_mode = 0;
+		telnet_ptys[minor].sb_ind = 0;
+		telnet_ptys[minor].width = 0;
+		telnet_ptys[minor].height = 0;
+		t.c_cflag = B9600 | CS8;	/* termios default */
+		return ptySetAttributes (minor, &t);
+	}
 	else
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 }
 
 /*-----------------------------------------------------------*/
 static int ptyShutdown (int major, int minor, void *arg)
 {
 	if (minor < rtems_telnetd_maximum_ptys)
-	  {
-		  telnet_ptys[minor].opened = FALSE;
-		  if (telnet_ptys[minor].socket >= 0)
-			  close (telnet_ptys[minor].socket);
-		  telnet_ptys[minor].socket = -1;
-		  chown (telnet_ptys[minor].devname, 2, 0);
-	  }
+	{
+		telnet_ptys[minor].opened = FALSE;
+		if (telnet_ptys[minor].socket >= 0)
+			close (telnet_ptys[minor].socket);
+		telnet_ptys[minor].socket = -1;
+		chown (telnet_ptys[minor].devname, 2, 0);
+	}
 	else
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 	return 0;
 }
 
@@ -416,15 +416,15 @@ static ssize_t ptyPollWrite (int minor, const char *buf, size_t len)
 {
 	size_t count;
 	if (minor < rtems_telnetd_maximum_ptys)
-	  {
-		  if (telnet_ptys[minor].socket < 0)
-			  return -1;
-		  count = write (telnet_ptys[minor].socket, buf, len);
-	  }
+	{
+		if (telnet_ptys[minor].socket < 0)
+			return -1;
+		count = write (telnet_ptys[minor].socket, buf, len);
+	}
 	else
-	  {
-		  count = -1;
-	  }
+	{
+		count = -1;
+	}
 	return count;
 }
 
@@ -434,12 +434,12 @@ static int ptyPollRead (int minor)
 	int result;
 
 	if (minor < rtems_telnetd_maximum_ptys)
-	  {
-		  if (telnet_ptys[minor].socket < 0)
-			  return -1;
-		  result = read_pty (minor);
-		  return result;
-	  }
+	{
+		if (telnet_ptys[minor].socket < 0)
+			return -1;
+		result = read_pty (minor);
+		return result;
+	}
 	return -1;
 }
 
@@ -457,8 +457,8 @@ static int ptyPollRead (int minor)
 /*-----------------------------------------------------------*/
 static
 	rtems_device_driver my_pty_initialize (rtems_device_major_number major,
-										   rtems_device_minor_number minor,
-										   void *arg)
+										 rtems_device_minor_number minor,
+										 void *arg)
 {
 	int ndx;
 	rtems_status_code status;
@@ -473,31 +473,31 @@ static
 	 */
 
 	for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
-	  {
-		  telnet_ptys[ndx].devname = (char *)malloc (strlen ("/dev/ptyXX") + 1);
-		  sprintf (telnet_ptys[ndx].devname, "/dev/pty%X", ndx);
-		  telnet_ptys[ndx].ttyp = NULL;
-		  telnet_ptys[ndx].c_cflag = CS8 | B9600;
-		  telnet_ptys[ndx].socket = -1;
-		  telnet_ptys[ndx].opened = FALSE;
-		  telnet_ptys[ndx].sb_ind = 0;
-		  telnet_ptys[ndx].width = 0;
-		  telnet_ptys[ndx].height = 0;
+	{
+		telnet_ptys[ndx].devname = (char *)malloc (strlen ("/dev/ptyXX") + 1);
+		sprintf (telnet_ptys[ndx].devname, "/dev/pty%X", ndx);
+		telnet_ptys[ndx].ttyp = NULL;
+		telnet_ptys[ndx].c_cflag = CS8 | B9600;
+		telnet_ptys[ndx].socket = -1;
+		telnet_ptys[ndx].opened = FALSE;
+		telnet_ptys[ndx].sb_ind = 0;
+		telnet_ptys[ndx].width = 0;
+		telnet_ptys[ndx].height = 0;
 
-	  }
+	}
 
 	/*
 	 * Register the devices
 	 */
 	for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
-	  {
-		  status =
-			  rtems_io_register_name (telnet_ptys[ndx].devname, major, ndx);
-		  if (status != RTEMS_SUCCESSFUL)
-			  rtems_fatal_error_occurred (status);
-		  chmod (telnet_ptys[ndx].devname, 0660);
-		  chown (telnet_ptys[ndx].devname, 2, 0);	/* tty,root */
-	  };
+	{
+		status =
+			rtems_io_register_name (telnet_ptys[ndx].devname, major, ndx);
+		if (status != RTEMS_SUCCESSFUL)
+			rtems_fatal_error_occurred (status);
+		chmod (telnet_ptys[ndx].devname, 0660);
+		chown (telnet_ptys[ndx].devname, 2, 0);	/* tty,root */
+	};
 	printk ("Device: /dev/pty%X../dev/pty%X (%d)pseudo-terminals registered.\n",
 			0, rtems_telnetd_maximum_ptys - 1, rtems_telnetd_maximum_ptys);
 
@@ -513,30 +513,30 @@ static int pty_do_finalize (void)
 		return 0;
 
 	for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
-	  {
-		  if (telnet_ptys[ndx].opened)
-			{
-				fprintf (stderr,
-						 "There are still opened PTY devices, unable to proceed\n");
-				return -1;
-			}
-	  }
+	{
+		if (telnet_ptys[ndx].opened)
+		{
+			fprintf (stderr,
+					 "There are still opened PTY devices, unable to proceed\n");
+			return -1;
+		}
+	}
 	if (RTEMS_SUCCESSFUL != rtems_io_unregister_driver (pty_major))
-	  {
-		  fprintf (stderr, "Unable to remove this driver\n");
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "Unable to remove this driver\n");
+		return -1;
+	}
 	for (ndx = 0; ndx < rtems_telnetd_maximum_ptys; ndx++)
-	  {
-		  /* rtems_io_register_name() actually creates a node in the filesystem
-		   * (mknod())
-		   */
-		  status = (rtems_status_code) unlink (telnet_ptys[ndx].devname);
-		  if (status != RTEMS_SUCCESSFUL)
-			  perror ("removing pty device node from file system");
-		  else
-			  free (telnet_ptys[ndx].devname);
-	  };
+	{
+		/* rtems_io_register_name() actually creates a node in the filesystem
+		 * (mknod())
+		 */
+		status = (rtems_status_code) unlink (telnet_ptys[ndx].devname);
+		if (status != RTEMS_SUCCESSFUL)
+			perror ("removing pty device node from file system");
+		else
+			free (telnet_ptys[ndx].devname);
+	};
 
 	free (telnet_ptys);
 
@@ -565,8 +565,8 @@ static
 
 static
 	rtems_device_driver my_pty_close (rtems_device_major_number major,
-									  rtems_device_minor_number minor,
-									  void *arg)
+									rtems_device_minor_number minor,
+									void *arg)
 {
 	return rtems_termios_close (arg);
 }
@@ -588,8 +588,8 @@ static
 
 static
 	rtems_device_driver my_pty_write (rtems_device_major_number major,
-									  rtems_device_minor_number minor,
-									  void *arg)
+									rtems_device_minor_number minor,
+									void *arg)
 {
 	return rtems_termios_write (arg);
 }
@@ -608,43 +608,44 @@ static
 	pty_t *p = &telnet_ptys[minor];
 
 	switch (args->command)
-	  {
+	{
 
-		  case TIOCGWINSZ:
+		case TIOCGWINSZ:
 
-			  wp->ws_row = p->height;
-			  wp->ws_col = p->width;
-			  args->ioctl_return = 0;
+			wp->ws_row = p->height;
+			wp->ws_col = p->width;
+			args->ioctl_return = 0;
 #if DEBUG & DEBUG_WH
-			  fprintf (stderr,
-					   "ioctl(TIOCGWINSZ), returning %ix%i\n",
-					   wp->ws_col, wp->ws_row);
+			fprintf (stderr,
+					 "ioctl(TIOCGWINSZ), returning %ix%i\n",
+					 wp->ws_col, wp->ws_row);
 #endif
 
-			  return RTEMS_SUCCESSFUL;
+			return RTEMS_SUCCESSFUL;
 
-		  case TIOCSWINSZ:
+		case TIOCSWINSZ:
 #if DEBUG & DEBUG_WH
-			  fprintf (stderr,
-					   "ioctl(TIOCGWINSZ), setting %ix%i\n",
-					   wp->ws_col, wp->ws_row);
+			fprintf (stderr,
+					 "ioctl(TIOCGWINSZ), setting %ix%i\n",
+					 wp->ws_col, wp->ws_row);
 #endif
 
-			  p->height = wp->ws_row;
-			  p->width = wp->ws_col;
-			  args->ioctl_return = 0;
+			p->height = wp->ws_row;
+			p->width = wp->ws_col;
+			args->ioctl_return = 0;
 
-			  return RTEMS_SUCCESSFUL;
+			return RTEMS_SUCCESSFUL;
 
-		  default:
+		default:
 
-			  break;
-	  }
+			break;
+	}
 
 	return rtems_termios_ioctl (arg);
 }
 
-static rtems_driver_address_table drvPty = {
+static rtems_driver_address_table drvPty =
+{
 	my_pty_initialize,
 	my_pty_open,
 	my_pty_close,
@@ -654,7 +655,8 @@ static rtems_driver_address_table drvPty = {
 };
 
 /*-----------------------------------------------------------*/
-static const rtems_termios_callbacks pty_poll_callbacks = {
+static const rtems_termios_callbacks pty_poll_callbacks =
+{
 	ptyPollInitialize,			/* FirstOpen */
 	ptyShutdown,				/* LastClose */
 	ptyPollRead,				/* PollRead  */
@@ -676,13 +678,13 @@ static const rtems_termios_callbacks *pty_get_termios_handlers (int polled)
 static int pty_do_initialize (void)
 {
 	if (!telnet_pty_inited)
-	  {
-		  if (RTEMS_SUCCESSFUL ==
-			  rtems_io_register_driver (0, &drvPty, &pty_major))
-			  telnet_pty_inited = TRUE;
-		  else
-			  fprintf (stderr, "WARNING: registering the PTY driver FAILED\n");
-	  }
+	{
+		if (RTEMS_SUCCESSFUL ==
+			rtems_io_register_driver (0, &drvPty, &pty_major))
+			telnet_pty_inited = TRUE;
+		else
+			fprintf (stderr, "WARNING: registering the PTY driver FAILED\n");
+	}
 	return telnet_pty_inited;
 }
 

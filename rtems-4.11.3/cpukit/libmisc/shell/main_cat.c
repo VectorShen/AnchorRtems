@@ -39,19 +39,20 @@ static int rtems_shell_main_cat (int argc, char *argv[])
 	int sc;
 
 	for (n = 1; n < argc; n++)
-	  {
-		  sc = rtems_shell_cat_file (stdout, argv[n]);
-		  if (sc == -1)
-			{
-				fprintf (stderr, "%s: %s: %s\n", argv[0], argv[n],
-						 strerror (errno));
-				return -1;
-			}
-	  }
+	{
+		sc = rtems_shell_cat_file (stdout, argv[n]);
+		if (sc == -1)
+		{
+			fprintf (stderr, "%s: %s: %s\n", argv[0], argv[n],
+					 strerror (errno));
+			return -1;
+		}
+	}
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CAT_Command = {
+rtems_shell_cmd_t rtems_shell_CAT_Command =
+{
 	"cat",						/* name */
 	"cat n1 [n2 [n3...]] # show the ascii contents",	/* usage */
 	"files",					/* topic */

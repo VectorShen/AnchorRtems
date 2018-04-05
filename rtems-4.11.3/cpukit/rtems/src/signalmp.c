@@ -36,32 +36,32 @@ RTEMS_STATIC_ASSERT (sizeof (Signal_MP_Packet) <= MP_PACKET_MINIMUM_PACKET_SIZE,
  */
 
 rtems_status_code _Signal_MP_Send_request_packet (Signal_MP_Remote_operations
-												  operation, Objects_Id task_id,
-												  rtems_signal_set signal_in)
+												operation, Objects_Id task_id,
+												rtems_signal_set signal_in)
 {
 	Signal_MP_Packet *the_packet;
 
 	switch (operation)
-	  {
+	{
 
-		  case SIGNAL_MP_SEND_REQUEST:
+		case SIGNAL_MP_SEND_REQUEST:
 
-			  the_packet = _Signal_MP_Get_packet ();
-			  the_packet->Prefix.the_class = MP_PACKET_SIGNAL;
-			  the_packet->Prefix.length = sizeof (Signal_MP_Packet);
-			  the_packet->Prefix.to_convert = sizeof (Signal_MP_Packet);
-			  the_packet->operation = operation;
-			  the_packet->Prefix.id = task_id;
-			  the_packet->signal_in = signal_in;
+			the_packet = _Signal_MP_Get_packet ();
+			the_packet->Prefix.the_class = MP_PACKET_SIGNAL;
+			the_packet->Prefix.length = sizeof (Signal_MP_Packet);
+			the_packet->Prefix.to_convert = sizeof (Signal_MP_Packet);
+			the_packet->operation = operation;
+			the_packet->Prefix.id = task_id;
+			the_packet->signal_in = signal_in;
 
-			  return _MPCI_Send_request_packet (_Objects_Get_node (task_id), &the_packet->Prefix, STATES_READY,	/* Not used */
+			return _MPCI_Send_request_packet (_Objects_Get_node (task_id), &the_packet->Prefix, STATES_READY,	/* Not used */
 												RTEMS_TIMEOUT);
-			  break;
+			break;
 
-		  case SIGNAL_MP_SEND_RESPONSE:
-			  break;
+		case SIGNAL_MP_SEND_RESPONSE:
+			break;
 
-	  }
+	}
 	/*
 	 *  The following line is included to satisfy compilers which
 	 *  produce warnings when a function does not end with a return.
@@ -70,33 +70,33 @@ rtems_status_code _Signal_MP_Send_request_packet (Signal_MP_Remote_operations
 }
 
 void _Signal_MP_Send_response_packet (Signal_MP_Remote_operations operation,
-									  Thread_Control * the_thread)
+									Thread_Control * the_thread)
 {
 	Signal_MP_Packet *the_packet;
 
 	switch (operation)
-	  {
+	{
 
-		  case SIGNAL_MP_SEND_RESPONSE:
+		case SIGNAL_MP_SEND_RESPONSE:
 
-			  the_packet = (Signal_MP_Packet *) the_thread->receive_packet;
+			the_packet = (Signal_MP_Packet *) the_thread->receive_packet;
 
 /*
  *  The packet being returned already contains the class, length, and
  *  to_convert fields, therefore they are not set in this routine.
  */
-			  the_packet->operation = operation;
-			  the_packet->Prefix.id = the_packet->Prefix.source_tid;
+			the_packet->operation = operation;
+			the_packet->Prefix.id = the_packet->Prefix.source_tid;
 
-			  _MPCI_Send_response_packet (_Objects_Get_node
-										  (the_packet->Prefix.source_tid),
-										  &the_packet->Prefix);
-			  break;
+			_MPCI_Send_response_packet (_Objects_Get_node
+										(the_packet->Prefix.source_tid),
+										&the_packet->Prefix);
+			break;
 
-		  case SIGNAL_MP_SEND_REQUEST:
-			  break;
+		case SIGNAL_MP_SEND_REQUEST:
+			break;
 
-	  }
+	}
 }
 
 void _Signal_MP_Process_packet (rtems_packet_prefix * the_packet_prefix)
@@ -107,26 +107,26 @@ void _Signal_MP_Process_packet (rtems_packet_prefix * the_packet_prefix)
 	the_packet = (Signal_MP_Packet *) the_packet_prefix;
 
 	switch (the_packet->operation)
-	  {
+	{
 
-		  case SIGNAL_MP_SEND_REQUEST:
+		case SIGNAL_MP_SEND_REQUEST:
 
-			  the_packet->Prefix.return_code =
-				  rtems_signal_send (the_packet->Prefix.id,
+			the_packet->Prefix.return_code =
+				rtems_signal_send (the_packet->Prefix.id,
 									 the_packet->signal_in);
 
-			  _Signal_MP_Send_response_packet (SIGNAL_MP_SEND_RESPONSE,
-											   _Thread_Executing);
-			  break;
+			_Signal_MP_Send_response_packet (SIGNAL_MP_SEND_RESPONSE,
+											 _Thread_Executing);
+			break;
 
-		  case SIGNAL_MP_SEND_RESPONSE:
+		case SIGNAL_MP_SEND_RESPONSE:
 
-			  the_thread = _MPCI_Process_response (the_packet_prefix);
+			the_thread = _MPCI_Process_response (the_packet_prefix);
 
-			  _MPCI_Return_packet (the_packet_prefix);
-			  break;
+			_MPCI_Return_packet (the_packet_prefix);
+			break;
 
-	  }
+	}
 }
 
 /*

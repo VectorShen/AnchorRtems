@@ -23,7 +23,8 @@
 
 #define OPTIONS "[-h]"
 
-rtems_shell_cmd_t rtems_shell_DEBUGRFS_Command = {
+rtems_shell_cmd_t rtems_shell_DEBUGRFS_Command =
+{
 	"debugrfs",					/* name */
 	"debugrfs " OPTIONS,		/* usage */
 	"files",					/* topic */

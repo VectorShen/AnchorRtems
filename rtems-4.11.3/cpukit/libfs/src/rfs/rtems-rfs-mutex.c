@@ -34,12 +34,12 @@ int rtems_rfs_mutex_create (rtems_rfs_mutex * mutex)
 	sc = rtems_semaphore_create (rtems_build_name ('R', 'F', 'S', 'm'),
 								 1, RTEMS_RFS_MUTEX_ATTRIBS, 0, mutex);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_MUTEX))
-			  printf ("rtems-rfs: mutex: open failed: %s\n",
-					  rtems_status_text (sc));
-		  return EIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_MUTEX))
+			printf ("rtems-rfs: mutex: open failed: %s\n",
+					rtems_status_text (sc));
+		return EIO;
+	}
 #endif
 	return 0;
 }
@@ -50,12 +50,12 @@ int rtems_rfs_mutex_destroy (rtems_rfs_mutex * mutex)
 	rtems_status_code sc;
 	sc = rtems_semaphore_delete (*mutex);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_MUTEX))
-			  printf ("rtems-rfs: mutex: close failed: %s\n",
-					  rtems_status_text (sc));
-		  return EIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_MUTEX))
+			printf ("rtems-rfs: mutex: close failed: %s\n",
+					rtems_status_text (sc));
+		return EIO;
+	}
 #endif
 	return 0;
 }

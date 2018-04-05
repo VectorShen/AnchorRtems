@@ -53,10 +53,10 @@ static int getword_str (char *, int, u_char **, u_char *);
  * Returns the size of the resulting packet if no error
  * On error,
  *	returns -1 if error in reading a word/number in rdata
- *		   portion for update packets
+ *		 portion for update packets
  *		-2 if length of buffer passed is insufficient
  *		-3 if zone section is not the first section in
- *		   the linked list, or section order has a problem
+ *		 the linked list, or section order has a problem
  *		-4 on a number overflow
  *		-5 unknown operation or no records
  */
@@ -75,10 +75,10 @@ int res_mkupdate (ns_updrec * rrecp_in, u_char * buf, int buflen)
 	u_char *dnptrs[20], **dpp, **lastdnptr;
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (-1);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
 
 	/*
 	 * Initialize header fields.
@@ -104,219 +104,219 @@ int res_mkupdate (ns_updrec * rrecp_in, u_char * buf, int buflen)
 
 	memset (counts, 0, sizeof counts);
 	for (rrecp = rrecp_start; rrecp; rrecp = rrecp->r_grpnext)
-	  {
-		  numrrs++;
-		  section = rrecp->r_section;
-		  if (section < 0 || section >= ns_s_max)
-			  return (-1);
-		  counts[section]++;
-		  for (i = section + 1; i < ns_s_max; i++)
-			  if (counts[i])
-				  return (-3);
-		  rtype = rrecp->r_type;
-		  rclass = rrecp->r_class;
-		  rttl = rrecp->r_ttl;
-		  /* overload class and type */
-		  if (section == S_PREREQ)
+	{
+		numrrs++;
+		section = rrecp->r_section;
+		if (section < 0 || section >= ns_s_max)
+			return (-1);
+		counts[section]++;
+		for (i = section + 1; i < ns_s_max; i++)
+			if (counts[i])
+				return (-3);
+		rtype = rrecp->r_type;
+		rclass = rrecp->r_class;
+		rttl = rrecp->r_ttl;
+		/* overload class and type */
+		if (section == S_PREREQ)
+		{
+			rttl = 0;
+			switch (rrecp->r_opcode)
 			{
-				rttl = 0;
-				switch (rrecp->r_opcode)
-				  {
-					  case YXDOMAIN:
-						  rclass = C_ANY;
-						  rtype = T_ANY;
-						  rrecp->r_size = 0;
-						  break;
-					  case NXDOMAIN:
-						  rclass = C_NONE;
-						  rtype = T_ANY;
-						  rrecp->r_size = 0;
-						  break;
-					  case NXRRSET:
-						  rclass = C_NONE;
-						  rrecp->r_size = 0;
-						  break;
-					  case YXRRSET:
-						  if (rrecp->r_size == 0)
-							  rclass = C_ANY;
-						  break;
-					  default:
-						  fprintf (stderr,
-								   "res_mkupdate: incorrect opcode: %d\n",
-								   rrecp->r_opcode);
-						  fflush (stderr);
-						  return (-1);
-				  }
-			}
-		  else if (section == S_UPDATE)
-			{
-				switch (rrecp->r_opcode)
-				  {
-					  case DELETE:
-						  rclass = rrecp->r_size == 0 ? C_ANY : C_NONE;
-						  break;
-					  case ADD:
-						  break;
-					  default:
-						  fprintf (stderr,
-								   "res_mkupdate: incorrect opcode: %d\n",
-								   rrecp->r_opcode);
-						  fflush (stderr);
-						  return (-1);
-				  }
-			}
-
-		  /*
-		   * XXX  appending default domain to owner name is omitted,
-		   *  fqdn must be provided
-		   */
-		  if ((n = dn_comp (rrecp->r_dname, cp, buflen, dnptrs, lastdnptr)) < 0)
-			  return (-1);
-		  cp += n;
-		  ShrinkBuffer (n + 2 * INT16SZ);
-		  PUTSHORT (rtype, cp);
-		  PUTSHORT (rclass, cp);
-		  if (section == S_ZONE)
-			{
-				if (numrrs != 1 || rrecp->r_type != T_SOA)
-					return (-3);
-				continue;
-			}
-		  ShrinkBuffer (INT32SZ + INT16SZ);
-		  PUTLONG (rttl, cp);
-		  sp2 = cp;				/* save pointer to length byte */
-		  cp += INT16SZ;
-		  if (rrecp->r_size == 0)
-			{
-				if (section == S_UPDATE && rclass != C_ANY)
-					return (-1);
-				else
-				  {
-					  PUTSHORT (0, sp2);
-					  continue;
-				  }
-			}
-		  startp = rrecp->r_data;
-		  endp = startp + rrecp->r_size - 1;
-		  /* XXX this should be done centrally. */
-		  switch (rrecp->r_type)
-			{
-				case T_A:
-					if (!getword_str (buf2, sizeof buf2, &startp, endp))
-						return (-1);
-					if (!inet_aton (buf2, &ina))
-						return (-1);
-					n1 = ntohl (ina.s_addr);
-					ShrinkBuffer (INT32SZ);
-					PUTLONG (n1, cp);
+				case YXDOMAIN:
+					rclass = C_ANY;
+					rtype = T_ANY;
+					rrecp->r_size = 0;
 					break;
-				case T_CNAME:
-				case T_MB:
-				case T_MG:
-				case T_MR:
-				case T_NS:
-				case T_PTR:
-					if (!getword_str (buf2, sizeof buf2, &startp, endp))
-						return (-1);
-					n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
-					if (n < 0)
-						return (-1);
-					cp += n;
-					ShrinkBuffer (n);
+				case NXDOMAIN:
+					rclass = C_NONE;
+					rtype = T_ANY;
+					rrecp->r_size = 0;
 					break;
-				case T_MINFO:
-				case T_SOA:
-				case T_RP:
-					for (i = 0; i < 2; i++)
-					  {
-						  if (!getword_str (buf2, sizeof buf2, &startp, endp))
-							  return (-1);
-						  n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
-						  if (n < 0)
-							  return (-1);
-						  cp += n;
-						  ShrinkBuffer (n);
-					  }
-					if (rrecp->r_type == T_SOA)
-					  {
-						  ShrinkBuffer (5 * INT32SZ);
-						  while (isspace (*startp) || !*startp)
-							  startp++;
-						  if (*startp == '(')
-							{
-								multiline = 1;
-								startp++;
-							}
-						  else
-							  multiline = 0;
-						  /* serial, refresh, retry, expire, minimum */
-						  for (i = 0; i < 5; i++)
-							{
-								soanum = getnum_str (&startp, endp);
-								if (soanum < 0)
-									return (-1);
-								PUTLONG (soanum, cp);
-							}
-						  if (multiline)
-							{
-								while (isspace (*startp) || !*startp)
-									startp++;
-								if (*startp != ')')
-									return (-1);
-							}
-					  }
+				case NXRRSET:
+					rclass = C_NONE;
+					rrecp->r_size = 0;
 					break;
-				case T_MX:
-				case T_AFSDB:
-				case T_RT:
-					n = getnum_str (&startp, endp);
-					if (n < 0)
-						return (-1);
-					PUTSHORT (n, cp);
-					ShrinkBuffer (INT16SZ);
-					if (!getword_str (buf2, sizeof buf2, &startp, endp))
-						return (-1);
-					n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
-					if (n < 0)
-						return (-1);
-					cp += n;
-					ShrinkBuffer (n);
-					break;
-				case T_PX:
-					n = getnum_str (&startp, endp);
-					if (n < 0)
-						return (-1);
-					PUTSHORT (n, cp);
-					ShrinkBuffer (INT16SZ);
-					for (i = 0; i < 2; i++)
-					  {
-						  if (!getword_str (buf2, sizeof buf2, &startp, endp))
-							  return (-1);
-						  n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
-						  if (n < 0)
-							  return (-1);
-						  cp += n;
-						  ShrinkBuffer (n);
-					  }
-					break;
-				case T_WKS:
-				case T_HINFO:
-				case T_TXT:
-				case T_X25:
-				case T_ISDN:
-				case T_NSAP:
-				case T_LOC:
-					/* XXX - more fine tuning needed here */
-					ShrinkBuffer (rrecp->r_size);
-					memcpy (cp, rrecp->r_data, rrecp->r_size);
-					cp += rrecp->r_size;
+				case YXRRSET:
+					if (rrecp->r_size == 0)
+						rclass = C_ANY;
 					break;
 				default:
+					fprintf (stderr,
+							 "res_mkupdate: incorrect opcode: %d\n",
+							 rrecp->r_opcode);
+					fflush (stderr);
 					return (-1);
-			}					/*switch */
-		  n = (u_int16_t) ((cp - sp2) - INT16SZ);
-		  PUTSHORT (n, sp2);
-	  }							/*for */
+			}
+		}
+		else if (section == S_UPDATE)
+		{
+			switch (rrecp->r_opcode)
+			{
+				case DELETE:
+					rclass = rrecp->r_size == 0 ? C_ANY : C_NONE;
+					break;
+				case ADD:
+					break;
+				default:
+					fprintf (stderr,
+							 "res_mkupdate: incorrect opcode: %d\n",
+							 rrecp->r_opcode);
+					fflush (stderr);
+					return (-1);
+			}
+		}
+
+		/*
+		 * XXX  appending default domain to owner name is omitted,
+		 *  fqdn must be provided
+		 */
+		if ((n = dn_comp (rrecp->r_dname, cp, buflen, dnptrs, lastdnptr)) < 0)
+			return (-1);
+		cp += n;
+		ShrinkBuffer (n + 2 * INT16SZ);
+		PUTSHORT (rtype, cp);
+		PUTSHORT (rclass, cp);
+		if (section == S_ZONE)
+		{
+			if (numrrs != 1 || rrecp->r_type != T_SOA)
+				return (-3);
+			continue;
+		}
+		ShrinkBuffer (INT32SZ + INT16SZ);
+		PUTLONG (rttl, cp);
+		sp2 = cp;				/* save pointer to length byte */
+		cp += INT16SZ;
+		if (rrecp->r_size == 0)
+		{
+			if (section == S_UPDATE && rclass != C_ANY)
+				return (-1);
+			else
+			{
+				PUTSHORT (0, sp2);
+				continue;
+			}
+		}
+		startp = rrecp->r_data;
+		endp = startp + rrecp->r_size - 1;
+		/* XXX this should be done centrally. */
+		switch (rrecp->r_type)
+		{
+			case T_A:
+				if (!getword_str (buf2, sizeof buf2, &startp, endp))
+					return (-1);
+				if (!inet_aton (buf2, &ina))
+					return (-1);
+				n1 = ntohl (ina.s_addr);
+				ShrinkBuffer (INT32SZ);
+				PUTLONG (n1, cp);
+				break;
+			case T_CNAME:
+			case T_MB:
+			case T_MG:
+			case T_MR:
+			case T_NS:
+			case T_PTR:
+				if (!getword_str (buf2, sizeof buf2, &startp, endp))
+					return (-1);
+				n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
+				if (n < 0)
+					return (-1);
+				cp += n;
+				ShrinkBuffer (n);
+				break;
+			case T_MINFO:
+			case T_SOA:
+			case T_RP:
+				for (i = 0; i < 2; i++)
+				{
+					if (!getword_str (buf2, sizeof buf2, &startp, endp))
+						return (-1);
+					n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
+					if (n < 0)
+						return (-1);
+					cp += n;
+					ShrinkBuffer (n);
+				}
+				if (rrecp->r_type == T_SOA)
+				{
+					ShrinkBuffer (5 * INT32SZ);
+					while (isspace (*startp) || !*startp)
+						startp++;
+					if (*startp == '(')
+					{
+						multiline = 1;
+						startp++;
+					}
+					else
+						multiline = 0;
+					/* serial, refresh, retry, expire, minimum */
+					for (i = 0; i < 5; i++)
+					{
+						soanum = getnum_str (&startp, endp);
+						if (soanum < 0)
+							return (-1);
+						PUTLONG (soanum, cp);
+					}
+					if (multiline)
+					{
+						while (isspace (*startp) || !*startp)
+							startp++;
+						if (*startp != ')')
+							return (-1);
+					}
+				}
+				break;
+			case T_MX:
+			case T_AFSDB:
+			case T_RT:
+				n = getnum_str (&startp, endp);
+				if (n < 0)
+					return (-1);
+				PUTSHORT (n, cp);
+				ShrinkBuffer (INT16SZ);
+				if (!getword_str (buf2, sizeof buf2, &startp, endp))
+					return (-1);
+				n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
+				if (n < 0)
+					return (-1);
+				cp += n;
+				ShrinkBuffer (n);
+				break;
+			case T_PX:
+				n = getnum_str (&startp, endp);
+				if (n < 0)
+					return (-1);
+				PUTSHORT (n, cp);
+				ShrinkBuffer (INT16SZ);
+				for (i = 0; i < 2; i++)
+				{
+					if (!getword_str (buf2, sizeof buf2, &startp, endp))
+						return (-1);
+					n = dn_comp (buf2, cp, buflen, dnptrs, lastdnptr);
+					if (n < 0)
+						return (-1);
+					cp += n;
+					ShrinkBuffer (n);
+				}
+				break;
+			case T_WKS:
+			case T_HINFO:
+			case T_TXT:
+			case T_X25:
+			case T_ISDN:
+			case T_NSAP:
+			case T_LOC:
+				/* XXX - more fine tuning needed here */
+				ShrinkBuffer (rrecp->r_size);
+				memcpy (cp, rrecp->r_data, rrecp->r_size);
+				cp += rrecp->r_size;
+				break;
+			default:
+				return (-1);
+		}					/*switch */
+		n = (u_int16_t) ((cp - sp2) - INT16SZ);
+		PUTSHORT (n, sp2);
+	}							/*for */
 
 	hp->qdcount = htons (counts[0]);
 	hp->ancount = htons (counts[1]);
@@ -336,23 +336,23 @@ static int getword_str (char *buf, int size, u_char ** startpp, u_char * endp)
 	int c;
 
 	for (cp = buf; *startpp <= endp;)
-	  {
-		  c = **startpp;
-		  if (isspace (c) || c == '\0')
-			{
-				if (cp != buf)	/* trailing whitespace */
-					break;
-				else
-				  {				/* leading whitespace */
-					  (*startpp)++;
-					  continue;
-				  }
+	{
+		c = **startpp;
+		if (isspace (c) || c == '\0')
+		{
+			if (cp != buf)	/* trailing whitespace */
+				break;
+			else
+			{				/* leading whitespace */
+				(*startpp)++;
+				continue;
 			}
-		  (*startpp)++;
-		  if (cp >= buf + size - 1)
-			  break;
-		  *cp++ = (u_char) c;
-	  }
+		}
+		(*startpp)++;
+		if (cp >= buf + size - 1)
+			break;
+		*cp++ = (u_char) c;
+	}
 	*cp = '\0';
 	return (cp != buf);
 }
@@ -368,39 +368,39 @@ static int getnum_str (u_char ** startpp, u_char * endp)
 	int m = 0;
 
 	for (n = 0; *startpp <= endp;)
-	  {
-		  c = **startpp;
-		  if (isspace (c) || c == '\0')
-			{
-				if (seendigit)	/* trailing whitespace */
-					break;
-				else
-				  {				/* leading whitespace */
-					  (*startpp)++;
-					  continue;
-				  }
-			}
-		  if (c == ';')
-			{
-				while ((*startpp <= endp) && ((c = **startpp) != '\n'))
-					(*startpp)++;
-				if (seendigit)
-					break;
+	{
+		c = **startpp;
+		if (isspace (c) || c == '\0')
+		{
+			if (seendigit)	/* trailing whitespace */
+				break;
+			else
+			{				/* leading whitespace */
+				(*startpp)++;
 				continue;
 			}
-		  if (!isdigit (c))
+		}
+		if (c == ';')
+		{
+			while ((*startpp <= endp) && ((c = **startpp) != '\n'))
+				(*startpp)++;
+			if (seendigit)
+				break;
+			continue;
+		}
+		if (!isdigit (c))
+		{
+			if (c == ')' && seendigit)
 			{
-				if (c == ')' && seendigit)
-				  {
-					  (*startpp)--;
-					  break;
-				  }
-				return (-1);
+				(*startpp)--;
+				break;
 			}
-		  (*startpp)++;
-		  n = n * 10 + (c - '0');
-		  seendigit = 1;
-	  }
+			return (-1);
+		}
+		(*startpp)++;
+		n = n * 10 + (c - '0');
+		seendigit = 1;
+	}
 	return (n + m);
 }
 

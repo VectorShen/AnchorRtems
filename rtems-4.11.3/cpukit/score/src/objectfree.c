@@ -32,25 +32,25 @@ void _Objects_Free (Objects_Information * information,
 	_Chain_Append_unprotected (&information->Inactive, &the_object->Node);
 
 	if (information->auto_extend)
-	  {
-		  uint32_t block;
+	{
+		uint32_t block;
 
-		  block = (uint32_t) (_Objects_Get_index (the_object->id) -
-							  _Objects_Get_index (information->minimum_id));
-		  block /= information->allocation_size;
+		block = (uint32_t) (_Objects_Get_index (the_object->id) -
+							_Objects_Get_index (information->minimum_id));
+		block /= information->allocation_size;
 
-		  information->inactive_per_block[block]++;
-		  information->inactive++;
+		information->inactive_per_block[block]++;
+		information->inactive++;
 
-		  /*
-		   *  Check if the threshold level has been met of
-		   *  1.5 x allocation_size are free.
-		   */
+		/*
+		 *  Check if the threshold level has been met of
+		 *  1.5 x allocation_size are free.
+		 */
 
-		  if (information->inactive >
-			  (allocation_size + (allocation_size >> 1)))
-			{
-				_Objects_Shrink_information (information);
-			}
-	  }
+		if (information->inactive >
+			(allocation_size + (allocation_size >> 1)))
+		{
+			_Objects_Shrink_information (information);
+		}
+	}
 }

@@ -49,12 +49,12 @@
  */
 int
 msdos_initialize_support (rtems_filesystem_mount_table_entry_t * temp_mt_entry,
-						  const rtems_filesystem_operations_table * op_table,
-						  const rtems_filesystem_file_handlers_r *
-						  file_handlers,
-						  const rtems_filesystem_file_handlers_r *
-						  directory_handlers,
-						  rtems_dosfs_convert_control * converter)
+						const rtems_filesystem_operations_table * op_table,
+						const rtems_filesystem_file_handlers_r *
+						file_handlers,
+						const rtems_filesystem_file_handlers_r *
+						directory_handlers,
+						rtems_dosfs_convert_control * converter)
 {
 	int rc = RC_OK;
 	rtems_status_code sc = RTEMS_SUCCESSFUL;
@@ -73,10 +73,10 @@ msdos_initialize_support (rtems_filesystem_mount_table_entry_t * temp_mt_entry,
 
 	rc = fat_init_volume_info (&fs_info->fat, temp_mt_entry->dev);
 	if (rc != RC_OK)
-	  {
-		  free (fs_info);
-		  return rc;
-	  }
+	{
+		free (fs_info);
+		return rc;
+	}
 
 	fs_info->file_handlers = file_handlers;
 	fs_info->directory_handlers = directory_handlers;
@@ -89,11 +89,11 @@ msdos_initialize_support (rtems_filesystem_mount_table_entry_t * temp_mt_entry,
 	root_pos.sname.cln = FAT_ROOTDIR_CLUSTER_NUM;
 	rc = fat_file_open (&fs_info->fat, &root_pos, &fat_fd);
 	if (rc != RC_OK)
-	  {
-		  fat_shutdown_drive (&fs_info->fat);
-		  free (fs_info);
-		  return rc;
-	  }
+	{
+		fat_shutdown_drive (&fs_info->fat);
+		free (fs_info);
+		return rc;
+	}
 
 	/* again: unfortunately "fat-file" is just almost fat file :( */
 	fat_fd->fat_file_type = FAT_DIRECTORY;
@@ -105,45 +105,45 @@ msdos_initialize_support (rtems_filesystem_mount_table_entry_t * temp_mt_entry,
 
 	/* if we have FAT12/16 */
 	if (fat_fd->cln == 0)
-	  {
-		  fat_fd->fat_file_size = fs_info->fat.vol.rdir_size;
-		  cl_buf_size = (fs_info->fat.vol.bpc > fs_info->fat.vol.rdir_size) ?
-			  fs_info->fat.vol.bpc : fs_info->fat.vol.rdir_size;
-	  }
+	{
+		fat_fd->fat_file_size = fs_info->fat.vol.rdir_size;
+		cl_buf_size = (fs_info->fat.vol.bpc > fs_info->fat.vol.rdir_size) ?
+			fs_info->fat.vol.bpc : fs_info->fat.vol.rdir_size;
+	}
 	else
-	  {
-		  rc = fat_file_size (&fs_info->fat, fat_fd);
-		  if (rc != RC_OK)
-			{
-				fat_file_close (&fs_info->fat, fat_fd);
-				fat_shutdown_drive (&fs_info->fat);
-				free (fs_info);
-				return rc;
-			}
-		  cl_buf_size = fs_info->fat.vol.bpc;
-	  }
+	{
+		rc = fat_file_size (&fs_info->fat, fat_fd);
+		if (rc != RC_OK)
+		{
+			fat_file_close (&fs_info->fat, fat_fd);
+			fat_shutdown_drive (&fs_info->fat);
+			free (fs_info);
+			return rc;
+		}
+		cl_buf_size = fs_info->fat.vol.bpc;
+	}
 
 	fs_info->cl_buf = (uint8_t *) calloc (cl_buf_size, sizeof (char));
 	if (fs_info->cl_buf == NULL)
-	  {
-		  fat_file_close (&fs_info->fat, fat_fd);
-		  fat_shutdown_drive (&fs_info->fat);
-		  free (fs_info);
-		  rtems_set_errno_and_return_minus_one (ENOMEM);
-	  }
+	{
+		fat_file_close (&fs_info->fat, fat_fd);
+		fat_shutdown_drive (&fs_info->fat);
+		free (fs_info);
+		rtems_set_errno_and_return_minus_one (ENOMEM);
+	}
 
 	sc = rtems_semaphore_create (3,
 								 1,
 								 RTEMS_BINARY_SEMAPHORE | RTEMS_FIFO,
 								 0, &fs_info->vol_sema);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  fat_file_close (&fs_info->fat, fat_fd);
-		  fat_shutdown_drive (&fs_info->fat);
-		  free (fs_info->cl_buf);
-		  free (fs_info);
-		  rtems_set_errno_and_return_minus_one (EIO);
-	  }
+	{
+		fat_file_close (&fs_info->fat, fat_fd);
+		fat_shutdown_drive (&fs_info->fat);
+		free (fs_info->cl_buf);
+		free (fs_info);
+		rtems_set_errno_and_return_minus_one (EIO);
+	}
 
 	temp_mt_entry->mt_fs_root->location.node_access = fat_fd;
 	temp_mt_entry->mt_fs_root->location.handlers = directory_handlers;

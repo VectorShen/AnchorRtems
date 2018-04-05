@@ -37,22 +37,23 @@ extern "C" {
 /**
  * @brief Control block used to manage each API mutex.
  */
-typedef struct {
-  /**
-   * @brief Allows each API Mutex to be a full-fledged RTEMS object.
-   */
-  Objects_Control Object;
+typedef struct
+{
+	/**
+	* @brief Allows each API Mutex to be a full-fledged RTEMS object.
+	*/
+	Objects_Control Object;
 
-  /**
-   * Contains the SuperCore mutex information.
-   */
-  CORE_mutex_Control Mutex;
+	/**
+	* Contains the SuperCore mutex information.
+	*/
+	CORE_mutex_Control Mutex;
 
-  /**
-   * @brief The thread life protection state before the outer-most mutex
-   * obtain.
-   */
-  bool previous_thread_life_protection;
+	/**
+	* @brief The thread life protection state before the outer-most mutex
+	* obtain.
+	*/
+	bool previous_thread_life_protection;
 } API_Mutex_Control;
 
 /**
@@ -117,29 +118,29 @@ SCORE_EXTERN API_Mutex_Control *_RTEMS_Allocator_Mutex;
 
 static inline void _RTEMS_Lock_allocator( void )
 {
-  _API_Mutex_Lock( _RTEMS_Allocator_Mutex );
+	_API_Mutex_Lock( _RTEMS_Allocator_Mutex );
 }
 
 static inline void _RTEMS_Unlock_allocator( void )
 {
-  _API_Mutex_Unlock( _RTEMS_Allocator_Mutex );
+	_API_Mutex_Unlock( _RTEMS_Allocator_Mutex );
 }
 
 static inline bool _RTEMS_Allocator_is_owner( void )
 {
-  return _API_Mutex_Is_owner( _RTEMS_Allocator_Mutex );
+	return _API_Mutex_Is_owner( _RTEMS_Allocator_Mutex );
 }
 
 SCORE_EXTERN API_Mutex_Control *_Once_Mutex;
 
 static inline void _Once_Lock( void )
 {
-  _API_Mutex_Lock( _Once_Mutex );
+	_API_Mutex_Lock( _Once_Mutex );
 }
 
 static inline void _Once_Unlock( void )
 {
-  _API_Mutex_Unlock( _Once_Mutex );
+	_API_Mutex_Unlock( _Once_Mutex );
 }
 
 /** @} */

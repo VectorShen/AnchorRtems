@@ -115,18 +115,25 @@ static struct sgl_limits
 {
 	struct vax_single s;
 	struct ieee_single ieee;
-} sgl_limits[2] =
+}
+sgl_limits[2] =
 {
 	{
 		{
-		0x7f, 0xff, 0x0, 0xffff},	/* Max Vax */
+			0x7f, 0xff, 0x0, 0xffff
+		},	/* Max Vax */
 		{
-	0x0, 0xff, 0x0}},			/* Max IEEE */
+			0x0, 0xff, 0x0
+		}
+	},			/* Max IEEE */
 	{
 		{
-		0x0, 0x0, 0x0, 0x0},	/* Min Vax */
+			0x0, 0x0, 0x0, 0x0
+		},	/* Min Vax */
 		{
-	0x0, 0x0, 0x0}}				/* Min IEEE */
+			0x0, 0x0, 0x0
+		}
+	}				/* Min IEEE */
 };
 
 /* end of vax */
@@ -146,64 +153,64 @@ bool_t xdr_float (register XDR * xdrs, register float *fp)
 	int i;
 #endif
 	switch (xdrs->x_op)
-	  {
+	{
 
-		  case XDR_ENCODE:
+		case XDR_ENCODE:
 #ifdef IEEEFP
-			  tmpl = *(int32_t *) fp;
-			  return (XDR_PUTLONG (xdrs, &tmpl));
+			tmpl = *(int32_t *) fp;
+			return (XDR_PUTLONG (xdrs, &tmpl));
 #else
-			  vs = *((struct vax_single *)fp);
-			  for (i = 0, lim = sgl_limits;
-				   i < sizeof (sgl_limits) / sizeof (struct sgl_limits);
-				   i++, lim++)
+			vs = *((struct vax_single *)fp);
+			for (i = 0, lim = sgl_limits;
+				 i < sizeof (sgl_limits) / sizeof (struct sgl_limits);
+				 i++, lim++)
+			{
+				if ((vs.mantissa2 == lim->s.mantissa2) &&
+					(vs.exp == lim->s.exp) &&
+					(vs.mantissa1 == lim->s.mantissa1))
 				{
-					if ((vs.mantissa2 == lim->s.mantissa2) &&
-						(vs.exp == lim->s.exp) &&
-						(vs.mantissa1 == lim->s.mantissa1))
-					  {
-						  is = lim->ieee;
-						  goto shipit;
-					  }
+					is = lim->ieee;
+					goto shipit;
 				}
-			  is.exp = vs.exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
-			  is.mantissa = (vs.mantissa1 << 16) | vs.mantissa2;
+			}
+			is.exp = vs.exp - VAX_SNG_BIAS + IEEE_SNG_BIAS;
+			is.mantissa = (vs.mantissa1 << 16) | vs.mantissa2;
 			shipit:
-			  is.sign = vs.sign;
-			  return (XDR_PUTLONG (xdrs, (long *)&is));
+			is.sign = vs.sign;
+			return (XDR_PUTLONG (xdrs, (long *)&is));
 #endif
 
-		  case XDR_DECODE:
+		case XDR_DECODE:
 #ifdef IEEEFP
-			  rv = XDR_GETLONG (xdrs, &tmpl);
-			  *(int32_t *) fp = tmpl;
-			  return (rv);
+			rv = XDR_GETLONG (xdrs, &tmpl);
+			*(int32_t *) fp = tmpl;
+			return (rv);
 #else
-			  vsp = (struct vax_single *)fp;
-			  if (!XDR_GETLONG (xdrs, (long *)&is))
-				  return (FALSE);
-			  for (i = 0, lim = sgl_limits;
-				   i < sizeof (sgl_limits) / sizeof (struct sgl_limits);
-				   i++, lim++)
+			vsp = (struct vax_single *)fp;
+			if (!XDR_GETLONG (xdrs, (long *)&is))
+				return (FALSE);
+			for (i = 0, lim = sgl_limits;
+				 i < sizeof (sgl_limits) / sizeof (struct sgl_limits);
+				 i++, lim++)
+			{
+				if ((is.exp == lim->ieee.exp) &&
+					(is.mantissa == lim->ieee.mantissa))
 				{
-					if ((is.exp == lim->ieee.exp) &&
-						(is.mantissa == lim->ieee.mantissa))
-					  {
-						  *vsp = lim->s;
-						  goto doneit;
-					  }
+					*vsp = lim->s;
+					goto doneit;
 				}
-			  vsp->exp = is.exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
-			  vsp->mantissa2 = is.mantissa;
-			  vsp->mantissa1 = (is.mantissa >> 16);
+			}
+			vsp->exp = is.exp - IEEE_SNG_BIAS + VAX_SNG_BIAS;
+			vsp->mantissa2 = is.mantissa;
+			vsp->mantissa1 = (is.mantissa >> 16);
 			doneit:
-			  vsp->sign = is.sign;
-			  return (TRUE);
+			vsp->sign = is.sign;
+			return (TRUE);
 #endif
 
-		  case XDR_FREE:
-			  return (TRUE);
-	  }
+		case XDR_FREE:
+			return (TRUE);
+	}
 	return (FALSE);
 }
 
@@ -236,18 +243,25 @@ static struct dbl_limits
 {
 	struct vax_double d;
 	struct ieee_double ieee;
-} dbl_limits[2] =
+}
+dbl_limits[2] =
 {
 	{
 		{
-		0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff},	/* Max Vax */
+			0x7f, 0xff, 0x0, 0xffff, 0xffff, 0xffff
+		},	/* Max Vax */
 		{
-	0x0, 0x7ff, 0x0, 0x0}},		/* Max IEEE */
+			0x0, 0x7ff, 0x0, 0x0
+		}
+	},		/* Max IEEE */
 	{
 		{
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0},	/* Min Vax */
+			0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+		},	/* Min Vax */
 		{
-	0x0, 0x0, 0x0, 0x0}}		/* Min IEEE */
+			0x0, 0x0, 0x0, 0x0
+		}
+	}		/* Min IEEE */
 };
 
 #endif /* vax */
@@ -267,102 +281,102 @@ bool_t xdr_double (register XDR * xdrs, double *dp)
 #endif
 
 	switch (xdrs->x_op)
-	  {
+	{
 
-		  case XDR_ENCODE:
+		case XDR_ENCODE:
 #ifdef IEEEFP
-			  i32p = (int32_t *) dp;
+			i32p = (int32_t *) dp;
 #if BYTE_ORDER == BIG_ENDIAN
-			  tmpl = *i32p++;
-			  rv = XDR_PUTLONG (xdrs, &tmpl);
-			  if (!rv)
-				  return (rv);
-			  tmpl = *i32p;
-			  rv = XDR_PUTLONG (xdrs, &tmpl);
+			tmpl = *i32p++;
+			rv = XDR_PUTLONG (xdrs, &tmpl);
+			if (!rv)
+				return (rv);
+			tmpl = *i32p;
+			rv = XDR_PUTLONG (xdrs, &tmpl);
 #else
-			  tmpl = *(i32p + 1);
-			  rv = XDR_PUTLONG (xdrs, &tmpl);
-			  if (!rv)
-				  return (rv);
-			  tmpl = *i32p;
-			  rv = XDR_PUTLONG (xdrs, &tmpl);
+			tmpl = *(i32p + 1);
+			rv = XDR_PUTLONG (xdrs, &tmpl);
+			if (!rv)
+				return (rv);
+			tmpl = *i32p;
+			rv = XDR_PUTLONG (xdrs, &tmpl);
 #endif
-			  return (rv);
+			return (rv);
 #else
-			  vd = *((struct vax_double *)dp);
-			  for (i = 0, lim = dbl_limits;
-				   i < sizeof (dbl_limits) / sizeof (struct dbl_limits);
-				   i++, lim++)
+			vd = *((struct vax_double *)dp);
+			for (i = 0, lim = dbl_limits;
+				 i < sizeof (dbl_limits) / sizeof (struct dbl_limits);
+				 i++, lim++)
+			{
+				if ((vd.mantissa4 == lim->d.mantissa4) &&
+					(vd.mantissa3 == lim->d.mantissa3) &&
+					(vd.mantissa2 == lim->d.mantissa2) &&
+					(vd.mantissa1 == lim->d.mantissa1) &&
+					(vd.exp == lim->d.exp))
 				{
-					if ((vd.mantissa4 == lim->d.mantissa4) &&
-						(vd.mantissa3 == lim->d.mantissa3) &&
-						(vd.mantissa2 == lim->d.mantissa2) &&
-						(vd.mantissa1 == lim->d.mantissa1) &&
-						(vd.exp == lim->d.exp))
-					  {
-						  id = lim->ieee;
-						  goto shipit;
-					  }
+					id = lim->ieee;
+					goto shipit;
 				}
-			  id.exp = vd.exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
-			  id.mantissa1 = (vd.mantissa1 << 13) | (vd.mantissa2 >> 3);
-			  id.mantissa2 = ((vd.mantissa2 & MASK (3)) << 29) |
-				  (vd.mantissa3 << 13) | ((vd.mantissa4 >> 3) & MASK (13));
+			}
+			id.exp = vd.exp - VAX_DBL_BIAS + IEEE_DBL_BIAS;
+			id.mantissa1 = (vd.mantissa1 << 13) | (vd.mantissa2 >> 3);
+			id.mantissa2 = ((vd.mantissa2 & MASK (3)) << 29) |
+				(vd.mantissa3 << 13) | ((vd.mantissa4 >> 3) & MASK (13));
 			shipit:
-			  id.sign = vd.sign;
-			  lp = (long *)&id;
-			  return (XDR_PUTLONG (xdrs, lp++) && XDR_PUTLONG (xdrs, lp));
+			id.sign = vd.sign;
+			lp = (long *)&id;
+			return (XDR_PUTLONG (xdrs, lp++) && XDR_PUTLONG (xdrs, lp));
 #endif
 
-		  case XDR_DECODE:
+		case XDR_DECODE:
 #ifdef IEEEFP
-			  i32p = (int32_t *) dp;
+			i32p = (int32_t *) dp;
 #if BYTE_ORDER == BIG_ENDIAN
-			  rv = XDR_GETLONG (xdrs, &tmpl);
-			  *i32p++ = tmpl;
-			  if (!rv)
-				  return (rv);
-			  rv = XDR_GETLONG (xdrs, &tmpl);
-			  *i32p = tmpl;
+			rv = XDR_GETLONG (xdrs, &tmpl);
+			*i32p++ = tmpl;
+			if (!rv)
+				return (rv);
+			rv = XDR_GETLONG (xdrs, &tmpl);
+			*i32p = tmpl;
 #else
-			  rv = XDR_GETLONG (xdrs, &tmpl);
-			  *(i32p + 1) = tmpl;
-			  if (!rv)
-				  return (rv);
-			  rv = XDR_GETLONG (xdrs, &tmpl);
-			  *i32p = tmpl;
+			rv = XDR_GETLONG (xdrs, &tmpl);
+			*(i32p + 1) = tmpl;
+			if (!rv)
+				return (rv);
+			rv = XDR_GETLONG (xdrs, &tmpl);
+			*i32p = tmpl;
 #endif
-			  return (rv);
+			return (rv);
 #else
-			  lp = (long *)&id;
-			  if (!XDR_GETLONG (xdrs, lp++) || !XDR_GETLONG (xdrs, lp))
-				  return (FALSE);
-			  for (i = 0, lim = dbl_limits;
-				   i < sizeof (dbl_limits) / sizeof (struct dbl_limits);
-				   i++, lim++)
+			lp = (long *)&id;
+			if (!XDR_GETLONG (xdrs, lp++) || !XDR_GETLONG (xdrs, lp))
+				return (FALSE);
+			for (i = 0, lim = dbl_limits;
+				 i < sizeof (dbl_limits) / sizeof (struct dbl_limits);
+				 i++, lim++)
+			{
+				if ((id.mantissa2 == lim->ieee.mantissa2) &&
+					(id.mantissa1 == lim->ieee.mantissa1) &&
+					(id.exp == lim->ieee.exp))
 				{
-					if ((id.mantissa2 == lim->ieee.mantissa2) &&
-						(id.mantissa1 == lim->ieee.mantissa1) &&
-						(id.exp == lim->ieee.exp))
-					  {
-						  vd = lim->d;
-						  goto doneit;
-					  }
+					vd = lim->d;
+					goto doneit;
 				}
-			  vd.exp = id.exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
-			  vd.mantissa1 = (id.mantissa1 >> 13);
-			  vd.mantissa2 = ((id.mantissa1 & MASK (13)) << 3) |
-				  (id.mantissa2 >> 29);
-			  vd.mantissa3 = (id.mantissa2 >> 13);
-			  vd.mantissa4 = (id.mantissa2 << 3);
+			}
+			vd.exp = id.exp - IEEE_DBL_BIAS + VAX_DBL_BIAS;
+			vd.mantissa1 = (id.mantissa1 >> 13);
+			vd.mantissa2 = ((id.mantissa1 & MASK (13)) << 3) |
+				(id.mantissa2 >> 29);
+			vd.mantissa3 = (id.mantissa2 >> 13);
+			vd.mantissa4 = (id.mantissa2 << 3);
 			doneit:
-			  vd.sign = id.sign;
-			  *dp = *((double *)&vd);
-			  return (TRUE);
+			vd.sign = id.sign;
+			*dp = *((double *)&vd);
+			return (TRUE);
 #endif
 
-		  case XDR_FREE:
-			  return (TRUE);
-	  }
+		case XDR_FREE:
+			return (TRUE);
+	}
 	return (FALSE);
 }

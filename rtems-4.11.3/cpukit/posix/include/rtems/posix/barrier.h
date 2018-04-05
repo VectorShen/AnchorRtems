@@ -48,13 +48,13 @@ extern "C"
  * This type defines the control block used to manage each barrier.
  */
 
-	typedef struct
-	{
-  /** This is used to manage a barrier as an object. */
-		Objects_Control Object;
-  /** This is used to implement the barrier. */
-		CORE_barrier_Control Barrier;
-	} POSIX_Barrier_Control;
+typedef struct
+{
+/** This is used to manage a barrier as an object. */
+	Objects_Control Object;
+/** This is used to implement the barrier. */
+	CORE_barrier_Control Barrier;
+} POSIX_Barrier_Control;
 
 #ifdef __cplusplus
 }

@@ -28,15 +28,15 @@
 #ifdef ARM_MULTILIB_ARCH_V7M
 
 void _CPU_ISR_install_vector (uint32_t vector,
-							  proc_ptr new_handler, proc_ptr * old_handler)
+							proc_ptr new_handler, proc_ptr * old_handler)
 {
 	uint32_t level;
 
 	_ISR_Disable (level);
 	if (old_handler != NULL)
-	  {
-		  *old_handler = _ARMV7M_Get_exception_handler ((int)vector);
-	  }
+	{
+		*old_handler = _ARMV7M_Get_exception_handler ((int)vector);
+	}
 	_ARMV7M_Set_exception_handler ((int)vector, new_handler);
 	_ISR_Enable (level);
 }

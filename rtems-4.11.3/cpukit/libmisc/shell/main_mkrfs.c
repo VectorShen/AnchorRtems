@@ -23,7 +23,8 @@
 
 #define OPTIONS "[-v] [-s blksz] [-b grpblk] [-i grpinode] [-I] [-o %inode]"
 
-rtems_shell_cmd_t rtems_shell_MKRFS_Command = {
+rtems_shell_cmd_t rtems_shell_MKRFS_Command =
+{
 	"mkrfs",					/* name */
 	"mkrfs " OPTIONS " dev",	/* usage */
 	"files",					/* topic */

@@ -52,27 +52,27 @@ void rtems_print_buffer (const unsigned char *buffer, const int length)
 	unsigned int i, mod, max;
 
 	if (length > 0)
-	  {
-		  mod = length % BYTES_PER_ROW;
+	{
+		mod = length % BYTES_PER_ROW;
 
-		  max = length - mod;
+		max = length - mod;
 
-		  /* Print length / BYTES_PER_ROW rows. */
-		  for (i = 0; i < max; i += BYTES_PER_ROW)
-			{
-				Dump_Line (&buffer[i], BYTES_PER_ROW);
-			}
+		/* Print length / BYTES_PER_ROW rows. */
+		for (i = 0; i < max; i += BYTES_PER_ROW)
+		{
+			Dump_Line (&buffer[i], BYTES_PER_ROW);
+		}
 
-		  /* Print another row with the remaining bytes. */
-		  if (mod > 0)
-			{
-				Dump_Line (&buffer[max], mod);
-			}
-	  }
+		/* Print another row with the remaining bytes. */
+		if (mod > 0)
+		{
+			Dump_Line (&buffer[max], mod);
+		}
+	}
 	else
-	  {
-		  printk ("Error: length must be greater than zero.");
-	  }
+	{
+		printk ("Error: length must be greater than zero.");
+	}
 }
 
 /**
@@ -90,16 +90,16 @@ static void Dump_Line (const unsigned char *buffer, const unsigned int length)
 
 	/* Output the hex value of each byte. */
 	for (i = 0; i < length; ++i)
-	  {
-		  snprintf (&line_buffer[i * HEX_FMT_LENGTH], HEX_FMT_LENGTH + 1,
+	{
+		snprintf (&line_buffer[i * HEX_FMT_LENGTH], HEX_FMT_LENGTH + 1,
 					"%02x ", buffer[i]);
-	  }
+	}
 
 	/* Fill the remaining space with whitespace (if necessary). */
 	for (; i < BYTES_PER_ROW; ++i)
-	  {
-		  strncat (line_buffer, "   ", HEX_FMT_LENGTH);
-	  }
+	{
+		strncat (line_buffer, "   ", HEX_FMT_LENGTH);
+	}
 
 	/* Append a bar. */
 	strncat (line_buffer, "|", 1);
@@ -107,16 +107,16 @@ static void Dump_Line (const unsigned char *buffer, const unsigned int length)
 
 	/* Now output the ASCII glyphs of printable chars. */
 	for (i = 0; i < length; ++i)
-	  {
-		  snprintf (&line_buffer[tmp_len + i], ASCII_FMT_LENGTH + 1,
+	{
+		snprintf (&line_buffer[tmp_len + i], ASCII_FMT_LENGTH + 1,
 					"%c", isprint (buffer[i]) ? buffer[i] : '.');
-	  }
+	}
 
 	/* Fill the remaining space with whitespace (if necessary). */
 	for (; i < BYTES_PER_ROW; i++)
-	  {
-		  strncat (line_buffer, " ", ASCII_FMT_LENGTH);
-	  }
+	{
+		strncat (line_buffer, " ", ASCII_FMT_LENGTH);
+	}
 
 	/* Append another bar and print the resulting string. */
 	printk ("%s|\n", line_buffer);

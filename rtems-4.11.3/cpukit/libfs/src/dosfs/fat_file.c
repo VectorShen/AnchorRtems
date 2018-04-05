@@ -35,16 +35,16 @@
 
 static inline void
 _hash_insert (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
-			  fat_file_fd_t * el);
+			fat_file_fd_t * el);
 
 static inline void
 _hash_delete (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
-			  fat_file_fd_t * el);
+			fat_file_fd_t * el);
 
 static inline int
 _hash_search (const fat_fs_info_t * fs_info,
-			  rtems_chain_control * hash,
-			  uint32_t key1, uint32_t key2, fat_file_fd_t ** ret);
+			rtems_chain_control * hash,
+			uint32_t key1, uint32_t key2, fat_file_fd_t ** ret);
 
 static off_t
 fat_file_lseek (fat_fs_info_t * fs_info,
@@ -77,7 +77,7 @@ fat_file_lseek (fat_fs_info_t * fs_info,
  */
 int
 fat_file_open (fat_fs_info_t * fs_info,
-			   fat_dir_pos_t * dir_pos, fat_file_fd_t ** fat_fd)
+			 fat_dir_pos_t * dir_pos, fat_file_fd_t ** fat_fd)
 {
 	int rc = RC_OK;
 	fat_file_fd_t *lfat_fd = NULL;
@@ -89,12 +89,12 @@ fat_file_open (fat_fs_info_t * fs_info,
 	/* access "valid" hash table */
 	rc = _hash_search (fs_info, fs_info->vhash, key, 0, &lfat_fd);
 	if (rc == RC_OK)
-	  {
-		  /* return pointer to fat_file_descriptor allocated before */
-		  (*fat_fd) = lfat_fd;
-		  lfat_fd->links_num++;
-		  return rc;
-	  }
+	{
+		/* return pointer to fat_file_descriptor allocated before */
+		(*fat_fd) = lfat_fd;
+		lfat_fd->links_num++;
+		return rc;
+	}
 
 	/* access "removed-but-still-open" hash table */
 	rc = _hash_search (fs_info, fs_info->rhash, key, key, &lfat_fd);
@@ -112,19 +112,19 @@ fat_file_open (fat_fs_info_t * fs_info,
 	if (rc != RC_OK)
 		lfat_fd->ino = key;
 	else
-	  {
-		  lfat_fd->ino = fat_get_unique_ino (fs_info);
+	{
+		lfat_fd->ino = fat_get_unique_ino (fs_info);
 
-		  if (lfat_fd->ino == 0)
-			{
-				free ((*fat_fd));
-				/*
-				 * XXX: kernel resource is unsufficient, but not the memory,
-				 * but there is no suitable errno :(
-				 */
-				rtems_set_errno_and_return_minus_one (ENOMEM);
-			}
-	  }
+		if (lfat_fd->ino == 0)
+		{
+			free ((*fat_fd));
+			/*
+			 * XXX: kernel resource is unsufficient, but not the memory,
+			 * but there is no suitable errno :(
+			 */
+			rtems_set_errno_and_return_minus_one (ENOMEM);
+		}
+	}
 	_hash_insert (fs_info->vhash, key, lfat_fd->ino, lfat_fd);
 
 	/*
@@ -156,21 +156,21 @@ int fat_file_update (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd)
 
 	if (!FAT_FILE_IS_REMOVED (fat_fd) &&
 		FAT_FILE_HAS_META_DATA_CHANGED (fat_fd) && !FAT_FD_OF_ROOT_DIR (fat_fd))
-	  {
-		  int rc;
+	{
+		int rc;
 
-		  rc = fat_file_write_first_cluster_num (fs_info, fat_fd);
-		  if (rc != RC_OK)
-			  ret_rc = rc;
+		rc = fat_file_write_first_cluster_num (fs_info, fat_fd);
+		if (rc != RC_OK)
+			ret_rc = rc;
 
-		  rc = fat_file_write_file_size (fs_info, fat_fd);
-		  if (rc != RC_OK)
-			  ret_rc = rc;
+		rc = fat_file_write_file_size (fs_info, fat_fd);
+		if (rc != RC_OK)
+			ret_rc = rc;
 
-		  rc = fat_file_write_time_and_date (fs_info, fat_fd);
-		  if (rc != RC_OK)
-			  ret_rc = rc;
-	  }
+		rc = fat_file_write_time_and_date (fs_info, fat_fd);
+		if (rc != RC_OK)
+			ret_rc = rc;
+	}
 
 	return ret_rc;
 }
@@ -203,41 +203,41 @@ int fat_file_close (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd)
 	 * decrement only the count of links
 	 */
 	if (fat_fd->links_num > 1)
-	  {
-		  fat_fd->links_num--;
-	  }
+	{
+		fat_fd->links_num--;
+	}
 	else
-	  {
-		  uint32_t key = fat_construct_key (fs_info, &fat_fd->dir_pos.sname);
+	{
+		uint32_t key = fat_construct_key (fs_info, &fat_fd->dir_pos.sname);
 
-		  fat_file_update (fs_info, fat_fd);
+		fat_file_update (fs_info, fat_fd);
 
-		  if (fat_fd->flags & FAT_FILE_REMOVED)
+		if (fat_fd->flags & FAT_FILE_REMOVED)
+		{
+			rc = fat_file_truncate (fs_info, fat_fd, 0);
+			if (rc == RC_OK)
 			{
-				rc = fat_file_truncate (fs_info, fat_fd, 0);
-				if (rc == RC_OK)
-				  {
-					  _hash_delete (fs_info->rhash, key, fat_fd->ino, fat_fd);
+				_hash_delete (fs_info->rhash, key, fat_fd->ino, fat_fd);
 
-					  if (fat_ino_is_unique (fs_info, fat_fd->ino))
-						  fat_free_unique_ino (fs_info, fat_fd->ino);
-
-					  free (fat_fd);
-				  }
-			}
-		  else
-			{
 				if (fat_ino_is_unique (fs_info, fat_fd->ino))
-				  {
-					  fat_fd->links_num = 0;
-				  }
-				else
-				  {
-					  _hash_delete (fs_info->vhash, key, fat_fd->ino, fat_fd);
-					  free (fat_fd);
-				  }
+					fat_free_unique_ino (fs_info, fat_fd->ino);
+
+				free (fat_fd);
 			}
-	  }
+		}
+		else
+		{
+			if (fat_ino_is_unique (fs_info, fat_fd->ino))
+			{
+				fat_fd->links_num = 0;
+			}
+			else
+			{
+				_hash_delete (fs_info->vhash, key, fat_fd->ino, fat_fd);
+				free (fat_fd);
+			}
+		}
+	}
 
 	/*
 	 * flush any modified "cached" buffer back to disk
@@ -265,8 +265,8 @@ int fat_file_close (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd)
  */
 ssize_t
 fat_file_read (fat_fs_info_t * fs_info,
-			   fat_file_fd_t * fat_fd,
-			   uint32_t start, uint32_t count, uint8_t * buf)
+			 fat_file_fd_t * fat_fd,
+			 uint32_t start, uint32_t count, uint8_t * buf)
 {
 	int rc = RC_OK;
 	ssize_t ret = 0;
@@ -297,17 +297,17 @@ fat_file_read (fat_fs_info_t * fs_info,
 
 	if ((FAT_FD_OF_ROOT_DIR (fat_fd)) &&
 		(fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
-	  {
-		  sec = fat_cluster_num_to_sector_num (fs_info, fat_fd->cln);
-		  sec += (start >> fs_info->vol.sec_log2);
-		  byte = start & (fs_info->vol.bps - 1);
+	{
+		sec = fat_cluster_num_to_sector_num (fs_info, fat_fd->cln);
+		sec += (start >> fs_info->vol.sec_log2);
+		byte = start & (fs_info->vol.bps - 1);
 
-		  ret = _fat_block_read (fs_info, sec, byte, count, buf);
-		  if (ret < 0)
-			  return -1;
+		ret = _fat_block_read (fs_info, sec, byte, count, buf);
+		if (ret < 0)
+			return -1;
 
-		  return ret;
-	  }
+		return ret;
+	}
 
 	cl_start = start >> fs_info->vol.bpc_log2;
 	save_ofs = ofs = start & (fs_info->vol.bpc - 1);
@@ -317,26 +317,26 @@ fat_file_read (fat_fs_info_t * fs_info,
 		return rc;
 
 	while (count > 0)
-	  {
-		  c = MIN (count, (fs_info->vol.bpc - ofs));
+	{
+		c = MIN (count, (fs_info->vol.bpc - ofs));
 
-		  sec = fat_cluster_num_to_sector_num (fs_info, cur_cln);
-		  sec += (ofs >> fs_info->vol.sec_log2);
-		  byte = ofs & (fs_info->vol.bps - 1);
+		sec = fat_cluster_num_to_sector_num (fs_info, cur_cln);
+		sec += (ofs >> fs_info->vol.sec_log2);
+		byte = ofs & (fs_info->vol.bps - 1);
 
-		  ret = _fat_block_read (fs_info, sec, byte, c, buf + cmpltd);
-		  if (ret < 0)
-			  return -1;
+		ret = _fat_block_read (fs_info, sec, byte, c, buf + cmpltd);
+		if (ret < 0)
+			return -1;
 
-		  count -= c;
-		  cmpltd += c;
-		  save_cln = cur_cln;
-		  rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
-		  if (rc != RC_OK)
-			  return rc;
+		count -= c;
+		cmpltd += c;
+		save_cln = cur_cln;
+		rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
+		if (rc != RC_OK)
+			return rc;
 
-		  ofs = 0;
-	  }
+		ofs = 0;
+	}
 
 	/* update cache */
 	/* XXX: check this - I'm not sure :( */
@@ -384,9 +384,9 @@ fat_is_fat12_or_fat16_root_dir (const fat_file_fd_t * fat_fd,
  */
 static ssize_t
 fat_file_write_fat32_or_non_root_dir (fat_fs_info_t * fs_info,
-									  fat_file_fd_t * fat_fd,
-									  const uint32_t start,
-									  const uint32_t count, const uint8_t * buf)
+									fat_file_fd_t * fat_fd,
+									const uint32_t start,
+									const uint32_t count, const uint8_t * buf)
 {
 	int rc = RC_OK;
 	uint32_t cmpltd = 0;
@@ -401,34 +401,34 @@ fat_file_write_fat32_or_non_root_dir (fat_fs_info_t * fs_info,
 
 	rc = fat_file_lseek (fs_info, fat_fd, start_cln, &cur_cln);
 	if (RC_OK == rc)
-	  {
-		  while ((RC_OK == rc) && (bytes_to_write > 0))
+	{
+		while ((RC_OK == rc) && (bytes_to_write > 0))
+		{
+			c = MIN (bytes_to_write, (fs_info->vol.bpc - ofs_cln));
+
+			ret = fat_cluster_write (fs_info,
+									 cur_cln, ofs_cln, c, &buf[cmpltd]);
+			if (0 > ret)
+				rc = -1;
+
+			if (RC_OK == rc)
 			{
-				c = MIN (bytes_to_write, (fs_info->vol.bpc - ofs_cln));
+				bytes_to_write -= ret;
+				cmpltd += ret;
+				save_cln = cur_cln;
+				if (0 < bytes_to_write)
+					rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
 
-				ret = fat_cluster_write (fs_info,
-										 cur_cln, ofs_cln, c, &buf[cmpltd]);
-				if (0 > ret)
-					rc = -1;
-
-				if (RC_OK == rc)
-				  {
-					  bytes_to_write -= ret;
-					  cmpltd += ret;
-					  save_cln = cur_cln;
-					  if (0 < bytes_to_write)
-						  rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
-
-					  ofs_cln = 0;
-				  }
+				ofs_cln = 0;
 			}
+		}
 
-		  /* update cache */
-		  /* XXX: check this - I'm not sure :( */
-		  fat_fd->map.file_cln = start_cln +
-			  ((ofs_cln_save + cmpltd - 1) >> fs_info->vol.bpc_log2);
-		  fat_fd->map.disk_cln = save_cln;
-	  }
+		/* update cache */
+		/* XXX: check this - I'm not sure :( */
+		fat_fd->map.file_cln = start_cln +
+			((ofs_cln_save + cmpltd - 1) >> fs_info->vol.bpc_log2);
+		fat_fd->map.disk_cln = save_cln;
+	}
 
 	if (RC_OK != rc)
 		return rc;
@@ -476,38 +476,38 @@ fat_file_write (fat_fs_info_t * fs_info,
 
 	rc = fat_file_extend (fs_info, fat_fd, zero_fill, start + count, &c);
 	if (RC_OK == rc)
-	  {
-		  /*
-		   * check whether there was enough room on device to locate
-		   * file of 'start + count' bytes
-		   */
-		  if (c != (start + count))
-			  count = c - start;
+	{
+		/*
+		 * check whether there was enough room on device to locate
+		 * file of 'start + count' bytes
+		 */
+		if (c != (start + count))
+			count = c - start;
 
-		  /* for the root directory of FAT12 and FAT16 we need this special handling */
-		  if (fat_is_fat12_or_fat16_root_dir (fat_fd, fs_info->vol.type))
-			{
-				cln = fat_fd->cln;
-				cln += (start >> fs_info->vol.bpc_log2);
-				byte = start & (fs_info->vol.bpc - 1);
+		/* for the root directory of FAT12 and FAT16 we need this special handling */
+		if (fat_is_fat12_or_fat16_root_dir (fat_fd, fs_info->vol.type))
+		{
+			cln = fat_fd->cln;
+			cln += (start >> fs_info->vol.bpc_log2);
+			byte = start & (fs_info->vol.bpc - 1);
 
-				ret = fat_cluster_write (fs_info, cln, byte, count, buf);
-				if (0 > ret)
-					rc = -1;
-				else
-					cmpltd = ret;
-			}
-		  else
-			{
-				ret = fat_file_write_fat32_or_non_root_dir (fs_info,
-															fat_fd,
-															start, count, buf);
-				if (0 > ret)
-					rc = -1;
-				else
-					cmpltd = ret;
-			}
-	  }
+			ret = fat_cluster_write (fs_info, cln, byte, count, buf);
+			if (0 > ret)
+				rc = -1;
+			else
+				cmpltd = ret;
+		}
+		else
+		{
+			ret = fat_file_write_fat32_or_non_root_dir (fs_info,
+														fat_fd,
+														start, count, buf);
+			if (0 > ret)
+				rc = -1;
+			else
+				cmpltd = ret;
+		}
+	}
 	if (RC_OK != rc)
 		return rc;
 	else
@@ -566,21 +566,21 @@ fat_file_extend (fat_fs_info_t * fs_info,
 		bytes2add = 0;
 
 	if (zero_fill && bytes_remain > 0)
-	  {
-		  uint32_t start = fat_fd->fat_file_size;
-		  uint32_t cl_start = start >> fs_info->vol.bpc_log2;
-		  uint32_t ofs = start & (fs_info->vol.bpc - 1);
-		  uint32_t cur_cln;
+	{
+		uint32_t start = fat_fd->fat_file_size;
+		uint32_t cl_start = start >> fs_info->vol.bpc_log2;
+		uint32_t ofs = start & (fs_info->vol.bpc - 1);
+		uint32_t cur_cln;
 
-		  rc = fat_file_lseek (fs_info, fat_fd, cl_start, &cur_cln);
-		  if (rc != RC_OK)
-			  return rc;
+		rc = fat_file_lseek (fs_info, fat_fd, cl_start, &cur_cln);
+		if (rc != RC_OK)
+			return rc;
 
-		  bytes_written =
-			  fat_cluster_set (fs_info, cur_cln, ofs, bytes_remain, 0);
-		  if (bytes_remain != bytes_written)
-			  return -1;
-	  }
+		bytes_written =
+			fat_cluster_set (fs_info, cur_cln, ofs, bytes_remain, 0);
+		if (bytes_remain != bytes_written)
+			return -1;
+	}
 
 	/*
 	 * if in last cluster allocated for the file there is enough room to
@@ -605,61 +605,61 @@ fat_file_extend (fat_fs_info_t * fs_info,
 
 	/*  check wether we satisfied request for 'cls2add' clusters */
 	if (cls2add != cls_added)
-	  {
-		  uint32_t missing = (cls2add - cls_added) << fs_info->vol.bpc_log2;
+	{
+		uint32_t missing = (cls2add - cls_added) << fs_info->vol.bpc_log2;
 
-		  new_length -= bytes2add < missing ? bytes2add : missing;
-	  }
+		new_length -= bytes2add < missing ? bytes2add : missing;
+	}
 
 	if (cls_added > 0)
-	  {
-		  /* add new chain to the end of existing */
-		  if (fat_fd->fat_file_size == 0)
+	{
+		/* add new chain to the end of existing */
+		if (fat_fd->fat_file_size == 0)
+		{
+			fat_fd->map.disk_cln = chain;
+			fat_fd->map.file_cln = 0;
+			fat_file_set_first_cluster_num (fat_fd, chain);
+		}
+		else
+		{
+			if (fat_fd->map.last_cln != FAT_UNDEFINED_VALUE)
 			{
-				fat_fd->map.disk_cln = chain;
-				fat_fd->map.file_cln = 0;
-				fat_file_set_first_cluster_num (fat_fd, chain);
+				old_last_cl = fat_fd->map.last_cln;
 			}
-		  else
+			else
 			{
-				if (fat_fd->map.last_cln != FAT_UNDEFINED_VALUE)
-				  {
-					  old_last_cl = fat_fd->map.last_cln;
-				  }
-				else
-				  {
-					  rc = fat_file_ioctl (fs_info, fat_fd, F_CLU_NUM,
-										   (fat_fd->fat_file_size - 1),
-										   &old_last_cl);
-					  if (rc != RC_OK)
-						{
-							fat_free_fat_clusters_chain (fs_info, chain);
-							return rc;
-						}
-				  }
-
-				rc = fat_set_fat_cluster (fs_info, old_last_cl, chain);
+				rc = fat_file_ioctl (fs_info, fat_fd, F_CLU_NUM,
+									 (fat_fd->fat_file_size - 1),
+									 &old_last_cl);
 				if (rc != RC_OK)
-				  {
-					  fat_free_fat_clusters_chain (fs_info, chain);
-					  return rc;
-				  }
-				fat_buf_release (fs_info);
+				{
+					fat_free_fat_clusters_chain (fs_info, chain);
+					return rc;
+				}
 			}
 
-		  /* update number of the last cluster of the file */
-		  fat_fd->map.last_cln = last_cl;
-
-		  if (fat_fd->fat_file_type == FAT_DIRECTORY)
+			rc = fat_set_fat_cluster (fs_info, old_last_cl, chain);
+			if (rc != RC_OK)
 			{
-				rc = fat_init_clusters_chain (fs_info, chain);
-				if (rc != RC_OK)
-				  {
-					  fat_free_fat_clusters_chain (fs_info, chain);
-					  return rc;
-				  }
+				fat_free_fat_clusters_chain (fs_info, chain);
+				return rc;
 			}
-	  }
+			fat_buf_release (fs_info);
+		}
+
+		/* update number of the last cluster of the file */
+		fat_fd->map.last_cln = last_cl;
+
+		if (fat_fd->fat_file_type == FAT_DIRECTORY)
+		{
+			rc = fat_init_clusters_chain (fs_info, chain);
+			if (rc != RC_OK)
+			{
+				fat_free_fat_clusters_chain (fs_info, chain);
+				return rc;
+			}
+		}
+	}
 
 	*a_length = new_length;
 	fat_file_set_file_size (fat_fd, new_length);
@@ -682,7 +682,7 @@ fat_file_extend (fat_fs_info_t * fs_info,
  */
 int
 fat_file_truncate (fat_fs_info_t * fs_info,
-				   fat_file_fd_t * fat_fd, uint32_t new_length)
+				 fat_file_fd_t * fat_fd, uint32_t new_length)
 {
 	int rc = RC_OK;
 	uint32_t cur_cln = 0;
@@ -700,12 +700,12 @@ fat_file_truncate (fat_fs_info_t * fs_info,
 		return RC_OK;
 
 	if (cl_start != 0)
-	  {
-		  rc = fat_file_lseek (fs_info, fat_fd, cl_start - 1, &new_last_cln);
-		  if (rc != RC_OK)
-			  return rc;
+	{
+		rc = fat_file_lseek (fs_info, fat_fd, cl_start - 1, &new_last_cln);
+		if (rc != RC_OK)
+			return rc;
 
-	  }
+	}
 
 	rc = fat_file_lseek (fs_info, fat_fd, cl_start, &cur_cln);
 	if (rc != RC_OK)
@@ -716,14 +716,14 @@ fat_file_truncate (fat_fs_info_t * fs_info,
 		return rc;
 
 	if (cl_start != 0)
-	  {
-		  rc = fat_set_fat_cluster (fs_info, new_last_cln, FAT_GENFAT_EOC);
-		  if (rc != RC_OK)
-			  return rc;
-		  fat_fd->map.file_cln = cl_start - 1;
-		  fat_fd->map.disk_cln = new_last_cln;
-		  fat_fd->map.last_cln = new_last_cln;
-	  }
+	{
+		rc = fat_set_fat_cluster (fs_info, new_last_cln, FAT_GENFAT_EOC);
+		if (rc != RC_OK)
+			return rc;
+		fat_fd->map.file_cln = cl_start - 1;
+		fat_fd->map.disk_cln = new_last_cln;
+		fat_fd->map.last_cln = new_last_cln;
+	}
 	return RC_OK;
 }
 
@@ -754,41 +754,41 @@ fat_file_ioctl (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd, int cmd, ...)
 	va_start (ap, cmd);
 
 	switch (cmd)
-	  {
-		  case F_CLU_NUM:
-			  pos = va_arg (ap, uint32_t);
-			  ret = va_arg (ap, uint32_t *);
+	{
+		case F_CLU_NUM:
+			pos = va_arg (ap, uint32_t);
+			ret = va_arg (ap, uint32_t *);
 
-			  /* sanity check */
-			  if (pos >= fat_fd->fat_file_size)
-				{
-					va_end (ap);
-					rtems_set_errno_and_return_minus_one (EIO);
-				}
+			/* sanity check */
+			if (pos >= fat_fd->fat_file_size)
+			{
+				va_end (ap);
+				rtems_set_errno_and_return_minus_one (EIO);
+			}
 
-			  if ((FAT_FD_OF_ROOT_DIR (fat_fd)) &&
-				  (fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
-				{
-					/* cluster 0 (zero) reserved for root dir */
-					*ret = 0;
-					rc = RC_OK;
-					break;
-				}
+			if ((FAT_FD_OF_ROOT_DIR (fat_fd)) &&
+				(fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
+			{
+				/* cluster 0 (zero) reserved for root dir */
+				*ret = 0;
+				rc = RC_OK;
+				break;
+			}
 
-			  cl_start = pos >> fs_info->vol.bpc_log2;
+			cl_start = pos >> fs_info->vol.bpc_log2;
 
-			  rc = fat_file_lseek (fs_info, fat_fd, cl_start, &cur_cln);
-			  if (rc != RC_OK)
-				  break;
+			rc = fat_file_lseek (fs_info, fat_fd, cl_start, &cur_cln);
+			if (rc != RC_OK)
+				break;
 
-			  *ret = cur_cln;
-			  break;
+			*ret = cur_cln;
+			break;
 
-		  default:
-			  errno = EINVAL;
-			  rc = -1;
-			  break;
-	  }
+		default:
+			errno = EINVAL;
+			rc = -1;
+			break;
+	}
 	va_end (ap);
 	return rc;
 }
@@ -842,22 +842,22 @@ int fat_file_size (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd)
 	/* Have we requested root dir size for FAT12/16? */
 	if ((FAT_FD_OF_ROOT_DIR (fat_fd)) &&
 		(fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
-	  {
-		  fat_fd->fat_file_size = fs_info->vol.rdir_size;
-		  return rc;
-	  }
+	{
+		fat_fd->fat_file_size = fs_info->vol.rdir_size;
+		return rc;
+	}
 
 	fat_fd->fat_file_size = 0;
 
 	while ((cur_cln & fs_info->vol.mask) < fs_info->vol.eoc_val)
-	  {
-		  save_cln = cur_cln;
-		  rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
-		  if (rc != RC_OK)
-			  return rc;
+	{
+		save_cln = cur_cln;
+		rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
+		if (rc != RC_OK)
+			return rc;
 
-		  fat_fd->fat_file_size += fs_info->vol.bpc;
-	  }
+		fat_fd->fat_file_size += fs_info->vol.bpc;
+	}
 	fat_fd->map.last_cln = save_cln;
 	return rc;
 }
@@ -878,7 +878,7 @@ int fat_file_size (fat_fs_info_t * fs_info, fat_file_fd_t * fat_fd)
  */
 static inline void
 _hash_insert (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
-			  fat_file_fd_t * el)
+			fat_file_fd_t * el)
 {
 	rtems_chain_append_unprotected ((hash) + ((key1) % FAT_HASH_MODULE),
 									&(el)->link);
@@ -898,7 +898,7 @@ _hash_insert (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
  */
 static inline void
 _hash_delete (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
-			  fat_file_fd_t * el)
+			fat_file_fd_t * el)
 {
 	rtems_chain_extract_unprotected (&(el)->link);
 }
@@ -919,27 +919,27 @@ _hash_delete (rtems_chain_control * hash, uint32_t key1, uint32_t key2,
  */
 static inline int
 _hash_search (const fat_fs_info_t * fs_info,
-			  rtems_chain_control * hash,
-			  uint32_t key1, uint32_t key2, fat_file_fd_t ** ret)
+			rtems_chain_control * hash,
+			uint32_t key1, uint32_t key2, fat_file_fd_t ** ret)
 {
 	uint32_t mod = (key1) % FAT_HASH_MODULE;
 	rtems_chain_node *the_node = rtems_chain_first (hash + mod);
 
 	for (; !rtems_chain_is_tail ((hash) + mod, the_node);)
-	  {
-		  fat_file_fd_t *ffd = (fat_file_fd_t *) the_node;
-		  uint32_t ck = fat_construct_key (fs_info, &ffd->dir_pos.sname);
+	{
+		fat_file_fd_t *ffd = (fat_file_fd_t *) the_node;
+		uint32_t ck = fat_construct_key (fs_info, &ffd->dir_pos.sname);
 
-		  if ((key1) == ck)
+		if ((key1) == ck)
+		{
+			if (((key2) == 0) || ((key2) == ffd->ino))
 			{
-				if (((key2) == 0) || ((key2) == ffd->ino))
-				  {
-					  *ret = (void *)the_node;
-					  return 0;
-				  }
+				*ret = (void *)the_node;
+				return 0;
 			}
-		  the_node = the_node->next;
-	  }
+		}
+		the_node = the_node->next;
+	}
 	return -1;
 }
 
@@ -952,35 +952,35 @@ fat_file_lseek (fat_fs_info_t * fs_info,
 	if (file_cln == fat_fd->map.file_cln)
 		*disk_cln = fat_fd->map.disk_cln;
 	else
-	  {
-		  uint32_t cur_cln;
-		  uint32_t count;
-		  uint32_t i;
+	{
+		uint32_t cur_cln;
+		uint32_t count;
+		uint32_t i;
 
-		  if (file_cln > fat_fd->map.file_cln)
-			{
-				cur_cln = fat_fd->map.disk_cln;
-				count = file_cln - fat_fd->map.file_cln;
-			}
-		  else
-			{
-				cur_cln = fat_fd->cln;
-				count = file_cln;
-			}
+		if (file_cln > fat_fd->map.file_cln)
+		{
+			cur_cln = fat_fd->map.disk_cln;
+			count = file_cln - fat_fd->map.file_cln;
+		}
+		else
+		{
+			cur_cln = fat_fd->cln;
+			count = file_cln;
+		}
 
-		  /* skip over the clusters */
-		  for (i = 0; i < count; i++)
-			{
-				rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
-				if (rc != RC_OK)
-					return rc;
-			}
+		/* skip over the clusters */
+		for (i = 0; i < count; i++)
+		{
+			rc = fat_get_fat_cluster (fs_info, cur_cln, &cur_cln);
+			if (rc != RC_OK)
+				return rc;
+		}
 
-		  /* update cache */
-		  fat_fd->map.file_cln = file_cln;
-		  fat_fd->map.disk_cln = cur_cln;
+		/* update cache */
+		fat_fd->map.file_cln = file_cln;
+		fat_fd->map.disk_cln = cur_cln;
 
-		  *disk_cln = cur_cln;
-	  }
+		*disk_cln = cur_cln;
+	}
 	return RC_OK;
 }

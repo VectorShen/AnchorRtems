@@ -73,7 +73,7 @@ int odmode;
 static void odadd (rtems_shell_hexdump_globals *, const char *);
 static void odformat (rtems_shell_hexdump_globals *, const char *);
 static const char *odformatfp (rtems_shell_hexdump_globals *, char,
-							   const char *);
+							 const char *);
 static const char *odformatint (rtems_shell_hexdump_globals *, char,
 								const char *);
 static void odoffset (rtems_shell_hexdump_globals *, int, char ***);
@@ -97,101 +97,101 @@ void oldsyntax (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 	argv = *argvp;
 	while ((ch =
 			getopt_r (argc, argv, "A:aBbcDdeFfHhIij:LlN:Oost:vXx",
-					  &getopt_reent)) != -1)
+					&getopt_reent)) != -1)
 		switch (ch)
-		  {
-			  case 'A':
-				  switch (*optarg)
-					{
-						case 'd':
-						case 'o':
-						case 'x':
-							fshead->nextfu->fmt[TYPE_OFFSET] = *optarg;
-							fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = *optarg;
-							break;
-						case 'n':
-							fshead->nextfu->fmt = empty;
-							fshead->nextfs->nextfu->fmt = padding;
-							break;
-						default:
-							errx (exit_jump, 1, "%s: invalid address base",
-								  optarg);
-					}
-				  break;
-			  case 'a':
-				  odformat (globals, "a");
-				  break;
-			  case 'B':
-			  case 'o':
-				  odformat (globals, "o2");
-				  break;
-			  case 'b':
-				  odformat (globals, "o1");
-				  break;
-			  case 'c':
-				  odformat (globals, "c");
-				  break;
-			  case 'd':
-				  odformat (globals, "u2");
-				  break;
-			  case 'D':
-				  odformat (globals, "u4");
-				  break;
-			  case 'e':		/* undocumented in od */
-			  case 'F':
-				  odformat (globals, "fD");
-				  break;
-			  case 'f':
-				  odformat (globals, "fF");
-				  break;
-			  case 'H':
-			  case 'X':
-				  odformat (globals, "x4");
-				  break;
-			  case 'h':
-			  case 'x':
-				  odformat (globals, "x2");
-				  break;
-			  case 'I':
-			  case 'L':
-			  case 'l':
-				  odformat (globals, "dL");
-				  break;
-			  case 'i':
-				  odformat (globals, "dI");
-				  break;
-			  case 'j':
-				  errno = 0;
-				  skip = strtoll (optarg, &end, 0);
-				  if (*end == 'b')
-					  skip *= 512;
-				  else if (*end == 'k')
-					  skip *= 1024;
-				  else if (*end == 'm')
-					  skip *= 1048576L;
-				  if (errno != 0 || skip < 0 || strlen (end) > 1)
-					  errx (exit_jump, 1, "%s: invalid skip amount", optarg);
-				  break;
-			  case 'N':
-				  if ((length = atoi (optarg)) <= 0)
-					  errx (exit_jump, 1, "%s: invalid length", optarg);
-				  break;
-			  case 'O':
-				  odformat (globals, "o4");
-				  break;
-			  case 's':
-				  odformat (globals, "d2");
-				  break;
-			  case 't':
-				  odformat (globals, optarg);
-				  break;
-			  case 'v':
-				  vflag = ALL;
-				  break;
-			  case '?':
-			  default:
-				  odusage (globals);
-		  }
+		{
+			case 'A':
+				switch (*optarg)
+				{
+					case 'd':
+					case 'o':
+					case 'x':
+						fshead->nextfu->fmt[TYPE_OFFSET] = *optarg;
+						fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = *optarg;
+						break;
+					case 'n':
+						fshead->nextfu->fmt = empty;
+						fshead->nextfs->nextfu->fmt = padding;
+						break;
+					default:
+						errx (exit_jump, 1, "%s: invalid address base",
+							optarg);
+				}
+				break;
+			case 'a':
+				odformat (globals, "a");
+				break;
+			case 'B':
+			case 'o':
+				odformat (globals, "o2");
+				break;
+			case 'b':
+				odformat (globals, "o1");
+				break;
+			case 'c':
+				odformat (globals, "c");
+				break;
+			case 'd':
+				odformat (globals, "u2");
+				break;
+			case 'D':
+				odformat (globals, "u4");
+				break;
+			case 'e':		/* undocumented in od */
+			case 'F':
+				odformat (globals, "fD");
+				break;
+			case 'f':
+				odformat (globals, "fF");
+				break;
+			case 'H':
+			case 'X':
+				odformat (globals, "x4");
+				break;
+			case 'h':
+			case 'x':
+				odformat (globals, "x2");
+				break;
+			case 'I':
+			case 'L':
+			case 'l':
+				odformat (globals, "dL");
+				break;
+			case 'i':
+				odformat (globals, "dI");
+				break;
+			case 'j':
+				errno = 0;
+				skip = strtoll (optarg, &end, 0);
+				if (*end == 'b')
+					skip *= 512;
+				else if (*end == 'k')
+					skip *= 1024;
+				else if (*end == 'm')
+					skip *= 1048576L;
+				if (errno != 0 || skip < 0 || strlen (end) > 1)
+					errx (exit_jump, 1, "%s: invalid skip amount", optarg);
+				break;
+			case 'N':
+				if ((length = atoi (optarg)) <= 0)
+					errx (exit_jump, 1, "%s: invalid length", optarg);
+				break;
+			case 'O':
+				odformat (globals, "o4");
+				break;
+			case 's':
+				odformat (globals, "d2");
+				break;
+			case 't':
+				odformat (globals, optarg);
+				break;
+			case 'v':
+				vflag = ALL;
+				break;
+			case '?':
+			default:
+				odusage (globals);
+		}
 
 	if (fshead->nextfs->nextfs == NULL)
 		odformat (globals, "oS");
@@ -233,8 +233,8 @@ odoffset (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 	p = argc == 1 ? (*argvp)[0] : (*argvp)[1];
 
 	if (*p != '+' && (argc < 2 ||
-					  (!isdigit ((unsigned char)p[0])
-					   && (p[0] != 'x' || !isxdigit ((unsigned char)p[1])))))
+					(!isdigit ((unsigned char)p[0])
+					 && (p[0] != 'x' || !isxdigit ((unsigned char)p[1])))))
 		return;
 
 	base = 0;
@@ -245,15 +245,15 @@ odoffset (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 	if (p[0] == '+')
 		++p;
 	if (p[0] == 'x' && isxdigit ((unsigned char)p[1]))
-	  {
-		  ++p;
-		  base = 16;
-	  }
+	{
+		++p;
+		base = 16;
+	}
 	else if (p[0] == '0' && p[1] == 'x')
-	  {
-		  p += 2;
-		  base = 16;
-	  }
+	{
+		p += 2;
+		base = 16;
+	}
 
 	/* skip over the number */
 	if (base == 16)
@@ -267,55 +267,55 @@ odoffset (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 
 	/* if terminates with a '.', base is decimal */
 	if (*p == '.')
-	  {
-		  if (base)
-			  return;
-		  base = 10;
-	  }
+	{
+		if (base)
+			return;
+		base = 10;
+	}
 
 	skip = strtoll (num, &end, base ? base : 8);
 
 	/* if end isn't the same as p, we got a non-octal digit */
 	if (end != p)
-	  {
-		  skip = 0;
-		  return;
-	  }
+	{
+		skip = 0;
+		return;
+	}
 
 	if (*p)
-	  {
-		  if (*p == 'B')
-			{
-				skip *= 1024;
-				++p;
-			}
-		  else if (*p == 'b')
-			{
-				skip *= 512;
-				++p;
-			}
-	  }
+	{
+		if (*p == 'B')
+		{
+			skip *= 1024;
+			++p;
+		}
+		else if (*p == 'b')
+		{
+			skip *= 512;
+			++p;
+		}
+	}
 
 	if (*p)
-	  {
-		  skip = 0;
-		  return;
-	  }
+	{
+		skip = 0;
+		return;
+	}
 
 	/*
 	 * If the offset uses a non-octal base, the base of the offset
 	 * is changed as well.  This isn't pretty, but it's easy.
 	 */
 	if (base == 16)
-	  {
-		  fshead->nextfu->fmt[TYPE_OFFSET] = 'x';
-		  fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = 'x';
-	  }
+	{
+		fshead->nextfu->fmt[TYPE_OFFSET] = 'x';
+		fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = 'x';
+	}
 	else if (base == 10)
-	  {
-		  fshead->nextfu->fmt[TYPE_OFFSET] = 'd';
-		  fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = 'd';
-	  }
+	{
+		fshead->nextfu->fmt[TYPE_OFFSET] = 'd';
+		fshead->nextfs->nextfu->fmt[TYPE_OFFSET] = 'd';
+	}
 
 	/* Terminate file list. */
 	(*argvp)[1] = NULL;
@@ -326,33 +326,33 @@ static void odformat (rtems_shell_hexdump_globals * globals, const char *fmt)
 	char fchar;
 
 	while (*fmt != '\0')
-	  {
-		  switch ((fchar = *fmt++))
-			{
-				case 'a':
-					odadd (globals, "16/1 \"%3_u \" \"\\n\"");
-					break;
-				case 'c':
-					odadd (globals, "16/1 \"%3_c \" \"\\n\"");
-					break;
-				case 'o':
-				case 'u':
-				case 'd':
-				case 'x':
-					fmt = odformatint (globals, fchar, fmt);
-					break;
-				case 'f':
-					fmt = odformatfp (globals, fchar, fmt);
-					break;
-				default:
-					errx (exit_jump, 1, "%c: unrecognised format character",
-						  fchar);
-			}
-	  }
+	{
+		switch ((fchar = *fmt++))
+		{
+			case 'a':
+				odadd (globals, "16/1 \"%3_u \" \"\\n\"");
+				break;
+			case 'c':
+				odadd (globals, "16/1 \"%3_c \" \"\\n\"");
+				break;
+			case 'o':
+			case 'u':
+			case 'd':
+			case 'x':
+				fmt = odformatint (globals, fchar, fmt);
+				break;
+			case 'f':
+				fmt = odformatfp (globals, fchar, fmt);
+				break;
+			default:
+				errx (exit_jump, 1, "%c: unrecognised format character",
+					fchar);
+		}
+	}
 }
 
 static const char *odformatfp (rtems_shell_hexdump_globals * globals,
-							   char fchar __unused, const char *fmt)
+							 char fchar __unused, const char *fmt)
 {
 	size_t isize;
 	int digits;
@@ -360,48 +360,48 @@ static const char *odformatfp (rtems_shell_hexdump_globals * globals,
 
 	isize = sizeof (double);
 	switch (*fmt)
-	  {
-		  case 'F':
-			  isize = sizeof (float);
-			  fmt++;
-			  break;
-		  case 'D':
-			  isize = sizeof (double);
-			  fmt++;
-			  break;
-		  case 'L':
-			  isize = sizeof (long double);
-			  fmt++;
-			  break;
-		  default:
-			  if (isdigit ((unsigned char)*fmt))
-				{
-					errno = 0;
-					isize = (size_t) strtoul (fmt, &end, 10);
-					if (errno != 0 || isize == 0)
-						errx (exit_jump, 1, "%s: invalid size", fmt);
-					fmt = (const char *)end;
-				}
-	  }
+	{
+		case 'F':
+			isize = sizeof (float);
+			fmt++;
+			break;
+		case 'D':
+			isize = sizeof (double);
+			fmt++;
+			break;
+		case 'L':
+			isize = sizeof (long double);
+			fmt++;
+			break;
+		default:
+			if (isdigit ((unsigned char)*fmt))
+			{
+				errno = 0;
+				isize = (size_t) strtoul (fmt, &end, 10);
+				if (errno != 0 || isize == 0)
+					errx (exit_jump, 1, "%s: invalid size", fmt);
+				fmt = (const char *)end;
+			}
+	}
 	if (isize == sizeof (float))
-	  {
-		  digits = FLT_DIG;
-	  }
+	{
+		digits = FLT_DIG;
+	}
 	else if (isize == sizeof (double))
-	  {
-		  digits = DBL_DIG;
-	  }
+	{
+		digits = DBL_DIG;
+	}
 	else if (isize == sizeof (long double))
-	  {
-		  digits = LDBL_DIG;
-	  }
+	{
+		digits = LDBL_DIG;
+	}
 	else
-	  {
-		  errx (exit_jump, 1, "unsupported floating point size %zu", isize);
-	  }
+	{
+		errx (exit_jump, 1, "unsupported floating point size %zu", isize);
+	}
 
 	asprintf (&hdfmt, "%lu/%lu \" %%%d.%de \" \"\\n\"",
-			  16UL / (u_long) isize, (u_long) isize, digits + 8, digits);
+			16UL / (u_long) isize, (u_long) isize, digits + 8, digits);
 	if (hdfmt == NULL)
 		err (exit_jump, 1, NULL);
 	odadd (globals, hdfmt);
@@ -420,37 +420,37 @@ static const char *odformatint (rtems_shell_hexdump_globals * globals,
 
 	isize = sizeof (int);
 	switch (*fmt)
-	  {
-		  case 'C':
-			  isize = sizeof (char);
-			  fmt++;
-			  break;
-		  case 'I':
-			  isize = sizeof (int);
-			  fmt++;
-			  break;
-		  case 'L':
-			  isize = sizeof (long);
-			  fmt++;
-			  break;
-		  case 'S':
-			  isize = sizeof (short);
-			  fmt++;
-			  break;
-		  default:
-			  if (isdigit ((unsigned char)*fmt))
-				{
-					errno = 0;
-					isize = (size_t) strtoul (fmt, &end, 10);
-					if (errno != 0 || isize == 0)
-						errx (exit_jump, 1, "%s: invalid size", fmt);
-					if (isize != sizeof (char) && isize != sizeof (short) &&
-						isize != sizeof (int) && isize != sizeof (long))
-						errx (exit_jump, 1, "unsupported int size %lu",
-							  (u_long) isize);
-					fmt = (const char *)end;
-				}
-	  }
+	{
+		case 'C':
+			isize = sizeof (char);
+			fmt++;
+			break;
+		case 'I':
+			isize = sizeof (int);
+			fmt++;
+			break;
+		case 'L':
+			isize = sizeof (long);
+			fmt++;
+			break;
+		case 'S':
+			isize = sizeof (short);
+			fmt++;
+			break;
+		default:
+			if (isdigit ((unsigned char)*fmt))
+			{
+				errno = 0;
+				isize = (size_t) strtoul (fmt, &end, 10);
+				if (errno != 0 || isize == 0)
+					errx (exit_jump, 1, "%s: invalid size", fmt);
+				if (isize != sizeof (char) && isize != sizeof (short) &&
+					isize != sizeof (int) && isize != sizeof (long))
+					errx (exit_jump, 1, "unsupported int size %lu",
+						(u_long) isize);
+				fmt = (const char *)end;
+			}
+	}
 
 	/*
 	 * Calculate the maximum number of digits we need to
@@ -461,15 +461,15 @@ static const char *odformatint (rtems_shell_hexdump_globals * globals,
 	n = (1ULL << (8 * isize)) - 1;
 	digits = 0;
 	while (n != 0)
-	  {
-		  digits++;
-		  n >>= (fchar == 'x') ? 4 : 3;
-	  }
+	{
+		digits++;
+		n >>= (fchar == 'x') ? 4 : 3;
+	}
 	if (fchar == 'd')
 		digits++;
 	asprintf (&hdfmt, "%lu/%lu \"%*s%%%s%d%c\" \"\\n\"",
-			  16UL / (u_long) isize, (u_long) isize, (int)(4 * isize - digits),
-			  "", (fchar == 'd' || fchar == 'u') ? "" : "0", digits, fchar);
+			16UL / (u_long) isize, (u_long) isize, (int)(4 * isize - digits),
+			"", (fchar == 'd' || fchar == 'u') ? "" : "0", digits, fchar);
 	if (hdfmt == NULL)
 		err (exit_jump, 1, NULL);
 	odadd (globals, hdfmt);

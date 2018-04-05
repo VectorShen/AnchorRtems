@@ -72,7 +72,7 @@ typedef __socklen_t socklen_t;
 #ifndef _PATH_HEQUIV
 #define	_PATH_HEQUIV	"/etc/hosts.equiv"
 #endif
-#define	_PATH_HOSTS	"/etc/hosts"
+#define	_PATH_HOSTS		"/etc/hosts"
 #define	_PATH_NETWORKS	"/etc/networks"
 #define	_PATH_PROTOCOLS	"/etc/protocols"
 #define	_PATH_SERVICES	"/etc/services"
@@ -125,10 +125,10 @@ struct protoent
 #define	NETDB_INTERNAL	-1		/* see errno */
 #define	NETDB_SUCCESS	0		/* no problem */
 #define	HOST_NOT_FOUND	1		/* Authoritative Answer Host not found */
-#define	TRY_AGAIN	2			/* Non-Authoritative Host not found, or SERVERFAIL */
-#define	NO_RECOVERY	3			/* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-#define	NO_DATA		4			/* Valid name, no data record of requested type */
-#define	NO_ADDRESS	NO_DATA		/* no address, look for MX record */
+#define	TRY_AGAIN		2			/* Non-Authoritative Host not found, or SERVERFAIL */
+#define	NO_RECOVERY		3			/* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
+#define	NO_DATA			4			/* Valid name, no data record of requested type */
+#define	NO_ADDRESS		NO_DATA		/* no address, look for MX record */
 
 __BEGIN_DECLS void endhostent (void);
 void endnetent (void);

@@ -64,9 +64,9 @@ struct ctlname
 	int ctl_type;				/* type of name */
 };
 
-#define CTLTYPE		0xf			/* Mask for the type */
+#define CTLTYPE			0xf			/* Mask for the type */
 #define	CTLTYPE_NODE	1		/* name is a node */
-#define	CTLTYPE_INT	2			/* name describes an integer */
+#define	CTLTYPE_INT		2			/* name describes an integer */
 #define	CTLTYPE_STRING	3		/* name describes a string */
 #define	CTLTYPE_QUAD	4		/* name describes a 64-bit number */
 #define	CTLTYPE_OPAQUE	5		/* name describes a structure */
@@ -75,17 +75,17 @@ struct ctlname
 #define	CTLTYPE_LONG	7		/* name describes a long */
 #define	CTLTYPE_ULONG	8		/* name describes an unsigned long */
 
-#define CTLFLAG_RD	0x80000000	/* Allow reads of variable */
-#define CTLFLAG_WR	0x40000000	/* Allow writes to the variable */
-#define CTLFLAG_RW	(CTLFLAG_RD|CTLFLAG_WR)
+#define CTLFLAG_RD		0x80000000	/* Allow reads of variable */
+#define CTLFLAG_WR		0x40000000	/* Allow writes to the variable */
+#define CTLFLAG_RW		(CTLFLAG_RD|CTLFLAG_WR)
 #define CTLFLAG_NOLOCK	0x20000000	/* XXX Don't Lock */
 #define CTLFLAG_ANYBODY	0x10000000	/* All users can set this var */
 #define CTLFLAG_SECURE	0x08000000	/* Permit set only if securelevel<=0 */
 #define CTLFLAG_PRISON	0x04000000	/* Prisoned roots can fiddle */
-#define CTLFLAG_DYN	0x02000000	/* Dynamic oid - can be freed */
+#define CTLFLAG_DYN		0x02000000	/* Dynamic oid - can be freed */
 #define CTLFLAG_SKIP	0x01000000	/* Skip this sysctl when listing */
 #define CTLMASK_SECURE	0x00F00000	/* Secure level */
-#define CTLFLAG_TUN	0x00080000	/* Tunable variable */
+#define CTLFLAG_TUN		0x00080000	/* Tunable variable */
 #define CTLFLAG_RDTUN	(CTLFLAG_RD|CTLFLAG_TUN)
 
 /*
@@ -105,7 +105,7 @@ struct ctlname
  * be implemented.
  * e.g. SYSCTL_INT(_parent, OID_AUTO, name, CTLFLAG_RW, &variable, 0, "");
  */
-#define OID_AUTO	(-1)
+#define OID_AUTO		(-1)
 
 /*
  * The starting number for dynamically-assigned entries.  WARNING!
@@ -119,8 +119,8 @@ struct ctlname
 
 /* definitions for sysctl_req 'lock' member */
 #define REQ_UNLOCKED	0		/* not locked and not wired */
-#define REQ_LOCKED	1			/* locked and not wired */
-#define REQ_WIRED	2			/* locked and wired */
+#define REQ_LOCKED		1			/* locked and not wired */
+#define REQ_WIRED		2			/* locked and wired */
 
 /*
  * This describes the access space for a sysctl request.  This is needed
@@ -162,14 +162,14 @@ struct sysctl_oid
 	const char *descr;
 };
 
-#define SYSCTL_IN(r, p, l) (r->newfunc)(r, p, l)
+#define SYSCTL_IN(r, p, l) 	(r->newfunc)(r, p, l)
 #define SYSCTL_OUT(r, p, l) (r->oldfunc)(r, p, l)
 
-int sysctl_handle_int (SYSCTL_HANDLER_ARGS);
-int sysctl_handle_long (SYSCTL_HANDLER_ARGS);
-int sysctl_handle_intptr (SYSCTL_HANDLER_ARGS);
-int sysctl_handle_string (SYSCTL_HANDLER_ARGS);
-int sysctl_handle_opaque (SYSCTL_HANDLER_ARGS);
+int sysctl_handle_int 		(SYSCTL_HANDLER_ARGS);
+int sysctl_handle_long 		(SYSCTL_HANDLER_ARGS);
+int sysctl_handle_intptr 	(SYSCTL_HANDLER_ARGS);
+int sysctl_handle_string 	(SYSCTL_HANDLER_ARGS);
+int sysctl_handle_opaque 	(SYSCTL_HANDLER_ARGS);
 
 /*
  * These functions are used to add/remove an oid from the mib.
@@ -302,17 +302,17 @@ TAILQ_HEAD (sysctl_ctx_list, sysctl_ctx_entry);
 /*
  * Top-level identifiers
  */
-#define	CTL_UNSPEC	0			/* unused */
-#define	CTL_KERN	1			/* "high kernel": proc, limits */
-#define	CTL_VM		2			/* virtual memory */
-#define	CTL_VFS		3			/* filesystem, mount type is next */
-#define	CTL_NET		4			/* network, see socket.h */
-#define	CTL_DEBUG	5			/* debugging parameters */
-#define	CTL_HW		6			/* generic cpu/io */
-#define	CTL_MACHDEP	7			/* machine dependent */
-#define	CTL_USER	8			/* user-level */
+#define	CTL_UNSPEC		0			/* unused */
+#define	CTL_KERN		1			/* "high kernel": proc, limits */
+#define	CTL_VM			2			/* virtual memory */
+#define	CTL_VFS			3			/* filesystem, mount type is next */
+#define	CTL_NET			4			/* network, see socket.h */
+#define	CTL_DEBUG		5			/* debugging parameters */
+#define	CTL_HW			6			/* generic cpu/io */
+#define	CTL_MACHDEP		7			/* machine dependent */
+#define	CTL_USER		8			/* user-level */
 #define	CTL_P1003_1B	9		/* POSIX 1003.1B */
-#define	CTL_MAXID	10			/* number of valid top-level ids */
+#define	CTL_MAXID		10			/* number of valid top-level ids */
 
 #define CTL_NAMES { \
 	{ 0, 0 }, \
@@ -330,42 +330,42 @@ TAILQ_HEAD (sysctl_ctx_list, sysctl_ctx_entry);
 /*
  * CTL_KERN identifiers
  */
-#define	KERN_OSTYPE	 	 1		/* string: system version */
-#define	KERN_OSRELEASE	 	 2	/* string: system release */
-#define	KERN_OSREV	 	 3		/* int: system revision */
-#define	KERN_VERSION	 	 4	/* string: compile time info */
-#define	KERN_MAXVNODES	 	 5	/* int: max vnodes */
-#define	KERN_MAXPROC	 	 6	/* int: max processes */
-#define	KERN_MAXFILES	 	 7	/* int: max open files */
-#define	KERN_ARGMAX	 	 8		/* int: max arguments to exec */
-#define	KERN_SECURELVL	 	 9	/* int: system security level */
-#define	KERN_HOSTNAME		10	/* string: hostname */
-#define	KERN_HOSTID		11		/* int: host identifier */
-#define	KERN_CLOCKRATE		12	/* struct: struct clockrate */
-#define	KERN_VNODE		13		/* struct: vnode structures */
-#define	KERN_PROC		14		/* struct: process entries */
-#define	KERN_FILE		15		/* struct: file entries */
-#define	KERN_PROF		16		/* node: kernel profiling info */
-#define	KERN_POSIX1		17		/* int: POSIX.1 version */
-#define	KERN_NGROUPS		18	/* int: # of supplemental group ids */
-#define	KERN_JOB_CONTROL	19	/* int: is job control available */
-#define	KERN_SAVED_IDS		20	/* int: saved set-user/group-ID */
-#define	KERN_BOOTTIME		21	/* struct: time kernel was booted */
-#define KERN_NISDOMAINNAME	22	/* string: YP domain name */
-#define KERN_UPDATEINTERVAL	23	/* int: update process sleep time */
-#define KERN_OSRELDATE		24	/* int: kernel release date */
-#define KERN_NTP_PLL		25	/* node: NTP PLL control */
-#define	KERN_BOOTFILE		26	/* string: name of booted kernel */
+#define	KERN_OSTYPE	 	 		1		/* string: system version */
+#define	KERN_OSRELEASE	 		2	/* string: system release */
+#define	KERN_OSREV	 	 		3		/* int: system revision */
+#define	KERN_VERSION	 	 	4	/* string: compile time info */
+#define	KERN_MAXVNODES	 	 	5	/* int: max vnodes */
+#define	KERN_MAXPROC	 	 	6	/* int: max processes */
+#define	KERN_MAXFILES	 	 	7	/* int: max open files */
+#define	KERN_ARGMAX	 	 		8		/* int: max arguments to exec */
+#define	KERN_SECURELVL	 	 	9	/* int: system security level */
+#define	KERN_HOSTNAME			10	/* string: hostname */
+#define	KERN_HOSTID				11		/* int: host identifier */
+#define	KERN_CLOCKRATE			12	/* struct: struct clockrate */
+#define	KERN_VNODE				13		/* struct: vnode structures */
+#define	KERN_PROC				14		/* struct: process entries */
+#define	KERN_FILE				15		/* struct: file entries */
+#define	KERN_PROF				16		/* node: kernel profiling info */
+#define	KERN_POSIX1				17		/* int: POSIX.1 version */
+#define	KERN_NGROUPS			18	/* int: # of supplemental group ids */
+#define	KERN_JOB_CONTROL		19	/* int: is job control available */
+#define	KERN_SAVED_IDS			20	/* int: saved set-user/group-ID */
+#define	KERN_BOOTTIME			21	/* struct: time kernel was booted */
+#define KERN_NISDOMAINNAME		22	/* string: YP domain name */
+#define KERN_UPDATEINTERVAL		23	/* int: update process sleep time */
+#define KERN_OSRELDATE			24	/* int: kernel release date */
+#define KERN_NTP_PLL			25	/* node: NTP PLL control */
+#define	KERN_BOOTFILE			26	/* string: name of booted kernel */
 #define	KERN_MAXFILESPERPROC	27	/* int: max open files per proc */
-#define	KERN_MAXPROCPERUID 	28	/* int: max processes per uid */
-#define KERN_DUMPDEV		29	/* struct cdev *: device to dump on */
-#define	KERN_IPC		30		/* node: anything related to IPC */
-#define	KERN_DUMMY		31		/* unused */
-#define	KERN_PS_STRINGS		32	/* int: address of PS_STRINGS */
-#define	KERN_USRSTACK		33	/* int: address of USRSTACK */
-#define	KERN_LOGSIGEXIT		34	/* int: do we log sigexit procs? */
-#define	KERN_IOV_MAX		35	/* int: value of UIO_MAXIOV */
-#define KERN_MAXID		36		/* number of valid kern ids */
+#define	KERN_MAXPROCPERUID 		28	/* int: max processes per uid */
+#define KERN_DUMPDEV			29	/* struct cdev *: device to dump on */
+#define	KERN_IPC				30		/* node: anything related to IPC */
+#define	KERN_DUMMY				31		/* unused */
+#define	KERN_PS_STRINGS			32	/* int: address of PS_STRINGS */
+#define	KERN_USRSTACK			33	/* int: address of USRSTACK */
+#define	KERN_LOGSIGEXIT			34	/* int: do we log sigexit procs? */
+#define	KERN_IOV_MAX			35	/* int: value of UIO_MAXIOV */
+#define KERN_MAXID				36		/* number of valid kern ids */
 
 #define CTL_KERN_NAMES { \
 	{ 0, 0 }, \
@@ -415,18 +415,18 @@ TAILQ_HEAD (sysctl_ctx_list, sysctl_ctx_entry);
 /*
  * KERN_PROC subtypes
  */
-#define KERN_PROC_ALL		0	/* everything */
-#define	KERN_PROC_PID		1	/* by process id */
-#define	KERN_PROC_PGRP		2	/* by process group id */
-#define	KERN_PROC_SESSION	3	/* by session of pid */
-#define	KERN_PROC_TTY		4	/* by controlling tty */
-#define	KERN_PROC_UID		5	/* by effective uid */
-#define	KERN_PROC_RUID		6	/* by real uid */
-#define	KERN_PROC_ARGS		7	/* get/set arguments/proctitle */
-#define	KERN_PROC_PROC		8	/* only return procs */
-#define	KERN_PROC_SV_NAME	9	/* get syscall vector name */
-#define	KERN_PROC_RGID		10	/* by real group id */
-#define	KERN_PROC_GID		11	/* by effective group id */
+#define KERN_PROC_ALL			0	/* everything */
+#define	KERN_PROC_PID			1	/* by process id */
+#define	KERN_PROC_PGRP			2	/* by process group id */
+#define	KERN_PROC_SESSION		3	/* by session of pid */
+#define	KERN_PROC_TTY			4	/* by controlling tty */
+#define	KERN_PROC_UID			5	/* by effective uid */
+#define	KERN_PROC_RUID			6	/* by real uid */
+#define	KERN_PROC_ARGS			7	/* get/set arguments/proctitle */
+#define	KERN_PROC_PROC			8	/* only return procs */
+#define	KERN_PROC_SV_NAME		9	/* get syscall vector name */
+#define	KERN_PROC_RGID			10	/* by real group id */
+#define	KERN_PROC_GID			11	/* by effective group id */
 #define	KERN_PROC_INC_THREAD	0x10	/*
 										 * modifier for pid, pgrp, tty,
 										 * uid, ruid, gid, rgid and proc
@@ -446,18 +446,18 @@ TAILQ_HEAD (sysctl_ctx_list, sysctl_ctx_entry);
 /*
  * CTL_HW identifiers
  */
-#define	HW_MACHINE	 1			/* string: machine class */
-#define	HW_MODEL	 2			/* string: specific machine model */
-#define	HW_NCPU		 3			/* int: number of cpus */
-#define	HW_BYTEORDER	 4		/* int: machine byte order */
-#define	HW_PHYSMEM	 5			/* int: total memory */
-#define	HW_USERMEM	 6			/* int: non-kernel memory */
-#define	HW_PAGESIZE	 7			/* int: software page size */
-#define	HW_DISKNAMES	 8		/* strings: disk drive names */
-#define	HW_DISKSTATS	 9		/* struct: diskstats[] */
-#define HW_FLOATINGPT	10		/* int: has HW floating point? */
-#define HW_MACHINE_ARCH	11		/* string: machine architecture */
-#define	HW_MAXID	12			/* number of valid hw ids */
+#define	HW_MACHINE	 		1			/* string: machine class */
+#define	HW_MODEL	 		2			/* string: specific machine model */
+#define	HW_NCPU		 		3			/* int: number of cpus */
+#define	HW_BYTEORDER	 	4		/* int: machine byte order */
+#define	HW_PHYSMEM	 		5			/* int: total memory */
+#define	HW_USERMEM	 		6			/* int: non-kernel memory */
+#define	HW_PAGESIZE	 		7			/* int: software page size */
+#define	HW_DISKNAMES	 	8		/* strings: disk drive names */
+#define	HW_DISKSTATS	 	9		/* struct: diskstats[] */
+#define HW_FLOATINGPT		10		/* int: has HW floating point? */
+#define HW_MACHINE_ARCH		11		/* string: machine architecture */
+#define	HW_MAXID			12			/* number of valid hw ids */
 
 #define CTL_HW_NAMES { \
 	{ 0, 0 }, \
@@ -523,30 +523,30 @@ TAILQ_HEAD (sysctl_ctx_list, sysctl_ctx_entry);
 }
 
 #define CTL_P1003_1B_ASYNCHRONOUS_IO		1	/* boolean */
-#define CTL_P1003_1B_MAPPED_FILES		2	/* boolean */
-#define CTL_P1003_1B_MEMLOCK			3	/* boolean */
-#define CTL_P1003_1B_MEMLOCK_RANGE		4	/* boolean */
+#define CTL_P1003_1B_MAPPED_FILES			2	/* boolean */
+#define CTL_P1003_1B_MEMLOCK				3	/* boolean */
+#define CTL_P1003_1B_MEMLOCK_RANGE			4	/* boolean */
 #define CTL_P1003_1B_MEMORY_PROTECTION		5	/* boolean */
 #define CTL_P1003_1B_MESSAGE_PASSING		6	/* boolean */
-#define CTL_P1003_1B_PRIORITIZED_IO		7	/* boolean */
+#define CTL_P1003_1B_PRIORITIZED_IO			7	/* boolean */
 #define CTL_P1003_1B_PRIORITY_SCHEDULING	8	/* boolean */
 #define CTL_P1003_1B_REALTIME_SIGNALS		9	/* boolean */
-#define CTL_P1003_1B_SEMAPHORES			10	/* boolean */
-#define CTL_P1003_1B_FSYNC			11	/* boolean */
+#define CTL_P1003_1B_SEMAPHORES				10	/* boolean */
+#define CTL_P1003_1B_FSYNC					11	/* boolean */
 #define CTL_P1003_1B_SHARED_MEMORY_OBJECTS	12	/* boolean */
 #define CTL_P1003_1B_SYNCHRONIZED_IO		13	/* boolean */
-#define CTL_P1003_1B_TIMERS			14	/* boolean */
-#define CTL_P1003_1B_AIO_LISTIO_MAX		15	/* int */
-#define CTL_P1003_1B_AIO_MAX			16	/* int */
+#define CTL_P1003_1B_TIMERS					14	/* boolean */
+#define CTL_P1003_1B_AIO_LISTIO_MAX			15	/* int */
+#define CTL_P1003_1B_AIO_MAX				16	/* int */
 #define CTL_P1003_1B_AIO_PRIO_DELTA_MAX		17	/* int */
-#define CTL_P1003_1B_DELAYTIMER_MAX		18	/* int */
-#define CTL_P1003_1B_MQ_OPEN_MAX		19	/* int */
-#define CTL_P1003_1B_PAGESIZE			20	/* int */
-#define CTL_P1003_1B_RTSIG_MAX			21	/* int */
-#define CTL_P1003_1B_SEM_NSEMS_MAX		22	/* int */
-#define CTL_P1003_1B_SEM_VALUE_MAX		23	/* int */
-#define CTL_P1003_1B_SIGQUEUE_MAX		24	/* int */
-#define CTL_P1003_1B_TIMER_MAX			25	/* int */
+#define CTL_P1003_1B_DELAYTIMER_MAX			18	/* int */
+#define CTL_P1003_1B_MQ_OPEN_MAX			19	/* int */
+#define CTL_P1003_1B_PAGESIZE				20	/* int */
+#define CTL_P1003_1B_RTSIG_MAX				21	/* int */
+#define CTL_P1003_1B_SEM_NSEMS_MAX			22	/* int */
+#define CTL_P1003_1B_SEM_VALUE_MAX			23	/* int */
+#define CTL_P1003_1B_SIGQUEUE_MAX			24	/* int */
+#define CTL_P1003_1B_TIMER_MAX				25	/* int */
 
 #define CTL_P1003_1B_MAXID		26
 

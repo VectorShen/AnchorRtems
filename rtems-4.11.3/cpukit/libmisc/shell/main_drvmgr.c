@@ -31,10 +31,10 @@ static void *get_obj_adr (char *arg)
 
 	obj_adr = strtoul (arg, NULL, 16);
 	if (obj_adr == ULONG_MAX || obj_adr == 0)
-	  {
-		  puts (" Not a valid ID");
-		  return NULL;
-	  }
+	{
+		puts (" Not a valid ID");
+		return NULL;
+	}
 
 	return (void *)obj_adr;
 }
@@ -59,13 +59,13 @@ static int shell_drvmgr_short (int argc, char *argv[])
 	if (argc < 2)
 		return -1;
 	if (argc < 3)
-	  {
-		  /* All Devices */
-		  drvmgr_info_drvs (0);
-		  drvmgr_info_buses (0);
-		  drvmgr_info_devs (OPTION_DEV_GENINFO);
-		  return 0;
-	  }
+	{
+		/* All Devices */
+		drvmgr_info_drvs (0);
+		drvmgr_info_buses (0);
+		drvmgr_info_devs (OPTION_DEV_GENINFO);
+		return 0;
+	}
 
 	/* Get ID from string */
 	obj = get_obj_adr (argv[2]);
@@ -84,13 +84,13 @@ static int shell_drvmgr_info (int argc, char *argv[])
 	if (argc < 2)
 		return -1;
 	if (argc < 3)
-	  {
-		  /* All Drivers, Buses and Devices */
-		  drvmgr_info_drvs (OPTION_INFO_ALL);
-		  drvmgr_info_buses (OPTION_INFO_ALL);
-		  drvmgr_info_devs (OPTION_INFO_ALL);
-		  return 0;
-	  }
+	{
+		/* All Drivers, Buses and Devices */
+		drvmgr_info_drvs (OPTION_INFO_ALL);
+		drvmgr_info_buses (OPTION_INFO_ALL);
+		drvmgr_info_devs (OPTION_INFO_ALL);
+		return 0;
+	}
 
 	/* Get ID from string */
 	obj = get_obj_adr (argv[2]);
@@ -124,39 +124,39 @@ static int shell_drvmgr_parent (int argc, char *argv[])
 
 	obj_type = *(int *)obj;
 	if (obj_type == DRVMGR_OBJ_BUS)
-	  {
-		  bus = obj;
-		  if (!bus->dev)
-			{
-				puts (" bus has no bridge device");
-			}
-		  else if (!bus->dev->parent)
-			{
-				puts (" bridge device has no parent");
-			}
-		  else
-			{
-				dev = bus->dev;
-				printf (" BUSID=%p\n", dev->parent);
-			}
-	  }
+	{
+		bus = obj;
+		if (!bus->dev)
+		{
+			puts (" bus has no bridge device");
+		}
+		else if (!bus->dev->parent)
+		{
+			puts (" bridge device has no parent");
+		}
+		else
+		{
+			dev = bus->dev;
+			printf (" BUSID=%p\n", dev->parent);
+		}
+	}
 	else if (obj_type == DRVMGR_OBJ_DEV)
-	  {
-		  dev = obj;
-		  if (!dev->parent)
-			{
-				puts (" device has no parent bus");
-			}
-		  else
-			{
-				printf (" BUSID=%p\n", dev->parent);
-			}
-	  }
+	{
+		dev = obj;
+		if (!dev->parent)
+		{
+			puts (" device has no parent bus");
+		}
+		else
+		{
+			printf (" BUSID=%p\n", dev->parent);
+		}
+	}
 	else
-	  {
-		  puts (" ID is not a device or bus");
-		  return 1;
-	  }
+	{
+		puts (" ID is not a device or bus");
+		return 1;
+	}
 
 	return 0;
 }
@@ -169,37 +169,37 @@ static void shell_drvmgr_print_key_array (struct drvmgr_key *keys)
 	union drvmgr_key_value *val;
 
 	if (keys == NULL)
-	  {
-		  printf ("  DEV HAS NO KEYS\n");
-		  return;
-	  }
+	{
+		printf ("  DEV HAS NO KEYS\n");
+		return;
+	}
 
 	key = &keys[0];
 	while (key->key_type != DRVMGR_KT_NONE)
-	  {
-		  if (key->key_type > DRVMGR_KT_POINTER)
-			  type = DRVMGR_KT_NONE;
-		  else
-			  type = key->key_type;
-		  printf ("  NAME=%-14s TYPE=%s  VALUE=", key->key_name,
-				  type_strs[type]);
-		  val = &key->key_value;
-		  switch (type)
-			{
-				default:
-				case DRVMGR_KT_NONE:
-				case DRVMGR_KT_INT:
-					printf ("0x%x (%d)\n", val->i, val->i);
-					break;
-				case DRVMGR_KT_STRING:
-					printf ("%s\n", val->str);
-					break;
-				case DRVMGR_KT_POINTER:
-					printf ("%p\n", val->ptr);
-					break;
-			}
-		  key++;
-	  }
+	{
+		if (key->key_type > DRVMGR_KT_POINTER)
+			type = DRVMGR_KT_NONE;
+		else
+			type = key->key_type;
+		printf ("  NAME=%-14s TYPE=%s  VALUE=", key->key_name,
+				type_strs[type]);
+		val = &key->key_value;
+		switch (type)
+		{
+			default:
+			case DRVMGR_KT_NONE:
+			case DRVMGR_KT_INT:
+				printf ("0x%x (%d)\n", val->i, val->i);
+				break;
+			case DRVMGR_KT_STRING:
+				printf ("%s\n", val->str);
+				break;
+			case DRVMGR_KT_POINTER:
+				printf ("%p\n", val->ptr);
+				break;
+		}
+		key++;
+	}
 }
 
 static void shell_drvmgr_print_res_array (struct drvmgr_drv_res *resources)
@@ -209,18 +209,18 @@ static void shell_drvmgr_print_res_array (struct drvmgr_drv_res *resources)
 	char *drv_name;
 
 	while (res->drv_id)
-	  {
-		  /* Find Driver in order to print name of driver */
-		  drv = drvmgr_drv_by_id (res->drv_id);
-		  if (drv && drv->name)
-			  drv_name = drv->name;
-		  else
-			  drv_name = "UNKNOWN";
-		  printf (" RESOURCES FOR DEVICE[%02d] DRIVER[0x%llx (%s)]\n",
-				  res->minor_bus, res->drv_id, drv_name);
-		  shell_drvmgr_print_key_array (res->keys);
-		  res++;
-	  }
+	{
+		/* Find Driver in order to print name of driver */
+		drv = drvmgr_drv_by_id (res->drv_id);
+		if (drv && drv->name)
+			drv_name = drv->name;
+		else
+			drv_name = "UNKNOWN";
+		printf (" RESOURCES FOR DEVICE[%02d] DRIVER[0x%llx (%s)]\n",
+				res->minor_bus, res->drv_id, drv_name);
+		shell_drvmgr_print_key_array (res->keys);
+		res++;
+	}
 }
 
 static int shell_drvmgr_res (int argc, char *argv[])
@@ -242,45 +242,45 @@ static int shell_drvmgr_res (int argc, char *argv[])
 
 	obj_type = *(int *)obj;
 	if (obj_type == DRVMGR_OBJ_BUS)
-	  {
-		  bus = obj;
-		  lst = bus->reslist;
-		  if (lst == NULL)
-			{
-				puts (" BUS does not have resources\n");
-				return 0;
-			}
-		  i = 0;
-		  while (lst)
-			{
-				printf (" -- RESOURCES ARRAY %d --\n", i);
-				shell_drvmgr_print_res_array (lst->resource);
-				puts ("");
-				i++;
-				lst = lst->next;
-			}
-	  }
+	{
+		bus = obj;
+		lst = bus->reslist;
+		if (lst == NULL)
+		{
+			puts (" BUS does not have resources\n");
+			return 0;
+		}
+		i = 0;
+		while (lst)
+		{
+			printf (" -- RESOURCES ARRAY %d --\n", i);
+			shell_drvmgr_print_res_array (lst->resource);
+			puts ("");
+			i++;
+			lst = lst->next;
+		}
+	}
 	else if (obj_type == DRVMGR_OBJ_DEV)
-	  {
-		  dev = obj;
-		  if (dev->drv == NULL)
-			{
-				puts (" DEVICE has no driver ==> resources not available\n");
-				return 0;
-			}
-		  drvmgr_keys_get (dev, &keys);
-		  if (keys == NULL)
-			{
-				puts (" DEVICE does not have resources\n");
-				return 0;
-			}
-		  shell_drvmgr_print_key_array (keys);
-	  }
+	{
+		dev = obj;
+		if (dev->drv == NULL)
+		{
+			puts (" DEVICE has no driver ==> resources not available\n");
+			return 0;
+		}
+		drvmgr_keys_get (dev, &keys);
+		if (keys == NULL)
+		{
+			puts (" DEVICE does not have resources\n");
+			return 0;
+		}
+		shell_drvmgr_print_key_array (keys);
+	}
 	else
-	  {
-		  puts (" ID is not a device or bus");
-		  return 1;
-	  }
+	{
+		puts (" ID is not a device or bus");
+		return 1;
+	}
 
 	return 0;
 }
@@ -324,29 +324,29 @@ static int shell_drvmgr_translate (int argc, char *argv[])
 
 	obj_type = *(int *)obj;
 	if (obj_type != DRVMGR_OBJ_DEV)
-	  {
-		  puts (" ID is not a device\n");
-		  return 0;
-	  }
+	{
+		puts (" ID is not a device\n");
+		return 0;
+	}
 
 	tmp = strtoul (argv[3], NULL, 0);
 	if (tmp > 3)
-	  {
-		  puts (" Not a valid option OPT, only [0..3] is valid");
-		  return 0;
-	  }
+	{
+		puts (" Not a valid option OPT, only [0..3] is valid");
+		return 0;
+	}
 	rev = tmp & DRVMGR_TR_REVERSE;
 	up = tmp & DRVMGR_TR_PATH;
 
 	src = strtoul (argv[4], NULL, 0);
 	if (src == ULONG_MAX && errno == ERANGE)
-	  {
-		  puts (" Not a valid source address");
-		  return 0;
-	  }
+	{
+		puts (" Not a valid source address");
+		return 0;
+	}
 
 	rc = drvmgr_translate ((struct drvmgr_dev *)obj, up | rev, (void *)src,
-						   &dst);
+						 &dst);
 	if (rc == 0)
 		printf (" Address %p could not be translated\n", (void *)src);
 	else if (rc == 0xffffffff)
@@ -394,7 +394,8 @@ struct shell_drvmgr_modifier
 };
 
 #define MODIFIER_NUM 12
-static struct shell_drvmgr_modifier shell_drvmgr_modifiers[MODIFIER_NUM] = {
+static struct shell_drvmgr_modifier shell_drvmgr_modifiers[MODIFIER_NUM] =
+{
 	{"buses", shell_drvmgr_buses},
 	{"devs", shell_drvmgr_devs},
 	{"drvs", shell_drvmgr_drvs},
@@ -418,10 +419,10 @@ static struct shell_drvmgr_modifier *shell_drvmgr_find_modifier (char *name)
 		return NULL;
 
 	for (i = 0, mod = &shell_drvmgr_modifiers[0]; i < MODIFIER_NUM; i++, mod++)
-	  {
-		  if (strcmp (name, mod->name) == 0)
-			  return mod;
-	  }
+	{
+		if (strcmp (name, mod->name) == 0)
+			return mod;
+	}
 
 	return NULL;
 }
@@ -432,29 +433,30 @@ static int rtems_shell_main_drvmgr (int argc, char *argv[])
 	int rc;
 
 	if (argc < 2)
-	  {
-		  show_drvmgr_info ();
-		  rc = 0;
-	  }
+	{
+		show_drvmgr_info ();
+		rc = 0;
+	}
 	else if ((mod = shell_drvmgr_find_modifier (argv[1])) != NULL)
-	  {
-		  rc = mod->func (argc, argv);
-	  }
+	{
+		rc = mod->func (argc, argv);
+	}
 	else
-	  {
-		  rc = -1;
-	  }
+	{
+		rc = -1;
+	}
 
 	if (rc < 0)
-	  {
-		  printf (" invalid argument\n");
-		  usage ();
-	  }
+	{
+		printf (" invalid argument\n");
+		usage ();
+	}
 
 	return rc;
 }
 
-rtems_shell_cmd_t rtems_shell_DRVMGR_Command = {
+rtems_shell_cmd_t rtems_shell_DRVMGR_Command =
+{
 	"drvmgr",					/* name */
 	drvmgr_usage_str,			/* usage */
 	"system",					/* topic */

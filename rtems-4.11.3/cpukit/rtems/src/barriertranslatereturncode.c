@@ -23,7 +23,8 @@
 #include <rtems/rtems/support.h>
 #include <rtems/rtems/barrierimpl.h>
 
-rtems_status_code _Barrier_Translate_core_barrier_return_code_[] = {
+rtems_status_code _Barrier_Translate_core_barrier_return_code_[] =
+{
 	RTEMS_SUCCESSFUL,			/* CORE_BARRIER_STATUS_SUCCESSFUL */
 	RTEMS_SUCCESSFUL,			/* CORE_BARRIER_STATUS_AUTOMATICALLY_RELEASED */
 	RTEMS_OBJECT_WAS_DELETED,	/* CORE_BARRIER_WAS_DELETED */

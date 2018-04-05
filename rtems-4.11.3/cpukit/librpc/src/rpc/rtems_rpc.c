@@ -15,7 +15,8 @@
 /*
  * RPC variables for single-thread
  */
-static struct _rtems_rpc_task_variables rpc_default = {
+static struct _rtems_rpc_task_variables rpc_default =
+{
 	-1,							/* svc_maxfd */
 	{{0}},						/* svc_svc_fdset */
 	NULL,						/* svc_xports */
@@ -39,7 +40,8 @@ static struct _rtems_rpc_task_variables rpc_default = {
 /*
  * RPC values for initializing a new per-task set of variables
  */
-static const struct _rtems_rpc_task_variables rpc_init = {
+static const struct _rtems_rpc_task_variables rpc_init =
+{
 	-1,							/* svc_maxfd */
 	{{0}},						/* svc_svc_fdset */
 	NULL,						/* svc_xports */
@@ -73,9 +75,9 @@ struct _rtems_rpc_task_variables *rtems_rpc_task_variables_get (void)
 {
 	void *ptr = pthread_getspecific (rtems_rpc_task_variable_key);
 	if (ptr == NULL)
-	  {
-		  ptr = &rpc_default;
-	  }
+	{
+		ptr = &rpc_default;
+	}
 	return (struct _rtems_rpc_task_variables *)ptr;
 }
 
@@ -109,18 +111,18 @@ int rtems_rpc_task_init (void)
 
 	tvp = pthread_getspecific (rtems_rpc_task_variable_key);
 	if (tvp == NULL)
-	  {
-		  tvp = malloc (sizeof *tvp);
-		  if (tvp == NULL)
-			  return RTEMS_NO_MEMORY;
+	{
+		tvp = malloc (sizeof *tvp);
+		if (tvp == NULL)
+			return RTEMS_NO_MEMORY;
 
-		  eno = pthread_setspecific (rtems_rpc_task_variable_key, (void *)tvp);
-		  if (eno != 0)
-			{
-				free (tvp);
-				return RTEMS_INTERNAL_ERROR;
-			}
-		  *tvp = rpc_init;
-	  }
+		eno = pthread_setspecific (rtems_rpc_task_variable_key, (void *)tvp);
+		if (eno != 0)
+		{
+			free (tvp);
+			return RTEMS_INTERNAL_ERROR;
+		}
+		*tvp = rpc_init;
+	}
 	return RTEMS_SUCCESSFUL;
 }

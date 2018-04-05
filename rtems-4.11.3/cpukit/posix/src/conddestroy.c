@@ -39,30 +39,30 @@ int pthread_cond_destroy (pthread_cond_t * cond)
 	_Objects_Allocator_lock ();
 	the_cond = _POSIX_Condition_variables_Get (cond, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  if (_Thread_queue_First (&the_cond->Wait_queue))
-				{
-					_Objects_Put (&the_cond->Object);
-					_Objects_Allocator_unlock ();
-					return EBUSY;
-				}
+			if (_Thread_queue_First (&the_cond->Wait_queue))
+			{
+				_Objects_Put (&the_cond->Object);
+				_Objects_Allocator_unlock ();
+				return EBUSY;
+			}
 
-			  _Objects_Close (&_POSIX_Condition_variables_Information,
-							  &the_cond->Object);
-			  _Objects_Put (&the_cond->Object);
-			  _POSIX_Condition_variables_Free (the_cond);
-			  _Objects_Allocator_unlock ();
-			  return 0;
+			_Objects_Close (&_POSIX_Condition_variables_Information,
+							&the_cond->Object);
+			_Objects_Put (&the_cond->Object);
+			_POSIX_Condition_variables_Free (the_cond);
+			_Objects_Allocator_unlock ();
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

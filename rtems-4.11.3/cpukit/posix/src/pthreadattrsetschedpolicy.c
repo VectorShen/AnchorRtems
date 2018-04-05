@@ -32,15 +32,15 @@ int pthread_attr_setschedpolicy (pthread_attr_t * attr, int policy)
 		return EINVAL;
 
 	switch (policy)
-	  {
-		  case SCHED_OTHER:
-		  case SCHED_FIFO:
-		  case SCHED_RR:
-		  case SCHED_SPORADIC:
-			  attr->schedpolicy = policy;
-			  return 0;
+	{
+		case SCHED_OTHER:
+		case SCHED_FIFO:
+		case SCHED_RR:
+		case SCHED_SPORADIC:
+			attr->schedpolicy = policy;
+			return 0;
 
-		  default:
-			  return ENOTSUP;
-	  }
+		default:
+			return ENOTSUP;
+	}
 }

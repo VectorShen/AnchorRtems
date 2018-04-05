@@ -30,7 +30,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 rtems_status_code rtems_task_variable_get (rtems_id tid,
-										   void **ptr, void **result)
+										 void **ptr, void **result)
 {
 	Thread_Control *the_thread;
 	Objects_Locations location;
@@ -38,9 +38,9 @@ rtems_status_code rtems_task_variable_get (rtems_id tid,
 
 #if defined( RTEMS_SMP )
 	if (rtems_configuration_is_smp_enabled ())
-	  {
-		  return RTEMS_NOT_IMPLEMENTED;
-	  }
+	{
+		return RTEMS_NOT_IMPLEMENTED;
+	}
 #endif
 
 	if (!ptr)
@@ -51,39 +51,39 @@ rtems_status_code rtems_task_variable_get (rtems_id tid,
 
 	the_thread = _Thread_Get (tid, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  /*
-			   *  Figure out if the variable is in this task's list.
-			   */
-			  tvp = the_thread->task_variables;
-			  while (tvp)
+		case OBJECTS_LOCAL:
+			/*
+			 *  Figure out if the variable is in this task's list.
+			 */
+			tvp = the_thread->task_variables;
+			while (tvp)
+			{
+				if (tvp->ptr == ptr)
 				{
-					if (tvp->ptr == ptr)
-					  {
-						  /*
-						   * Should this return the current (i.e not the
-						   * saved) value if `tid' is the current task?
-						   */
-						  *result = tvp->tval;
-						  _Objects_Put (&the_thread->Object);
-						  return RTEMS_SUCCESSFUL;
-					  }
-					tvp = (rtems_task_variable_t *) tvp->next;
+					/*
+					 * Should this return the current (i.e not the
+					 * saved) value if `tid' is the current task?
+					 */
+					*result = tvp->tval;
+					_Objects_Put (&the_thread->Object);
+					return RTEMS_SUCCESSFUL;
 				}
-			  _Objects_Put (&the_thread->Object);
-			  return RTEMS_INVALID_ADDRESS;
+				tvp = (rtems_task_variable_t *) tvp->next;
+			}
+			_Objects_Put (&the_thread->Object);
+			return RTEMS_INVALID_ADDRESS;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Dispatch ();
-			  return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+		case OBJECTS_REMOTE:
+			_Thread_Dispatch ();
+			return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 	return RTEMS_INVALID_ID;
 }
 #endif

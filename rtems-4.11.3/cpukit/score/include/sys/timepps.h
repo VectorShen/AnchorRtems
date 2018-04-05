@@ -78,8 +78,8 @@ typedef struct
 	pps_timeu_t clear_off_tu;
 } pps_params_t;
 
-#define assert_offset   assert_off_tu.tspec
-#define clear_offset    clear_off_tu.tspec
+#define assert_offset  		 	assert_off_tu.tspec
+#define clear_offset    		clear_off_tu.tspec
 
 #define assert_offset_ntpfp     assert_off_tu.ntpfp
 #define clear_offset_ntpfp      clear_off_tu.ntpfp
@@ -94,8 +94,8 @@ typedef struct
 #define PPS_ECHOASSERT		0x40
 #define PPS_ECHOCLEAR		0x80
 
-#define PPS_CANWAIT		0x100
-#define PPS_CANPOLL		0x200
+#define PPS_CANWAIT			0x100
+#define PPS_CANPOLL			0x200
 
 #define PPS_TSFMT_TSPEC		0x1000
 #define PPS_TSFMT_NTPFP		0x2000
@@ -129,13 +129,13 @@ struct pps_kcbind_args
 	int tsformat;
 };
 
-#define PPS_IOC_CREATE		_IO('1', 1)
-#define PPS_IOC_DESTROY		_IO('1', 2)
-#define PPS_IOC_SETPARAMS	_IOW('1', 3, pps_params_t)
-#define PPS_IOC_GETPARAMS	_IOR('1', 4, pps_params_t)
-#define PPS_IOC_GETCAP		_IOR('1', 5, int)
-#define PPS_IOC_FETCH		_IOWR('1', 6, struct pps_fetch_args)
-#define PPS_IOC_KCBIND		_IOW('1', 7, struct pps_kcbind_args)
+#define PPS_IOC_CREATE			_IO('1', 1)
+#define PPS_IOC_DESTROY			_IO('1', 2)
+#define PPS_IOC_SETPARAMS		_IOW('1', 3, pps_params_t)
+#define PPS_IOC_GETPARAMS		_IOR('1', 4, pps_params_t)
+#define PPS_IOC_GETCAP			_IOR('1', 5, int)
+#define PPS_IOC_FETCH			_IOWR('1', 6, struct pps_fetch_args)
+#define PPS_IOC_KCBIND			_IOW('1', 7, struct pps_kcbind_args)
 #define	PPS_IOC_FETCH_FFCOUNTER	_IOWR('1', 8, struct pps_fetch_ffc_args)
 
 #ifdef _KERNEL
@@ -209,10 +209,10 @@ time_pps_fetch (pps_handle_t handle, const int tsformat,
 
 	arg.tsformat = tsformat;
 	if (timeout == NULL)
-	  {
-		  arg.timeout.tv_sec = -1;
-		  arg.timeout.tv_nsec = -1;
-	  }
+	{
+		arg.timeout.tv_sec = -1;
+		arg.timeout.tv_nsec = -1;
+	}
 	else
 		arg.timeout = *timeout;
 	error = ioctl (handle, PPS_IOC_FETCH, &arg);
@@ -229,14 +229,14 @@ time_pps_fetch_ffc (pps_handle_t handle, const int tsformat,
 
 	arg.tsformat = tsformat;
 	if (timeout == NULL)
-	  {
-		  arg.timeout.tv_sec = -1;
-		  arg.timeout.tv_nsec = -1;
-	  }
+	{
+		arg.timeout.tv_sec = -1;
+		arg.timeout.tv_nsec = -1;
+	}
 	else
-	  {
-		  arg.timeout = *timeout;
-	  }
+	{
+		arg.timeout = *timeout;
+	}
 	error = ioctl (handle, PPS_IOC_FETCH_FFCOUNTER, &arg);
 	*ppsinfobuf = arg.pps_info_buf_ffc;
 	return (error);

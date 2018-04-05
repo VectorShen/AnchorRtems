@@ -24,7 +24,8 @@
 
 #include <rtems.h>
 
-static const char *const status_code_text[] = {
+static const char *const status_code_text[] =
+{
 	"RTEMS_SUCCESSFUL",
 	"RTEMS_TASK_EXITTED",
 	"RTEMS_MP_NOT_CONFIGURED",
@@ -62,9 +63,9 @@ const char *rtems_status_text (rtems_status_code code)
 	const char *text = "?";
 
 	if (i < RTEMS_ARRAY_SIZE (status_code_text))
-	  {
-		  text = status_code_text[i];
-	  }
+	{
+		text = status_code_text[i];
+	}
 
 	return text;
 }

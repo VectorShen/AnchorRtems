@@ -35,7 +35,8 @@
 
 #include "res_config.h"
 
-const char *_res_opcodes[] = {
+const char *_res_opcodes[] =
+{
 	"QUERY",
 	"IQUERY",
 	"CQUERYM",
@@ -54,7 +55,8 @@ const char *_res_opcodes[] = {
 	"ZONEREF",
 };
 
-const char *_res_resultcodes[] = {
+const char *_res_resultcodes[] =
+{
 	"NOERROR",
 	"FORMERR",
 	"SERVFAIL",
@@ -74,7 +76,8 @@ const char *_res_resultcodes[] = {
 };
 
 #ifdef BIND_UPDATE
-const char *_res_sectioncodes[] = {
+const char *_res_sectioncodes[] =
+{
 	"ZONE",
 	"PREREQUISITES",
 	"UPDATE",

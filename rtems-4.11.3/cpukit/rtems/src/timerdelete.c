@@ -33,22 +33,22 @@ rtems_status_code rtems_timer_delete (rtems_id id)
 	_Objects_Allocator_lock ();
 	the_timer = _Timer_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Objects_Close (&_Timer_Information, &the_timer->Object);
-			  _Timer_Cancel (the_timer);
-			  _Objects_Put (&the_timer->Object);
-			  _Timer_Free (the_timer);
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			_Objects_Close (&_Timer_Information, &the_timer->Object);
+			_Timer_Cancel (the_timer);
+			_Objects_Put (&the_timer->Object);
+			_Timer_Free (the_timer);
+			_Objects_Allocator_unlock ();
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

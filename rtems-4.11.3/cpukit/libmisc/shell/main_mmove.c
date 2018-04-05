@@ -31,31 +31,31 @@ static int rtems_shell_main_mmove (int argc, char *argv[])
 	size_t length;
 
 	if (argc < 4)
-	  {
-		  fprintf (stderr, "%s: too few arguments\n", argv[0]);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: too few arguments\n", argv[0]);
+		return -1;
+	}
 
 	/*
 	 *  Convert arguments into numbers
 	 */
 	if (rtems_string_to_pointer (argv[1], &dst, NULL))
-	  {
-		  printf ("Destination argument (%s) is not a number\n", argv[1]);
-		  return -1;
-	  }
+	{
+		printf ("Destination argument (%s) is not a number\n", argv[1]);
+		return -1;
+	}
 
 	if (rtems_string_to_pointer (argv[2], &src, NULL))
-	  {
-		  printf ("Source argument (%s) is not a number\n", argv[2]);
-		  return -1;
-	  }
+	{
+		printf ("Source argument (%s) is not a number\n", argv[2]);
+		return -1;
+	}
 
 	if (rtems_string_to_unsigned_long (argv[3], &tmp, NULL, 0))
-	  {
-		  printf ("Length argument (%s) is not a number\n", argv[3]);
-		  return -1;
-	  }
+	{
+		printf ("Length argument (%s) is not a number\n", argv[3]);
+		return -1;
+	}
 	length = (size_t) tmp;
 
 	/*
@@ -66,7 +66,8 @@ static int rtems_shell_main_mmove (int argc, char *argv[])
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_MMOVE_Command = {
+rtems_shell_cmd_t rtems_shell_MMOVE_Command =
+{
 	"mmove",					/* name */
 	"mmove dst src length",		/* usage */
 	"mem",						/* topic */

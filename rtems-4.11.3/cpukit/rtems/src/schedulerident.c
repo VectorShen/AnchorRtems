@@ -24,34 +24,34 @@ rtems_status_code rtems_scheduler_ident (rtems_name name, rtems_id * id)
 	rtems_status_code sc;
 
 	if (id != NULL)
-	  {
-		  size_t n = _Scheduler_Count;
-		  size_t i;
+	{
+		size_t n = _Scheduler_Count;
+		size_t i;
 
-		  sc = RTEMS_INVALID_NAME;
+		sc = RTEMS_INVALID_NAME;
 
-		  for (i = 0; i < n && sc == RTEMS_INVALID_NAME; ++i)
+		for (i = 0; i < n && sc == RTEMS_INVALID_NAME; ++i)
+		{
+			const Scheduler_Control *scheduler = &_Scheduler_Table[i];
+
+			if (scheduler->name == name)
 			{
-				const Scheduler_Control *scheduler = &_Scheduler_Table[i];
-
-				if (scheduler->name == name)
-				  {
-					  if (_Scheduler_Get_processor_count (scheduler) > 0)
-						{
-							*id = _Scheduler_Build_id (i);
-							sc = RTEMS_SUCCESSFUL;
-						}
-					  else
-						{
-							sc = RTEMS_UNSATISFIED;
-						}
-				  }
+				if (_Scheduler_Get_processor_count (scheduler) > 0)
+				{
+					*id = _Scheduler_Build_id (i);
+					sc = RTEMS_SUCCESSFUL;
+				}
+				else
+				{
+					sc = RTEMS_UNSATISFIED;
+				}
 			}
-	  }
+		}
+	}
 	else
-	  {
-		  sc = RTEMS_INVALID_ADDRESS;
-	  }
+	{
+		sc = RTEMS_INVALID_ADDRESS;
+	}
 
 	return sc;
 }

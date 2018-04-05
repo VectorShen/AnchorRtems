@@ -62,77 +62,77 @@ int ns_name_ntop (const u_char * src, char *dst, size_t dstsiz)
 	eom = dst + dstsiz;
 
 	while ((n = *cp++) != 0)
-	  {
-		  if ((n & NS_CMPRSFLGS) != 0)
+	{
+		if ((n & NS_CMPRSFLGS) != 0)
+		{
+			/* Some kind of compression pointer. */
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		if (dn != dst)
+		{
+			if (dn >= eom)
 			{
-				/* Some kind of compression pointer. */
 				errno = EMSGSIZE;
 				return (-1);
 			}
-		  if (dn != dst)
+			*dn++ = '.';
+		}
+		if (dn + n >= eom)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		for ((void)NULL; n > 0; n--)
+		{
+			c = *cp++;
+			if (special (c))
+			{
+				if (dn + 1 >= eom)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				*dn++ = '\\';
+				*dn++ = (char)c;
+			}
+			else if (!printable (c))
+			{
+				if (dn + 3 >= eom)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				*dn++ = '\\';
+				*dn++ = digits[c / 100];
+				*dn++ = digits[(c % 100) / 10];
+				*dn++ = digits[c % 10];
+			}
+			else
 			{
 				if (dn >= eom)
-				  {
-					  errno = EMSGSIZE;
-					  return (-1);
-				  }
-				*dn++ = '.';
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				*dn++ = (char)c;
 			}
-		  if (dn + n >= eom)
-			{
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  for ((void)NULL; n > 0; n--)
-			{
-				c = *cp++;
-				if (special (c))
-				  {
-					  if (dn + 1 >= eom)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  *dn++ = '\\';
-					  *dn++ = (char)c;
-				  }
-				else if (!printable (c))
-				  {
-					  if (dn + 3 >= eom)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  *dn++ = '\\';
-					  *dn++ = digits[c / 100];
-					  *dn++ = digits[(c % 100) / 10];
-					  *dn++ = digits[c % 10];
-				  }
-				else
-				  {
-					  if (dn >= eom)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  *dn++ = (char)c;
-				  }
-			}
-	  }
+		}
+	}
 	if (dn == dst)
-	  {
-		  if (dn >= eom)
-			{
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  *dn++ = '.';
-	  }
+	{
+		if (dn >= eom)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		*dn++ = '.';
+	}
 	if (dn >= eom)
-	  {
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	*dn++ = '\0';
 	return (dn - dst);
 }
@@ -160,114 +160,114 @@ int ns_name_pton (const char *src, u_char * dst, size_t dstsiz)
 	label = bp++;
 
 	while ((c = *src++) != 0)
-	  {
-		  if (escaped)
+	{
+		if (escaped)
+		{
+			if ((cp = strchr (digits, c)) != NULL)
 			{
-				if ((cp = strchr (digits, c)) != NULL)
-				  {
-					  n = (cp - digits) * 100;
-					  if ((c = *src++) == 0 ||
-						  (cp = strchr (digits, c)) == NULL)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  n += (cp - digits) * 10;
-					  if ((c = *src++) == 0 ||
-						  (cp = strchr (digits, c)) == NULL)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  n += (cp - digits);
-					  if (n > 255)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  c = n;
-				  }
-				escaped = 0;
+				n = (cp - digits) * 100;
+				if ((c = *src++) == 0 ||
+					(cp = strchr (digits, c)) == NULL)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				n += (cp - digits) * 10;
+				if ((c = *src++) == 0 ||
+					(cp = strchr (digits, c)) == NULL)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				n += (cp - digits);
+				if (n > 255)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				c = n;
 			}
-		  else if (c == '\\')
-			{
-				escaped = 1;
-				continue;
+			escaped = 0;
+		}
+		else if (c == '\\')
+		{
+			escaped = 1;
+			continue;
+		}
+		else if (c == '.')
+		{
+			c = (bp - label - 1);
+			if ((c & NS_CMPRSFLGS) != 0)
+			{				/* Label too big. */
+				errno = EMSGSIZE;
+				return (-1);
 			}
-		  else if (c == '.')
-			{
-				c = (bp - label - 1);
-				if ((c & NS_CMPRSFLGS) != 0)
-				  {				/* Label too big. */
-					  errno = EMSGSIZE;
-					  return (-1);
-				  }
-				if (label >= eom)
-				  {
-					  errno = EMSGSIZE;
-					  return (-1);
-				  }
-				*label = c;
-				/* Fully qualified ? */
-				if (*src == '\0')
-				  {
-					  if (c != 0)
-						{
-							if (bp >= eom)
-							  {
-								  errno = EMSGSIZE;
-								  return (-1);
-							  }
-							*bp++ = '\0';
-						}
-					  if ((bp - dst) > MAXCDNAME)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  return (1);
-				  }
-				if (c == 0)
-				  {
-					  errno = EMSGSIZE;
-					  return (-1);
-				  }
-				label = bp++;
-				continue;
-			}
-		  if (bp >= eom)
+			if (label >= eom)
 			{
 				errno = EMSGSIZE;
 				return (-1);
 			}
-		  *bp++ = (u_char) c;
-	  }
+			*label = c;
+			/* Fully qualified ? */
+			if (*src == '\0')
+			{
+				if (c != 0)
+				{
+					if (bp >= eom)
+					{
+						errno = EMSGSIZE;
+						return (-1);
+					}
+					*bp++ = '\0';
+				}
+				if ((bp - dst) > MAXCDNAME)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				return (1);
+			}
+			if (c == 0)
+			{
+				errno = EMSGSIZE;
+				return (-1);
+			}
+			label = bp++;
+			continue;
+		}
+		if (bp >= eom)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		*bp++ = (u_char) c;
+	}
 	c = (bp - label - 1);
 	if ((c & NS_CMPRSFLGS) != 0)
-	  {							/* Label too big. */
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{							/* Label too big. */
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	if (label >= eom)
-	  {
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	*label = c;
 	if (c != 0)
-	  {
-		  if (bp >= eom)
-			{
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  *bp++ = 0;
-	  }
+	{
+		if (bp >= eom)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		*bp++ = 0;
+	}
 	if ((bp - dst) > MAXCDNAME)
-	  {							/* src too big */
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{							/* src too big */
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	return (0);
 }
 
@@ -291,62 +291,62 @@ ns_name_unpack (const u_char * msg, const u_char * eom, const u_char * src,
 	srcp = src;
 	dstlim = dst + dstsiz;
 	if (srcp < msg || srcp >= eom)
-	  {
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	/* Fetch next label in domain name. */
 	while ((n = *srcp++) != 0)
-	  {
-		  /* Check for indirection. */
-		  switch (n & NS_CMPRSFLGS)
-			{
-				case 0:
-					/* Limit checks. */
-					if (dstp + n + 1 >= dstlim || srcp + n >= eom)
-					  {
-						  errno = EMSGSIZE;
-						  return (-1);
-					  }
-					checked += n + 1;
-					*dstp++ = n;
-					memcpy (dstp, srcp, n);
-					dstp += n;
-					srcp += n;
-					break;
-
-				case NS_CMPRSFLGS:
-					if (srcp >= eom)
-					  {
-						  errno = EMSGSIZE;
-						  return (-1);
-					  }
-					if (len < 0)
-						len = srcp - src + 1;
-					srcp = msg + (((n & 0x3f) << 8) | (*srcp & 0xff));
-					if (srcp < msg || srcp >= eom)
-					  {			/* Out of range. */
-						  errno = EMSGSIZE;
-						  return (-1);
-					  }
-					checked += 2;
-					/*
-					 * Check for loops in the compressed name;
-					 * if we've looked at the whole message,
-					 * there must be a loop.
-					 */
-					if (checked >= eom - msg)
-					  {
-						  errno = EMSGSIZE;
-						  return (-1);
-					  }
-					break;
-
-				default:
+	{
+		/* Check for indirection. */
+		switch (n & NS_CMPRSFLGS)
+		{
+			case 0:
+				/* Limit checks. */
+				if (dstp + n + 1 >= dstlim || srcp + n >= eom)
+				{
 					errno = EMSGSIZE;
-					return (-1);	/* flag error */
-			}
-	  }
+					return (-1);
+				}
+				checked += n + 1;
+				*dstp++ = n;
+				memcpy (dstp, srcp, n);
+				dstp += n;
+				srcp += n;
+				break;
+
+			case NS_CMPRSFLGS:
+				if (srcp >= eom)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				if (len < 0)
+					len = srcp - src + 1;
+				srcp = msg + (((n & 0x3f) << 8) | (*srcp & 0xff));
+				if (srcp < msg || srcp >= eom)
+				{			/* Out of range. */
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				checked += 2;
+				/*
+				 * Check for loops in the compressed name;
+				 * if we've looked at the whole message,
+				 * there must be a loop.
+				 */
+				if (checked >= eom - msg)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				break;
+
+			default:
+				errno = EMSGSIZE;
+				return (-1);	/* flag error */
+		}
+	}
 	*dstp = '\0';
 	if (len < 0)
 		len = srcp - src;
@@ -372,7 +372,7 @@ ns_name_unpack (const u_char * msg, const u_char * eom, const u_char * src,
  */
 int
 ns_name_pack (const u_char * src, u_char * dst, int dstsiz,
-			  const u_char ** dnptrs, const u_char ** lastdnptr)
+			const u_char ** dnptrs, const u_char ** lastdnptr)
 {
 	u_char *dstp;
 	const u_char **cpp, **lpp, *eob, *msg;
@@ -384,89 +384,89 @@ ns_name_pack (const u_char * src, u_char * dst, int dstsiz,
 	eob = dstp + dstsiz;
 	lpp = cpp = NULL;
 	if (dnptrs != NULL)
-	  {
-		  if ((msg = *dnptrs++) != NULL)
-			{
-				for (cpp = dnptrs; *cpp != NULL; cpp++)
-					(void)NULL;
-				lpp = cpp;		/* end of list to search */
-			}
-	  }
+	{
+		if ((msg = *dnptrs++) != NULL)
+		{
+			for (cpp = dnptrs; *cpp != NULL; cpp++)
+				(void)NULL;
+			lpp = cpp;		/* end of list to search */
+		}
+	}
 	else
 		msg = NULL;
 
 	/* make sure the domain we are about to add is legal */
 	l = 0;
 	do
-	  {
-		  n = *srcp;
-		  if ((n & NS_CMPRSFLGS) != 0)
-			{
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  l += n + 1;
-		  if (l > MAXCDNAME)
-			{
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  srcp += n + 1;
-	  }
+	{
+		n = *srcp;
+		if ((n & NS_CMPRSFLGS) != 0)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		l += n + 1;
+		if (l > MAXCDNAME)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		srcp += n + 1;
+	}
 	while (n != 0);
 
 	srcp = src;
 	do
-	  {
-		  /* Look to see if we can use pointers. */
-		  n = *srcp;
-		  if (n != 0 && msg != NULL)
+	{
+		/* Look to see if we can use pointers. */
+		n = *srcp;
+		if (n != 0 && msg != NULL)
+		{
+			l = dn_find (srcp, msg, (const u_char * const *)dnptrs,
+						 (const u_char * const *)lpp);
+			if (l >= 0)
 			{
-				l = dn_find (srcp, msg, (const u_char * const *)dnptrs,
-							 (const u_char * const *)lpp);
-				if (l >= 0)
-				  {
-					  if (dstp + 1 >= eob)
-						{
-							errno = EMSGSIZE;
-							return (-1);
-						}
-					  *dstp++ = (l >> 8) | NS_CMPRSFLGS;
-					  *dstp++ = l % 256;
-					  return (dstp - dst);
-				  }
-				/* Not found, save it. */
-				if (lastdnptr != NULL && cpp < lastdnptr - 1 &&
-					(dstp - msg) < 0x4000)
-				  {
-					  *cpp++ = dstp;
-					  *cpp = NULL;
-				  }
+				if (dstp + 1 >= eob)
+				{
+					errno = EMSGSIZE;
+					return (-1);
+				}
+				*dstp++ = (l >> 8) | NS_CMPRSFLGS;
+				*dstp++ = l % 256;
+				return (dstp - dst);
 			}
-		  /* copy label to buffer */
-		  if (n & NS_CMPRSFLGS)
-			{					/* Should not happen. */
-				errno = EMSGSIZE;
-				return (-1);
-			}
-		  if (dstp + 1 + n >= eob)
+			/* Not found, save it. */
+			if (lastdnptr != NULL && cpp < lastdnptr - 1 &&
+				(dstp - msg) < 0x4000)
 			{
-				errno = EMSGSIZE;
-				return (-1);
+				*cpp++ = dstp;
+				*cpp = NULL;
 			}
-		  memcpy (dstp, srcp, n + 1);
-		  srcp += n + 1;
-		  dstp += n + 1;
-	  }
+		}
+		/* copy label to buffer */
+		if (n & NS_CMPRSFLGS)
+		{					/* Should not happen. */
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		if (dstp + 1 + n >= eob)
+		{
+			errno = EMSGSIZE;
+			return (-1);
+		}
+		memcpy (dstp, srcp, n + 1);
+		srcp += n + 1;
+		dstp += n + 1;
+	}
 	while (n != 0);
 
 	if (dstp > eob)
-	  {
-		  if (msg != NULL)
-			  *lpp = NULL;
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{
+		if (msg != NULL)
+			*lpp = NULL;
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	return (dstp - dst);
 }
 
@@ -508,7 +508,7 @@ ns_name_uncompress (const u_char * msg, const u_char * eom, const u_char * src,
  */
 int
 ns_name_compress (const char *src, u_char * dst, size_t dstsiz,
-				  const u_char ** dnptrs, const u_char ** lastdnptr)
+				const u_char ** dnptrs, const u_char ** lastdnptr)
 {
 	u_char tmp[NS_MAXCDNAME];
 
@@ -530,27 +530,27 @@ int ns_name_skip (const u_char ** ptrptr, const u_char * eom)
 
 	cp = *ptrptr;
 	while (cp < eom && (n = *cp++) != 0)
-	  {
-		  /* Check for indirection. */
-		  switch (n & NS_CMPRSFLGS)
-			{
-				case 0:		/* normal case, n == len */
-					cp += n;
-					continue;
-				case NS_CMPRSFLGS:	/* indirection */
-					cp++;
-					break;
-				default:		/* illegal type */
-					errno = EMSGSIZE;
-					return (-1);
-			}
-		  break;
-	  }
+	{
+		/* Check for indirection. */
+		switch (n & NS_CMPRSFLGS)
+		{
+			case 0:		/* normal case, n == len */
+				cp += n;
+				continue;
+			case NS_CMPRSFLGS:	/* indirection */
+				cp++;
+				break;
+			default:		/* illegal type */
+				errno = EMSGSIZE;
+				return (-1);
+		}
+		break;
+	}
 	if (cp > eom)
-	  {
-		  errno = EMSGSIZE;
-		  return (-1);
-	  }
+	{
+		errno = EMSGSIZE;
+		return (-1);
+	}
 	*ptrptr = cp;
 	return (0);
 }
@@ -567,18 +567,18 @@ int ns_name_skip (const u_char ** ptrptr, const u_char * eom)
 static int special (int ch)
 {
 	switch (ch)
-	  {
-		  case 0x22:			/* '"' */
-		  case 0x2E:			/* '.' */
-		  case 0x3B:			/* ';' */
-		  case 0x5C:			/* '\\' */
-			  /* Special modifiers in zone files. */
-		  case 0x40:			/* '@' */
-		  case 0x24:			/* '$' */
-			  return (1);
-		  default:
-			  return (0);
-	  }
+	{
+		case 0x22:			/* '"' */
+		case 0x2E:			/* '.' */
+		case 0x3B:			/* ';' */
+		case 0x5C:			/* '\\' */
+			/* Special modifiers in zone files. */
+		case 0x40:			/* '@' */
+		case 0x24:			/* '$' */
+			return (1);
+		default:
+			return (0);
+	}
 }
 
 /*
@@ -622,40 +622,40 @@ dn_find (const u_char * domain, const u_char * msg,
 	u_int n;
 
 	for (cpp = dnptrs; cpp < lastdnptr; cpp++)
-	  {
-		  dn = domain;
-		  sp = cp = *cpp;
-		  while ((n = *cp++) != 0)
+	{
+		dn = domain;
+		sp = cp = *cpp;
+		while ((n = *cp++) != 0)
+		{
+			/*
+			 * check for indirection
+			 */
+			switch (n & NS_CMPRSFLGS)
 			{
-				/*
-				 * check for indirection
-				 */
-				switch (n & NS_CMPRSFLGS)
-				  {
-					  case 0:	/* normal case, n == len */
-						  if (n != *dn++)
-							  goto next;
-						  for ((void)NULL; n > 0; n--)
-							  if (mklower (*dn++) != mklower (*cp++))
-								  goto next;
-						  /* Is next root for both ? */
-						  if (*dn == '\0' && *cp == '\0')
-							  return (sp - msg);
-						  if (*dn)
-							  continue;
-						  goto next;
+				case 0:	/* normal case, n == len */
+					if (n != *dn++)
+						goto next;
+					for ((void)NULL; n > 0; n--)
+						if (mklower (*dn++) != mklower (*cp++))
+							goto next;
+					/* Is next root for both ? */
+					if (*dn == '\0' && *cp == '\0')
+						return (sp - msg);
+					if (*dn)
+						continue;
+					goto next;
 
-					  case NS_CMPRSFLGS:	/* indirection */
-						  cp = msg + (((n & 0x3f) << 8) | *cp);
-						  break;
+				case NS_CMPRSFLGS:	/* indirection */
+					cp = msg + (((n & 0x3f) << 8) | *cp);
+					break;
 
-					  default:	/* illegal type */
-						  errno = EMSGSIZE;
-						  return (-1);
-				  }
+				default:	/* illegal type */
+					errno = EMSGSIZE;
+					return (-1);
 			}
+		}
 		next:;
-	  }
+	}
 	errno = ENOENT;
 	return (-1);
 }

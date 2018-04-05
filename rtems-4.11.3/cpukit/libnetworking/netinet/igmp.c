@@ -72,7 +72,7 @@ static struct router_info *find_rti (struct ifnet *ifp);
 static struct igmpstat igmpstat;
 
 SYSCTL_STRUCT (_net_inet_igmp, IGMPCTL_STATS, stats, CTLFLAG_RD,
-			   &igmpstat, igmpstat, "");
+			 &igmpstat, igmpstat, "");
 
 static int igmp_timers_are_running;
 static u_long igmp_all_hosts_group;
@@ -117,16 +117,16 @@ static struct router_info *find_rti (struct ifnet *ifp)
 	printf ("[igmp.c, _find_rti] --> entering \n");
 #endif
 	while (rti)
-	  {
-		  if (rti->rti_ifp == ifp)
-			{
+	{
+		if (rti->rti_ifp == ifp)
+		{
 #ifdef IGMP_DEBUG
-				printf ("[igmp.c, _find_rti] --> found old entry \n");
+			printf ("[igmp.c, _find_rti] --> found old entry \n");
 #endif
-				return rti;
-			}
-		  rti = rti->rti_next;
-	  }
+			return rti;
+		}
+		rti = rti->rti_next;
+	}
 	MALLOC (rti, struct router_info *, sizeof *rti, M_MRTABLE, M_NOWAIT);
 	rti->rti_ifp = ifp;
 	rti->rti_type = IGMP_V2_ROUTER;
@@ -162,18 +162,18 @@ void igmp_input (struct mbuf *m, int iphlen)
 	 * Validate lengths
 	 */
 	if (igmplen < IGMP_MINLEN)
-	  {
-		  ++igmpstat.igps_rcv_tooshort;
-		  m_freem (m);
-		  return;
-	  }
+	{
+		++igmpstat.igps_rcv_tooshort;
+		m_freem (m);
+		return;
+	}
 	minlen = iphlen + IGMP_MINLEN;
 	if ((m->m_flags & M_EXT || m->m_len < minlen) &&
 		(m = m_pullup (m, minlen)) == 0)
-	  {
-		  ++igmpstat.igps_rcv_tooshort;
-		  return;
-	  }
+	{
+		++igmpstat.igps_rcv_tooshort;
+		return;
+	}
 
 	/*
 	 * Validate checksum
@@ -182,11 +182,11 @@ void igmp_input (struct mbuf *m, int iphlen)
 	m->m_len -= iphlen;
 	igmp = mtod (m, struct igmp *);
 	if (in_cksum (m, igmplen))
-	  {
-		  ++igmpstat.igps_rcv_badsum;
-		  m_freem (m);
-		  return;
-	  }
+	{
+		++igmpstat.igps_rcv_badsum;
+		m_freem (m);
+		return;
+	}
 	m->m_data -= iphlen;
 	m->m_len += iphlen;
 
@@ -206,132 +206,132 @@ void igmp_input (struct mbuf *m, int iphlen)
 	 * if I sent the last report.
 	 */
 	switch (igmp->igmp_type)
-	  {
+	{
 
-		  case IGMP_MEMBERSHIP_QUERY:
-			  ++igmpstat.igps_rcv_queries;
+		case IGMP_MEMBERSHIP_QUERY:
+			++igmpstat.igps_rcv_queries;
 
-			  if (ifp->if_flags & IFF_LOOPBACK)
-				  break;
+			if (ifp->if_flags & IFF_LOOPBACK)
+				break;
 
-			  if (igmp->igmp_code == 0)
+			if (igmp->igmp_code == 0)
+			{
+				/*
+				 * Old router.  Remember that the querier on this
+				 * interface is old, and set the timer to the
+				 * value in RFC 1112.
+				 */
+
+				rti->rti_type = IGMP_V1_ROUTER;
+				rti->rti_time = 0;
+
+				timer = IGMP_MAX_HOST_REPORT_DELAY * PR_FASTHZ;
+
+				if (ip->ip_dst.s_addr != igmp_all_hosts_group ||
+					igmp->igmp_group.s_addr != 0)
 				{
-					/*
-					 * Old router.  Remember that the querier on this
-					 * interface is old, and set the timer to the
-					 * value in RFC 1112.
-					 */
-
-					rti->rti_type = IGMP_V1_ROUTER;
-					rti->rti_time = 0;
-
-					timer = IGMP_MAX_HOST_REPORT_DELAY * PR_FASTHZ;
-
-					if (ip->ip_dst.s_addr != igmp_all_hosts_group ||
-						igmp->igmp_group.s_addr != 0)
-					  {
-						  ++igmpstat.igps_rcv_badqueries;
-						  m_freem (m);
-						  return;
-					  }
-				}
-			  else
-				{
-					/*
-					 * New router.  Simply do the new validity check.
-					 */
-
-					if (igmp->igmp_group.s_addr != 0 &&
-						!IN_MULTICAST (ntohl (igmp->igmp_group.s_addr)))
-					  {
-						  ++igmpstat.igps_rcv_badqueries;
-						  m_freem (m);
-						  return;
-					  }
-				}
-
-			  /*
-			   * - Start the timers in all of our membership records
-			   *   that the query applies to for the interface on
-			   *   which the query arrived excl. those that belong
-			   *   to the "all-hosts" group (224.0.0.1).
-			   * - Restart any timer that is already running but has
-			   *   a value longer than the requested timeout.
-			   * - Use the value specified in the query message as
-			   *   the maximum timeout.
-			   */
-			  IN_FIRST_MULTI (step, inm);
-			  while (inm != NULL)
-				{
-					if (inm->inm_ifp == ifp &&
-						inm->inm_addr.s_addr != igmp_all_hosts_group &&
-						(igmp->igmp_group.s_addr == 0 ||
-						 igmp->igmp_group.s_addr == inm->inm_addr.s_addr))
-					  {
-						  if (inm->inm_timer == 0 || inm->inm_timer > timer)
-							{
-								inm->inm_timer = IGMP_RANDOM_DELAY (timer);
-								igmp_timers_are_running = 1;
-							}
-					  }
-					IN_NEXT_MULTI (step, inm);
-				}
-
-			  break;
-
-		  case IGMP_V1_MEMBERSHIP_REPORT:
-		  case IGMP_V2_MEMBERSHIP_REPORT:
-			  /*
-			   * For fast leave to work, we have to know that we are the
-			   * last person to send a report for this group.  Reports
-			   * can potentially get looped back if we are a multicast
-			   * router, so discard reports sourced by me.
-			   */
-			  IFP_TO_IA (ifp, ia);
-			  if (ia && ip->ip_src.s_addr == IA_SIN (ia)->sin_addr.s_addr)
-				  break;
-
-			  ++igmpstat.igps_rcv_reports;
-
-			  if (ifp->if_flags & IFF_LOOPBACK)
-				  break;
-
-			  if (!IN_MULTICAST (ntohl (igmp->igmp_group.s_addr)))
-				{
-					++igmpstat.igps_rcv_badreports;
+					++igmpstat.igps_rcv_badqueries;
 					m_freem (m);
 					return;
 				}
+			}
+			else
+			{
+				/*
+				 * New router.  Simply do the new validity check.
+				 */
 
-			  /*
-			   * KLUDGE: if the IP source address of the report has an
-			   * unspecified (i.e., zero) subnet number, as is allowed for
-			   * a booting host, replace it with the correct subnet number
-			   * so that a process-level multicast routing demon can
-			   * determine which subnet it arrived from.  This is necessary
-			   * to compensate for the lack of any way for a process to
-			   * determine the arrival interface of an incoming packet.
-			   */
-			  if ((ntohl (ip->ip_src.s_addr) & IN_CLASSA_NET) == 0)
-				  if (ia)
-					  ip->ip_src.s_addr = htonl (ia->ia_subnet);
-
-			  /*
-			   * If we belong to the group being reported, stop
-			   * our timer for that group.
-			   */
-			  IN_LOOKUP_MULTI (igmp->igmp_group, ifp, inm);
-
-			  if (inm != NULL)
+				if (igmp->igmp_group.s_addr != 0 &&
+					!IN_MULTICAST (ntohl (igmp->igmp_group.s_addr)))
 				{
-					inm->inm_timer = 0;
-					++igmpstat.igps_rcv_ourreports;
-
-					inm->inm_state = IGMP_OTHERMEMBER;
+					++igmpstat.igps_rcv_badqueries;
+					m_freem (m);
+					return;
 				}
+			}
 
-			  break;
-	  }
+			/*
+			 * - Start the timers in all of our membership records
+			 *   that the query applies to for the interface on
+			 *   which the query arrived excl. those that belong
+			 *   to the "all-hosts" group (224.0.0.1).
+			 * - Restart any timer that is already running but has
+			 *   a value longer than the requested timeout.
+			 * - Use the value specified in the query message as
+			 *   the maximum timeout.
+			 */
+			IN_FIRST_MULTI (step, inm);
+			while (inm != NULL)
+			{
+				if (inm->inm_ifp == ifp &&
+					inm->inm_addr.s_addr != igmp_all_hosts_group &&
+					(igmp->igmp_group.s_addr == 0 ||
+					 igmp->igmp_group.s_addr == inm->inm_addr.s_addr))
+				{
+					if (inm->inm_timer == 0 || inm->inm_timer > timer)
+					{
+						inm->inm_timer = IGMP_RANDOM_DELAY (timer);
+						igmp_timers_are_running = 1;
+					}
+				}
+				IN_NEXT_MULTI (step, inm);
+			}
+
+			break;
+
+		case IGMP_V1_MEMBERSHIP_REPORT:
+		case IGMP_V2_MEMBERSHIP_REPORT:
+			/*
+			 * For fast leave to work, we have to know that we are the
+			 * last person to send a report for this group.  Reports
+			 * can potentially get looped back if we are a multicast
+			 * router, so discard reports sourced by me.
+			 */
+			IFP_TO_IA (ifp, ia);
+			if (ia && ip->ip_src.s_addr == IA_SIN (ia)->sin_addr.s_addr)
+				break;
+
+			++igmpstat.igps_rcv_reports;
+
+			if (ifp->if_flags & IFF_LOOPBACK)
+				break;
+
+			if (!IN_MULTICAST (ntohl (igmp->igmp_group.s_addr)))
+			{
+				++igmpstat.igps_rcv_badreports;
+				m_freem (m);
+				return;
+			}
+
+			/*
+			 * KLUDGE: if the IP source address of the report has an
+			 * unspecified (i.e., zero) subnet number, as is allowed for
+			 * a booting host, replace it with the correct subnet number
+			 * so that a process-level multicast routing demon can
+			 * determine which subnet it arrived from.  This is necessary
+			 * to compensate for the lack of any way for a process to
+			 * determine the arrival interface of an incoming packet.
+			 */
+			if ((ntohl (ip->ip_src.s_addr) & IN_CLASSA_NET) == 0)
+				if (ia)
+					ip->ip_src.s_addr = htonl (ia->ia_subnet);
+
+			/*
+			 * If we belong to the group being reported, stop
+			 * our timer for that group.
+			 */
+			IN_LOOKUP_MULTI (igmp->igmp_group, ifp, inm);
+
+			if (inm != NULL)
+			{
+				inm->inm_timer = 0;
+				++igmpstat.igps_rcv_ourreports;
+
+				inm->inm_state = IGMP_OTHERMEMBER;
+			}
+
+			break;
+	}
 
 	/*
 	 * Pass all valid IGMP packets up to any process(es) listening
@@ -346,19 +346,19 @@ void igmp_joingroup (struct in_multi *inm)
 
 	if (inm->inm_addr.s_addr == igmp_all_hosts_group
 		|| inm->inm_ifp->if_flags & IFF_LOOPBACK)
-	  {
-		  inm->inm_timer = 0;
-		  inm->inm_state = IGMP_OTHERMEMBER;
-	  }
+	{
+		inm->inm_timer = 0;
+		inm->inm_state = IGMP_OTHERMEMBER;
+	}
 	else
-	  {
-		  inm->inm_rti = find_rti (inm->inm_ifp);
-		  igmp_sendpkt (inm, inm->inm_rti->rti_type, 0);
-		  inm->inm_timer =
-			  IGMP_RANDOM_DELAY (IGMP_MAX_HOST_REPORT_DELAY * PR_FASTHZ);
-		  inm->inm_state = IGMP_IREPORTEDLAST;
-		  igmp_timers_are_running = 1;
-	  }
+	{
+		inm->inm_rti = find_rti (inm->inm_ifp);
+		igmp_sendpkt (inm, inm->inm_rti->rti_type, 0);
+		inm->inm_timer =
+			IGMP_RANDOM_DELAY (IGMP_MAX_HOST_REPORT_DELAY * PR_FASTHZ);
+		inm->inm_state = IGMP_IREPORTEDLAST;
+		igmp_timers_are_running = 1;
+	}
 	splx (s);
 }
 
@@ -389,22 +389,22 @@ void igmp_fasttimo (void)
 	igmp_timers_are_running = 0;
 	IN_FIRST_MULTI (step, inm);
 	while (inm != NULL)
-	  {
-		  if (inm->inm_timer == 0)
-			{
-				/* do nothing */
-			}
-		  else if (--inm->inm_timer == 0)
-			{
-				igmp_sendpkt (inm, inm->inm_rti->rti_type, 0);
-				inm->inm_state = IGMP_IREPORTEDLAST;
-			}
-		  else
-			{
-				igmp_timers_are_running = 1;
-			}
-		  IN_NEXT_MULTI (step, inm);
-	  }
+	{
+		if (inm->inm_timer == 0)
+		{
+			/* do nothing */
+		}
+		else if (--inm->inm_timer == 0)
+		{
+			igmp_sendpkt (inm, inm->inm_rti->rti_type, 0);
+			inm->inm_state = IGMP_IREPORTEDLAST;
+		}
+		else
+		{
+			igmp_timers_are_running = 1;
+		}
+		IN_NEXT_MULTI (step, inm);
+	}
 	splx (s);
 }
 
@@ -417,17 +417,17 @@ void igmp_slowtimo (void)
 	printf ("[igmp.c,_slowtimo] -- > entering \n");
 #endif
 	while (rti)
-	  {
-		  if (rti->rti_type == IGMP_V1_ROUTER)
+	{
+		if (rti->rti_type == IGMP_V1_ROUTER)
+		{
+			rti->rti_time++;
+			if (rti->rti_time >= IGMP_AGE_THRESHOLD)
 			{
-				rti->rti_time++;
-				if (rti->rti_time >= IGMP_AGE_THRESHOLD)
-				  {
-					  rti->rti_type = IGMP_V2_ROUTER;
-				  }
+				rti->rti_type = IGMP_V2_ROUTER;
 			}
-		  rti = rti->rti_next;
-	  }
+		}
+		rti = rti->rti_next;
+	}
 #ifdef IGMP_DEBUG
 	printf ("[igmp.c,_slowtimo] -- > exiting \n");
 #endif

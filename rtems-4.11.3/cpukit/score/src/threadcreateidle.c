@@ -50,8 +50,8 @@ static void _Thread_Create_idle_for_cpu (Per_CPU_Control * cpu)
 	cpu->heir = cpu->executing = idle;
 
 	_Thread_Start (idle,
-				   THREAD_START_NUMERIC,
-				   rtems_configuration_get_idle_task (), NULL, 0, cpu);
+				 THREAD_START_NUMERIC,
+				 rtems_configuration_get_idle_task (), NULL, 0, cpu);
 }
 
 void _Thread_Create_idle (void)
@@ -60,12 +60,12 @@ void _Thread_Create_idle (void)
 	uint32_t cpu_index;
 
 	for (cpu_index = 0; cpu_index < cpu_count; ++cpu_index)
-	  {
-		  Per_CPU_Control *cpu = _Per_CPU_Get_by_index (cpu_index);
+	{
+		Per_CPU_Control *cpu = _Per_CPU_Get_by_index (cpu_index);
 
-		  if (_Per_CPU_Is_processor_started (cpu))
-			{
-				_Thread_Create_idle_for_cpu (cpu);
-			}
-	  }
+		if (_Per_CPU_Is_processor_started (cpu))
+		{
+			_Thread_Create_idle_for_cpu (cpu);
+		}
+	}
 }

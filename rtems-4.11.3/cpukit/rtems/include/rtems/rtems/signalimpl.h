@@ -27,24 +27,24 @@ extern "C"
 #endif
 
 /**
- * @defgroup ClassicSignalImpl Signals Implementation
- *
- * @ingroup ClassicSignal
- */
+* @defgroup ClassicSignalImpl Signals Implementation
+*
+* @ingroup ClassicSignal
+*/
 /**@{*/
 
 /**
- *  @brief Signal Manager Initialization
- *
- *  Signal Manager
- *
- *  This routine performs the initialization necessary for this manager.
- */
-	void _Signal_Manager_initialization (void);
+*  @brief Signal Manager Initialization
+*
+*  Signal Manager
+*
+*  This routine performs the initialization necessary for this manager.
+*/
+void _Signal_Manager_initialization (void);
 
-	void _Signal_Action_handler (Thread_Control * thread,
-								 Thread_Action * action,
-								 Per_CPU_Control * cpu, ISR_Level level);
+void _Signal_Action_handler (Thread_Control * thread,
+							 Thread_Action * action,
+							 Per_CPU_Control * cpu, ISR_Level level);
 
 /**@}*/
 

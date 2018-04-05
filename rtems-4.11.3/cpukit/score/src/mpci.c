@@ -69,7 +69,7 @@ void _MPCI_Handler_initialization (uint32_t timeout_status)
 		);
 
 	_Thread_queue_Initialize (&_MPCI_Remote_blocked_threads,
-							  THREAD_QUEUE_DISCIPLINE_FIFO);
+							THREAD_QUEUE_DISCIPLINE_FIFO);
 }
 
 void _MPCI_Create_server (void)
@@ -93,8 +93,8 @@ void _MPCI_Create_server (void)
 						name);
 
 	_Thread_Start (_MPCI_Receive_server_tcb,
-				   THREAD_START_NUMERIC,
-				   (void *)_MPCI_Receive_server, NULL, 0, NULL);
+				 THREAD_START_NUMERIC,
+				 (void *)_MPCI_Receive_server, NULL, 0, NULL);
 }
 
 void _MPCI_Initialization (void)
@@ -103,8 +103,8 @@ void _MPCI_Initialization (void)
 }
 
 void _MPCI_Register_packet_processor (MP_packet_Classes the_class,
-									  MPCI_Packet_processor
-									  the_packet_processor)
+									MPCI_Packet_processor
+									the_packet_processor)
 {
 	_MPCI_Packet_processors[the_class] = the_packet_processor;
 }
@@ -173,9 +173,9 @@ uint32_t _MPCI_Send_request_packet (uint32_t destination,
 		the_packet->timeout = _MPCI_table->default_timeout;
 
 	_Thread_queue_Enqueue (&_MPCI_Remote_blocked_threads,
-						   executing,
-						   STATES_WAITING_FOR_RPC_REPLY | extra_state,
-						   the_packet->timeout, timeout_code);
+						 executing,
+						 STATES_WAITING_FOR_RPC_REPLY | extra_state,
+						 the_packet->timeout, timeout_code);
 
 	_Thread_Enable_dispatch ();
 
@@ -206,19 +206,19 @@ Thread_Control *_MPCI_Process_response (MP_packet_Prefix * the_packet)
 
 	the_thread = _Thread_Get (the_packet->id, &location);
 	switch (location)
-	  {
-		  case OBJECTS_ERROR:
+	{
+		case OBJECTS_ERROR:
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-			  the_thread = NULL;	/* IMPOSSIBLE */
-			  break;
-		  case OBJECTS_LOCAL:
-			  _Thread_queue_Extract (the_thread);
-			  the_thread->Wait.return_code = the_packet->return_code;
-			  _Objects_Put_without_thread_dispatch (&the_thread->Object);
-			  break;
-	  }
+			the_thread = NULL;	/* IMPOSSIBLE */
+			break;
+		case OBJECTS_LOCAL:
+			_Thread_queue_Extract (the_thread);
+			the_thread->Wait.return_code = the_packet->return_code;
+			_Objects_Put_without_thread_dispatch (&the_thread->Object);
+			break;
+	}
 
 	return the_thread;
 }
@@ -239,36 +239,36 @@ Thread _MPCI_Receive_server (uint32_t ignored)
 	executing = _Thread_Get_executing ();
 
 	for (;;)
-	  {
+	{
 
-		  executing->receive_packet = NULL;
+		executing->receive_packet = NULL;
 
-		  _ISR_lock_ISR_disable (&lock_context);
-		  _CORE_semaphore_Seize (&_MPCI_Semaphore,
+		_ISR_lock_ISR_disable (&lock_context);
+		_CORE_semaphore_Seize (&_MPCI_Semaphore,
 								 executing,
 								 0, true, WATCHDOG_NO_TIMEOUT, &lock_context);
 
-		  for (;;)
-			{
-				the_packet = _MPCI_Receive_packet ();
+		for (;;)
+		{
+			the_packet = _MPCI_Receive_packet ();
 
-				if (!the_packet)
-					break;
+			if (!the_packet)
+				break;
 
-				executing->receive_packet = the_packet;
+			executing->receive_packet = the_packet;
 
-				if (!_Mp_packet_Is_valid_packet_class (the_packet->the_class))
-					break;
+			if (!_Mp_packet_Is_valid_packet_class (the_packet->the_class))
+				break;
 
-				the_function = _MPCI_Packet_processors[the_packet->the_class];
+			the_function = _MPCI_Packet_processors[the_packet->the_class];
 
-				if (!the_function)
-					_Terminate (INTERNAL_ERROR_CORE,
-								true, INTERNAL_ERROR_BAD_PACKET);
+			if (!the_function)
+				_Terminate (INTERNAL_ERROR_CORE,
+							true, INTERNAL_ERROR_BAD_PACKET);
 
-				(*the_function) (the_packet);
-			}
-	  }
+			(*the_function) (the_packet);
+		}
+	}
 
 	return 0;					/* unreached - only to remove warnings */
 }
@@ -287,24 +287,24 @@ void _MPCI_Internal_packets_Send_process_packet (MPCI_Internal_Remote_operations
 	MPCI_Internal_packet *the_packet;
 
 	switch (operation)
-	  {
+	{
 
-		  case MPCI_PACKETS_SYSTEM_VERIFY:
+		case MPCI_PACKETS_SYSTEM_VERIFY:
 
-			  the_packet = _MPCI_Internal_packets_Get_packet ();
-			  the_packet->Prefix.the_class = MP_PACKET_MPCI_INTERNAL;
-			  the_packet->Prefix.length = sizeof (MPCI_Internal_packet);
-			  the_packet->Prefix.to_convert = sizeof (MPCI_Internal_packet);
-			  the_packet->operation = operation;
+			the_packet = _MPCI_Internal_packets_Get_packet ();
+			the_packet->Prefix.the_class = MP_PACKET_MPCI_INTERNAL;
+			the_packet->Prefix.length = sizeof (MPCI_Internal_packet);
+			the_packet->Prefix.to_convert = sizeof (MPCI_Internal_packet);
+			the_packet->operation = operation;
 
-			  the_packet->maximum_nodes = _Objects_Maximum_nodes;
+			the_packet->maximum_nodes = _Objects_Maximum_nodes;
 
-			  the_packet->maximum_global_objects =
-				  _Objects_MP_Maximum_global_objects;
+			the_packet->maximum_global_objects =
+				_Objects_MP_Maximum_global_objects;
 
-			  _MPCI_Send_process_packet (MPCI_ALL_NODES, &the_packet->Prefix);
-			  break;
-	  }
+			_MPCI_Send_process_packet (MPCI_ALL_NODES, &the_packet->Prefix);
+			break;
+	}
 }
 
 /*
@@ -333,27 +333,27 @@ void _MPCI_Internal_packets_Process_packet (MP_packet_Prefix *
 	the_packet = (MPCI_Internal_packet *) the_packet_prefix;
 
 	switch (the_packet->operation)
-	  {
+	{
 
-		  case MPCI_PACKETS_SYSTEM_VERIFY:
+		case MPCI_PACKETS_SYSTEM_VERIFY:
 
-			  maximum_nodes = the_packet->maximum_nodes;
-			  maximum_global_objects = the_packet->maximum_global_objects;
-			  if (maximum_nodes != _Objects_Maximum_nodes ||
-				  maximum_global_objects != _Objects_MP_Maximum_global_objects)
-				{
+			maximum_nodes = the_packet->maximum_nodes;
+			maximum_global_objects = the_packet->maximum_global_objects;
+			if (maximum_nodes != _Objects_Maximum_nodes ||
+				maximum_global_objects != _Objects_MP_Maximum_global_objects)
+			{
 
-					_MPCI_Return_packet (the_packet_prefix);
+				_MPCI_Return_packet (the_packet_prefix);
 
-					_Terminate (INTERNAL_ERROR_CORE,
-								true,
-								INTERNAL_ERROR_INCONSISTENT_MP_INFORMATION);
-				}
+				_Terminate (INTERNAL_ERROR_CORE,
+							true,
+							INTERNAL_ERROR_INCONSISTENT_MP_INFORMATION);
+			}
 
-			  _MPCI_Return_packet (the_packet_prefix);
+			_MPCI_Return_packet (the_packet_prefix);
 
-			  break;
-	  }
+			break;
+	}
 }
 
 /*

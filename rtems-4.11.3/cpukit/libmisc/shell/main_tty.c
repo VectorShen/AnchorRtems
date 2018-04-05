@@ -30,7 +30,8 @@ static int rtems_shell_main_tty (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_TTY_Command = {
+rtems_shell_cmd_t rtems_shell_TTY_Command =
+{
 	"tty",						/* name */
 	"show ttyname",				/* usage */
 	"misc",						/* topic */

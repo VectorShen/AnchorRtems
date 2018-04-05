@@ -33,14 +33,15 @@ static int rtems_shell_main_chdir (int argc, char *argv[])
 		dir = argv[1];
 
 	if (chdir (dir))
-	  {
-		  fprintf (stderr, "chdir to '%s' failed:%s\n", dir, strerror (errno));
-		  return errno;
-	  }
+	{
+		fprintf (stderr, "chdir to '%s' failed:%s\n", dir, strerror (errno));
+		return errno;
+	}
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CHDIR_Command = {
+rtems_shell_cmd_t rtems_shell_CHDIR_Command =
+{
 	"chdir",					/* name */
 	"chdir [dir]  # change the current directory",	/* usage */
 	"files",					/* topic */

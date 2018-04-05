@@ -41,19 +41,19 @@ rtems_status_code rtems_timer_cancel (rtems_id id)
 
 	the_timer = _Timer_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Timer_Cancel (the_timer);
-			  _Objects_Put (&the_timer->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			_Timer_Cancel (the_timer);
+			_Objects_Put (&the_timer->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

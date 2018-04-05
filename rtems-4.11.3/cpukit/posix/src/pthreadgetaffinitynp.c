@@ -41,19 +41,19 @@ int pthread_getaffinity_np (const pthread_t id,
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  ok = _Scheduler_Get_affinity (the_thread, cpusetsize, cpuset);
-			  _Objects_Put (&the_thread->Object);
-			  return ok ? 0 : EINVAL;
+		case OBJECTS_LOCAL:
+			ok = _Scheduler_Get_affinity (the_thread, cpusetsize, cpuset);
+			_Objects_Put (&the_thread->Object);
+			return ok ? 0 : EINVAL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 	return ESRCH;
 }
 

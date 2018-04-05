@@ -49,28 +49,28 @@ int pthread_sigmask (int how,
 		return 0;
 
 	switch (how)
-	  {
-		  case SIG_BLOCK:
-			  api->signals_blocked |= *set;
-			  break;
-		  case SIG_UNBLOCK:
-			  api->signals_blocked &= ~*set;
-			  break;
-		  case SIG_SETMASK:
-			  api->signals_blocked = *set;
-			  break;
-		  default:
-			  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+	{
+		case SIG_BLOCK:
+			api->signals_blocked |= *set;
+			break;
+		case SIG_UNBLOCK:
+			api->signals_blocked &= ~*set;
+			break;
+		case SIG_SETMASK:
+			api->signals_blocked = *set;
+			break;
+		default:
+			rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	/* XXX are there critical section problems here? */
 
 	/* XXX evaluate the new set */
 
 	if (~api->signals_blocked & (api->signals_pending | _POSIX_signals_Pending))
-	  {
-		  _Thread_Dispatch ();
-	  }
+	{
+		_Thread_Dispatch ();
+	}
 
 	return 0;
 }

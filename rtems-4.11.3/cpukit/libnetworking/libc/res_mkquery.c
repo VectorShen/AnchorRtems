@@ -102,10 +102,10 @@ int res_mkquery (int op,		/* opcode of query */
 	u_char *dnptrs[20], **dpp, **lastdnptr;
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (-1);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
 		printf (";; res_mkquery(%d, %s, %d, %d)\n", op, dname, class, type);
@@ -131,67 +131,67 @@ int res_mkquery (int op,		/* opcode of query */
 	 * perform opcode specific processing
 	 */
 	switch (op)
-	  {
-		  case QUERY:
-		  /*FALLTHROUGH*/ case NS_NOTIFY_OP:
-			  if ((buflen -= QFIXEDSZ) < 0)
-				  return (-1);
-			  if ((n = dn_comp (dname, cp, buflen, dnptrs, lastdnptr)) < 0)
-				  return (-1);
-			  cp += n;
-			  buflen -= n;
-			  __putshort (type, cp);
-			  cp += INT16SZ;
-			  __putshort (class, cp);
-			  cp += INT16SZ;
-			  hp->qdcount = htons (1);
-			  if (op == QUERY || data == NULL)
-				  break;
-			  /*
-			   * Make an additional record for completion domain.
-			   */
-			  buflen -= RRFIXEDSZ;
-			  n = dn_comp ((char *)data, cp, buflen, dnptrs, lastdnptr);
-			  if (n < 0)
-				  return (-1);
-			  cp += n;
-			  buflen -= n;
-			  __putshort (T_NULL, cp);
-			  cp += INT16SZ;
-			  __putshort (class, cp);
-			  cp += INT16SZ;
-			  __putlong (0, cp);
-			  cp += INT32SZ;
-			  __putshort (0, cp);
-			  cp += INT16SZ;
-			  hp->arcount = htons (1);
-			  break;
+	{
+		case QUERY:
+		/*FALLTHROUGH*/ case NS_NOTIFY_OP:
+			if ((buflen -= QFIXEDSZ) < 0)
+				return (-1);
+			if ((n = dn_comp (dname, cp, buflen, dnptrs, lastdnptr)) < 0)
+				return (-1);
+			cp += n;
+			buflen -= n;
+			__putshort (type, cp);
+			cp += INT16SZ;
+			__putshort (class, cp);
+			cp += INT16SZ;
+			hp->qdcount = htons (1);
+			if (op == QUERY || data == NULL)
+				break;
+			/*
+			 * Make an additional record for completion domain.
+			 */
+			buflen -= RRFIXEDSZ;
+			n = dn_comp ((char *)data, cp, buflen, dnptrs, lastdnptr);
+			if (n < 0)
+				return (-1);
+			cp += n;
+			buflen -= n;
+			__putshort (T_NULL, cp);
+			cp += INT16SZ;
+			__putshort (class, cp);
+			cp += INT16SZ;
+			__putlong (0, cp);
+			cp += INT32SZ;
+			__putshort (0, cp);
+			cp += INT16SZ;
+			hp->arcount = htons (1);
+			break;
 
-		  case IQUERY:
-			  /*
-			   * Initialize answer section
-			   */
-			  if (buflen < 1 + RRFIXEDSZ + datalen)
-				  return (-1);
-			  *cp++ = '\0';		/* no domain name */
-			  __putshort (type, cp);
-			  cp += INT16SZ;
-			  __putshort (class, cp);
-			  cp += INT16SZ;
-			  __putlong (0, cp);
-			  cp += INT32SZ;
-			  __putshort (datalen, cp);
-			  cp += INT16SZ;
-			  if (datalen)
-				{
-					memcpy (cp, data, datalen);
-					cp += datalen;
-				}
-			  hp->ancount = htons (1);
-			  break;
+		case IQUERY:
+			/*
+			 * Initialize answer section
+			 */
+			if (buflen < 1 + RRFIXEDSZ + datalen)
+				return (-1);
+			*cp++ = '\0';		/* no domain name */
+			__putshort (type, cp);
+			cp += INT16SZ;
+			__putshort (class, cp);
+			cp += INT16SZ;
+			__putlong (0, cp);
+			cp += INT32SZ;
+			__putshort (datalen, cp);
+			cp += INT16SZ;
+			if (datalen)
+			{
+				memcpy (cp, data, datalen);
+				cp += datalen;
+			}
+			hp->ancount = htons (1);
+			break;
 
-		  default:
-			  return (-1);
-	  }
+		default:
+			return (-1);
+	}
 	return (cp - buf);
 }

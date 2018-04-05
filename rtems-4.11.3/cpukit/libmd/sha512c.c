@@ -92,10 +92,10 @@ static void be64dec_vect (uint64_t * dst, const unsigned char *src, size_t len)
 /* Adjusted round function for rotating state */
 #define RNDr(S, W, i, k)			\
 	RND(S[(80 - i) % 8], S[(81 - i) % 8],	\
-	    S[(82 - i) % 8], S[(83 - i) % 8],	\
-	    S[(84 - i) % 8], S[(85 - i) % 8],	\
-	    S[(86 - i) % 8], S[(87 - i) % 8],	\
-	    W[i] + k)
+	  S[(82 - i) % 8], S[(83 - i) % 8],	\
+	  S[(84 - i) % 8], S[(85 - i) % 8],	\
+	  S[(86 - i) % 8], S[(87 - i) % 8],	\
+	  W[i] + k)
 
 /*
  * SHA512 block compression function.  The 512-bit state is transformed via
@@ -203,7 +203,8 @@ static void SHA512_Transform (uint64_t * state, const unsigned char block[128])
 		state[i] += S[i];
 }
 
-static const unsigned char PAD[128] = {
+static const unsigned char PAD[128] =
+{
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -274,10 +275,10 @@ void SHA512_Update (SHA512_CTX * ctx, const void *in, size_t len)
 
 	/* Handle the case where we don't need to perform any transforms */
 	if (len < 128 - r)
-	  {
-		  memcpy (&ctx->buf[r], src, len);
-		  return;
-	  }
+	{
+		memcpy (&ctx->buf[r], src, len);
+		return;
+	}
 
 	/* Finish the current block */
 	memcpy (&ctx->buf[r], src, 128 - r);
@@ -287,11 +288,11 @@ void SHA512_Update (SHA512_CTX * ctx, const void *in, size_t len)
 
 	/* Perform complete blocks */
 	while (len >= 128)
-	  {
-		  SHA512_Transform (ctx->state, src);
-		  src += 128;
-		  len -= 128;
-	  }
+	{
+		SHA512_Transform (ctx->state, src);
+		src += 128;
+		len -= 128;
+	}
 
 	/* Copy left over data into buffer */
 	memcpy (ctx->buf, src, len);

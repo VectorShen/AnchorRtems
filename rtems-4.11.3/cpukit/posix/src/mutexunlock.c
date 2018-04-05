@@ -44,20 +44,20 @@ int pthread_mutex_unlock (pthread_mutex_t * mutex)
 	the_mutex = _POSIX_Mutex_Get_interrupt_disable (mutex,
 													&location, &lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  status = _CORE_mutex_Surrender (&the_mutex->Mutex,
-											  the_mutex->Object.id,
-											  NULL, &lock_context);
-			  return _POSIX_Mutex_Translate_core_mutex_return_code (status);
+		case OBJECTS_LOCAL:
+			status = _CORE_mutex_Surrender (&the_mutex->Mutex,
+											the_mutex->Object.id,
+											NULL, &lock_context);
+			return _POSIX_Mutex_Translate_core_mutex_return_code (status);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

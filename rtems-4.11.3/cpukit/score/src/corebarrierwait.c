@@ -37,17 +37,17 @@ void _CORE_barrier_Wait (CORE_barrier_Control * the_barrier,
 	_Thread_queue_Acquire (&the_barrier->Wait_queue, &lock_context);
 	the_barrier->number_of_waiting_threads++;
 	if (_CORE_barrier_Is_automatic (&the_barrier->Attributes))
-	  {
-		  if (the_barrier->number_of_waiting_threads ==
-			  the_barrier->Attributes.maximum_count)
-			{
-				executing->Wait.return_code =
-					CORE_BARRIER_STATUS_AUTOMATICALLY_RELEASED;
-				_Thread_queue_Release (&the_barrier->Wait_queue, &lock_context);
-				_CORE_barrier_Release (the_barrier, id, api_barrier_mp_support);
-				return;
-			}
-	  }
+	{
+		if (the_barrier->number_of_waiting_threads ==
+			the_barrier->Attributes.maximum_count)
+		{
+			executing->Wait.return_code =
+				CORE_BARRIER_STATUS_AUTOMATICALLY_RELEASED;
+			_Thread_queue_Release (&the_barrier->Wait_queue, &lock_context);
+			_CORE_barrier_Release (the_barrier, id, api_barrier_mp_support);
+			return;
+		}
+	}
 
 	executing->Wait.id = id;
 

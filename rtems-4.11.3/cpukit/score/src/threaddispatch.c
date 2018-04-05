@@ -31,7 +31,7 @@
 #include <rtems/config.h>
 
 static Thread_Action *_Thread_Get_post_switch_action (Thread_Control *
-													  executing)
+													executing)
 {
 	Chain_Control *chain = &executing->Post_switch_actions.Chain;
 
@@ -48,14 +48,14 @@ static void _Thread_Run_post_switch_actions (Thread_Control * executing)
 	action = _Thread_Get_post_switch_action (executing);
 
 	while (action != NULL)
-	  {
-		  _Chain_Set_off_chain (&action->Node);
+	{
+		_Chain_Set_off_chain (&action->Node);
 
-		  (*action->handler) (executing, action, cpu_self, level);
+		(*action->handler) (executing, action, cpu_self, level);
 
-		  cpu_self = _Thread_Action_ISR_disable_and_acquire (executing, &level);
-		  action = _Thread_Get_post_switch_action (executing);
-	  }
+		cpu_self = _Thread_Action_ISR_disable_and_acquire (executing, &level);
+		action = _Thread_Get_post_switch_action (executing);
+	}
 
 	_Thread_Action_release_and_ISR_enable (cpu_self, level);
 }
@@ -69,77 +69,77 @@ void _Thread_Do_dispatch (Per_CPU_Control * cpu_self, ISR_Level level)
 	executing = cpu_self->executing;
 
 	do
-	  {
-		  Thread_Control *heir =
-			  _Thread_Get_heir_and_make_it_executing (cpu_self);
+	{
+		Thread_Control *heir =
+			_Thread_Get_heir_and_make_it_executing (cpu_self);
 
-		  /*
-		   *  When the heir and executing are the same, then we are being
-		   *  requested to do the post switch dispatching.  This is normally
-		   *  done to dispatch signals.
-		   */
-		  if (heir == executing)
-			  goto post_switch;
+		/*
+		 *  When the heir and executing are the same, then we are being
+		 *  requested to do the post switch dispatching.  This is normally
+		 *  done to dispatch signals.
+		 */
+		if (heir == executing)
+			goto post_switch;
 
-		  /*
-		   *  Since heir and executing are not the same, we need to do a real
-		   *  context switch.
-		   */
+		/*
+		 *  Since heir and executing are not the same, we need to do a real
+		 *  context switch.
+		 */
 #if __RTEMS_ADA__
-		  executing->rtems_ada_self = rtems_ada_self;
-		  rtems_ada_self = heir->rtems_ada_self;
+		executing->rtems_ada_self = rtems_ada_self;
+		rtems_ada_self = heir->rtems_ada_self;
 #endif
-		  if (heir->budget_algorithm ==
-			  THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE)
-			  heir->cpu_time_budget =
-				  rtems_configuration_get_ticks_per_timeslice ();
+		if (heir->budget_algorithm ==
+			THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE)
+			heir->cpu_time_budget =
+				rtems_configuration_get_ticks_per_timeslice ();
 
-		  /*
-		   * On SMP the complete context switch must be atomic with respect to one
-		   * processor.  See also _Thread_Handler() since _Context_switch() may branch
-		   * to this function.
-		   */
+		/*
+		 * On SMP the complete context switch must be atomic with respect to one
+		 * processor.  See also _Thread_Handler() since _Context_switch() may branch
+		 * to this function.
+		 */
 #if !defined( RTEMS_SMP )
-		  _ISR_Enable (level);
+		_ISR_Enable (level);
 #endif
 
-		  _Thread_Update_cpu_time_used (executing,
+		_Thread_Update_cpu_time_used (executing,
 										&cpu_self->time_of_last_context_switch);
 
 #if !defined(__DYNAMIC_REENT__)
-		  /*
-		   * Switch libc's task specific data.
-		   */
-		  if (_Thread_libc_reent)
-			{
-				executing->libc_reent = *_Thread_libc_reent;
-				*_Thread_libc_reent = heir->libc_reent;
-			}
+		/*
+		 * Switch libc's task specific data.
+		 */
+		if (_Thread_libc_reent)
+		{
+			executing->libc_reent = *_Thread_libc_reent;
+			*_Thread_libc_reent = heir->libc_reent;
+		}
 #endif
 
-		  _User_extensions_Thread_switch (executing, heir);
-		  _Thread_Save_fp (executing);
-		  _Context_Switch (&executing->Registers, &heir->Registers);
-		  _Thread_Restore_fp (executing);
+		_User_extensions_Thread_switch (executing, heir);
+		_Thread_Save_fp (executing);
+		_Context_Switch (&executing->Registers, &heir->Registers);
+		_Thread_Restore_fp (executing);
 
-		  /*
-		   * We have to obtain this value again after the context switch since the
-		   * heir thread may have migrated from another processor.  Values from the
-		   * stack or non-volatile registers reflect the old execution environment.
-		   */
-		  cpu_self = _Per_CPU_Get ();
+		/*
+		 * We have to obtain this value again after the context switch since the
+		 * heir thread may have migrated from another processor.  Values from the
+		 * stack or non-volatile registers reflect the old execution environment.
+		 */
+		cpu_self = _Per_CPU_Get ();
 
-		  _Thread_Debug_set_real_processor (executing, cpu_self);
+		_Thread_Debug_set_real_processor (executing, cpu_self);
 
 #if !defined( RTEMS_SMP )
-		  _ISR_Disable (level);
+		_ISR_Disable (level);
 #endif
-	  }
+	}
 	while (
 #if defined( RTEMS_SMP )
-			  false
+			false
 #else
-			  cpu_self->dispatch_necessary
+			cpu_self->dispatch_necessary
 #endif
 		);
 
@@ -163,13 +163,13 @@ void _Thread_Dispatch (void)
 	cpu_self = _Per_CPU_Get ();
 
 	if (cpu_self->dispatch_necessary)
-	  {
-		  _Profiling_Thread_dispatch_disable (cpu_self, 0);
-		  cpu_self->thread_dispatch_disable_level = 1;
-		  _Thread_Do_dispatch (cpu_self, level);
-	  }
+	{
+		_Profiling_Thread_dispatch_disable (cpu_self, 0);
+		cpu_self->thread_dispatch_disable_level = 1;
+		_Thread_Do_dispatch (cpu_self, level);
+	}
 	else
-	  {
-		  _ISR_Enable_without_giant (level);
-	  }
+	{
+		_ISR_Enable_without_giant (level);
+	}
 }

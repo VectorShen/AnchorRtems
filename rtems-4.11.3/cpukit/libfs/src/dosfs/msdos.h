@@ -29,10 +29,10 @@
 #include "fat_file.h"
 
 /**
- *  @defgroup libfs_msdos MSDOS FileSystem
- *
- *  @ingroup libfs
- */
+*  @defgroup libfs_msdos MSDOS FileSystem
+*
+*  @ingroup libfs
+*/
 /**@{*/
 #ifdef __cplusplus
 extern "C"
@@ -42,54 +42,54 @@ extern "C"
 #define MSDOS_NAME_NOT_FOUND_ERR  0x7D01
 
 /*
- * This structure identifies the instance of the filesystem on the MSDOS
- * level.
- */
-	typedef struct msdos_fs_info_s
-	{
-		fat_fs_info_t fat;		/*
-								 * volume
-								 * description
-								 */
-		const rtems_filesystem_file_handlers_r *directory_handlers;	/*
-																	 * a set of routines
-																	 * that handles the
-																	 * nodes of directory
-																	 * type
-																	 */
-		const rtems_filesystem_file_handlers_r *file_handlers;	/*
+* This structure identifies the instance of the filesystem on the MSDOS
+* level.
+*/
+typedef struct msdos_fs_info_s
+{
+	fat_fs_info_t fat;		/*
+							 * volume
+							 * description
+							 */
+	const rtems_filesystem_file_handlers_r *directory_handlers;	/*
 																 * a set of routines
 																 * that handles the
-																 * nodes of file
+																 * nodes of directory
 																 * type
 																 */
-		rtems_id vol_sema;		/*
-								 * semaphore
-								 * associated with
-								 * the volume
-								 */
-		uint8_t *cl_buf;		/*
-								 * just placeholder
-								 * for anything
-								 */
+	const rtems_filesystem_file_handlers_r *file_handlers;	/*
+															 * a set of routines
+															 * that handles the
+															 * nodes of file
+															 * type
+															 */
+	rtems_id vol_sema;		/*
+							 * semaphore
+							 * associated with
+							 * the volume
+							 */
+	uint8_t *cl_buf;		/*
+							 * just placeholder
+							 * for anything
+							 */
 
-		rtems_dosfs_convert_control *converter;
-	} msdos_fs_info_t;
+	rtems_dosfs_convert_control *converter;
+} msdos_fs_info_t;
 
 /* a set of routines that handle the nodes which are directories */
-	extern const rtems_filesystem_file_handlers_r msdos_dir_handlers;
+extern const rtems_filesystem_file_handlers_r msdos_dir_handlers;
 
 /* a set of routines that handle the nodes which are files */
-	extern const rtems_filesystem_file_handlers_r msdos_file_handlers;
+extern const rtems_filesystem_file_handlers_r msdos_file_handlers;
 
 /* Volume semaphore timeout value. This value can be changed to a number
- * of ticks to help debugging or if you need such a  */
+* of ticks to help debugging or if you need such a  */
 #define MSDOS_VOLUME_SEMAPHORE_TIMEOUT    RTEMS_NO_TIMEOUT
 
 /*
- * Macros for fetching fields from 32 bytes long FAT Directory Entry
- * Structure
- */
+* Macros for fetching fields from 32 bytes long FAT Directory Entry
+* Structure
+*/
 #define MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE    32	/* 32 bytes */
 
 #define MSDOS_DIR_NAME(x)                 (char     *)((x) + 0)
@@ -108,13 +108,13 @@ extern "C"
 #define MSDOS_DIR_FILE_SIZE(x)            (uint32_t *)((x) + 28)
 
 #define MSDOS_EXTRACT_CLUSTER_NUM(p)                                         \
-            (uint32_t)( (CF_LE_W(*MSDOS_DIR_FIRST_CLUSTER_LOW(p))) |       \
-                          ((uint32_t)(CF_LE_W((*MSDOS_DIR_FIRST_CLUSTER_HI(p))))<<16) )
+		(uint32_t)( (CF_LE_W(*MSDOS_DIR_FIRST_CLUSTER_LOW(p))) |       \
+					  ((uint32_t)(CF_LE_W((*MSDOS_DIR_FIRST_CLUSTER_HI(p))))<<16) )
 
 /*
- * Fields offset in 32 bytes long FAT Directory Entry
- * Structure
- */
+* Fields offset in 32 bytes long FAT Directory Entry
+* Structure
+*/
 #define MSDOS_FILE_SIZE_OFFSET            28
 #define MSDOS_FILE_NAME_OFFSET             0
 #define MSDOS_FIRST_CLUSTER_HI_OFFSET     20
@@ -126,9 +126,9 @@ extern "C"
 #define MSDOS_FILE_CTIME_OFFSET           14
 
 /*
- * Possible values of DIR_Attr field of 32 bytes long FAT Directory Entry
- * Structure
- */
+* Possible values of DIR_Attr field of 32 bytes long FAT Directory Entry
+* Structure
+*/
 #define MSDOS_ATTR_READ_ONLY    0x01
 #define MSDOS_ATTR_HIDDEN       0x02
 #define MSDOS_ATTR_SYSTEM       0x04
@@ -136,15 +136,15 @@ extern "C"
 #define MSDOS_ATTR_DIRECTORY    0x10
 #define MSDOS_ATTR_ARCHIVE      0x20
 #define MSDOS_ATTR_LFN          (MSDOS_ATTR_READ_ONLY | \
-                                 MSDOS_ATTR_HIDDEN | \
-                                 MSDOS_ATTR_SYSTEM | \
-                                 MSDOS_ATTR_VOLUME_ID)
+							 MSDOS_ATTR_HIDDEN | \
+							 MSDOS_ATTR_SYSTEM | \
+							 MSDOS_ATTR_VOLUME_ID)
 #define MSDOS_ATTR_LFN_MASK     (MSDOS_ATTR_READ_ONLY | \
-                                 MSDOS_ATTR_HIDDEN | \
-                                 MSDOS_ATTR_SYSTEM | \
-                                 MSDOS_ATTR_VOLUME_ID | \
-                                 MSDOS_ATTR_DIRECTORY | \
-                                 MSDOS_ATTR_ARCHIVE)
+							 MSDOS_ATTR_HIDDEN | \
+							 MSDOS_ATTR_SYSTEM | \
+							 MSDOS_ATTR_VOLUME_ID | \
+							 MSDOS_ATTR_DIRECTORY | \
+							 MSDOS_ATTR_ARCHIVE)
 
 #define MSDOS_LAST_LONG_ENTRY         0x40
 #define MSDOS_LAST_LONG_ENTRY_MASK    0x3F
@@ -164,62 +164,62 @@ extern "C"
 #define MSDOS_DD_YEAR_SHIFT           9
 
 /*
- * Possible values of DIR_Name[0] field of 32 bytes long FAT Directory Entry
- * Structure
- */
+* Possible values of DIR_Name[0] field of 32 bytes long FAT Directory Entry
+* Structure
+*/
 #define MSDOS_THIS_DIR_ENTRY_EMPTY             0xE5
 #define MSDOS_THIS_DIR_ENTRY_AND_REST_EMPTY    0x00
 
 /*
- * Number of characters per directory entry for a long filename.
- */
+* Number of characters per directory entry for a long filename.
+*/
 #define MSDOS_LFN_LEN_PER_ENTRY (13)
 
 /*
- *  Macros for names parsing and formatting
- */
+*  Macros for names parsing and formatting
+*/
 #define MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR  4
 #define MSDOS_NAME_MIN_UTF8_BYTES_PER_CHAR  1
 
 #define MSDOS_SHORT_BASE_LEN             8	/* 8 characters */
 #define MSDOS_SHORT_EXT_LEN              3	/* 3 characters */
 #define MSDOS_SHORT_NAME_LEN             (MSDOS_SHORT_BASE_LEN+\
-                                          MSDOS_SHORT_EXT_LEN)	/* 11 chars */
+									  MSDOS_SHORT_EXT_LEN)	/* 11 chars */
 #define MSDOS_NAME_MAX_LNF_LEN           (255)
 #define MSDOS_NAME_MAX                   MSDOS_SHORT_NAME_LEN
 #define MSDOS_NAME_MAX_UTF8_SFN_BYTES    (MSDOS_NAME_MAX *\
-                                         MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
+									 MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
 #define MSDOS_NAME_MAX_WITH_DOT          (MSDOS_NAME_MAX + 1)
 #define MSDOS_SFN_MAX_WITH_DOT_UTF8_BYTES (MSDOS_NAME_MAX_WITH_DOT *\
-                                           MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
+									   MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
 #define MSDOS_NAME_MAX_LFN_WITH_DOT      (260)
 
 #define MSDOS_NAME_LFN_BYTES_PER_CHAR    (2)
 #define MSDOS_NAME_MAX_LFN_BYTES         (MSDOS_NAME_MAX_LFN_WITH_DOT *\
-                                          MSDOS_NAME_LFN_BYTES_PER_CHAR)
+									  MSDOS_NAME_LFN_BYTES_PER_CHAR)
 #define MSDOS_NAME_MAX_UTF8_LFN_BYTES    (MSDOS_NAME_MAX_LFN_WITH_DOT *\
-                                          MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
+									  MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
 #define MSDOS_ENTRY_LFN_UTF8_BYTES       (MSDOS_LFN_LEN_PER_ENTRY *\
-                                          MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
+									  MSDOS_NAME_MAX_UTF8_BYTES_PER_CHAR)
 
-	extern const char *const MSDOS_DOT_NAME;	/* ".", padded to MSDOS_NAME chars */
-	extern const char *const MSDOS_DOTDOT_NAME;	/* ".", padded to MSDOS_NAME chars */
+extern const char *const MSDOS_DOT_NAME;	/* ".", padded to MSDOS_NAME chars */
+extern const char *const MSDOS_DOTDOT_NAME;	/* ".", padded to MSDOS_NAME chars */
 
-	typedef enum msdos_name_types_e
-	{
-		MSDOS_NAME_INVALID = 0,	/* Unknown name type. Has invalid characters. */
-		MSDOS_NAME_SHORT,		/* Name can be short. */
-		MSDOS_NAME_LONG			/* Name is long; cannot be short. */
-	} msdos_name_type_t;
+typedef enum msdos_name_types_e
+{
+	MSDOS_NAME_INVALID = 0,	/* Unknown name type. Has invalid characters. */
+	MSDOS_NAME_SHORT,		/* Name can be short. */
+	MSDOS_NAME_LONG			/* Name is long; cannot be short. */
+} msdos_name_type_t;
 
-	typedef enum msdos_token_types_e
-	{
-		MSDOS_NO_MORE_PATH,
-		MSDOS_CURRENT_DIR,
-		MSDOS_UP_DIR,
-		MSDOS_NAME,
-		MSDOS_INVALID_TOKEN
-	} msdos_token_types_t;
+typedef enum msdos_token_types_e
+{
+	MSDOS_NO_MORE_PATH,
+	MSDOS_CURRENT_DIR,
+	MSDOS_UP_DIR,
+	MSDOS_NAME,
+	MSDOS_INVALID_TOKEN
+} msdos_token_types_t;
 
 /* Others macros */
 #define MSDOS_RES_NT_VALUE     0x00
@@ -240,201 +240,201 @@ extern "C"
 #define MSDOS_MAX_FILE_SIZE                0xFFFFFFFF	/* 4 Gb */
 
 /*
- * The number of 32 bytes long FAT Directory Entry
- * Structures per 512 bytes sector
- */
+* The number of 32 bytes long FAT Directory Entry
+* Structures per 512 bytes sector
+*/
 #define MSDOS_DPS512_NUM    16
 
 /**
- *  @brief Shut down the MSDOS filesystem.
- *
- *  MSDOS shut down handler implementation
- */
-	void msdos_shut_down (rtems_filesystem_mount_table_entry_t * temp_mt_entry);
+*  @brief Shut down the MSDOS filesystem.
+*
+*  MSDOS shut down handler implementation
+*/
+void msdos_shut_down (rtems_filesystem_mount_table_entry_t * temp_mt_entry);
 
-	void msdos_eval_path (rtems_filesystem_eval_path_context_t * ctx);
-
-/**
- *  @brief Call the Fat-File close routine.
- *
- *  Free node handler implementation for the filesystem operations table.
- */
-	void msdos_free_node_info (const rtems_filesystem_location_info_t *
-							   pathloc);
+void msdos_eval_path (rtems_filesystem_eval_path_context_t * ctx);
 
 /**
- * @brief Routine for node creation in a MSDOS filesystem.
- *
- * MSDOS Directory Handlers Implementation
- */
-	int msdos_mknod (const rtems_filesystem_location_info_t * loc,
-					 const char *name, size_t namelen, mode_t mode, dev_t dev);
+*  @brief Call the Fat-File close routine.
+*
+*  Free node handler implementation for the filesystem operations table.
+*/
+void msdos_free_node_info (const rtems_filesystem_location_info_t *
+						 pathloc);
 
 /**
- * @brief Remove node from MSDOS directory.
- *
- * MSDOS Directory Handlers Implementation
- */
-	int msdos_rmnod (const rtems_filesystem_location_info_t * parentloc,
-					 const rtems_filesystem_location_info_t * loc);
+* @brief Routine for node creation in a MSDOS filesystem.
+*
+* MSDOS Directory Handlers Implementation
+*/
+int msdos_mknod (const rtems_filesystem_location_info_t * loc,
+				 const char *name, size_t namelen, mode_t mode, dev_t dev);
 
 /**
- * @brief Rename a MSDOS filesystem node.
- *
- * Routine to rename a MSDOS filesystem node
- */
-	int msdos_rename (const rtems_filesystem_location_info_t * old_parent_loc,
-					  const rtems_filesystem_location_info_t * old_loc,
-					  const rtems_filesystem_location_info_t * new_parent_loc,
-					  const char *new_name, size_t new_namelen);
-
-	int msdos_statvfs (const rtems_filesystem_location_info_t * root_loc,
-					   struct statvfs *sb);
-
-	void msdos_lock (const rtems_filesystem_mount_table_entry_t * mt_entry);
-
-	void msdos_unlock (const rtems_filesystem_mount_table_entry_t * mt_entry);
+* @brief Remove node from MSDOS directory.
+*
+* MSDOS Directory Handlers Implementation
+*/
+int msdos_rmnod (const rtems_filesystem_location_info_t * parentloc,
+				 const rtems_filesystem_location_info_t * loc);
 
 /**
- *  @brief MSDOS filesystem initialization routine.
- *
- *  MSDOS Initialization support routine implementation
- */
-	int msdos_initialize_support (rtems_filesystem_mount_table_entry_t *
-								  temp_mt_entry,
-								  const rtems_filesystem_operations_table *
-								  op_table,
-								  const rtems_filesystem_file_handlers_r *
-								  file_handlers,
-								  const rtems_filesystem_file_handlers_r *
-								  directory_handlers,
-								  rtems_dosfs_convert_control * converter);
+* @brief Rename a MSDOS filesystem node.
+*
+* Routine to rename a MSDOS filesystem node
+*/
+int msdos_rename (const rtems_filesystem_location_info_t * old_parent_loc,
+				const rtems_filesystem_location_info_t * old_loc,
+				const rtems_filesystem_location_info_t * new_parent_loc,
+				const char *new_name, size_t new_namelen);
 
-	ssize_t msdos_file_read (rtems_libio_t * iop,	/* IN  */
-							 void *buffer,	/* IN  */
-							 size_t count	/* IN  */
-		);
+int msdos_statvfs (const rtems_filesystem_location_info_t * root_loc,
+				 struct statvfs *sb);
 
-	ssize_t msdos_file_write (rtems_libio_t * iop,	/* IN  */
-							  const void *buffer,	/* IN  */
-							  size_t count	/* IN  */
-		);
+void msdos_lock (const rtems_filesystem_mount_table_entry_t * mt_entry);
 
-	int msdos_file_stat (const rtems_filesystem_location_info_t * loc,
-						 struct stat *buf);
-
-	int msdos_file_ftruncate (rtems_libio_t * iop,	/* IN  */
-							  off_t length	/* IN  */
-		);
-
-	int msdos_file_sync (rtems_libio_t * iop);
-
-	ssize_t msdos_dir_read (rtems_libio_t * iop,	/* IN  */
-							void *buffer,	/* IN  */
-							size_t count	/* IN  */
-		);
-
-	int msdos_dir_sync (rtems_libio_t * iop);
-
-	int msdos_dir_stat (const rtems_filesystem_location_info_t * loc,
-						struct stat *buf);
+void msdos_unlock (const rtems_filesystem_mount_table_entry_t * mt_entry);
 
 /**
- * @brief Implements wake up version of the "signal" operation.
- *
- * Routine to create a new MSDOS filesystem node
- *
- */
-	int msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
-						  fat_file_type_t type,
-						  const char *name,
-						  int name_len,
-						  mode_t mode, const fat_file_fd_t * link_fd);
+*  @brief MSDOS filesystem initialization routine.
+*
+*  MSDOS Initialization support routine implementation
+*/
+int msdos_initialize_support (rtems_filesystem_mount_table_entry_t *
+							temp_mt_entry,
+							const rtems_filesystem_operations_table *
+							op_table,
+							const rtems_filesystem_file_handlers_r *
+							file_handlers,
+							const rtems_filesystem_file_handlers_r *
+							directory_handlers,
+							rtems_dosfs_convert_control * converter);
+
+ssize_t msdos_file_read (rtems_libio_t * iop,	/* IN  */
+						 void *buffer,	/* IN  */
+						 size_t count	/* IN  */
+	);
+
+ssize_t msdos_file_write (rtems_libio_t * iop,	/* IN  */
+						const void *buffer,	/* IN  */
+						size_t count	/* IN  */
+	);
+
+int msdos_file_stat (const rtems_filesystem_location_info_t * loc,
+					 struct stat *buf);
+
+int msdos_file_ftruncate (rtems_libio_t * iop,	/* IN  */
+						off_t length	/* IN  */
+	);
+
+int msdos_file_sync (rtems_libio_t * iop);
+
+ssize_t msdos_dir_read (rtems_libio_t * iop,	/* IN  */
+						void *buffer,	/* IN  */
+						size_t count	/* IN  */
+	);
+
+int msdos_dir_sync (rtems_libio_t * iop);
+
+int msdos_dir_stat (const rtems_filesystem_location_info_t * loc,
+					struct stat *buf);
+
+/**
+* @brief Implements wake up version of the "signal" operation.
+*
+* Routine to create a new MSDOS filesystem node
+*
+*/
+int msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
+					fat_file_type_t type,
+					const char *name,
+					int name_len,
+					mode_t mode, const fat_file_fd_t * link_fd);
 
 /* Misc prototypes */
 
-	int msdos_find_name (rtems_filesystem_location_info_t * parent_loc,
-						 const char *name, int name_len);
+int msdos_find_name (rtems_filesystem_location_info_t * parent_loc,
+					 const char *name, int name_len);
 
-	int msdos_get_name_node (const rtems_filesystem_location_info_t *
-							 parent_loc, bool create_node, const char *name,
-							 int name_len, msdos_name_type_t name_type,
-							 fat_dir_pos_t * dir_pos, char *name_dir_entry);
+int msdos_get_name_node (const rtems_filesystem_location_info_t *
+						 parent_loc, bool create_node, const char *name,
+						 int name_len, msdos_name_type_t name_type,
+						 fat_dir_pos_t * dir_pos, char *name_dir_entry);
 
-	int msdos_dir_info_remove (rtems_filesystem_location_info_t * pathloc);
+int msdos_dir_info_remove (rtems_filesystem_location_info_t * pathloc);
 
-	  ssize_t msdos_format_dirent_with_dot (char *dst, const char *src);
+ssize_t msdos_format_dirent_with_dot (char *dst, const char *src);
 
-	msdos_name_type_t msdos_long_to_short (rtems_dosfs_convert_control *
-										   converter, const char *lfn,
-										   int lfn_len, char *sfn, int sfn_len);
+msdos_name_type_t msdos_long_to_short (rtems_dosfs_convert_control *
+									 converter, const char *lfn,
+									 int lfn_len, char *sfn, int sfn_len);
 
-	  ssize_t
-		msdos_filename_utf8_to_short_name_for_compare
-		(rtems_dosfs_convert_control * converter, const uint8_t * utf8_name,
-		 const size_t utf8_name_size, void *short_name,
-		 const size_t short_name_size);
+ssize_t
+	msdos_filename_utf8_to_short_name_for_compare
+	(rtems_dosfs_convert_control * converter, const uint8_t * utf8_name,
+	 const size_t utf8_name_size, void *short_name,
+	 const size_t short_name_size);
 
-	  ssize_t
-		msdos_filename_utf8_to_short_name_for_save (rtems_dosfs_convert_control
-													* converter,
-													const uint8_t * utf8_name,
-													const size_t utf8_name_size,
-													void *short_name,
-													const size_t
-													short_name_size);
+ssize_t
+	msdos_filename_utf8_to_short_name_for_save (rtems_dosfs_convert_control
+												* converter,
+												const uint8_t * utf8_name,
+												const size_t utf8_name_size,
+												void *short_name,
+												const size_t
+												short_name_size);
 
-	  ssize_t
-		msdos_filename_utf8_to_long_name_for_compare
-		(rtems_dosfs_convert_control * converter, const uint8_t * utf8_name,
-		 const size_t utf8_name_size, uint8_t * long_name,
-		 const size_t long_name_size);
+ssize_t
+	msdos_filename_utf8_to_long_name_for_compare
+	(rtems_dosfs_convert_control * converter, const uint8_t * utf8_name,
+	 const size_t utf8_name_size, uint8_t * long_name,
+	 const size_t long_name_size);
 
-	  ssize_t
-		msdos_filename_utf8_to_long_name_for_save (rtems_dosfs_convert_control *
-												   converter,
-												   const uint8_t * utf8_name,
-												   const size_t utf8_name_size,
-												   uint16_t * long_name,
-												   const size_t long_name_size);
+ssize_t
+	msdos_filename_utf8_to_long_name_for_save (rtems_dosfs_convert_control *
+											 converter,
+											 const uint8_t * utf8_name,
+											 const size_t utf8_name_size,
+											 uint16_t * long_name,
+											 const size_t long_name_size);
 
-	  ssize_t
-		msdos_get_utf16_string_from_long_entry (const char *entry,
-												uint16_t * entry_string_buf,
-												const size_t buf_size,
-												bool is_first_entry);
+ssize_t
+	msdos_get_utf16_string_from_long_entry (const char *entry,
+											uint16_t * entry_string_buf,
+											const size_t buf_size,
+											bool is_first_entry);
 
-	void msdos_date_unix2dos (unsigned int tsp, uint16_t * ddp, uint16_t * dtp);
+void msdos_date_unix2dos (unsigned int tsp, uint16_t * ddp, uint16_t * dtp);
 
-	unsigned int msdos_date_dos2unix (unsigned int dd, unsigned int dt);
+unsigned int msdos_date_dos2unix (unsigned int dd, unsigned int dt);
 
-	int msdos_set_first_char4file_name (rtems_filesystem_mount_table_entry_t *
-										mt_entry, fat_dir_pos_t * dir_pos,
-										unsigned char first_char);
+int msdos_set_first_char4file_name (rtems_filesystem_mount_table_entry_t *
+									mt_entry, fat_dir_pos_t * dir_pos,
+									unsigned char first_char);
 
-	int msdos_dir_is_empty (rtems_filesystem_mount_table_entry_t * mt_entry,
-							fat_file_fd_t * fat_fd, bool * ret_val);
+int msdos_dir_is_empty (rtems_filesystem_mount_table_entry_t * mt_entry,
+						fat_file_fd_t * fat_fd, bool * ret_val);
 
-	int msdos_find_name_in_fat_file (rtems_filesystem_mount_table_entry_t *
-									 mt_entry, fat_file_fd_t * fat_fd,
-									 bool create_node,
-									 const uint8_t * name_utf8, int name_len,
-									 msdos_name_type_t name_type,
-									 fat_dir_pos_t * dir_pos,
-									 char *name_dir_entry);
+int msdos_find_name_in_fat_file (rtems_filesystem_mount_table_entry_t *
+								 mt_entry, fat_file_fd_t * fat_fd,
+								 bool create_node,
+								 const uint8_t * name_utf8, int name_len,
+								 msdos_name_type_t name_type,
+								 fat_dir_pos_t * dir_pos,
+								 char *name_dir_entry);
 
-	int msdos_find_node_by_cluster_num_in_fat_file
-		(rtems_filesystem_mount_table_entry_t * mt_entry,
-		 fat_file_fd_t * fat_fd, uint32_t cl4find, fat_dir_pos_t * dir_pos,
-		 char *dir_entry);
+int msdos_find_node_by_cluster_num_in_fat_file
+	(rtems_filesystem_mount_table_entry_t * mt_entry,
+	 fat_file_fd_t * fat_fd, uint32_t cl4find, fat_dir_pos_t * dir_pos,
+	 char *dir_entry);
 
-	int msdos_get_dotdot_dir_info_cluster_num_and_offset
-		(rtems_filesystem_mount_table_entry_t * mt_entry, uint32_t cln,
-		 fat_dir_pos_t * dir_pos, char *dir_entry);
+int msdos_get_dotdot_dir_info_cluster_num_and_offset
+	(rtems_filesystem_mount_table_entry_t * mt_entry, uint32_t cln,
+	 fat_dir_pos_t * dir_pos, char *dir_entry);
 
-	int msdos_sync (rtems_libio_t * iop);
+int msdos_sync (rtems_libio_t * iop);
 
-	uint8_t msdos_lfn_checksum (const void *entry);
+uint8_t msdos_lfn_checksum (const void *entry);
 
 #ifdef __cplusplus
 }

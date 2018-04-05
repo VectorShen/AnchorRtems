@@ -47,97 +47,97 @@ extern "C"
 #endif
 
 /**
- *  The following instantiates the information control block used to
- *  manage this class of objects.
- */
-	RTEMS_TASKS_EXTERN Objects_Information _RTEMS_tasks_Information;
+*  The following instantiates the information control block used to
+*  manage this class of objects.
+*/
+RTEMS_TASKS_EXTERN Objects_Information _RTEMS_tasks_Information;
 
 /**
- *  @brief RTEMS Task Manager Initialization
- *
- *  This routine initializes all Task Manager related data structures.
- */
-	void _RTEMS_tasks_Manager_initialization (void);
+*  @brief RTEMS Task Manager Initialization
+*
+*  This routine initializes all Task Manager related data structures.
+*/
+void _RTEMS_tasks_Manager_initialization (void);
 
 /**
- *  @brief RTEMS User Task Initialization
- *
- *  This routine creates and starts all configured user
- *  initialization threads.
- */
-	void _RTEMS_tasks_Initialize_user_tasks (void);
+*  @brief RTEMS User Task Initialization
+*
+*  This routine creates and starts all configured user
+*  initialization threads.
+*/
+void _RTEMS_tasks_Initialize_user_tasks (void);
 
 #if !defined(RTEMS_SMP)
 /**
- *  @brief RTEMS Tasks Invoke Task Variable Destructor
- *
- *  @deprecated Task variables are deprecated.
- *
- *  This routine invokes the optional user provided destructor on the
- *  task variable and frees the memory for the task variable.
- */
-	void _RTEMS_Tasks_Invoke_task_variable_dtor (Thread_Control * the_thread,
-												 rtems_task_variable_t *
-												 tvp)
-		RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+*  @brief RTEMS Tasks Invoke Task Variable Destructor
+*
+*  @deprecated Task variables are deprecated.
+*
+*  This routine invokes the optional user provided destructor on the
+*  task variable and frees the memory for the task variable.
+*/
+void _RTEMS_Tasks_Invoke_task_variable_dtor (Thread_Control * the_thread,
+											 rtems_task_variable_t *
+											 tvp)
+	RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 #endif
 
-	RTEMS_INLINE_ROUTINE Thread_Control *_RTEMS_tasks_Allocate (void)
-	{
-		_Objects_Allocator_lock ();
+RTEMS_INLINE_ROUTINE Thread_Control *_RTEMS_tasks_Allocate (void)
+{
+	_Objects_Allocator_lock ();
 
-		_Thread_Kill_zombies ();
+	_Thread_Kill_zombies ();
 
-		return (Thread_Control *)
-			_Objects_Allocate_unprotected (&_RTEMS_tasks_Information);
-	}
-
-/**
- *  @brief Frees a task control block.
- *
- *  This routine frees a task control block to the
- *  inactive chain of free task control blocks.
- */
-	RTEMS_INLINE_ROUTINE void _RTEMS_tasks_Free (Thread_Control * the_task)
-	{
-		_Objects_Free (_Objects_Get_information_id (the_task->Object.id),
-					   &the_task->Object);
-	}
+	return (Thread_Control *)
+		_Objects_Allocate_unprotected (&_RTEMS_tasks_Information);
+}
 
 /**
- *  @brief Converts an RTEMS API priority into a core priority.
- *
- *  This function converts an RTEMS API priority into a core priority.
- */
-	RTEMS_INLINE_ROUTINE Priority_Control
-		_RTEMS_tasks_Priority_to_Core (rtems_task_priority priority)
-	{
-		return (Priority_Control) priority;
-	}
+*  @brief Frees a task control block.
+*
+*  This routine frees a task control block to the
+*  inactive chain of free task control blocks.
+*/
+RTEMS_INLINE_ROUTINE void _RTEMS_tasks_Free (Thread_Control * the_task)
+{
+	_Objects_Free (_Objects_Get_information_id (the_task->Object.id),
+				   &the_task->Object);
+}
 
 /**
- *  @brief Converts a core priority into an RTEMS API priority.
- *
- *  This function converts a core priority into an RTEMS API priority.
- */
-	RTEMS_INLINE_ROUTINE rtems_task_priority
-		_RTEMS_tasks_Priority_from_Core (Priority_Control priority)
-	{
-		return (rtems_task_priority) priority;
-	}
+*  @brief Converts an RTEMS API priority into a core priority.
+*
+*  This function converts an RTEMS API priority into a core priority.
+*/
+RTEMS_INLINE_ROUTINE Priority_Control
+	_RTEMS_tasks_Priority_to_Core (rtems_task_priority priority)
+{
+	return (Priority_Control) priority;
+}
 
 /**
- *  @brief Checks whether the priority is a valid user task.
- *
- *  This function returns TRUE if the_priority is a valid user task priority
- *  and FALSE otherwise.
- */
-	RTEMS_INLINE_ROUTINE bool
-		_RTEMS_tasks_Priority_is_valid (rtems_task_priority the_priority)
-	{
-		return ((the_priority >= RTEMS_MINIMUM_PRIORITY) &&
-				(the_priority <= RTEMS_MAXIMUM_PRIORITY));
-	}
+*  @brief Converts a core priority into an RTEMS API priority.
+*
+*  This function converts a core priority into an RTEMS API priority.
+*/
+RTEMS_INLINE_ROUTINE rtems_task_priority
+	_RTEMS_tasks_Priority_from_Core (Priority_Control priority)
+{
+	return (rtems_task_priority) priority;
+}
+
+/**
+*  @brief Checks whether the priority is a valid user task.
+*
+*  This function returns TRUE if the_priority is a valid user task priority
+*  and FALSE otherwise.
+*/
+RTEMS_INLINE_ROUTINE bool
+	_RTEMS_tasks_Priority_is_valid (rtems_task_priority the_priority)
+{
+	return ((the_priority >= RTEMS_MINIMUM_PRIORITY) &&
+			(the_priority <= RTEMS_MAXIMUM_PRIORITY));
+}
 
 /**@}*/
 

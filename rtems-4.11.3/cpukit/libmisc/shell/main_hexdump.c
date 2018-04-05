@@ -94,33 +94,33 @@ static int rtems_shell_main_hexdump (int argc, char *argv[])
 	if (savp)
 		free (savp);
 	while (fshead)
-	  {
-		  FS *nextfs = fshead->nextfs;
-		  while (fshead->nextfu)
+	{
+		FS *nextfs = fshead->nextfs;
+		while (fshead->nextfu)
+		{
+			FU *nextfu = fshead->nextfu->nextfu;
+			if (fshead->nextfu->fmt)
+				free (fshead->nextfu->fmt);
+			while (fshead->nextfu->nextpr)
 			{
-				FU *nextfu = fshead->nextfu->nextfu;
-				if (fshead->nextfu->fmt)
-					free (fshead->nextfu->fmt);
-				while (fshead->nextfu->nextpr)
-				  {
-					  PR *nextpr = fshead->nextfu->nextpr->nextpr;
-					  if (((fshead->nextfu->nextpr->flags & F_TEXT) == 0) &&
-						  fshead->nextfu->nextpr->fmt)
-						  free (fshead->nextfu->nextpr->fmt);
-					  free (fshead->nextfu->nextpr);
-					  fshead->nextfu->nextpr = nextpr;
-				  }
-				free (fshead->nextfu);
-				fshead->nextfu = nextfu;
+				PR *nextpr = fshead->nextfu->nextpr->nextpr;
+				if (((fshead->nextfu->nextpr->flags & F_TEXT) == 0) &&
+					fshead->nextfu->nextpr->fmt)
+					free (fshead->nextfu->nextpr->fmt);
+				free (fshead->nextfu->nextpr);
+				fshead->nextfu->nextpr = nextpr;
 			}
-		  free (fshead);
-		  fshead = nextfs;
-	  }
+			free (fshead->nextfu);
+			fshead->nextfu = nextfu;
+		}
+		free (fshead);
+		fshead = nextfs;
+	}
 	if (hdstdin)
-	  {
-		  fclose (hdstdin);
-		  free (hdstdin);
-	  }
+	{
+		fclose (hdstdin);
+		free (hdstdin);
+	}
 	return hexdump_globals.exit_code;
 }
 
@@ -140,11 +140,11 @@ int main_hexdump (rtems_shell_hexdump_globals * globals, int argc, char *argv[])
 
 	/* figure out the data block size */
 	for (blocksize = 0, tfs = fshead; tfs; tfs = tfs->nextfs)
-	  {
-		  tfs->bcnt = size (globals, tfs);
-		  if (blocksize < tfs->bcnt)
-			  blocksize = tfs->bcnt;
-	  }
+	{
+		tfs->bcnt = size (globals, tfs);
+		if (blocksize < tfs->bcnt)
+			blocksize = tfs->bcnt;
+	}
 	/* rewrite the rules, do syntax checking */
 	for (tfs = fshead; tfs; tfs = tfs->nextfs)
 		rewrite (globals, tfs);
@@ -155,7 +155,8 @@ int main_hexdump (rtems_shell_hexdump_globals * globals, int argc, char *argv[])
 	return exitval;
 }
 
-rtems_shell_cmd_t rtems_shell_HEXDUMP_Command = {
+rtems_shell_cmd_t rtems_shell_HEXDUMP_Command =
+{
 	"hexdump",					/* name */
 	"hexdump [-bcCdovx] [-e fmt] [-f fmt_file] [-n length]\n"	/* usage */
 		"        [-s skip] [file ...]",

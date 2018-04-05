@@ -68,7 +68,7 @@ void raw_init (void)
  */
 void
 raw_input (struct mbuf *m0, struct sockproto *proto, struct sockaddr *src,
-		   struct sockaddr *dst)
+		 struct sockaddr *dst)
 {
 	register struct rawcb *rp;
 	register struct mbuf *m = m0;
@@ -97,32 +97,32 @@ raw_input (struct mbuf *m0, struct sockproto *proto, struct sockaddr *src,
 		if (rp->rcb_faddr && !equal (rp->rcb_faddr, src))
 			continue;
 		if (last)
-		  {
-			  struct mbuf *n;
-			  n = m_copy (m, 0, (int)M_COPYALL);
-			  if (n)
+		{
+			struct mbuf *n;
+			n = m_copy (m, 0, (int)M_COPYALL);
+			if (n)
+			{
+				if (sbappendaddr (&last->so_rcv, src,
+								n, (struct mbuf *)0) == 0)
+					/* should notify about lost packet */
+					m_freem (n);
+				else
 				{
-					if (sbappendaddr (&last->so_rcv, src,
-									  n, (struct mbuf *)0) == 0)
-						/* should notify about lost packet */
-						m_freem (n);
-					else
-					  {
-						  sorwakeup (last);
-					  }
+					sorwakeup (last);
 				}
-		  }
+			}
+		}
 		last = rp->rcb_socket;
 	}
 	if (last)
-	  {
-		  if (sbappendaddr (&last->so_rcv, src, m, (struct mbuf *)0) == 0)
-			  m_freem (m);
-		  else
-			{
-				sorwakeup (last);
-			}
-	  }
+	{
+		if (sbappendaddr (&last->so_rcv, src, m, (struct mbuf *)0) == 0)
+			m_freem (m);
+		else
+		{
+			sorwakeup (last);
+		}
+	}
 	else
 		m_freem (m);
 }
@@ -146,175 +146,175 @@ raw_usrreq (struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
 	if (req == PRU_CONTROL)
 		return (EOPNOTSUPP);
 	if (control && control->m_len)
-	  {
-		  error = EOPNOTSUPP;
-		  goto release;
-	  }
+	{
+		error = EOPNOTSUPP;
+		goto release;
+	}
 	if (rp == 0)
-	  {
-		  error = EINVAL;
-		  goto release;
-	  }
+	{
+		error = EINVAL;
+		goto release;
+	}
 	switch (req)
-	  {
+	{
 
-			  /*
-			   * Allocate a raw control block and fill in the
-			   * necessary info to allow packets to be routed to
-			   * the appropriate raw interface routine.
-			   */
-		  case PRU_ATTACH:
-			  if ((so->so_state & SS_PRIV) == 0)
-				{
-					error = EACCES;
-					break;
-				}
-			  error = raw_attach (so, (intptr_t) nam);
-			  break;
+			/*
+			 * Allocate a raw control block and fill in the
+			 * necessary info to allow packets to be routed to
+			 * the appropriate raw interface routine.
+			 */
+		case PRU_ATTACH:
+			if ((so->so_state & SS_PRIV) == 0)
+			{
+				error = EACCES;
+				break;
+			}
+			error = raw_attach (so, (intptr_t) nam);
+			break;
 
-			  /*
-			   * Destroy state just before socket deallocation.
-			   * Flush data or not depending on the options.
-			   */
-		  case PRU_DETACH:
-			  if (rp == 0)
-				{
-					error = ENOTCONN;
-					break;
-				}
-			  raw_detach (rp);
-			  break;
+			/*
+			 * Destroy state just before socket deallocation.
+			 * Flush data or not depending on the options.
+			 */
+		case PRU_DETACH:
+			if (rp == 0)
+			{
+				error = ENOTCONN;
+				break;
+			}
+			raw_detach (rp);
+			break;
 
-			  /*
-			   * If a socket isn't bound to a single address,
-			   * the raw input routine will hand it anything
-			   * within that protocol family (assuming there's
-			   * nothing else around it should go to).
-			   */
-		  case PRU_CONNECT:
-			  error = EINVAL;
+			/*
+			 * If a socket isn't bound to a single address,
+			 * the raw input routine will hand it anything
+			 * within that protocol family (assuming there's
+			 * nothing else around it should go to).
+			 */
+		case PRU_CONNECT:
+			error = EINVAL;
 #if 0
-			  if (rp->rcb_faddr)
+			if (rp->rcb_faddr)
+			{
+				error = EISCONN;
+				break;
+			}
+			nam = m_copym (nam, 0, M_COPYALL, M_WAIT);
+			rp->rcb_faddr = mtod (nam, struct sockaddr *);
+			soisconnected (so);
+#endif
+			break;
+
+		case PRU_BIND:
+			error = EINVAL;
+#if 0
+			if (rp->rcb_laddr)
+			{
+				error = EINVAL;	/* XXX */
+				break;
+			}
+			error = raw_bind (so, nam);
+#endif
+			break;
+
+		case PRU_CONNECT2:
+			error = EOPNOTSUPP;
+			goto release;
+
+		case PRU_DISCONNECT:
+			if (rp->rcb_faddr == 0)
+			{
+				error = ENOTCONN;
+				break;
+			}
+			raw_disconnect (rp);
+			soisdisconnected (so);
+			break;
+
+			/*
+			 * Mark the connection as being incapable of further input.
+			 */
+		case PRU_SHUTDOWN:
+			socantsendmore (so);
+			break;
+
+			/*
+			 * Ship a packet out.  The appropriate raw output
+			 * routine handles any massaging necessary.
+			 */
+		case PRU_SEND:
+			if (nam)
+			{
+				if (rp->rcb_faddr)
 				{
 					error = EISCONN;
 					break;
 				}
-			  nam = m_copym (nam, 0, M_COPYALL, M_WAIT);
-			  rp->rcb_faddr = mtod (nam, struct sockaddr *);
-			  soisconnected (so);
-#endif
-			  break;
+				rp->rcb_faddr = mtod (nam, struct sockaddr *);
+			}
+			else if (rp->rcb_faddr == 0)
+			{
+				error = ENOTCONN;
+				break;
+			}
+			error = (*so->so_proto->pr_output) (m, so);
+			m = NULL;
+			if (nam)
+				rp->rcb_faddr = 0;
+			break;
 
-		  case PRU_BIND:
-			  error = EINVAL;
-#if 0
-			  if (rp->rcb_laddr)
-				{
-					error = EINVAL;	/* XXX */
-					break;
-				}
-			  error = raw_bind (so, nam);
-#endif
-			  break;
+		case PRU_ABORT:
+			raw_disconnect (rp);
+			sofree (so);
+			soisdisconnected (so);
+			break;
 
-		  case PRU_CONNECT2:
-			  error = EOPNOTSUPP;
-			  goto release;
+		case PRU_SENSE:
+			/*
+			 * stat: don't bother with a blocksize.
+			 */
+			return (0);
 
-		  case PRU_DISCONNECT:
-			  if (rp->rcb_faddr == 0)
-				{
-					error = ENOTCONN;
-					break;
-				}
-			  raw_disconnect (rp);
-			  soisdisconnected (so);
-			  break;
+			/*
+			 * Not supported.
+			 */
+		case PRU_RCVOOB:
+		case PRU_RCVD:
+			return (EOPNOTSUPP);
 
-			  /*
-			   * Mark the connection as being incapable of further input.
-			   */
-		  case PRU_SHUTDOWN:
-			  socantsendmore (so);
-			  break;
+		case PRU_LISTEN:
+		case PRU_ACCEPT:
+		case PRU_SENDOOB:
+			error = EOPNOTSUPP;
+			break;
 
-			  /*
-			   * Ship a packet out.  The appropriate raw output
-			   * routine handles any massaging necessary.
-			   */
-		  case PRU_SEND:
-			  if (nam)
-				{
-					if (rp->rcb_faddr)
-					  {
-						  error = EISCONN;
-						  break;
-					  }
-					rp->rcb_faddr = mtod (nam, struct sockaddr *);
-				}
-			  else if (rp->rcb_faddr == 0)
-				{
-					error = ENOTCONN;
-					break;
-				}
-			  error = (*so->so_proto->pr_output) (m, so);
-			  m = NULL;
-			  if (nam)
-				  rp->rcb_faddr = 0;
-			  break;
-
-		  case PRU_ABORT:
-			  raw_disconnect (rp);
-			  sofree (so);
-			  soisdisconnected (so);
-			  break;
-
-		  case PRU_SENSE:
-			  /*
-			   * stat: don't bother with a blocksize.
-			   */
-			  return (0);
-
-			  /*
-			   * Not supported.
-			   */
-		  case PRU_RCVOOB:
-		  case PRU_RCVD:
-			  return (EOPNOTSUPP);
-
-		  case PRU_LISTEN:
-		  case PRU_ACCEPT:
-		  case PRU_SENDOOB:
-			  error = EOPNOTSUPP;
-			  break;
-
-		  case PRU_SOCKADDR:
-			  if (rp->rcb_laddr == 0)
-				{
-					error = EINVAL;
-					break;
-				}
-			  len = rp->rcb_laddr->sa_len;
-			  bcopy ((caddr_t) rp->rcb_laddr, mtod (nam, caddr_t),
+		case PRU_SOCKADDR:
+			if (rp->rcb_laddr == 0)
+			{
+				error = EINVAL;
+				break;
+			}
+			len = rp->rcb_laddr->sa_len;
+			bcopy ((caddr_t) rp->rcb_laddr, mtod (nam, caddr_t),
 					 (unsigned)len);
-			  nam->m_len = len;
-			  break;
+			nam->m_len = len;
+			break;
 
-		  case PRU_PEERADDR:
-			  if (rp->rcb_faddr == 0)
-				{
-					error = ENOTCONN;
-					break;
-				}
-			  len = rp->rcb_faddr->sa_len;
-			  bcopy ((caddr_t) rp->rcb_faddr, mtod (nam, caddr_t),
+		case PRU_PEERADDR:
+			if (rp->rcb_faddr == 0)
+			{
+				error = ENOTCONN;
+				break;
+			}
+			len = rp->rcb_faddr->sa_len;
+			bcopy ((caddr_t) rp->rcb_faddr, mtod (nam, caddr_t),
 					 (unsigned)len);
-			  nam->m_len = len;
-			  break;
+			nam->m_len = len;
+			break;
 
-		  default:
-			  panic ("raw_usrreq");
-	  }
+		default:
+			panic ("raw_usrreq");
+	}
   release:
 	if (m != NULL)
 		m_freem (m);

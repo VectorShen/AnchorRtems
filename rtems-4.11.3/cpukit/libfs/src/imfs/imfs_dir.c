@@ -38,15 +38,15 @@ IMFS_jnode_t *IMFS_node_remove_directory (IMFS_jnode_t * node)
 	IMFS_directory_t *dir = (IMFS_directory_t *) node;
 
 	if (!rtems_chain_is_empty (&dir->Entries))
-	  {
-		  errno = ENOTEMPTY;
-		  dir = NULL;
-	  }
+	{
+		errno = ENOTEMPTY;
+		dir = NULL;
+	}
 	else if (IMFS_is_mount_point (dir))
-	  {
-		  errno = EBUSY;
-		  dir = NULL;
-	  }
+	{
+		errno = EBUSY;
+		dir = NULL;
+	}
 
 	return &dir->Node;
 }

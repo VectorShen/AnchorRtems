@@ -91,34 +91,34 @@ void _Thread_Handler (void)
 	 *  user thread entry point using the prototype expected.
 	 */
 	if (executing->Start.prototype == THREAD_START_NUMERIC)
-	  {
-		  executing->Wait.return_argument =
-			  (*(Thread_Entry_numeric) executing->Start.
-			   entry_point) (executing->Start.numeric_argument);
-	  }
+	{
+		executing->Wait.return_argument =
+			(*(Thread_Entry_numeric) executing->Start.
+			 entry_point) (executing->Start.numeric_argument);
+	}
 #if defined(RTEMS_POSIX_API)
 	else if (executing->Start.prototype == THREAD_START_POINTER)
-	  {
-		  executing->Wait.return_argument =
-			  (*(Thread_Entry_pointer) executing->Start.
-			   entry_point) (executing->Start.pointer_argument);
-	  }
+	{
+		executing->Wait.return_argument =
+			(*(Thread_Entry_pointer) executing->Start.
+			 entry_point) (executing->Start.pointer_argument);
+	}
 #endif
 #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
 	else if (executing->Start.prototype == THREAD_START_BOTH_POINTER_FIRST)
-	  {
-		  executing->Wait.return_argument =
-			  (*(Thread_Entry_both_pointer_first) executing->Start.
-			   entry_point) (executing->Start.pointer_argument,
+	{
+		executing->Wait.return_argument =
+			(*(Thread_Entry_both_pointer_first) executing->Start.
+			 entry_point) (executing->Start.pointer_argument,
 							 executing->Start.numeric_argument);
-	  }
+	}
 	else if (executing->Start.prototype == THREAD_START_BOTH_NUMERIC_FIRST)
-	  {
-		  executing->Wait.return_argument =
-			  (*(Thread_Entry_both_numeric_first) executing->Start.
-			   entry_point) (executing->Start.numeric_argument,
+	{
+		executing->Wait.return_argument =
+			(*(Thread_Entry_both_numeric_first) executing->Start.
+			 entry_point) (executing->Start.numeric_argument,
 							 executing->Start.pointer_argument);
-	  }
+	}
 #endif
 
 	/*

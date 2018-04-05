@@ -18,7 +18,7 @@
 #include <rtems/shell.h>
 
 int rtems_shell_make_args (char *commandLine,
-						   int *argc_p, char **argv_p, int max_args)
+						 int *argc_p, char **argv_p, int max_args)
 {
 	int argc;
 	char *ch;
@@ -28,41 +28,41 @@ int rtems_shell_make_args (char *commandLine,
 	ch = commandLine;
 
 	while (*ch)
-	  {
+	{
 
-		  while (isspace ((unsigned char)*ch))
-			  ch++;
+		while (isspace ((unsigned char)*ch))
+			ch++;
 
-		  if (*ch == '\0')
-			  break;
+		if (*ch == '\0')
+			break;
 
-		  if (*ch == '"')
-			{
-				argv_p[argc] = ++ch;
-				while ((*ch != '\0') && (*ch != '"'))
-					ch++;
-			}
-		  else
-			{
-				argv_p[argc] = ch;
-				while ((*ch != '\0') && (!isspace ((unsigned char)*ch)))
-					ch++;
-			}
+		if (*ch == '"')
+		{
+			argv_p[argc] = ++ch;
+			while ((*ch != '\0') && (*ch != '"'))
+				ch++;
+		}
+		else
+		{
+			argv_p[argc] = ch;
+			while ((*ch != '\0') && (!isspace ((unsigned char)*ch)))
+				ch++;
+		}
 
-		  argc++;
+		argc++;
 
-		  if (*ch == '\0')
-			  break;
+		if (*ch == '\0')
+			break;
 
-		  *ch++ = '\0';
+		*ch++ = '\0';
 
-		  if (argc == (max_args - 1))
-			{
-				status = -1;
-				break;
-			}
+		if (argc == (max_args - 1))
+		{
+			status = -1;
+			break;
+		}
 
-	  }
+	}
 	argv_p[argc] = NULL;
 	*argc_p = argc;
 	return status;

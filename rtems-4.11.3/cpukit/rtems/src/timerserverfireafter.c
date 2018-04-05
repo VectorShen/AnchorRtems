@@ -46,46 +46,46 @@ rtems_status_code rtems_timer_server_fire_after (rtems_id id,
 
 	the_timer = _Timer_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Timer_Cancel (the_timer);
+		case OBJECTS_LOCAL:
+			_Timer_Cancel (the_timer);
 
-			  _ISR_Disable (level);
+			_ISR_Disable (level);
 
-			  /*
-			   *  Check to see if the watchdog has just been inserted by a
-			   *  higher priority interrupt.  If so, abandon this insert.
-			   */
+			/*
+			 *  Check to see if the watchdog has just been inserted by a
+			 *  higher priority interrupt.  If so, abandon this insert.
+			 */
 
-			  if (the_timer->Ticker.state != WATCHDOG_INACTIVE)
-				{
-					_ISR_Enable (level);
-					_Objects_Put (&the_timer->Object);
-					return RTEMS_SUCCESSFUL;
-				}
+			if (the_timer->Ticker.state != WATCHDOG_INACTIVE)
+			{
+				_ISR_Enable (level);
+				_Objects_Put (&the_timer->Object);
+				return RTEMS_SUCCESSFUL;
+			}
 
-			  /*
-			   *  OK.  Now we now the timer was not rescheduled by an interrupt
-			   *  so we can atomically initialize it as in use.
-			   */
+			/*
+			 *  OK.  Now we now the timer was not rescheduled by an interrupt
+			 *  so we can atomically initialize it as in use.
+			 */
 
-			  the_timer->the_class = TIMER_INTERVAL_ON_TASK;
-			  _Watchdog_Initialize (&the_timer->Ticker, routine, id, user_data);
-			  the_timer->Ticker.initial = ticks;
-			  _ISR_Enable (level);
+			the_timer->the_class = TIMER_INTERVAL_ON_TASK;
+			_Watchdog_Initialize (&the_timer->Ticker, routine, id, user_data);
+			the_timer->Ticker.initial = ticks;
+			_ISR_Enable (level);
 
-			  (*timer_server->schedule_operation) (timer_server, the_timer);
+			(*timer_server->schedule_operation) (timer_server, the_timer);
 
-			  _Objects_Put (&the_timer->Object);
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Put (&the_timer->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

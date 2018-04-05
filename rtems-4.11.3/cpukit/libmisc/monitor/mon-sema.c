@@ -14,7 +14,7 @@
 
 void
 rtems_monitor_sema_canonical (rtems_monitor_sema_t * canonical_sema,
-							  const void *sema_void)
+							const void *sema_void)
 {
 	const Semaphore_Control *rtems_sema = (const Semaphore_Control *)sema_void;
 
@@ -25,30 +25,30 @@ rtems_monitor_sema_canonical (rtems_monitor_sema_t * canonical_sema,
 	canonical_sema->holder_id = 0;
 
 	if (_Attributes_Is_counting_semaphore (canonical_sema->attribute))
-	  {
-		  /* we have a counting semaphore */
-		  canonical_sema->cur_count = rtems_sema->Core_control.semaphore.count;
+	{
+		/* we have a counting semaphore */
+		canonical_sema->cur_count = rtems_sema->Core_control.semaphore.count;
 
-		  canonical_sema->max_count =
-			  rtems_sema->Core_control.semaphore.Attributes.maximum_count;
-	  }
+		canonical_sema->max_count =
+			rtems_sema->Core_control.semaphore.Attributes.maximum_count;
+	}
 	else
-	  {
-		  /* we have a binary semaphore (mutex) */
-		  Thread_Control *holder = rtems_sema->Core_control.mutex.holder;
+	{
+		/* we have a binary semaphore (mutex) */
+		Thread_Control *holder = rtems_sema->Core_control.mutex.holder;
 
-		  if (holder != NULL)
-			{
-				canonical_sema->holder_id = holder->Object.id;
-				canonical_sema->cur_count = 0;
-			}
-		  else
-			{
-				canonical_sema->cur_count = 1;
-			}
+		if (holder != NULL)
+		{
+			canonical_sema->holder_id = holder->Object.id;
+			canonical_sema->cur_count = 0;
+		}
+		else
+		{
+			canonical_sema->cur_count = 1;
+		}
 
-		  canonical_sema->max_count = 1;	/* mutex is either 0 or 1 */
-	  }
+		canonical_sema->max_count = 1;	/* mutex is either 0 or 1 */
+	}
 }
 
 void rtems_monitor_sema_dump_header (bool verbose __attribute__ ((unused)))

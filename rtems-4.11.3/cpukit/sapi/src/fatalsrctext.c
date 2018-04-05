@@ -26,7 +26,8 @@
 
 #include <rtems/fatal.h>
 
-static const char *const fatal_source_text[] = {
+static const char *const fatal_source_text[] =
+{
 	"INTERNAL_ERROR_CORE",
 	"INTERNAL_ERROR_RTEMS_API",
 	"INTERNAL_ERROR_POSIX_API",
@@ -46,9 +47,9 @@ const char *rtems_fatal_source_text (rtems_fatal_source source)
 	const char *text = "?";
 
 	if (i < RTEMS_ARRAY_SIZE (fatal_source_text))
-	  {
-		  text = fatal_source_text[i];
-	  }
+	{
+		text = fatal_source_text[i];
+	}
 
 	return text;
 }

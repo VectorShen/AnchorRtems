@@ -36,9 +36,9 @@ rtems_status_code rtems_chain_prepend_with_notification (rtems_chain_control *
 	bool was_empty = rtems_chain_prepend_with_empty_check (chain, node);
 
 	if (was_empty)
-	  {
-		  sc = rtems_event_send (task, events);
-	  }
+	{
+		sc = rtems_event_send (task, events);
+	}
 
 	return sc;
 }

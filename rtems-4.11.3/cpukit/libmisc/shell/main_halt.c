@@ -27,7 +27,8 @@ static int rtems_shell_main_shutdown (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_SHUTDOWN_Command = {
+rtems_shell_cmd_t rtems_shell_SHUTDOWN_Command =
+{
 	"shutdown",					/* name */
 	"shutdown",					/* usage */
 	"rtems",					/* topic */

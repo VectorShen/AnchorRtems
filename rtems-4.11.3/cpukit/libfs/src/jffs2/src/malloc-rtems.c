@@ -70,21 +70,21 @@ static struct jffs2_raw_node_ref *jffs2_alloc_refblock (void)
 
 	ret = malloc ((REFS_PER_BLOCK + 1) * sizeof (*ret));
 	if (ret)
-	  {
-		  int i = 0;
-		  for (i = 0; i < REFS_PER_BLOCK; i++)
-			{
-				ret[i].flash_offset = REF_EMPTY_NODE;
-				ret[i].next_in_ino = NULL;
-			}
-		  ret[i].flash_offset = REF_LINK_NODE;
-		  ret[i].next_in_ino = NULL;
-	  }
+	{
+		int i = 0;
+		for (i = 0; i < REFS_PER_BLOCK; i++)
+		{
+			ret[i].flash_offset = REF_EMPTY_NODE;
+			ret[i].next_in_ino = NULL;
+		}
+		ret[i].flash_offset = REF_LINK_NODE;
+		ret[i].next_in_ino = NULL;
+	}
 	return ret;
 }
 
 int jffs2_prealloc_raw_node_refs (struct jffs2_sb_info *c,
-								  struct jffs2_eraseblock *jeb, int nr)
+								struct jffs2_eraseblock *jeb, int nr)
 {
 	struct jffs2_raw_node_ref **p, *ref;
 	int i = nr;
@@ -97,22 +97,22 @@ int jffs2_prealloc_raw_node_refs (struct jffs2_sb_info *c,
 		ref++;
 
 	while (i)
-	  {
-		  if (!ref)
-			{
-				ref = *p = jffs2_alloc_refblock ();
-				if (!ref)
-					return -ENOMEM;
-			}
-		  if (ref->flash_offset == REF_LINK_NODE)
-			{
-				p = &ref->next_in_ino;
-				ref = *p;
-				continue;
-			}
-		  i--;
-		  ref++;
-	  }
+	{
+		if (!ref)
+		{
+			ref = *p = jffs2_alloc_refblock ();
+			if (!ref)
+				return -ENOMEM;
+		}
+		if (ref->flash_offset == REF_LINK_NODE)
+		{
+			p = &ref->next_in_ino;
+			ref = *p;
+			continue;
+		}
+		i--;
+		ref++;
+	}
 	jeb->allocated_refs = nr;
 
 	return 0;

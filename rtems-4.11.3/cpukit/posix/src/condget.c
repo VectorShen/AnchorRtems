@@ -27,29 +27,29 @@ POSIX_Condition_variables_Control
 	int status;
 
 	if (!cond)
-	  {
-		  *location = OBJECTS_ERROR;
-		  return (POSIX_Condition_variables_Control *) 0;
-	  }
+	{
+		*location = OBJECTS_ERROR;
+		return (POSIX_Condition_variables_Control *) 0;
+	}
 
 	if (*cond == PTHREAD_COND_INITIALIZER)
-	  {
-		  /*
-		   *  Do an "auto-create" here.
-		   */
+	{
+		/*
+		 *  Do an "auto-create" here.
+		 */
 
-		  status = pthread_cond_init (cond, 0);
-		  if (status)
-			{
-				*location = OBJECTS_ERROR;
-				return (POSIX_Condition_variables_Control *) 0;
-			}
-	  }
+		status = pthread_cond_init (cond, 0);
+		if (status)
+		{
+			*location = OBJECTS_ERROR;
+			return (POSIX_Condition_variables_Control *) 0;
+		}
+	}
 
 	/*
 	 *  Now call Objects_Get()
 	 */
 	return (POSIX_Condition_variables_Control *)
 		_Objects_Get (&_POSIX_Condition_variables_Information,
-					  (Objects_Id) * cond, location);
+					(Objects_Id) * cond, location);
 }

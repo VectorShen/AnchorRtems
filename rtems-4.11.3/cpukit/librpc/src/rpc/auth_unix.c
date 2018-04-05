@@ -70,7 +70,8 @@ static int authunix_validate (AUTH *, struct opaque_auth *);
 static int authunix_refresh (AUTH *);
 static void authunix_destroy (AUTH *);
 
-static struct auth_ops auth_unix_ops = {
+static struct auth_ops auth_unix_ops =
+{
 	authunix_nextverf,
 	authunix_marshal,
 	authunix_validate,
@@ -124,18 +125,18 @@ AUTH *authunix_create (char *machname, int uid, int gid, int len, int *aup_gids)
 	auth = (AUTH *) mem_alloc (sizeof (*auth));
 #ifndef _KERNEL
 	if (auth == NULL)
-	  {
-		  (void)fprintf (stderr, "authunix_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "authunix_create: out of memory\n");
+		return (NULL);
+	}
 #endif
 	au = (struct audata *)mem_alloc (sizeof (*au));
 #ifndef _KERNEL
 	if (au == NULL)
-	  {
-		  (void)fprintf (stderr, "authunix_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "authunix_create: out of memory\n");
+		return (NULL);
+	}
 #endif
 	auth->ah_ops = &auth_unix_ops;
 	auth->ah_private = (caddr_t) au;
@@ -152,14 +153,14 @@ AUTH *authunix_create (char *machname, int uid, int gid, int len, int *aup_gids)
 	aup.aup_gid = gid;
 	/* GW: continuation of max group list hack */
 	if (authunix_maxgrouplist != 0)
-	  {
-		  aup.aup_len = ((len < authunix_maxgrouplist) ? len
+	{
+		aup.aup_len = ((len < authunix_maxgrouplist) ? len
 						 : authunix_maxgrouplist);
-	  }
+	}
 	else
-	  {
-		  aup.aup_len = (u_int) len;
-	  }
+	{
+		aup.aup_len = (u_int) len;
+	}
 	aup.aup_gids = aup_gids;
 
 	/*
@@ -174,10 +175,10 @@ AUTH *authunix_create (char *machname, int uid, int gid, int len, int *aup_gids)
 	au->au_origcred.oa_base = mem_alloc ((u_int) len);
 #else
 	if ((au->au_origcred.oa_base = mem_alloc ((u_int) len)) == NULL)
-	  {
-		  (void)fprintf (stderr, "authunix_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "authunix_create: out of memory\n");
+		return (NULL);
+	}
 #endif
 	memcpy (au->au_origcred.oa_base, mymem, (u_int) len);
 
@@ -213,9 +214,9 @@ AUTH *authunix_create_default (void)
 	if (len > NGRPS)
 		len = NGRPS;			/* GW: turn `gid_t's into `int's */
 	for (i = 0; i < len; i++)
-	  {
-		  gids[i] = (int)real_gids[i];
-	  }
+	{
+		gids[i] = (int)real_gids[i];
+	}
 	return (authunix_create (machname, uid, gid, len, gids));
 }
 
@@ -241,28 +242,28 @@ static int authunix_validate (AUTH * auth, struct opaque_auth *verf)
 	XDR xdrs;
 
 	if (verf->oa_flavor == AUTH_SHORT)
-	  {
-		  au = AUTH_PRIVATE (auth);
-		  xdrmem_create (&xdrs, verf->oa_base, verf->oa_length, XDR_DECODE);
+	{
+		au = AUTH_PRIVATE (auth);
+		xdrmem_create (&xdrs, verf->oa_base, verf->oa_length, XDR_DECODE);
 
-		  if (au->au_shcred.oa_base != NULL)
-			{
-				mem_free (au->au_shcred.oa_base, au->au_shcred.oa_length);
-				au->au_shcred.oa_base = NULL;
-			}
-		  if (xdr_opaque_auth (&xdrs, &au->au_shcred))
-			{
-				auth->ah_cred = au->au_shcred;
-			}
-		  else
-			{
-				xdrs.x_op = XDR_FREE;
-				(void)xdr_opaque_auth (&xdrs, &au->au_shcred);
-				au->au_shcred.oa_base = NULL;
-				auth->ah_cred = au->au_origcred;
-			}
-		  marshal_new_auth (auth);
-	  }
+		if (au->au_shcred.oa_base != NULL)
+		{
+			mem_free (au->au_shcred.oa_base, au->au_shcred.oa_length);
+			au->au_shcred.oa_base = NULL;
+		}
+		if (xdr_opaque_auth (&xdrs, &au->au_shcred))
+		{
+			auth->ah_cred = au->au_shcred;
+		}
+		else
+		{
+			xdrs.x_op = XDR_FREE;
+			(void)xdr_opaque_auth (&xdrs, &au->au_shcred);
+			au->au_shcred.oa_base = NULL;
+			auth->ah_cred = au->au_origcred;
+		}
+		marshal_new_auth (auth);
+	}
 	return (TRUE);
 }
 
@@ -275,17 +276,17 @@ static int authunix_refresh (AUTH * auth)
 	int stat;
 
 	if (auth->ah_cred.oa_base == au->au_origcred.oa_base)
-	  {
-		  /* there is no hope.  Punt */
-		  return (FALSE);
-	  }
+	{
+		/* there is no hope.  Punt */
+		return (FALSE);
+	}
 	au->au_shfaults++;
 
 	/* first deserialize the creds back into a struct authunix_parms */
 	aup.aup_machname = NULL;
 	aup.aup_gids = (int *)NULL;
 	xdrmem_create (&xdrs, au->au_origcred.oa_base,
-				   au->au_origcred.oa_length, XDR_DECODE);
+				 au->au_origcred.oa_length, XDR_DECODE);
 	stat = xdr_authunix_parms (&xdrs, &aup);
 	if (!stat)
 		goto done;
@@ -338,12 +339,12 @@ static void marshal_new_auth (AUTH * auth)
 	xdrmem_create (xdrs, au->au_marshed, MAX_AUTH_BYTES, XDR_ENCODE);
 	if ((!xdr_opaque_auth (xdrs, &(auth->ah_cred))) ||
 		(!xdr_opaque_auth (xdrs, &(auth->ah_verf))))
-	  {
-		  perror ("auth_none.c - Fatal marshalling problem");
-	  }
+	{
+		perror ("auth_none.c - Fatal marshalling problem");
+	}
 	else
-	  {
-		  au->au_mpos = XDR_GETPOS (xdrs);
-	  }
+	{
+		au->au_mpos = XDR_GETPOS (xdrs);
+	}
 	XDR_DESTROY (xdrs);
 }

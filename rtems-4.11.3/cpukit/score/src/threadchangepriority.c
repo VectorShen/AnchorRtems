@@ -23,10 +23,10 @@
 #include <rtems/score/schedulerimpl.h>
 
 void _Thread_Change_priority (Thread_Control * the_thread,
-							  Priority_Control new_priority,
-							  void *arg,
-							  Thread_Change_priority_filter filter,
-							  bool prepend_it)
+							Priority_Control new_priority,
+							void *arg,
+							Thread_Change_priority_filter filter,
+							bool prepend_it)
 {
 	ISR_lock_Context lock_context;
 	ISR_lock_Control *lock;
@@ -48,49 +48,49 @@ void _Thread_Change_priority (Thread_Control * the_thread,
 	 *  we are not REALLY changing priority.
 	 */
 	if ((*filter) (the_thread, &new_priority, arg))
-	  {
-		  uint32_t my_generation;
+	{
+		uint32_t my_generation;
 
-		  my_generation = the_thread->priority_generation + 1;
-		  the_thread->current_priority = new_priority;
-		  the_thread->priority_generation = my_generation;
+		my_generation = the_thread->priority_generation + 1;
+		the_thread->current_priority = new_priority;
+		the_thread->priority_generation = my_generation;
 
-		  (*the_thread->Wait.operations->priority_change) (the_thread,
-														   new_priority,
-														   the_thread->Wait.
-														   queue);
+		(*the_thread->Wait.operations->priority_change) (the_thread,
+														 new_priority,
+														 the_thread->Wait.
+														 queue);
 
-		  _Thread_Lock_release (lock, &lock_context);
+		_Thread_Lock_release (lock, &lock_context);
 
-		  _Scheduler_Acquire (the_thread, &lock_context);
+		_Scheduler_Acquire (the_thread, &lock_context);
 
-		  if (the_thread->priority_generation == my_generation)
+		if (the_thread->priority_generation == my_generation)
+		{
+			if (_States_Is_ready (the_thread->current_state))
 			{
-				if (_States_Is_ready (the_thread->current_state))
-				  {
-					  _Scheduler_Change_priority (the_thread,
-												  new_priority, prepend_it);
-				  }
-				else
-				  {
-					  _Scheduler_Update_priority (the_thread, new_priority);
-				  }
+				_Scheduler_Change_priority (the_thread,
+											new_priority, prepend_it);
 			}
+			else
+			{
+				_Scheduler_Update_priority (the_thread, new_priority);
+			}
+		}
 
-		  _Scheduler_Release (the_thread, &lock_context);
-	  }
+		_Scheduler_Release (the_thread, &lock_context);
+	}
 	else
-	  {
-		  _Thread_Lock_release (lock, &lock_context);
-	  }
+	{
+		_Thread_Lock_release (lock, &lock_context);
+	}
 }
 
 static bool _Thread_Raise_priority_filter (Thread_Control * the_thread,
-										   Priority_Control * new_priority,
-										   void *arg)
+										 Priority_Control * new_priority,
+										 void *arg)
 {
 	return _Thread_Priority_less_than (the_thread->current_priority,
-									   *new_priority);
+									 *new_priority);
 }
 
 void _Thread_Raise_priority (Thread_Control * the_thread,

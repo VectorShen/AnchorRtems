@@ -84,10 +84,10 @@ static struct rpcdata *_rpcdata (void)
 	register struct rpcdata *d = rpcdata;
 
 	if (d == 0)
-	  {
-		  d = (struct rpcdata *)calloc (1, sizeof (struct rpcdata));
-		  rpcdata = d;
-	  }
+	{
+		d = (struct rpcdata *)calloc (1, sizeof (struct rpcdata));
+		rpcdata = d;
+	}
 	return (d);
 }
 
@@ -104,35 +104,35 @@ struct rpcent *getrpcbynumber (int number)
 		return (0);
 #ifdef	YP
 	if (!__yp_nomap && _yp_check (&d->domain))
-	  {
-		  sprintf (adrstr, "%d", number);
-		  reason = yp_match (d->domain, "rpc.bynumber", adrstr, strlen (adrstr),
+	{
+		sprintf (adrstr, "%d", number);
+		reason = yp_match (d->domain, "rpc.bynumber", adrstr, strlen (adrstr),
 							 &d->current, &d->currentlen);
-		  switch (reason)
-			{
-				case 0:
-					break;
-				case YPERR_MAP:
-					__yp_nomap = 1;
-					goto no_yp;
-					break;
-				default:
-					return (0);
-					break;
-			}
-		  d->current[d->currentlen] = '\0';
-		  p = interpret (d->current, d->currentlen);
-		  (void)free (d->current);
-		  return p;
-	  }
+		switch (reason)
+		{
+			case 0:
+				break;
+			case YPERR_MAP:
+				__yp_nomap = 1;
+				goto no_yp;
+				break;
+			default:
+				return (0);
+				break;
+		}
+		d->current[d->currentlen] = '\0';
+		p = interpret (d->current, d->currentlen);
+		(void)free (d->current);
+		return p;
+	}
   no_yp:
 #endif /* YP */
 	setrpcent (0);
 	while ((p = getrpcent ()))
-	  {
-		  if (p->r_number == number)
-			  break;
-	  }
+	{
+		if (p->r_number == number)
+			break;
+	}
 	endrpcent ();
 	return (p);
 }
@@ -144,15 +144,15 @@ struct rpcent *getrpcbyname (char *name)
 
 	setrpcent (0);
 	while ((rpc = getrpcent ()))
-	  {
-		  if (strcmp (rpc->r_name, name) == 0)
-			  goto done;
-		  for (rp = rpc->r_aliases; *rp != NULL; rp++)
-			{
-				if (strcmp (*rp, name) == 0)
-					goto done;
-			}
-	  }
+	{
+		if (strcmp (rpc->r_name, name) == 0)
+			goto done;
+		for (rp = rpc->r_aliases; *rp != NULL; rp++)
+		{
+			if (strcmp (*rp, name) == 0)
+				goto done;
+		}
+	}
   done:
 	endrpcent ();
 	return (rpc);
@@ -166,13 +166,13 @@ void setrpcent (int f)
 		return;
 #ifdef	YP
 	if (!__yp_nomap && _yp_check (NULL))
-	  {
-		  if (d->current)
-			  free (d->current);
-		  d->current = NULL;
-		  d->currentlen = 0;
-		  return;
-	  }
+	{
+		if (d->current)
+			free (d->current);
+		d->current = NULL;
+		d->currentlen = 0;
+		return;
+	}
 	__yp_nomap = 0;
 #endif /* YP */
 	if (d->rpcf == NULL)
@@ -190,20 +190,20 @@ void endrpcent (void)
 		return;
 #ifdef	YP
 	if (!__yp_nomap && _yp_check (NULL))
-	  {
-		  if (d->current && !d->stayopen)
-			  free (d->current);
-		  d->current = NULL;
-		  d->currentlen = 0;
-		  return;
-	  }
+	{
+		if (d->current && !d->stayopen)
+			free (d->current);
+		d->current = NULL;
+		d->currentlen = 0;
+		return;
+	}
 	__yp_nomap = 0;
 #endif /* YP */
 	if (d->rpcf && !d->stayopen)
-	  {
-		  fclose (d->rpcf);
-		  d->rpcf = NULL;
-	  }
+	{
+		fclose (d->rpcf);
+		d->rpcf = NULL;
+	}
 }
 
 struct rpcent *getrpcent (void)
@@ -220,35 +220,35 @@ struct rpcent *getrpcent (void)
 		return (NULL);
 #ifdef	YP
 	if (!__yp_nomap && _yp_check (&d->domain))
-	  {
-		  if (d->current == NULL && d->currentlen == 0)
-			{
-				reason = yp_first (d->domain, "rpc.bynumber",
-								   &d->current, &d->currentlen, &val, &vallen);
-			}
-		  else
-			{
-				reason = yp_next (d->domain, "rpc.bynumber",
-								  d->current, d->currentlen,
-								  &d->current, &d->currentlen, &val, &vallen);
-			}
-		  switch (reason)
-			{
-				case 0:
-					break;
-				case YPERR_MAP:
-					__yp_nomap = 1;
-					goto no_yp;
-					break;
-				default:
-					return (0);
-					break;
-			}
-		  val[vallen] = '\0';
-		  hp = interpret (val, vallen);
-		  (void)free (val);
-		  return hp;
-	  }
+	{
+		if (d->current == NULL && d->currentlen == 0)
+		{
+			reason = yp_first (d->domain, "rpc.bynumber",
+							 &d->current, &d->currentlen, &val, &vallen);
+		}
+		else
+		{
+			reason = yp_next (d->domain, "rpc.bynumber",
+							d->current, d->currentlen,
+							&d->current, &d->currentlen, &val, &vallen);
+		}
+		switch (reason)
+		{
+			case 0:
+				break;
+			case YPERR_MAP:
+				__yp_nomap = 1;
+				goto no_yp;
+				break;
+			default:
+				return (0);
+				break;
+		}
+		val[vallen] = '\0';
+		hp = interpret (val, vallen);
+		(void)free (val);
+		return hp;
+	}
   no_yp:
 #endif /* YP */
 	if (d->rpcf == NULL && (d->rpcf = fopen (RPCDB, "r")) == NULL)
@@ -291,18 +291,18 @@ static struct rpcent *interpret (char *val, int len)
 	if (cp != NULL)
 		*cp++ = '\0';
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &(d->rpc_aliases[MAXALIASES - 1]))
-			  *q++ = cp;
-		  cp = strpbrk (cp, " \t");
-		  if (cp != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &(d->rpc_aliases[MAXALIASES - 1]))
+			*q++ = cp;
+		cp = strpbrk (cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	return (&d->rpc);
 }

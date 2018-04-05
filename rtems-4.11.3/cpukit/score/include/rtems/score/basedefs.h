@@ -30,41 +30,41 @@
 #include <rtems/score/cpuopts.h>
 
 #ifndef ASM
-  #include <stddef.h>
-  #include <stdbool.h>
-  #include <stdint.h>
+	#include <stddef.h>
+	#include <stdbool.h>
+	#include <stdint.h>
 
-  /*
-   * FIXME: This include should not be present.  In older RTEMS versions
-   * <rtems.h> provided <limits.h> indirectly.  This include is here to not
-   * break application source files that relied on this accidentally.
-   */
-  #include <limits.h>
+	/*
+	* FIXME: This include should not be present.  In older RTEMS versions
+	* <rtems.h> provided <limits.h> indirectly.  This include is here to not
+	* break application source files that relied on this accidentally.
+	*/
+	#include <limits.h>
 
-  /*
-   * FIXME: This include should not be present.  In older RTEMS versions
-   * <rtems.h> provided <string.h> indirectly.  This include is here to not
-   * break application source files that relied on this accidentally.
-   */
-  #include <string.h>
+	/*
+	* FIXME: This include should not be present.  In older RTEMS versions
+	* <rtems.h> provided <string.h> indirectly.  This include is here to not
+	* break application source files that relied on this accidentally.
+	*/
+	#include <string.h>
 #endif
 
 #ifndef TRUE
-  /**
-   *  This ensures that RTEMS has TRUE defined in all situations.
-   */
-  #define TRUE 1
+	/**
+	*  This ensures that RTEMS has TRUE defined in all situations.
+	*/
+	#define TRUE 1
 #endif
 
 #ifndef FALSE
-  /**
-   *  This ensures that RTEMS has FALSE defined in all situations.
-   */
-  #define FALSE 0
+	/**
+	*  This ensures that RTEMS has FALSE defined in all situations.
+	*/
+	#define FALSE 0
 #endif
 
 #if TRUE == FALSE
-  #error "TRUE equals FALSE"
+	#error "TRUE equals FALSE"
 #endif
 
 /**
@@ -74,11 +74,11 @@
  *  referenced as "external" in every other file.
  */
 #ifdef SCORE_INIT
-  #undef  SCORE_EXTERN
-  #define SCORE_EXTERN
+	#undef  SCORE_EXTERN
+	#define SCORE_EXTERN
 #else
-  #undef  SCORE_EXTERN
-  #define SCORE_EXTERN  extern
+	#undef  SCORE_EXTERN
+	#define SCORE_EXTERN  extern
 #endif
 
 /**
@@ -88,11 +88,11 @@
  *  referenced as "external" in every other file.
  */
 #ifdef SAPI_INIT
-  #undef  SAPI_EXTERN
-  #define SAPI_EXTERN
+	#undef  SAPI_EXTERN
+	#define SAPI_EXTERN
 #else
-  #undef  SAPI_EXTERN
-  #define SAPI_EXTERN  extern
+	#undef  SAPI_EXTERN
+	#define SAPI_EXTERN  extern
 #endif
 
 /**
@@ -102,11 +102,11 @@
  *  referenced as "external" in every other file.
  */
 #ifdef RTEMS_API_INIT
-  #undef  RTEMS_EXTERN
-  #define RTEMS_EXTERN
+	#undef  RTEMS_EXTERN
+	#define RTEMS_EXTERN
 #else
-  #undef  RTEMS_EXTERN
-  #define RTEMS_EXTERN  extern
+	#undef  RTEMS_EXTERN
+	#define RTEMS_EXTERN  extern
 #endif
 
 /**
@@ -116,11 +116,11 @@
  *  referenced as "external" in every other file.
  */
 #ifdef POSIX_API_INIT
-  #undef  POSIX_EXTERN
-  #define POSIX_EXTERN
+	#undef  POSIX_EXTERN
+	#define POSIX_EXTERN
 #else
-  #undef  POSIX_EXTERN
-  #define POSIX_EXTERN  extern
+	#undef  POSIX_EXTERN
+	#define POSIX_EXTERN  extern
 #endif
 
 /**
@@ -130,9 +130,9 @@
  *  type checking with no cost in code size or execution speed.
  */
 #ifdef __GNUC__
-  #define RTEMS_INLINE_ROUTINE static __inline__
+	#define RTEMS_INLINE_ROUTINE static __inline__
 #else
-  #define RTEMS_INLINE_ROUTINE static inline
+	#define RTEMS_INLINE_ROUTINE static inline
 #endif
 
 /**
@@ -141,9 +141,9 @@
  *  impact interrupt disable and thread dispatching critical sections.
  */
 #ifdef __GNUC__
-  #define RTEMS_COMPILER_MEMORY_BARRIER() __asm__ volatile("" ::: "memory")
+	#define RTEMS_COMPILER_MEMORY_BARRIER() __asm__ volatile("" ::: "memory")
 #else
-  #define RTEMS_COMPILER_MEMORY_BARRIER()
+	#define RTEMS_COMPILER_MEMORY_BARRIER()
 #endif
 
 /**
@@ -154,12 +154,12 @@
  *  rtems_fatal_error_occurred and _Terminate.
  */
 #if defined(RTEMS_SCHEDSIM)
-  #define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE
+	#define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE
 #elif defined(__GNUC__)
-  #define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE \
-      __attribute__ ((noreturn))
+	#define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE \
+		__attribute__ ((noreturn))
 #else
-  #define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE
+	#define RTEMS_COMPILER_NO_RETURN_ATTRIBUTE
 #endif
 
 /**
@@ -169,10 +169,10 @@
  *  variables.
  */
 #ifdef __GNUC__
-  #define RTEMS_COMPILER_PURE_ATTRIBUTE \
-     __attribute__ ((pure))
+	#define RTEMS_COMPILER_PURE_ATTRIBUTE \
+		__attribute__ ((pure))
 #else
-  #define RTEMS_COMPILER_PURE_ATTRIBUTE
+	#define RTEMS_COMPILER_PURE_ATTRIBUTE
 #endif
 
 /**

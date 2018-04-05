@@ -38,12 +38,12 @@ void _Chain_Initialize (Chain_Control * the_chain,
 	head->previous = NULL;
 
 	while (count--)
-	  {
-		  current->next = next;
-		  next->previous = current;
-		  current = next;
-		  next = (Chain_Node *) _Addresses_Add_offset ((void *)next, node_size);
-	  }
+	{
+		current->next = next;
+		next->previous = current;
+		current = next;
+		next = (Chain_Node *) _Addresses_Add_offset ((void *)next, node_size);
+	}
 
 	current->next = tail;
 	tail->previous = current;

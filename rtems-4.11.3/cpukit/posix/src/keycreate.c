@@ -38,10 +38,10 @@ int pthread_key_create (pthread_key_t * key, void (*destructor) (void *))
 	the_key = _POSIX_Keys_Allocate ();
 
 	if (!the_key)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	the_key->destructor = destructor;
 	_Objects_Open_u32 (&_POSIX_Keys_Information, &the_key->Object, 0);

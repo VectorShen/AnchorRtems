@@ -37,8 +37,8 @@
 extern void PARAMETERS_PASSING_S (int num_signal, const struct sigaction inf);
 
 int sigaction (int sig,
-			   const struct sigaction *__restrict act,
-			   struct sigaction *__restrict oact)
+			 const struct sigaction *__restrict act,
+			 struct sigaction *__restrict oact)
 {
 	ISR_Level level;
 
@@ -69,26 +69,26 @@ int sigaction (int sig,
 	 */
 
 	if (act)
-	  {
+	{
 
-		  /*
-		   *  Unless the user is installing the default signal actions, then
-		   *  we can just copy the provided sigaction structure into the vectors.
-		   */
+		/*
+		 *  Unless the user is installing the default signal actions, then
+		 *  we can just copy the provided sigaction structure into the vectors.
+		 */
 
-		  _ISR_Disable (level);
-		  if (act->sa_handler == SIG_DFL)
-			{
-				_POSIX_signals_Vectors[sig] =
-					_POSIX_signals_Default_vectors[sig];
-			}
-		  else
-			{
-				_POSIX_signals_Clear_process_signals (sig);
-				_POSIX_signals_Vectors[sig] = *act;
-			}
-		  _ISR_Enable (level);
-	  }
+		_ISR_Disable (level);
+		if (act->sa_handler == SIG_DFL)
+		{
+			_POSIX_signals_Vectors[sig] =
+				_POSIX_signals_Default_vectors[sig];
+		}
+		else
+		{
+			_POSIX_signals_Clear_process_signals (sig);
+			_POSIX_signals_Vectors[sig] = *act;
+		}
+		_ISR_Enable (level);
+	}
 
 	_Thread_Enable_dispatch ();
 

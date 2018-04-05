@@ -31,10 +31,10 @@
 #include <rtems/rtems/support.h>
 
 rtems_status_code rtems_message_queue_receive (rtems_id id,
-											   void *buffer,
-											   size_t * size,
-											   rtems_option option_set,
-											   rtems_interval timeout)
+											 void *buffer,
+											 size_t * size,
+											 rtems_option option_set,
+											 rtems_interval timeout)
 {
 	Message_queue_Control *the_message_queue;
 	Objects_Locations location;
@@ -49,38 +49,38 @@ rtems_status_code rtems_message_queue_receive (rtems_id id,
 		return RTEMS_INVALID_ADDRESS;
 
 	the_message_queue = _Message_queue_Get_interrupt_disable (id,
-															  &location,
-															  &lock_context);
+															&location,
+															&lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  if (_Options_Is_no_wait (option_set))
-				  wait = false;
-			  else
-				  wait = true;
+		case OBJECTS_LOCAL:
+			if (_Options_Is_no_wait (option_set))
+				wait = false;
+			else
+				wait = true;
 
-			  executing = _Thread_Executing;
-			  _CORE_message_queue_Seize (&the_message_queue->message_queue,
+			executing = _Thread_Executing;
+			_CORE_message_queue_Seize (&the_message_queue->message_queue,
 										 executing,
 										 the_message_queue->Object.id,
 										 buffer,
 										 size, wait, timeout, &lock_context);
-			  return
-				  _Message_queue_Translate_core_message_queue_return_code
-				  (executing->Wait.return_code);
+			return
+				_Message_queue_Translate_core_message_queue_return_code
+				(executing->Wait.return_code);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  return
-				  _Message_queue_MP_Send_request_packet
-				  (MESSAGE_QUEUE_MP_RECEIVE_REQUEST, id, buffer, size,
-				   option_set, timeout);
+		case OBJECTS_REMOTE:
+			return
+				_Message_queue_MP_Send_request_packet
+				(MESSAGE_QUEUE_MP_RECEIVE_REQUEST, id, buffer, size,
+				 option_set, timeout);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

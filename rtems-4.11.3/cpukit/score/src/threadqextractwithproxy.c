@@ -35,16 +35,16 @@ void _Thread_queue_Extract_with_proxy (Thread_Control * the_thread)
 	state = the_thread->current_state;
 	if (_States_Is_waiting_for_rpc_reply (state) &&
 		_States_Is_locally_blocked (state))
-	  {
-		  Objects_Information *the_information;
-		  Objects_Thread_queue_Extract_callout proxy_extract_callout;
+	{
+		Objects_Information *the_information;
+		Objects_Thread_queue_Extract_callout proxy_extract_callout;
 
-		  the_information = _Objects_Get_information_id (the_thread->Wait.id);
-		  proxy_extract_callout = the_information->extract;
+		the_information = _Objects_Get_information_id (the_thread->Wait.id);
+		proxy_extract_callout = the_information->extract;
 
-		  if (proxy_extract_callout != NULL)
-			  (*proxy_extract_callout) (the_thread);
-	  }
+		if (proxy_extract_callout != NULL)
+			(*proxy_extract_callout) (the_thread);
+	}
 #endif
 
 	_Thread_queue_Extract (the_thread);

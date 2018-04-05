@@ -27,30 +27,30 @@ extern "C"
 {
 #endif
 
-	typedef struct
-	{
-		uint32_t baudrate;		/* debug baud rate, e.g. 57600            */
-		void (*callout) (void);	/* callout pointer during polling         */
-		const char *devname;	/* debug device, e.g. "/dev/tty01"        */
-	} termios_printk_conf_t;
+typedef struct
+{
+	uint32_t baudrate;		/* debug baud rate, e.g. 57600            */
+	void (*callout) (void);	/* callout pointer during polling         */
+	const char *devname;	/* debug device, e.g. "/dev/tty01"        */
+} termios_printk_conf_t;
 
 /*
- * must be defined in init module...
- */
-	extern termios_printk_conf_t termios_printk_conf;
+* must be defined in init module...
+*/
+extern termios_printk_conf_t termios_printk_conf;
 
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	void termios_printk_outputchar
+void termios_printk_outputchar
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |    send one character to serial port                                      |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-	  (char c					/* character to print */
-		);
+  (char c					/* character to print */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    <none>                                                                 |
@@ -59,15 +59,15 @@ extern "C"
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	int termios_printk_inputchar
+int termios_printk_inputchar
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |    wait for one character from serial port                                |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-	  (void						/* none */
-		);
+  (void						/* none */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    received character                                                     |
@@ -76,16 +76,16 @@ extern "C"
 /*=========================================================================*\
 | Function:                                                                 |
 \*-------------------------------------------------------------------------*/
-	int termios_printk_open
+int termios_printk_open
 /*-------------------------------------------------------------------------*\
 | Purpose:                                                                  |
 |    try to open given serial debug port                                    |
 +---------------------------------------------------------------------------+
 | Input Parameters:                                                         |
 \*-------------------------------------------------------------------------*/
-	  (const char *dev_name,	/* name of device to open */
-	   uint32_t baudrate		/* baud rate to use       */
-		);
+  (const char *dev_name,	/* name of device to open */
+   uint32_t baudrate		/* baud rate to use       */
+	);
 /*-------------------------------------------------------------------------*\
 | Return Value:                                                             |
 |    0 on success, -1 and errno otherwise                                   |

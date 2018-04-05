@@ -34,9 +34,9 @@ void _Thread_Yield (Thread_Control * executing)
 	_Scheduler_Acquire (executing, &lock_context);
 
 	if (_States_Is_ready (executing->current_state))
-	  {
-		  _Scheduler_Yield (executing);
-	  }
+	{
+		_Scheduler_Yield (executing);
+	}
 
 	_Scheduler_Release (executing, &lock_context);
 }

@@ -62,11 +62,12 @@ typedef struct Chain_Node_struct Chain_Node;
  *        so the user can cast the pointers back and forth.
  *
  */
-struct Chain_Node_struct {
-  /** This points to the node after this one on this chain. */
-  Chain_Node *next;
-  /** This points to the node immediate prior to this one on this chain. */
-  Chain_Node *previous;
+struct Chain_Node_struct
+{
+	/** This points to the node after this one on this chain. */
+	Chain_Node *next;
+	/** This points to the node immediate prior to this one on this chain. */
+	Chain_Node *previous;
 };
 
 /**
@@ -80,16 +81,19 @@ struct Chain_Node_struct {
  *   To accomplish this the @a Chain_Control structure is
  *   treated as two overlapping @ref Chain_Node structures.
  */
-typedef union {
-  struct {
-    Chain_Node Node;
-    Chain_Node *fill;
-  } Head;
+typedef union
+{
+	struct
+	{
+		Chain_Node Node;
+		Chain_Node *fill;
+	} Head;
 
-  struct {
-    Chain_Node *fill;
-    Chain_Node Node;
-  } Tail;
+	struct
+	{
+		Chain_Node *fill;
+		Chain_Node Node;
+	} Tail;
 } Chain_Control;
 
 /**@}*/

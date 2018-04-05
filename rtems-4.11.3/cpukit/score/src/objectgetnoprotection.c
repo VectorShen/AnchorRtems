@@ -34,13 +34,13 @@ Objects_Control *_Objects_Get_no_protection (Objects_Information * information,
 	index = id - information->minimum_id + 1;
 
 	if (information->maximum >= index)
-	  {
-		  if ((the_object = information->local_table[index]) != NULL)
-			{
-				*location = OBJECTS_LOCAL;
-				return the_object;
-			}
-	  }
+	{
+		if ((the_object = information->local_table[index]) != NULL)
+		{
+			*location = OBJECTS_LOCAL;
+			return the_object;
+		}
+	}
 
 	/*
 	 *  This isn't supported or required yet for Global objects so

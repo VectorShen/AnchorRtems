@@ -38,16 +38,16 @@ static void _User_extensions_Switch_visitor (Thread_Control * executing,
 	User_extensions_thread_switch_extension callout = callouts->thread_switch;
 
 	if (callout != NULL)
-	  {
-		  User_extensions_Switch_context *ctx = arg;
-		  User_extensions_Switch_control *ctrl = ctx->switch_control;
+	{
+		User_extensions_Switch_context *ctx = arg;
+		User_extensions_Switch_control *ctrl = ctx->switch_control;
 
-		  _Chain_Append_unprotected (&_User_extensions_Switches_list,
+		_Chain_Append_unprotected (&_User_extensions_Switches_list,
 									 &ctrl->Node);
-		  ctrl->thread_switch = callout;
+		ctrl->thread_switch = callout;
 
-		  ctx->switch_control = ctrl + 1;
-	  }
+		ctx->switch_control = ctrl + 1;
+	}
 }
 
 void _User_extensions_Handler_initialization (void)
@@ -56,15 +56,15 @@ void _User_extensions_Handler_initialization (void)
 		rtems_configuration_get_number_of_initial_extensions ();
 
 	if (number_of_initial_extensions > 0)
-	  {
-		  User_extensions_Switch_control *initial_extension_switch_controls =
-			  _Workspace_Allocate_or_fatal_error (number_of_initial_extensions
-												  *
-												  sizeof
-												  (*initial_extension_switch_controls));
-		  User_extensions_Switch_context ctx =
-			  { initial_extension_switch_controls };
+	{
+		User_extensions_Switch_control *initial_extension_switch_controls =
+			_Workspace_Allocate_or_fatal_error (number_of_initial_extensions
+												*
+												sizeof
+												(*initial_extension_switch_controls));
+		User_extensions_Switch_context ctx =
+			{ initial_extension_switch_controls };
 
-		  _User_extensions_Iterate (&ctx, _User_extensions_Switch_visitor);
-	  }
+		_User_extensions_Iterate (&ctx, _User_extensions_Switch_visitor);
+	}
 }

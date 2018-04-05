@@ -49,7 +49,7 @@ struct svc_req;
  * Server side authenticator
  */
 __BEGIN_DECLS
-	extern enum auth_stat _authenticate (struct svc_req *, struct rpc_msg *);
+extern enum auth_stat _authenticate (struct svc_req *, struct rpc_msg *);
 extern int svc_auth_reg (int, enum auth_stat (*)(struct svc_req *,
 												 struct rpc_msg *));
 extern enum auth_stat _svcauth_des (struct svc_req *, struct rpc_msg *);

@@ -50,25 +50,28 @@
  *  NOTE: Be careful .. if the default attribute set changes,
  *        _POSIX_Threads_Initialize_user_threads will need to be examined.
  */
-pthread_attr_t _POSIX_Threads_Default_attributes = {
+pthread_attr_t _POSIX_Threads_Default_attributes =
+{
 	.is_initialized = true,		/* is_initialized */
 	.stackaddr = NULL,			/* stackaddr */
 	.stacksize = 0,				/* stacksize -- will be adjusted to minimum */
 	.contentionscope = PTHREAD_SCOPE_PROCESS,	/* contentionscope */
 	.inheritsched = PTHREAD_INHERIT_SCHED,	/* inheritsched */
 	.schedpolicy = SCHED_FIFO,	/* schedpolicy */
-	.schedparam = {				/* schedparam */
-				   2,			/* sched_priority */
+	.schedparam =
+	{
+		/* schedparam */
+		2,			/* sched_priority */
 #if defined(_POSIX_SPORADIC_SERVER) || \
         defined(_POSIX_THREAD_SPORADIC_SERVER)
-				   0,			/* sched_ss_low_priority */
-				   {0L, 0}
-				   ,			/* sched_ss_repl_period */
-				   {0L, 0}
-				   ,			/* sched_ss_init_budget */
-				   0			/* sched_ss_max_repl */
+		0,			/* sched_ss_low_priority */
+		{0L, 0}
+		,			/* sched_ss_repl_period */
+		0L, 0}
+	 	,			/* sched_ss_init_budget */
+		0			/* sched_ss_max_repl */
 #endif
-				   }
+	}
 	,
 
 #if HAVE_DECL_PTHREAD_ATTR_SETGUARDSIZE
@@ -81,15 +84,17 @@ pthread_attr_t _POSIX_Threads_Default_attributes = {
 #if defined(__RTEMS_HAVE_SYS_CPUSET_H__)
 	.affinitysetsize = 0,
 	.affinityset = NULL,
-	.affinitysetpreallocated = {{0x0}
-								}
+	.affinitysetpreallocated =
+	{
+		{0x0}
+	}
 #endif
 };
 
 static bool _POSIX_Threads_Sporadic_budget_TSR_filter (Thread_Control *
-													   the_thread,
-													   Priority_Control *
-													   new_priority, void *arg)
+													 the_thread,
+													 Priority_Control *
+													 new_priority, void *arg)
 {
 	the_thread->real_priority = *new_priority;
 
@@ -124,7 +129,7 @@ void _POSIX_Threads_Sporadic_budget_TSR (Objects_Id id __attribute__ ((unused)),
 
 	_Thread_Change_priority (the_thread,
 							 _POSIX_Priority_To_core (api->schedparam.
-													  sched_priority), NULL,
+													sched_priority), NULL,
 							 _POSIX_Threads_Sporadic_budget_TSR_filter, true);
 
 	/* ticks is guaranteed to be at least one */
@@ -134,10 +139,10 @@ void _POSIX_Threads_Sporadic_budget_TSR (Objects_Id id __attribute__ ((unused)),
 }
 
 static bool _POSIX_Threads_Sporadic_budget_callout_filter (Thread_Control *
-														   the_thread,
-														   Priority_Control *
-														   new_priority,
-														   void *arg)
+														 the_thread,
+														 Priority_Control *
+														 new_priority,
+														 void *arg)
 {
 	the_thread->real_priority = *new_priority;
 
@@ -170,7 +175,7 @@ void _POSIX_Threads_Sporadic_budget_callout (Thread_Control * the_thread)
 
 	_Thread_Change_priority (the_thread,
 							 _POSIX_Priority_To_core (api->schedparam.
-													  sched_ss_low_priority),
+													sched_ss_low_priority),
 							 NULL,
 							 _POSIX_Threads_Sporadic_budget_callout_filter,
 							 true);
@@ -223,31 +228,31 @@ static bool _POSIX_Threads_Create_extension (Thread_Control * executing
 		&& _Objects_Get_class (created->Object.id) == 1
 #endif
 		)
-	  {
-		  executing_api =
-			  _Thread_Get_executing ()->API_Extensions[THREAD_API_POSIX];
-		  api->signals_blocked = executing_api->signals_blocked;
-	  }
+	{
+		executing_api =
+			_Thread_Get_executing ()->API_Extensions[THREAD_API_POSIX];
+		api->signals_blocked = executing_api->signals_blocked;
+	}
 	else
-	  {
-		  api->signals_blocked = SIGNAL_ALL_MASK;
-	  }
+	{
+		api->signals_blocked = SIGNAL_ALL_MASK;
+	}
 
 	_Thread_Action_initialize (&api->Signal_action,
-							   _POSIX_signals_Action_handler);
+							 _POSIX_signals_Action_handler);
 
 	_Thread_queue_Initialize (&api->Join_List, THREAD_QUEUE_DISCIPLINE_FIFO);
 
 	_Watchdog_Preinitialize (&api->Sporadic_timer);
 	_Watchdog_Initialize (&api->Sporadic_timer,
-						  _POSIX_Threads_Sporadic_budget_TSR,
-						  created->Object.id, created);
+						_POSIX_Threads_Sporadic_budget_TSR,
+						created->Object.id, created);
 
 	return true;
 }
 
 static void _POSIX_Threads_Restart_extension (Thread_Control * executing,
-											  Thread_Control * restarted)
+											Thread_Control * restarted)
 {
 	(void)executing;
 	_POSIX_Threads_cancel_run (restarted);
@@ -314,29 +319,37 @@ static void _POSIX_Threads_Initialize_user_threads (void)
 /*
  *  API Extension control structures
  */
-API_extensions_Control _POSIX_Threads_API_extensions = {
+API_extensions_Control _POSIX_Threads_API_extensions =
+{
 #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
 	.predriver_hook = NULL,
 #endif
 	.postdriver_hook = _POSIX_Threads_Initialize_user_threads
 };
 
-User_extensions_Control _POSIX_Threads_User_extensions = {
-	{NULL, NULL}
+User_extensions_Control _POSIX_Threads_User_extensions =
+{
+	{
+		NULL, NULL
+	}
 	,
-	{{NULL, NULL}
-	 , NULL}
+	{
+		{NULL, NULL}
+		,
+		NULL
+	}
 	,
-	{_POSIX_Threads_Create_extension,	/* create */
-	 NULL,						/* start */
-	 _POSIX_Threads_Restart_extension,	/* restart */
-	 NULL,						/* delete */
-	 NULL,						/* switch */
-	 NULL,						/* begin */
-	 _POSIX_Threads_Exitted_extension,	/* exitted */
-	 NULL,						/* fatal */
-	 _POSIX_Threads_Terminate_extension	/* terminate */
-	 }
+	{
+		_POSIX_Threads_Create_extension,	/* create */
+		NULL,						/* start */
+		_POSIX_Threads_Restart_extension,	/* restart */
+		NULL,						/* delete */
+		NULL,						/* switch */
+		NULL,						/* begin */
+		_POSIX_Threads_Exitted_extension,	/* exitted */
+		NULL,						/* fatal */
+		_POSIX_Threads_Terminate_extension	/* terminate */
+	}
 };
 
 /*

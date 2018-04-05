@@ -50,18 +50,18 @@ rtems_device_driver null_initialize (rtems_device_major_number major,
 	rtems_device_driver status;
 
 	if (!initialized)
-	  {
-		  initialized = 1;
+	{
+		initialized = 1;
 
-		  status = rtems_io_register_name ("/dev/null",
-										   major,
-										   (rtems_device_minor_number) 0);
+		status = rtems_io_register_name ("/dev/null",
+										 major,
+										 (rtems_device_minor_number) 0);
 
-		  if (status != RTEMS_SUCCESSFUL)
-			  rtems_fatal_error_occurred (status);
+		if (status != RTEMS_SUCCESSFUL)
+			rtems_fatal_error_occurred (status);
 
-		  NULL_major = major;
-	  }
+		NULL_major = major;
+	}
 
 	return RTEMS_SUCCESSFUL;
 }
@@ -80,10 +80,10 @@ rtems_device_driver null_initialize (rtems_device_major_number major,
  */
 
 rtems_device_driver null_open (rtems_device_major_number major
-							   __attribute__ ((unused)),
-							   rtems_device_minor_number minor
-							   __attribute__ ((unused)), void *pargp
-							   __attribute__ ((unused)))
+							 __attribute__ ((unused)),
+							 rtems_device_minor_number minor
+							 __attribute__ ((unused)), void *pargp
+							 __attribute__ ((unused)))
 {
 	return NULL_SUCCESSFUL;
 }
@@ -124,10 +124,10 @@ rtems_device_driver null_close (rtems_device_major_number major
  */
 
 rtems_device_driver null_read (rtems_device_major_number major
-							   __attribute__ ((unused)),
-							   rtems_device_minor_number minor
-							   __attribute__ ((unused)), void *pargp
-							   __attribute__ ((unused)))
+							 __attribute__ ((unused)),
+							 rtems_device_minor_number minor
+							 __attribute__ ((unused)), void *pargp
+							 __attribute__ ((unused)))
 {
 	return NULL_SUCCESSFUL;
 }
@@ -172,10 +172,10 @@ rtems_device_driver null_write (rtems_device_major_number major
  */
 
 rtems_device_driver null_control (rtems_device_major_number major
-								  __attribute__ ((unused)),
-								  rtems_device_minor_number minor
-								  __attribute__ ((unused)), void *pargp
-								  __attribute__ ((unused)))
+								__attribute__ ((unused)),
+								rtems_device_minor_number minor
+								__attribute__ ((unused)), void *pargp
+								__attribute__ ((unused)))
 {
 	return NULL_SUCCESSFUL;
 }

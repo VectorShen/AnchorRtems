@@ -103,8 +103,10 @@ sysctl_find_oidname(const char *name, struct sysctl_oid_list *list)
 {
 	struct sysctl_oid *oidp;
 
-	SLIST_FOREACH(oidp, list, oid_link) {
-		if (strcmp(oidp->oid_name, name) == 0) {
+	SLIST_FOREACH(oidp, list, oid_link)
+	{
+		if (strcmp(oidp->oid_name, name) == 0)
+		{
 			return (oidp);
 		}
 	}
@@ -129,11 +131,15 @@ sysctl_register_oid(struct sysctl_oid *oidp)
 	 * exists in the parent's list.
 	 */
 	p = sysctl_find_oidname(oidp->oid_name, parent);
-	if (p != NULL) {
-		if ((p->oid_kind & CTLTYPE) == CTLTYPE_NODE) {
+	if (p != NULL)
+	{
+		if ((p->oid_kind & CTLTYPE) == CTLTYPE_NODE)
+		{
 			p->oid_refcnt++;
 			return;
-		} else {
+		}
+		else
+		{
 			printf("can't re-use a leaf (%s)!\n", p->oid_name);
 			return;
 		}
@@ -145,7 +151,8 @@ sysctl_register_oid(struct sysctl_oid *oidp)
 	 * <sys/sysctl.h>, and make sure it is at least 256 to
 	 * accomodate e.g. net.inet.raw as a static sysctl node.
 	 */
-	if (oidp->oid_number == OID_AUTO) {
+	if (oidp->oid_number == OID_AUTO)
+	{
 		static int32_t newoid = CTL_AUTO_START;
 
 		oidp->oid_number = newoid++;
@@ -153,7 +160,8 @@ sysctl_register_oid(struct sysctl_oid *oidp)
 			panic("out of oids");
 	}
 #if 0
-	else if (oidp->oid_number >= CTL_AUTO_START) {
+	else if (oidp->oid_number >= CTL_AUTO_START)
+	{
 		/* do not panic; this happens when unregistering sysctl sets */
 		printf("static sysctl oid too high: %d", oidp->oid_number);
 	}
@@ -163,7 +171,8 @@ sysctl_register_oid(struct sysctl_oid *oidp)
 	 * Insert the oid into the parent's list in order.
 	 */
 	q = NULL;
-	SLIST_FOREACH(p, parent, oid_link) {
+	SLIST_FOREACH(p, parent, oid_link)
+	{
 		if (oidp->oid_number < p->oid_number)
 			break;
 		q = p;
@@ -185,7 +194,8 @@ int
 sysctl_ctx_init(struct sysctl_ctx_list *c)
 {
 
-	if (c == NULL) {
+	if (c == NULL)
+	{
 		return (EINVAL);
 	}
 	TAILQ_INIT(c);
@@ -206,7 +216,8 @@ sysctl_ctx_free(struct sysctl_ctx_list *clist)
 	 * XXX This algorithm is a hack. But I don't know any
 	 * XXX better solution for now...
 	 */
-	TAILQ_FOREACH(e, clist, link) {
+	TAILQ_FOREACH(e, clist, link)
+	{
 		error = sysctl_remove_oid(e->entry, 0, 0);
 		if (error)
 			break;
@@ -220,7 +231,8 @@ sysctl_ctx_free(struct sysctl_ctx_list *clist)
 		e1 = TAILQ_PREV(e, sysctl_ctx_list, link);
 	else
 		e1 = TAILQ_LAST(clist, sysctl_ctx_list);
-	while (e1 != NULL) {
+	while (e1 != NULL)
+	{
 		sysctl_register_oid(e1->entry);
 		e1 = TAILQ_PREV(e1, sysctl_ctx_list, link);
 	}
@@ -228,7 +240,8 @@ sysctl_ctx_free(struct sysctl_ctx_list *clist)
 		return(EBUSY);
 	/* Now really delete the entries */
 	e = TAILQ_FIRST(clist);
-	while (e != NULL) {
+	while (e != NULL)
+	{
 		e1 = TAILQ_NEXT(e, link);
 		error = sysctl_remove_oid(e->entry, 1, 0);
 		if (error)
@@ -262,7 +275,8 @@ sysctl_ctx_entry_find(struct sysctl_ctx_list *clist, struct sysctl_oid *oidp)
 
 	if (clist == NULL || oidp == NULL)
 		return(NULL);
-	TAILQ_FOREACH(e, clist, link) {
+	TAILQ_FOREACH(e, clist, link)
+	{
 		if(e->entry == oidp)
 			return(e);
 	}
@@ -282,11 +296,13 @@ sysctl_ctx_entry_del(struct sysctl_ctx_list *clist, struct sysctl_oid *oidp)
 	if (clist == NULL || oidp == NULL)
 		return (EINVAL);
 	e = sysctl_ctx_entry_find(clist, oidp);
-	if (e != NULL) {
+	if (e != NULL)
+	{
 		TAILQ_REMOVE(clist, e, link);
 		free(e, M_SYSCTLOID);
 		return (0);
-	} else
+	}
+	else
 		return (ENOENT);
 }
 
@@ -304,7 +320,8 @@ sysctl_remove_oid(struct sysctl_oid *oidp, int del, int recurse)
 
 	if (oidp == NULL)
 		return(EINVAL);
-	if ((oidp->oid_kind & CTLFLAG_DYN) == 0) {
+	if ((oidp->oid_kind & CTLFLAG_DYN) == 0)
+	{
 		printf("can't remove non-dynamic nodes!\n");
 		return (EINVAL);
 	}
@@ -315,9 +332,12 @@ sysctl_remove_oid(struct sysctl_oid *oidp, int del, int recurse)
 	 * However, if some other code still references these nodes,
 	 * it will panic.
 	 */
-	if ((oidp->oid_kind & CTLTYPE) == CTLTYPE_NODE) {
-		if (oidp->oid_refcnt == 1) {
-			SLIST_FOREACH(p, SYSCTL_CHILDREN(oidp), oid_link) {
+	if ((oidp->oid_kind & CTLTYPE) == CTLTYPE_NODE)
+	{
+		if (oidp->oid_refcnt == 1)
+		{
+			SLIST_FOREACH(p, SYSCTL_CHILDREN(oidp), oid_link)
+			{
 				if (!recurse)
 					return (ENOTEMPTY);
 				error = sysctl_remove_oid(p, del, recurse);
@@ -328,16 +348,21 @@ sysctl_remove_oid(struct sysctl_oid *oidp, int del, int recurse)
 				free(SYSCTL_CHILDREN(oidp), M_SYSCTLOID);
 		}
 	}
-	if (oidp->oid_refcnt > 1 ) {
+	if (oidp->oid_refcnt > 1 )
+	{
 		oidp->oid_refcnt--;
-	} else {
-		if (oidp->oid_refcnt == 0) {
+	}
+	else
+	{
+		if (oidp->oid_refcnt == 0)
+		{
 			printf("Warning: bad oid_refcnt=%u (%s)!\n",
 				oidp->oid_refcnt, oidp->oid_name);
 			return (EINVAL);
 		}
 		sysctl_unregister_oid(oidp);
-		if (del) {
+		if (del)
+		{
 			if (oidp->descr)
 				free((void *)(uintptr_t)(const void *)oidp->descr, M_SYSCTLOID);
 			free((void *)(uintptr_t)(const void *)oidp->oid_name,
@@ -366,14 +391,18 @@ sysctl_add_oid(struct sysctl_ctx_list *clist, struct sysctl_oid_list *parent,
 		return(NULL);
 	/* Check if the node already exists, otherwise create it */
 	oidp = sysctl_find_oidname(name, parent);
-	if (oidp != NULL) {
-		if ((oidp->oid_kind & CTLTYPE) == CTLTYPE_NODE) {
+	if (oidp != NULL)
+	{
+		if ((oidp->oid_kind & CTLTYPE) == CTLTYPE_NODE)
+		{
 			oidp->oid_refcnt++;
 			/* Update the context */
 			if (clist != NULL)
 				sysctl_ctx_entry_add(clist, oidp);
 			return (oidp);
-		} else {
+		}
+		else
+		{
 			printf("can't re-use a leaf (%s)!\n", name);
 			return (NULL);
 		}
@@ -390,17 +419,21 @@ sysctl_add_oid(struct sysctl_ctx_list *clist, struct sysctl_oid_list *parent,
 	oidp->oid_name = newname;
 	oidp->oid_handler = handler;
 	oidp->oid_kind = CTLFLAG_DYN | kind;
-	if ((kind & CTLTYPE) == CTLTYPE_NODE) {
+	if ((kind & CTLTYPE) == CTLTYPE_NODE)
+	{
 		/* Allocate space for children */
 		SYSCTL_CHILDREN_SET(oidp, malloc(sizeof(struct sysctl_oid_list),
 		    M_SYSCTLOID, M_WAITOK));
 		SLIST_INIT(SYSCTL_CHILDREN(oidp));
-	} else {
+	}
+	else
+	{
 		oidp->oid_arg1 = arg1;
 		oidp->oid_arg2 = arg2;
 	}
 	oidp->oid_fmt = fmt;
-	if (descr) {
+	if (descr)
+	{
 		int len = strlen(descr) + 1;
 		oidp->descr = malloc(len, M_SYSCTLOID, M_WAITOK);
 		if (oidp->descr)
@@ -459,7 +492,8 @@ sysctl_sysctl_debug_dump_node(struct sysctl_oid_list *l, int i)
 	int k;
 	struct sysctl_oid *oidp;
 
-	SLIST_FOREACH(oidp, l, oid_link) {
+	SLIST_FOREACH(oidp, l, oid_link)
+	{
 
 		for (k=0; k<i; k++)
 			printf(" ");
@@ -473,10 +507,12 @@ sysctl_sysctl_debug_dump_node(struct sysctl_oid_list *l, int i)
 		if (oidp->oid_handler)
 			printf(" *Handler");
 
-		switch (oidp->oid_kind & CTLTYPE) {
+		switch (oidp->oid_kind & CTLTYPE)
+		{
 			case CTLTYPE_NODE:
 				printf(" Node\n");
-				if (!oidp->oid_handler) {
+				if (!oidp->oid_handler)
+				{
 					sysctl_sysctl_debug_dump_node(
 						oidp->oid_arg1, i+2);
 				}
@@ -518,8 +554,10 @@ sysctl_sysctl_name(SYSCTL_HANDLER_ARGS)
 	struct sysctl_oid_list *lsp = &sysctl__children, *lsp2;
 	char buf[10];
 
-	while (namelen) {
-		if (!lsp) {
+	while (namelen)
+	{
+		if (!lsp)
+		{
 			snprintf(buf,sizeof(buf),"%d",*name);
 			if (req->oldidx)
 				error = SYSCTL_OUT(req, ".", 1);
@@ -532,7 +570,8 @@ sysctl_sysctl_name(SYSCTL_HANDLER_ARGS)
 			continue;
 		}
 		lsp2 = 0;
-		SLIST_FOREACH(oid, lsp, oid_link) {
+		SLIST_FOREACH(oid, lsp, oid_link)
+		{
 			if (oid->oid_number != *name)
 				continue;
 
@@ -570,14 +609,16 @@ sysctl_sysctl_next_ls(struct sysctl_oid_list *lsp, int *name, u_int namelen,
 	struct sysctl_oid *oidp;
 
 	*len = level;
-	SLIST_FOREACH(oidp, lsp, oid_link) {
+	SLIST_FOREACH(oidp, lsp, oid_link)
+	{
 		*next = oidp->oid_number;
 		*oidpp = oidp;
 
 		if (oidp->oid_kind & CTLFLAG_SKIP)
 			continue;
 
-		if (!namelen) {
+		if (!namelen)
+		{
 			if ((oidp->oid_kind & CTLTYPE) != CTLTYPE_NODE)
 				return 0;
 			if (oidp->oid_handler)
@@ -593,7 +634,8 @@ sysctl_sysctl_next_ls(struct sysctl_oid_list *lsp, int *name, u_int namelen,
 		if (oidp->oid_number < *name)
 			continue;
 
-		if (oidp->oid_number > *name) {
+		if (oidp->oid_number > *name)
+		{
 			if ((oidp->oid_kind & CTLTYPE) != CTLTYPE_NODE)
 				return 0;
 			if (oidp->oid_handler)
@@ -666,15 +708,18 @@ name2oid (char *name, int *oid, int *len, struct sysctl_oid **oidpp)
 
 	oidp = SLIST_FIRST(lsp);
 
-	while (oidp && *len < CTL_MAXNAME) {
-		if (strcmp(name, oidp->oid_name)) {
+	while (oidp && *len < CTL_MAXNAME)
+	{
+		if (strcmp(name, oidp->oid_name))
+		{
 			oidp = SLIST_NEXT(oidp, oid_link);
 			continue;
 		}
 		*oid++ = oidp->oid_number;
 		(*len)++;
 
-		if (!i) {
+		if (!i)
+		{
 			if (oidpp)
 				*oidpp = oidp;
 			return (0);
@@ -713,7 +758,8 @@ sysctl_sysctl_name2oid(SYSCTL_HANDLER_ARGS)
 	p = malloc(req->newlen+1, M_SYSCTL, M_WAITOK);
 
 	error = SYSCTL_IN(req, p, req->newlen);
-	if (error) {
+	if (error)
+	{
 		free(p, M_SYSCTL);
 		return (error);
 	}
@@ -856,7 +902,8 @@ retry:
 	outlen = strlen((char *)arg1)+1;
 	tmparg = malloc(outlen, M_SYSCTLTMP, M_WAITOK);
 
-	if (strlcpy(tmparg, (char *)arg1, outlen) >= outlen) {
+	if (strlcpy(tmparg, (char *)arg1, outlen) >= outlen)
+	{
 		free(tmparg, M_SYSCTLTMP);
 		goto retry;
 	}
@@ -867,9 +914,12 @@ retry:
 	if (error || !req->newptr)
 		return (error);
 
-	if ((req->newlen - req->newidx) >= arg2) {
+	if ((req->newlen - req->newidx) >= arg2)
+	{
 		error = EINVAL;
-	} else {
+	}
+	else
+	{
 		arg2 = (req->newlen - req->newidx);
 		error = SYSCTL_IN(req, arg1, arg2);
 		((char *)arg1)[arg2] = '\0';
@@ -894,10 +944,13 @@ sysctl_handle_opaque(SYSCTL_HANDLER_ARGS)
 	 * user space buffer or copying to a temporary kernel buffer
 	 * depending on the size of the data.
 	 */
-	if (arg2 > PAGE_SIZE) {
+	if (arg2 > PAGE_SIZE)
+	{
 		sysctl_wire_old_buffer(req, arg2);
 		error = SYSCTL_OUT(req, arg1, arg2);
-	} else {
+	}
+	else
+	{
 		tmparg = malloc(arg2, M_SYSCTLTMP, M_WAITOK);
 		bcopy(arg1, tmparg, arg2);
 		error = SYSCTL_OUT(req, tmparg, arg2);
@@ -921,7 +974,8 @@ sysctl_old_kernel(struct sysctl_req *req, const void *p, size_t l)
 {
 	size_t i = 0;
 
-	if (req->oldptr) {
+	if (req->oldptr)
+	{
 		i = l;
 		if (req->oldlen <= req->oldidx)
 			i = 0;
@@ -960,15 +1014,18 @@ kernel_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 
 	req.td = td;
 
-	if (oldlenp) {
+	if (oldlenp)
+	{
 		req.oldlen = *oldlenp;
 	}
 
-	if (old) {
+	if (old)
+	{
 		req.oldptr= old;
 	}
 
-	if (new != NULL) {
+	if (new != NULL)
+	{
 		req.newlen = newlen;
 		req.newptr = new;
 	}
@@ -993,7 +1050,8 @@ kernel_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 	if (error && error != ENOMEM)
 		return (error);
 
-	if (retval) {
+	if (retval)
+	{
 		if (req.oldptr && req.oldidx > req.oldlen)
 			*retval = req.oldlen;
 		else
@@ -1039,7 +1097,8 @@ sysctl_old_user(struct sysctl_req *req, const void *p, size_t l)
 	if (req->lock == 1 && req->oldptr)
 		WITNESS_SLEEP(1, NULL);
 #endif
-	if (req->oldptr) {
+	if (req->oldptr)
+	{
 		i = l;
 		if (req->oldlen <= req->oldidx)
 			i = 0;
@@ -1084,7 +1143,8 @@ int
 sysctl_wire_old_buffer(struct sysctl_req *req, size_t len)
 {
 	if (req->lock == REQ_LOCKED && req->oldptr && 
-	    req->oldfunc == sysctl_old_user) {
+	    req->oldfunc == sysctl_old_user)
+	{
 #ifndef __rtems__
 		vslock(req->oldptr, req->oldlen);
 #endif
@@ -1102,14 +1162,18 @@ sysctl_find_oid(int *name, u_int namelen, struct sysctl_oid **noid,
 
 	oid = SLIST_FIRST(&sysctl__children);
 	indx = 0;
-	while (oid && indx < CTL_MAXNAME) {
-		if (oid->oid_number == name[indx]) {
+	while (oid && indx < CTL_MAXNAME)
+	{
+		if (oid->oid_number == name[indx])
+		{
 			indx++;
 			if (oid->oid_kind & CTLFLAG_NOLOCK)
 				req->lock = REQ_UNLOCKED;
-			if ((oid->oid_kind & CTLTYPE) == CTLTYPE_NODE) {
+			if ((oid->oid_kind & CTLTYPE) == CTLTYPE_NODE)
+			{
 				if (oid->oid_handler != NULL ||
-				    indx == namelen) {
+				    indx == namelen)
+				{
 					*noid = oid;
 					if (nindx != NULL)
 						*nindx = indx;
@@ -1117,15 +1181,21 @@ sysctl_find_oid(int *name, u_int namelen, struct sysctl_oid **noid,
 				}
 				oid = SLIST_FIRST(
 				    (struct sysctl_oid_list *)oid->oid_arg1);
-			} else if (indx == namelen) {
+			}
+			else if (indx == namelen)
+			{
 				*noid = oid;
 				if (nindx != NULL)
 					*nindx = indx;
 				return (0);
-			} else {
+			}
+			else
+			{
 				return (ENOTDIR);
 			}
-		} else {
+		}
+		else
+		{
 			oid = SLIST_NEXT(oid, oid_link);
 		}
 	}
@@ -1147,7 +1217,8 @@ sysctl_root(SYSCTL_HANDLER_ARGS)
 	if (error)
 		return (error);
 
-	if ((oid->oid_kind & CTLTYPE) == CTLTYPE_NODE) {
+	if ((oid->oid_kind & CTLTYPE) == CTLTYPE_NODE)
+	{
 		/*
 		 * You can't call a sysctl when it's a node, but has
 		 * no handler.  Inform the user that it's a node.
@@ -1165,14 +1236,16 @@ sysctl_root(SYSCTL_HANDLER_ARGS)
 	KASSERT(req->td != NULL, ("sysctl_root(): req->td == NULL"));
 
 	/* Is this sysctl sensitive to securelevels? */
-	if (req->newptr && (oid->oid_kind & CTLFLAG_SECURE)) {
+	if (req->newptr && (oid->oid_kind & CTLFLAG_SECURE))
+	{
 		error = securelevel_gt(req->td->td_ucred, 0);
 		if (error)
 			return (error);
 	}
 
 	/* Is this sysctl writable by only privileged users? */
-	if (req->newptr && !(oid->oid_kind & CTLFLAG_ANYBODY)) {
+	if (req->newptr && !(oid->oid_kind & CTLFLAG_ANYBODY))
+	{
 		int flags;
 
 		if (oid->oid_kind & CTLFLAG_PRISON)
@@ -1198,7 +1271,8 @@ sysctl_root(SYSCTL_HANDLER_ARGS)
 }
 
 #ifndef _SYS_SYSPROTO_H_
-struct sysctl_args {
+struct sysctl_args
+{
 	int	*name;
 	u_int	namelen;
 	void	*old;
@@ -1231,7 +1305,8 @@ __sysctl(struct thread *td, struct sysctl_args *uap)
 		uap->new, uap->newlen, &j);
 	if (error && error != ENOMEM)
 		goto done2;
-	if (uap->oldlenp) {
+	if (uap->oldlenp)
+	{
 		int i = copyout(&j, uap->oldlenp, sizeof(j));
 		if (i)
 			error = i;
@@ -1256,17 +1331,22 @@ userland_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 
 	req.td = td;
 
-	if (oldlenp) {
-		if (inkernel) {
+	if (oldlenp)
+	{
+		if (inkernel)
+		{
 			req.oldlen = *oldlenp;
-		} else {
+		}
+		else
+		{
 			error = copyin(oldlenp, &req.oldlen, sizeof(*oldlenp));
 			if (error)
 				return (error);
 		}
 	}
 
-	if (old) {
+	if (old)
+	{
 #ifndef __rtems__
 		if (!useracc(old, req.oldlen, VM_PROT_WRITE))
 			return (EFAULT);
@@ -1274,7 +1354,8 @@ userland_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 		req.oldptr= old;
 	}
 
-	if (new != NULL) {
+	if (new != NULL)
+	{
 #ifndef __rtems__
 		if (!useracc(new, req.newlen, VM_PROT_READ))
 			return (EFAULT);
@@ -1292,13 +1373,15 @@ userland_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 #ifdef MAC
 	error = mac_check_system_sysctl(td->td_ucred, name, namelen, old,
 	    oldlenp, inkernel, new, newlen);
-	if (error) {
+	if (error)
+	{
 		SYSCTL_UNLOCK();
 		return (error);
 	}
 #endif
 
-	do {
+	do
+	{
 	    req2 = req;
 	    error = sysctl_root(0, name, namelen, &req2);
 	} while (error == EAGAIN);
@@ -1314,7 +1397,8 @@ userland_sysctl(struct thread *td, int *name, u_int namelen, void *old,
 	if (error && error != ENOMEM)
 		return (error);
 
-	if (retval) {
+	if (retval)
+	{
 		if (req.oldptr && req.oldidx > req.oldlen)
 			*retval = req.oldlen;
 		else
@@ -1343,7 +1427,8 @@ userland_sysctl(struct thread *td, int *name, u_int namelen, void *old,
  * limited kernel stack...  -Peter
  */
 
-static struct {
+static struct
+{
 	int	bsdi_machine;		/* "i386" on BSD/386 */
 /*      ^^^ this is an offset to the string, relative to the struct start */
 	char	*pad0;
@@ -1383,7 +1468,8 @@ static struct {
 static char bsdi_strings[80];	/* It had better be less than this! */
 
 #ifndef _SYS_SYSPROTO_H_
-struct getkerninfo_args {
+struct getkerninfo_args
+{
 	int	op;
 	char	*where;
 	size_t	*size;
@@ -1403,135 +1489,141 @@ ogetkerninfo(struct thread *td, struct getkerninfo_args *uap)
 
 	mtx_lock(&Giant);
 
-	switch (uap->op & 0xff00) {
+	switch (uap->op & 0xff00)
+	{
 
-	case KINFO_RT:
-		name[0] = CTL_NET;
-		name[1] = PF_ROUTE;
-		name[2] = 0;
-		name[3] = (uap->op & 0xff0000) >> 16;
-		name[4] = uap->op & 0xff;
-		name[5] = uap->arg;
-		error = userland_sysctl(td, name, 6, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_RT:
+			name[0] = CTL_NET;
+			name[1] = PF_ROUTE;
+			name[2] = 0;
+			name[3] = (uap->op & 0xff0000) >> 16;
+			name[4] = uap->op & 0xff;
+			name[5] = uap->arg;
+			error = userland_sysctl(td, name, 6, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_VNODE:
-		name[0] = CTL_KERN;
-		name[1] = KERN_VNODE;
-		error = userland_sysctl(td, name, 2, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_VNODE:
+			name[0] = CTL_KERN;
+			name[1] = KERN_VNODE;
+			error = userland_sysctl(td, name, 2, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_PROC:
-		name[0] = CTL_KERN;
-		name[1] = KERN_PROC;
-		name[2] = uap->op & 0xff;
-		name[3] = uap->arg;
-		error = userland_sysctl(td, name, 4, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_PROC:
+			name[0] = CTL_KERN;
+			name[1] = KERN_PROC;
+			name[2] = uap->op & 0xff;
+			name[3] = uap->arg;
+			error = userland_sysctl(td, name, 4, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_FILE:
-		name[0] = CTL_KERN;
-		name[1] = KERN_FILE;
-		error = userland_sysctl(td, name, 2, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_FILE:
+			name[0] = CTL_KERN;
+			name[1] = KERN_FILE;
+			error = userland_sysctl(td, name, 2, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_METER:
-		name[0] = CTL_VM;
-		name[1] = VM_TOTAL;
-		error = userland_sysctl(td, name, 2, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_METER:
+			name[0] = CTL_VM;
+			name[1] = VM_TOTAL;
+			error = userland_sysctl(td, name, 2, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_LOADAVG:
-		name[0] = CTL_VM;
-		name[1] = VM_LOADAVG;
-		error = userland_sysctl(td, name, 2, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_LOADAVG:
+			name[0] = CTL_VM;
+			name[1] = VM_LOADAVG;
+			error = userland_sysctl(td, name, 2, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_CLOCKRATE:
-		name[0] = CTL_KERN;
-		name[1] = KERN_CLOCKRATE;
-		error = userland_sysctl(td, name, 2, uap->where, uap->size,
-			0, 0, 0, &size);
-		break;
+		case KINFO_CLOCKRATE:
+			name[0] = CTL_KERN;
+			name[1] = KERN_CLOCKRATE;
+			error = userland_sysctl(td, name, 2, uap->where, uap->size,
+				0, 0, 0, &size);
+			break;
 
-	case KINFO_BSDI_SYSINFO: {
-		/*
-		 * this is pretty crude, but it's just enough for uname()
-		 * from BSDI's 1.x libc to work.
-		 *
-		 * *size gives the size of the buffer before the call, and
-		 * the amount of data copied after a successful call.
-		 * If successful, the return value is the amount of data
-		 * available, which can be larger than *size.
-		 *
-		 * BSDI's 2.x product apparently fails with ENOMEM if *size
-		 * is too small.
-		 */
+		case KINFO_BSDI_SYSINFO:
+		{
+			/*
+			 * this is pretty crude, but it's just enough for uname()
+			 * from BSDI's 1.x libc to work.
+			 *
+			 * *size gives the size of the buffer before the call, and
+			 * the amount of data copied after a successful call.
+			 * If successful, the return value is the amount of data
+			 * available, which can be larger than *size.
+			 *
+			 * BSDI's 2.x product apparently fails with ENOMEM if *size
+			 * is too small.
+			 */
 
-		u_int left;
-		char *s;
+			u_int left;
+			char *s;
 
-		bzero((char *)&bsdi_si, sizeof(bsdi_si));
-		bzero(bsdi_strings, sizeof(bsdi_strings));
+			bzero((char *)&bsdi_si, sizeof(bsdi_si));
+			bzero(bsdi_strings, sizeof(bsdi_strings));
 
-		s = bsdi_strings;
+			s = bsdi_strings;
 
-		bsdi_si.bsdi_ostype = (s - bsdi_strings) + sizeof(bsdi_si);
-		strcpy(s, ostype);
-		s += strlen(s) + 1;
+			bsdi_si.bsdi_ostype = (s - bsdi_strings) + sizeof(bsdi_si);
+			strcpy(s, ostype);
+			s += strlen(s) + 1;
 
-		bsdi_si.bsdi_osrelease = (s - bsdi_strings) + sizeof(bsdi_si);
-		strcpy(s, osrelease);
-		s += strlen(s) + 1;
+			bsdi_si.bsdi_osrelease = (s - bsdi_strings) + sizeof(bsdi_si);
+			strcpy(s, osrelease);
+			s += strlen(s) + 1;
 
-		bsdi_si.bsdi_machine = (s - bsdi_strings) + sizeof(bsdi_si);
-		strcpy(s, machine);
-		s += strlen(s) + 1;
+			bsdi_si.bsdi_machine = (s - bsdi_strings) + sizeof(bsdi_si);
+			strcpy(s, machine);
+			s += strlen(s) + 1;
 
-		needed = sizeof(bsdi_si) + (s - bsdi_strings);
+			needed = sizeof(bsdi_si) + (s - bsdi_strings);
 
-		if ((uap->where == NULL) || (uap->size == NULL)) {
-			/* process is asking how much buffer to supply.. */
-			size = needed;
-			error = 0;
+			if ((uap->where == NULL) || (uap->size == NULL))
+			{
+				/* process is asking how much buffer to supply.. */
+				size = needed;
+				error = 0;
+				break;
+			}
+
+			if ((error = copyin(uap->size, &size, sizeof(size))) != 0)
+				break;
+
+			/* if too much buffer supplied, trim it down */
+			if (size > needed)
+				size = needed;
+
+			/* how much of the buffer is remaining */
+			left = size;
+
+			if ((error = copyout((char *)&bsdi_si, uap->where, left)) != 0)
+				break;
+
+			/* is there any point in continuing? */
+			if (left > sizeof(bsdi_si))
+			{
+				left -= sizeof(bsdi_si);
+				error = copyout(&bsdi_strings,
+						uap->where + sizeof(bsdi_si), left);
+			}
 			break;
 		}
 
-		if ((error = copyin(uap->size, &size, sizeof(size))) != 0)
+		default:
+			error = EOPNOTSUPP;
 			break;
-
-		/* if too much buffer supplied, trim it down */
-		if (size > needed)
-			size = needed;
-
-		/* how much of the buffer is remaining */
-		left = size;
-
-		if ((error = copyout((char *)&bsdi_si, uap->where, left)) != 0)
-			break;
-
-		/* is there any point in continuing? */
-		if (left > sizeof(bsdi_si)) {
-			left -= sizeof(bsdi_si);
-			error = copyout(&bsdi_strings,
-					uap->where + sizeof(bsdi_si), left);
-		}
-		break;
 	}
-
-	default:
-		error = EOPNOTSUPP;
-		break;
-	}
-	if (error == 0) {
+	if (error == 0)
+	{
 		td->td_retval[0] = needed ? needed : size;
-		if (uap->size) {
+		if (uap->size)
+		{
 			error = copyout(&size, uap->size, sizeof(size));
 		}
 	}

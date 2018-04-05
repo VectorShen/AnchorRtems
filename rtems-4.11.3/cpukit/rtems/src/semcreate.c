@@ -53,10 +53,10 @@
  */
 
 rtems_status_code rtems_semaphore_create (rtems_name name,
-										  uint32_t count,
-										  rtems_attribute attribute_set,
-										  rtems_task_priority priority_ceiling,
-										  rtems_id * id)
+										uint32_t count,
+										rtems_attribute attribute_set,
+										rtems_task_priority priority_ceiling,
+										rtems_id * id)
 {
 	Semaphore_Control *the_semaphore;
 	CORE_mutex_Attributes the_mutex_attr;
@@ -71,36 +71,36 @@ rtems_status_code rtems_semaphore_create (rtems_name name,
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_Attributes_Is_global (attribute_set))
-	  {
+	{
 
-		  if (!_System_state_Is_multiprocessing)
-			  return RTEMS_MP_NOT_CONFIGURED;
+		if (!_System_state_Is_multiprocessing)
+			return RTEMS_MP_NOT_CONFIGURED;
 
-		  if (_Attributes_Is_inherit_priority (attribute_set) ||
-			  _Attributes_Is_priority_ceiling (attribute_set) ||
-			  _Attributes_Is_multiprocessor_resource_sharing (attribute_set))
-			  return RTEMS_NOT_DEFINED;
+		if (_Attributes_Is_inherit_priority (attribute_set) ||
+			_Attributes_Is_priority_ceiling (attribute_set) ||
+			_Attributes_Is_multiprocessor_resource_sharing (attribute_set))
+			return RTEMS_NOT_DEFINED;
 
-	  }
+	}
 	else
 #endif
 
 	if (_Attributes_Is_multiprocessor_resource_sharing (attribute_set) &&
 			!(_Attributes_Is_binary_semaphore (attribute_set) &&
-				  !_Attributes_Is_priority (attribute_set)))
-	  {
-		  return RTEMS_NOT_DEFINED;
-	  }
+				!_Attributes_Is_priority (attribute_set)))
+	{
+		return RTEMS_NOT_DEFINED;
+	}
 
 	if (_Attributes_Is_inherit_priority (attribute_set) ||
 		_Attributes_Is_priority_ceiling (attribute_set))
-	  {
+	{
 
-		  if (!(_Attributes_Is_binary_semaphore (attribute_set) &&
+		if (!(_Attributes_Is_binary_semaphore (attribute_set) &&
 				_Attributes_Is_priority (attribute_set)))
-			  return RTEMS_NOT_DEFINED;
+			return RTEMS_NOT_DEFINED;
 
-	  }
+	}
 
 	if (!_Attributes_Has_at_most_one_protocol (attribute_set))
 		return RTEMS_NOT_DEFINED;
@@ -114,28 +114,28 @@ rtems_status_code rtems_semaphore_create (rtems_name name,
 	 * Protocol is equivalent to the Priority Ceiling Protocol.
 	 */
 	if (_Attributes_Is_multiprocessor_resource_sharing (attribute_set))
-	  {
-		  attribute_set |= RTEMS_PRIORITY_CEILING | RTEMS_PRIORITY;
-	  }
+	{
+		attribute_set |= RTEMS_PRIORITY_CEILING | RTEMS_PRIORITY;
+	}
 #endif
 
 	the_semaphore = _Semaphore_Allocate ();
 
 	if (!the_semaphore)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_Attributes_Is_global (attribute_set) &&
 		!(_Objects_MP_Allocate_and_open (&_Semaphore_Information, name,
 										 the_semaphore->Object.id, false)))
-	  {
-		  _Semaphore_Free (the_semaphore);
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Semaphore_Free (the_semaphore);
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 #endif
 
 	the_semaphore->attribute_set = attribute_set;
@@ -144,107 +144,107 @@ rtems_status_code rtems_semaphore_create (rtems_name name,
 	 *  Initialize it as a counting semaphore.
 	 */
 	if (_Attributes_Is_counting_semaphore (attribute_set))
-	  {
-		  /*
-		   *  This effectively disables limit checking.
-		   */
-		  the_semaphore_attr.maximum_count = 0xFFFFFFFF;
+	{
+		/*
+		 *  This effectively disables limit checking.
+		 */
+		the_semaphore_attr.maximum_count = 0xFFFFFFFF;
 
-		  if (_Attributes_Is_priority (attribute_set))
-			  the_semaphore_attr.discipline =
-				  CORE_SEMAPHORE_DISCIPLINES_PRIORITY;
-		  else
-			  the_semaphore_attr.discipline = CORE_SEMAPHORE_DISCIPLINES_FIFO;
+		if (_Attributes_Is_priority (attribute_set))
+			the_semaphore_attr.discipline =
+				CORE_SEMAPHORE_DISCIPLINES_PRIORITY;
+		else
+			the_semaphore_attr.discipline = CORE_SEMAPHORE_DISCIPLINES_FIFO;
 
-		  /*
-		   *  The following are just to make Purify happy.
-		   */
-		  the_mutex_attr.lock_nesting_behavior = CORE_MUTEX_NESTING_ACQUIRES;
-		  the_mutex_attr.priority_ceiling = PRIORITY_MINIMUM;
+		/*
+		 *  The following are just to make Purify happy.
+		 */
+		the_mutex_attr.lock_nesting_behavior = CORE_MUTEX_NESTING_ACQUIRES;
+		the_mutex_attr.priority_ceiling = PRIORITY_MINIMUM;
 
-		  _CORE_semaphore_Initialize (&the_semaphore->Core_control.semaphore,
-									  &the_semaphore_attr, count);
+		_CORE_semaphore_Initialize (&the_semaphore->Core_control.semaphore,
+									&the_semaphore_attr, count);
 #if defined(RTEMS_SMP)
-	  }
+	}
 	else if (_Attributes_Is_multiprocessor_resource_sharing (attribute_set))
-	  {
-		  MRSP_Status mrsp_status =
-			  _MRSP_Initialize (&the_semaphore->Core_control.mrsp,
+	{
+		MRSP_Status mrsp_status =
+			_MRSP_Initialize (&the_semaphore->Core_control.mrsp,
 								priority_ceiling,
 								_Thread_Get_executing (),
 								count != 1);
 
-		  if (mrsp_status != MRSP_SUCCESSFUL)
-			{
-				_Semaphore_Free (the_semaphore);
-				_Objects_Allocator_unlock ();
+		if (mrsp_status != MRSP_SUCCESSFUL)
+		{
+			_Semaphore_Free (the_semaphore);
+			_Objects_Allocator_unlock ();
 
-				return _Semaphore_Translate_MRSP_status_code (mrsp_status);
-			}
+			return _Semaphore_Translate_MRSP_status_code (mrsp_status);
+		}
 #endif
-	  }
+	}
 	else
-	  {
-		  /*
-		   *  It is either simple binary semaphore or a more powerful mutex
-		   *  style binary semaphore.  This is the mutex style.
-		   */
-		  if (_Attributes_Is_priority (attribute_set))
-			  the_mutex_attr.discipline = CORE_MUTEX_DISCIPLINES_PRIORITY;
-		  else
-			  the_mutex_attr.discipline = CORE_MUTEX_DISCIPLINES_FIFO;
+	{
+		/*
+		 *  It is either simple binary semaphore or a more powerful mutex
+		 *  style binary semaphore.  This is the mutex style.
+		 */
+		if (_Attributes_Is_priority (attribute_set))
+			the_mutex_attr.discipline = CORE_MUTEX_DISCIPLINES_PRIORITY;
+		else
+			the_mutex_attr.discipline = CORE_MUTEX_DISCIPLINES_FIFO;
 
-		  if (_Attributes_Is_binary_semaphore (attribute_set))
+		if (_Attributes_Is_binary_semaphore (attribute_set))
+		{
+			the_mutex_attr.priority_ceiling =
+				_RTEMS_tasks_Priority_to_Core (priority_ceiling);
+			the_mutex_attr.lock_nesting_behavior =
+				CORE_MUTEX_NESTING_ACQUIRES;
+			the_mutex_attr.only_owner_release = false;
+
+			if (the_mutex_attr.discipline ==
+				CORE_MUTEX_DISCIPLINES_PRIORITY)
 			{
-				the_mutex_attr.priority_ceiling =
-					_RTEMS_tasks_Priority_to_Core (priority_ceiling);
-				the_mutex_attr.lock_nesting_behavior =
-					CORE_MUTEX_NESTING_ACQUIRES;
-				the_mutex_attr.only_owner_release = false;
-
-				if (the_mutex_attr.discipline ==
-					CORE_MUTEX_DISCIPLINES_PRIORITY)
-				  {
-					  if (_Attributes_Is_inherit_priority (attribute_set))
-						{
-							the_mutex_attr.discipline =
-								CORE_MUTEX_DISCIPLINES_PRIORITY_INHERIT;
-							the_mutex_attr.only_owner_release = true;
-						}
-					  else if (_Attributes_Is_priority_ceiling (attribute_set))
-						{
-							the_mutex_attr.discipline =
-								CORE_MUTEX_DISCIPLINES_PRIORITY_CEILING;
-							the_mutex_attr.only_owner_release = true;
-						}
-				  }
+				if (_Attributes_Is_inherit_priority (attribute_set))
+				{
+					the_mutex_attr.discipline =
+						CORE_MUTEX_DISCIPLINES_PRIORITY_INHERIT;
+					the_mutex_attr.only_owner_release = true;
+				}
+				else if (_Attributes_Is_priority_ceiling (attribute_set))
+				{
+					the_mutex_attr.discipline =
+						CORE_MUTEX_DISCIPLINES_PRIORITY_CEILING;
+					the_mutex_attr.only_owner_release = true;
+				}
 			}
-		  else					/* must be simple binary semaphore */
-			{
-				the_mutex_attr.lock_nesting_behavior =
-					CORE_MUTEX_NESTING_BLOCKS;
-				the_mutex_attr.only_owner_release = false;
-			}
+		}
+		else					/* must be simple binary semaphore */
+		{
+			the_mutex_attr.lock_nesting_behavior =
+				CORE_MUTEX_NESTING_BLOCKS;
+			the_mutex_attr.only_owner_release = false;
+		}
 
-		  mutex_status =
-			  _CORE_mutex_Initialize (&the_semaphore->Core_control.mutex,
-									  _Thread_Get_executing (), &the_mutex_attr,
-									  count != 1);
+		mutex_status =
+			_CORE_mutex_Initialize (&the_semaphore->Core_control.mutex,
+									_Thread_Get_executing (), &the_mutex_attr,
+									count != 1);
 
-		  if (mutex_status == CORE_MUTEX_STATUS_CEILING_VIOLATED)
-			{
-				_Semaphore_Free (the_semaphore);
-				_Objects_Allocator_unlock ();
-				return RTEMS_INVALID_PRIORITY;
-			}
-	  }
+		if (mutex_status == CORE_MUTEX_STATUS_CEILING_VIOLATED)
+		{
+			_Semaphore_Free (the_semaphore);
+			_Objects_Allocator_unlock ();
+			return RTEMS_INVALID_PRIORITY;
+		}
+	}
 
 	/*
 	 *  Whether we initialized it as a mutex or counting semaphore, it is
 	 *  now ready to be "offered" for use as a Classic API Semaphore.
 	 */
 	_Objects_Open (&_Semaphore_Information,
-				   &the_semaphore->Object, (Objects_Name) name);
+				 &the_semaphore->Object, (Objects_Name) name);
 
 	*id = the_semaphore->Object.id;
 

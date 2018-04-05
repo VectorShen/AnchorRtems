@@ -68,7 +68,7 @@ static bool _Scheduler_priority_affinity_SMP_Insert_priority_fifo_order (const
 
 static Scheduler_priority_affinity_SMP_Node
 	*_Scheduler_priority_affinity_SMP_Thread_get_own_node (Thread_Control *
-														   thread)
+														 thread)
 {
 	return (Scheduler_priority_affinity_SMP_Node *)
 		_Scheduler_Thread_get_own_node (thread);
@@ -96,8 +96,8 @@ static Scheduler_priority_affinity_SMP_Node
  * this scheduler instance.
  */
 void _Scheduler_priority_affinity_SMP_Node_initialize (const Scheduler_Control *
-													   scheduler,
-													   Thread_Control * thread)
+													 scheduler,
+													 Thread_Control * thread)
 {
 	Scheduler_priority_affinity_SMP_Node *node =
 		_Scheduler_priority_affinity_SMP_Thread_get_own_node (thread);
@@ -160,13 +160,13 @@ static Scheduler_Node
 	 * This is done when we need to check if reevaluations are needed.
 	 */
 	if (victim == NULL)
-	  {
-		  node = (Scheduler_priority_affinity_SMP_Node *)
-			  _Scheduler_priority_Ready_queue_first (&self->Bit_map,
+	{
+		node = (Scheduler_priority_affinity_SMP_Node *)
+			_Scheduler_priority_Ready_queue_first (&self->Bit_map,
 													 &self->Ready[0]);
 
-		  return &node->Base.Base.Base;
-	  }
+		return &node->Base.Base.Base;
+	}
 
 	victim_thread = _Scheduler_Node_get_owner (victim);
 	victim_cpu_index = _Per_CPU_Get_index (_Thread_Get_CPU (victim_thread));
@@ -187,27 +187,27 @@ static Scheduler_Node
    */
 	for (index = _Priority_bit_map_Get_highest (&self->Bit_map);
 		 index <= PRIORITY_MAXIMUM; index++)
-	  {
-		  Chain_Control *chain = &self->Ready[index];
-		  Chain_Node *chain_node;
-		  for (chain_node = _Chain_First (chain);
-			   chain_node != _Chain_Immutable_tail (chain);
-			   chain_node = _Chain_Next (chain_node))
-			{
-				node = (Scheduler_priority_affinity_SMP_Node *) chain_node;
+	{
+		Chain_Control *chain = &self->Ready[index];
+		Chain_Node *chain_node;
+		for (chain_node = _Chain_First (chain);
+			 chain_node != _Chain_Immutable_tail (chain);
+			 chain_node = _Chain_Next (chain_node))
+		{
+			node = (Scheduler_priority_affinity_SMP_Node *) chain_node;
 
-				/*
-				 * Can this thread run on this CPU?
-				 */
-				if (CPU_ISSET ((int)victim_cpu_index, node->Affinity.set))
-				  {
-					  highest = &node->Base.Base.Base;
-					  break;
-				  }
+			/*
+			 * Can this thread run on this CPU?
+			 */
+			if (CPU_ISSET ((int)victim_cpu_index, node->Affinity.set))
+			{
+				highest = &node->Base.Base.Base;
+				break;
 			}
-		  if (highest)
-			  break;
-	  }
+		}
+		if (highest)
+			break;
+	}
 
 	_Assert (highest != NULL);
 
@@ -225,11 +225,11 @@ void _Scheduler_priority_affinity_SMP_Block (const Scheduler_Control *
 	Scheduler_Context *context = _Scheduler_Get_context (scheduler);
 
 	_Scheduler_SMP_Block (context,
-						  thread,
-						  _Scheduler_priority_SMP_Extract_from_ready,
-						  _Scheduler_priority_affinity_SMP_Get_highest_ready,
-						  _Scheduler_priority_SMP_Move_from_ready_to_scheduled,
-						  _Scheduler_SMP_Allocate_processor_exact);
+						thread,
+						_Scheduler_priority_SMP_Extract_from_ready,
+						_Scheduler_priority_affinity_SMP_Get_highest_ready,
+						_Scheduler_priority_SMP_Move_from_ready_to_scheduled,
+						_Scheduler_SMP_Allocate_processor_exact);
 
 	/*
 	 * Since this removed a single thread from the scheduled set
@@ -264,33 +264,33 @@ static Scheduler_Node
 	for (chain_node = _Chain_Last (scheduled);
 		 chain_node != _Chain_Immutable_head (scheduled);
 		 chain_node = _Chain_Previous (chain_node))
-	  {
-		  Scheduler_priority_affinity_SMP_Node *node;
-		  Thread_Control *thread;
-		  uint32_t cpu_index;
+	{
+		Scheduler_priority_affinity_SMP_Node *node;
+		Thread_Control *thread;
+		uint32_t cpu_index;
 
-		  node = (Scheduler_priority_affinity_SMP_Node *) chain_node;
+		node = (Scheduler_priority_affinity_SMP_Node *) chain_node;
 
-		  /*
-		   * If we didn't find a thread which is of equal or lower importance
-		   * than filter thread is, then we can't schedule the filter thread
-		   * to execute.
-		   */
-		  if ((*order)
-			  (&node->Base.Base.Base.Node, &filter->Base.Base.Base.Node))
-			  break;
+		/*
+		 * If we didn't find a thread which is of equal or lower importance
+		 * than filter thread is, then we can't schedule the filter thread
+		 * to execute.
+		 */
+		if ((*order)
+			(&node->Base.Base.Base.Node, &filter->Base.Base.Base.Node))
+			break;
 
-		  /* cpu_index is the processor number thread is executing on */
-		  thread = _Scheduler_Node_get_owner (&node->Base.Base.Base);
-		  cpu_index = _Per_CPU_Get_index (_Thread_Get_CPU (thread));
+		/* cpu_index is the processor number thread is executing on */
+		thread = _Scheduler_Node_get_owner (&node->Base.Base.Base);
+		cpu_index = _Per_CPU_Get_index (_Thread_Get_CPU (thread));
 
-		  if (CPU_ISSET ((int)cpu_index, filter->Affinity.set))
-			{
-				lowest_scheduled = &node->Base.Base.Base;
-				break;
-			}
+		if (CPU_ISSET ((int)cpu_index, filter->Affinity.set))
+		{
+			lowest_scheduled = &node->Base.Base.Base;
+			break;
+		}
 
-	  }
+	}
 
 	return lowest_scheduled;
 }
@@ -306,14 +306,14 @@ static Thread_Control
 													Thread_Control * needs_help)
 {
 	return _Scheduler_SMP_Enqueue_ordered (context,
-										   node,
-										   needs_help,
-										   _Scheduler_priority_affinity_SMP_Insert_priority_fifo_order,
-										   _Scheduler_priority_SMP_Insert_ready_fifo,
-										   _Scheduler_SMP_Insert_scheduled_fifo,
-										   _Scheduler_priority_SMP_Move_from_scheduled_to_ready,
-										   _Scheduler_priority_affinity_SMP_Get_lowest_scheduled,
-										   _Scheduler_SMP_Allocate_processor_exact);
+										 node,
+										 needs_help,
+										 _Scheduler_priority_affinity_SMP_Insert_priority_fifo_order,
+										 _Scheduler_priority_SMP_Insert_ready_fifo,
+										 _Scheduler_SMP_Insert_scheduled_fifo,
+										 _Scheduler_priority_SMP_Move_from_scheduled_to_ready,
+										 _Scheduler_priority_affinity_SMP_Get_lowest_scheduled,
+										 _Scheduler_SMP_Allocate_processor_exact);
 }
 
 /*
@@ -325,75 +325,75 @@ static Thread_Control
  */
 static void
 _Scheduler_priority_affinity_SMP_Check_for_migrations (Scheduler_Context *
-													   context)
+													 context)
 {
 	Scheduler_Node *lowest_scheduled;
 	Scheduler_Node *highest_ready;
 
 	while (1)
-	  {
-		  highest_ready =
-			  _Scheduler_priority_affinity_SMP_Get_highest_ready (context,
-																  NULL);
+	{
+		highest_ready =
+			_Scheduler_priority_affinity_SMP_Get_highest_ready (context,
+																NULL);
 
-		  lowest_scheduled =
-			  _Scheduler_priority_affinity_SMP_Get_lowest_scheduled (context,
+		lowest_scheduled =
+			_Scheduler_priority_affinity_SMP_Get_lowest_scheduled (context,
 																	 highest_ready,
 																	 _Scheduler_SMP_Insert_priority_lifo_order);
 
-		  /*
-		   * If we can't find a thread to displace from the scheduled set,
-		   * then we have placed all the highest priority threads possible
-		   * in the scheduled set.
-		   *
-		   * We found the absolute highest priority thread without
-		   * considering affinity. But now we have to consider that thread's
-		   * affinity as we look to place it.
-		   */
-		  if (lowest_scheduled == NULL)
-			  break;
+		/*
+		 * If we can't find a thread to displace from the scheduled set,
+		 * then we have placed all the highest priority threads possible
+		 * in the scheduled set.
+		 *
+		 * We found the absolute highest priority thread without
+		 * considering affinity. But now we have to consider that thread's
+		 * affinity as we look to place it.
+		 */
+		if (lowest_scheduled == NULL)
+			break;
 
-		  /*
-		   * FIXME: Do not consider threads using the scheduler helping protocol
-		   * since this could produce more than one thread in need for help in one
-		   * operation which is currently not possible.
-		   */
-		  if (lowest_scheduled->help_state != SCHEDULER_HELP_YOURSELF)
-			  break;
+		/*
+		 * FIXME: Do not consider threads using the scheduler helping protocol
+		 * since this could produce more than one thread in need for help in one
+		 * operation which is currently not possible.
+		 */
+		if (lowest_scheduled->help_state != SCHEDULER_HELP_YOURSELF)
+			break;
 
-		  /*
-		   * But if we found a thread which is lower priority than one
-		   * in the ready set, then we need to swap them out.
-		   */
+		/*
+		 * But if we found a thread which is lower priority than one
+		 * in the ready set, then we need to swap them out.
+		 */
 
-		  _Scheduler_SMP_Node_change_state (_Scheduler_SMP_Node_downcast
+		_Scheduler_SMP_Node_change_state (_Scheduler_SMP_Node_downcast
 											(lowest_scheduled),
 											SCHEDULER_SMP_NODE_READY);
-		  _Scheduler_Thread_change_state (_Scheduler_Node_get_user
-										  (lowest_scheduled),
-										  THREAD_SCHEDULER_READY);
+		_Scheduler_Thread_change_state (_Scheduler_Node_get_user
+										(lowest_scheduled),
+										THREAD_SCHEDULER_READY);
 
-		  _Scheduler_SMP_Allocate_processor (context,
+		_Scheduler_SMP_Allocate_processor (context,
 											 highest_ready,
 											 lowest_scheduled,
 											 _Scheduler_SMP_Allocate_processor_exact);
 
-		  _Scheduler_priority_SMP_Move_from_ready_to_scheduled (context,
+		_Scheduler_priority_SMP_Move_from_ready_to_scheduled (context,
 																highest_ready);
 
-		  _Scheduler_priority_SMP_Move_from_scheduled_to_ready (context,
+		_Scheduler_priority_SMP_Move_from_scheduled_to_ready (context,
 																lowest_scheduled);
-	  }
+	}
 }
 
 /*
  * This is the public scheduler specific Unblock operation.
  */
 Thread_Control *_Scheduler_priority_affinity_SMP_Unblock (const
-														  Scheduler_Control *
-														  scheduler,
-														  Thread_Control *
-														  thread)
+														Scheduler_Control *
+														scheduler,
+														Thread_Control *
+														thread)
 {
 	Scheduler_Context *context = _Scheduler_Get_context (scheduler);
 	Thread_Control *needs_help;
@@ -416,25 +416,25 @@ Thread_Control *_Scheduler_priority_affinity_SMP_Unblock (const
  */
 static Thread_Control
 	*_Scheduler_priority_affinity_SMP_Enqueue_ordered (Scheduler_Context *
-													   context,
-													   Scheduler_Node * node,
-													   Thread_Control *
-													   needs_help,
-													   Chain_Node_order order,
-													   Scheduler_SMP_Insert
-													   insert_ready,
-													   Scheduler_SMP_Insert
-													   insert_scheduled)
+													 context,
+													 Scheduler_Node * node,
+													 Thread_Control *
+													 needs_help,
+													 Chain_Node_order order,
+													 Scheduler_SMP_Insert
+													 insert_ready,
+													 Scheduler_SMP_Insert
+													 insert_scheduled)
 {
 	return _Scheduler_SMP_Enqueue_ordered (context,
-										   node,
-										   needs_help,
-										   order,
-										   insert_ready,
-										   insert_scheduled,
-										   _Scheduler_priority_SMP_Move_from_scheduled_to_ready,
-										   _Scheduler_priority_affinity_SMP_Get_lowest_scheduled,
-										   _Scheduler_SMP_Allocate_processor_exact);
+										 node,
+										 needs_help,
+										 order,
+										 insert_ready,
+										 insert_scheduled,
+										 _Scheduler_priority_SMP_Move_from_scheduled_to_ready,
+										 _Scheduler_priority_affinity_SMP_Get_lowest_scheduled,
+										 _Scheduler_SMP_Allocate_processor_exact);
 }
 
 /*
@@ -483,15 +483,15 @@ static Thread_Control
  */
 static Thread_Control
 	*_Scheduler_priority_affinity_SMP_Enqueue_scheduled_lifo (Scheduler_Context
-															  * context,
-															  Scheduler_Node *
-															  node)
+															* context,
+															Scheduler_Node *
+															node)
 {
 	return _Scheduler_priority_affinity_SMP_Enqueue_scheduled_ordered (context,
-																	   node,
-																	   _Scheduler_SMP_Insert_priority_lifo_order,
-																	   _Scheduler_priority_SMP_Insert_ready_lifo,
-																	   _Scheduler_SMP_Insert_scheduled_lifo);
+																	 node,
+																	 _Scheduler_SMP_Insert_priority_lifo_order,
+																	 _Scheduler_priority_SMP_Insert_ready_lifo,
+																	 _Scheduler_SMP_Insert_scheduled_lifo);
 }
 
 /*
@@ -501,29 +501,29 @@ static Thread_Control
  */
 static Thread_Control
 	*_Scheduler_priority_affinity_SMP_Enqueue_scheduled_fifo (Scheduler_Context
-															  * context,
-															  Scheduler_Node *
-															  node)
+															* context,
+															Scheduler_Node *
+															node)
 {
 	return _Scheduler_priority_affinity_SMP_Enqueue_scheduled_ordered (context,
-																	   node,
-																	   _Scheduler_SMP_Insert_priority_fifo_order,
-																	   _Scheduler_priority_SMP_Insert_ready_fifo,
-																	   _Scheduler_SMP_Insert_scheduled_fifo);
+																	 node,
+																	 _Scheduler_SMP_Insert_priority_fifo_order,
+																	 _Scheduler_priority_SMP_Insert_ready_fifo,
+																	 _Scheduler_SMP_Insert_scheduled_fifo);
 }
 
 /*
  * This is the public scheduler specific Change Priority operation.
  */
 Thread_Control *_Scheduler_priority_affinity_SMP_Change_priority (const
-																  Scheduler_Control
-																  * scheduler,
-																  Thread_Control
-																  * thread,
-																  Priority_Control
-																  new_priority,
-																  bool
-																  prepend_it)
+																Scheduler_Control
+																* scheduler,
+																Thread_Control
+																* thread,
+																Priority_Control
+																new_priority,
+																bool
+																prepend_it)
 {
 	Scheduler_Context *context = _Scheduler_Get_context (scheduler);
 	Thread_Control *displaced;
@@ -548,19 +548,19 @@ Thread_Control *_Scheduler_priority_affinity_SMP_Change_priority (const
 }
 
 Thread_Control *_Scheduler_priority_affinity_SMP_Ask_for_help (const
-															   Scheduler_Control
-															   * scheduler,
-															   Thread_Control *
-															   offers_help,
-															   Thread_Control *
-															   needs_help)
+															 Scheduler_Control
+															 * scheduler,
+															 Thread_Control *
+															 offers_help,
+															 Thread_Control *
+															 needs_help)
 {
 	Scheduler_Context *context = _Scheduler_Get_context (scheduler);
 
 	needs_help = _Scheduler_SMP_Ask_for_help (context,
-											  offers_help,
-											  needs_help,
-											  _Scheduler_priority_affinity_SMP_Enqueue_fifo);
+											offers_help,
+											needs_help,
+											_Scheduler_priority_affinity_SMP_Enqueue_fifo);
 
 	_Scheduler_priority_affinity_SMP_Check_for_migrations (context);
 
@@ -582,9 +582,9 @@ bool _Scheduler_priority_affinity_SMP_Get_affinity (const Scheduler_Control *
 	(void)scheduler;
 
 	if (node->Affinity.setsize != cpusetsize)
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 
 	CPU_COPY (cpuset, node->Affinity.set);
 	return true;
@@ -605,9 +605,9 @@ bool _Scheduler_priority_affinity_SMP_Set_affinity (const Scheduler_Control *
 	 * Validate that the cpset meets basic requirements.
 	 */
 	if (!_CPU_set_Is_valid (cpuset, cpusetsize))
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 
 	/*
 	 * The old and new set are the same, there is no point in

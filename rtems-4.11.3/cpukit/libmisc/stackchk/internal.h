@@ -41,10 +41,10 @@ extern "C"
 
 #define PATTERN_SIZE_BYTES      (PATTERN_SIZE_WORDS * sizeof(uint32_t))
 
-	typedef struct
-	{
-		uint32_t pattern[PATTERN_SIZE_WORDS];
-	} Stack_check_Control;
+typedef struct
+{
+	uint32_t pattern[PATTERN_SIZE_WORDS];
+} Stack_check_Control;
 
 /*
  *  The pattern used to fill the entire stack.
@@ -57,35 +57,35 @@ extern "C"
  *  rtems_stack_checker_create_extension
  */
 
-	bool rtems_stack_checker_create_extension (Thread_Control * running,
-											   Thread_Control * the_thread);
+bool rtems_stack_checker_create_extension (Thread_Control * running,
+										   Thread_Control * the_thread);
 
 /*
  *  rtems_stack_checker_begin_extension
  */
 
-	void rtems_stack_checker_begin_extension (Thread_Control * the_thread);
+void rtems_stack_checker_begin_extension (Thread_Control * the_thread);
 
 /*
  *  rtems_stack_checker_switch_extension
  */
 
-	void rtems_stack_checker_switch_extension (Thread_Control * running,
+void rtems_stack_checker_switch_extension (Thread_Control * running,
 											   Thread_Control * heir);
 
 /*
  *  rtems_stack_checker_fatal_extension
  */
 
-	void rtems_stack_checker_fatal_extension (Internal_errors_Source source,
-											  bool is_internal,
-											  uint32_t status);
+void rtems_stack_checker_fatal_extension (Internal_errors_Source source,
+										  bool is_internal,
+										  uint32_t status);
 
 /*
  *  rtems_stack_checker_report_usage
  */
 
-	void rtems_stack_checker_report_usage (void);
+void rtems_stack_checker_report_usage (void);
 
 #ifdef __cplusplus
 }

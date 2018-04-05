@@ -34,7 +34,8 @@ static int rtems_shell_main_whoami (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_WHOAMI_Command = {
+rtems_shell_cmd_t rtems_shell_WHOAMI_Command =
+{
 	"whoami",					/* name */
 	"show current user",		/* usage */
 	"misc",						/* topic */

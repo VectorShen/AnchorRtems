@@ -70,18 +70,18 @@ char *if_indextoname (unsigned int ifindex, char *ifname)
 		return (NULL);			/* getifaddrs properly set errno */
 
 	for (ifa = ifaddrs; ifa != NULL; ifa = ifa->ifa_next)
-	  {
-		  if (ifa->ifa_addr &&
-			  ifa->ifa_addr->sa_family == AF_LINK &&
-			  ifindex == ((struct sockaddr_dl *)ifa->ifa_addr)->sdl_index)
-			  break;
-	  }
+	{
+		if (ifa->ifa_addr &&
+			ifa->ifa_addr->sa_family == AF_LINK &&
+			ifindex == ((struct sockaddr_dl *)ifa->ifa_addr)->sdl_index)
+			break;
+	}
 
 	if (ifa == NULL)
-	  {
-		  error = ENXIO;
-		  ifname = NULL;
-	  }
+	{
+		error = ENXIO;
+		ifname = NULL;
+	}
 	else
 		strncpy (ifname, ifa->ifa_name, IFNAMSIZ);
 

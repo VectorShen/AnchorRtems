@@ -52,74 +52,74 @@ extern "C"
 #endif
 
 /**
- *  @brief POSIX Timer Manager Initialization
- *
- *  This routine performs the initialization necessary for this manager.
- */
-	void _POSIX_Timer_Manager_initialization (void);
+*  @brief POSIX Timer Manager Initialization
+*
+*  This routine performs the initialization necessary for this manager.
+*/
+void _POSIX_Timer_Manager_initialization (void);
 
 /**
- *  @brief POSIX Timer Manager Timer Service Routine Helper
- *
- *  This is the operation that is run when a timer expires.
- */
-	void _POSIX_Timer_TSR (Objects_Id timer, void *data);
+*  @brief POSIX Timer Manager Timer Service Routine Helper
+*
+*  This is the operation that is run when a timer expires.
+*/
+void _POSIX_Timer_TSR (Objects_Id timer, void *data);
 
 /**
- *  @brief POSIX Timer Watchdog Insertion Helper
- */
-	bool _POSIX_Timer_Insert_helper (Watchdog_Control * timer,
-									 Watchdog_Interval ticks,
-									 Objects_Id id,
-									 Watchdog_Service_routine_entry TSR,
-									 void *arg);
+*  @brief POSIX Timer Watchdog Insertion Helper
+*/
+bool _POSIX_Timer_Insert_helper (Watchdog_Control * timer,
+								 Watchdog_Interval ticks,
+								 Objects_Id id,
+								 Watchdog_Service_routine_entry TSR,
+								 void *arg);
 
 /**
- *  The following defines the information control block used to manage
- *  this class of objects.
- */
-	POSIX_EXTERN Objects_Information _POSIX_Timer_Information;
+*  The following defines the information control block used to manage
+*  this class of objects.
+*/
+POSIX_EXTERN Objects_Information _POSIX_Timer_Information;
 
 /**
- *  @brief POSIX Timer Allocate
- *
- *  This function allocates a timer control block from
- *  the inactive chain of free timer control blocks.
- */
-	RTEMS_INLINE_ROUTINE POSIX_Timer_Control *_POSIX_Timer_Allocate (void)
-	{
-		return (POSIX_Timer_Control *)
-			_Objects_Allocate (&_POSIX_Timer_Information);
-	}
+*  @brief POSIX Timer Allocate
+*
+*  This function allocates a timer control block from
+*  the inactive chain of free timer control blocks.
+*/
+RTEMS_INLINE_ROUTINE POSIX_Timer_Control *_POSIX_Timer_Allocate (void)
+{
+	return (POSIX_Timer_Control *)
+		_Objects_Allocate (&_POSIX_Timer_Information);
+}
 
 /**
- *  @brief POSIX Timer Free
- *
- *  This routine frees a timer control block to the
- *  inactive chain of free timer control blocks.
- */
-	RTEMS_INLINE_ROUTINE void _POSIX_Timer_Free (POSIX_Timer_Control *
-												 the_timer)
-	{
-		_Objects_Free (&_POSIX_Timer_Information, &the_timer->Object);
-	}
+*  @brief POSIX Timer Free
+*
+*  This routine frees a timer control block to the
+*  inactive chain of free timer control blocks.
+*/
+RTEMS_INLINE_ROUTINE void _POSIX_Timer_Free (POSIX_Timer_Control *
+											 the_timer)
+{
+	_Objects_Free (&_POSIX_Timer_Information, &the_timer->Object);
+}
 
 /**
- *  @brief POSIX Timer Get
- *
- *  This function maps timer IDs to timer control blocks.
- *  If ID corresponds to a local timer, then it returns
- *  the timer control pointer which maps to ID and location
- *  is set to OBJECTS_LOCAL.  Otherwise, location is set
- *  to OBJECTS_ERROR and the returned value is undefined.
- */
-	RTEMS_INLINE_ROUTINE POSIX_Timer_Control *_POSIX_Timer_Get (timer_t id,
-																Objects_Locations
-																* location)
-	{
-		return (POSIX_Timer_Control *)
-			_Objects_Get (&_POSIX_Timer_Information, (Objects_Id) id, location);
-	}
+*  @brief POSIX Timer Get
+*
+*  This function maps timer IDs to timer control blocks.
+*  If ID corresponds to a local timer, then it returns
+*  the timer control pointer which maps to ID and location
+*  is set to OBJECTS_LOCAL.  Otherwise, location is set
+*  to OBJECTS_ERROR and the returned value is undefined.
+*/
+RTEMS_INLINE_ROUTINE POSIX_Timer_Control *_POSIX_Timer_Get (timer_t id,
+															Objects_Locations
+															* location)
+{
+	return (POSIX_Timer_Control *)
+		_Objects_Get (&_POSIX_Timer_Information, (Objects_Id) id, location);
+}
 
 #ifdef __cplusplus
 }

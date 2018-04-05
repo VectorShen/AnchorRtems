@@ -65,13 +65,14 @@ struct svc_raw_private
 static bool_t svcraw_recv (SVCXPRT * xprt, struct rpc_msg *msg);
 static enum xprt_stat svcraw_stat (SVCXPRT * xprt);
 static bool_t svcraw_getargs (SVCXPRT * xprt, xdrproc_t xdr_args,
-							  caddr_t args_ptr);
+							caddr_t args_ptr);
 static bool_t svcraw_reply (SVCXPRT * xprt, struct rpc_msg *msg);
 static bool_t svcraw_freeargs (SVCXPRT * xprt, xdrproc_t xdr_args,
-							   caddr_t args_ptr);
+							 caddr_t args_ptr);
 static void svcraw_destroy (SVCXPRT * xprt);
 
-static struct xp_ops server_ops = {
+static struct xp_ops server_ops =
+{
 	svcraw_recv,
 	svcraw_stat,
 	svcraw_getargs,
@@ -85,11 +86,11 @@ SVCXPRT *svcraw_create (void)
 	register struct svc_raw_private *srp = svcraw_private;
 
 	if (srp == 0)
-	  {
-		  srp = (struct svc_raw_private *)calloc (1, sizeof (*srp));
-		  if (srp == 0)
-			  return (0);
-	  }
+	{
+		srp = (struct svc_raw_private *)calloc (1, sizeof (*srp));
+		if (srp == 0)
+			return (0);
+	}
 	srp->server.xp_sock = 0;
 	srp->server.xp_port = 0;
 	srp->server.xp_ops = &server_ops;

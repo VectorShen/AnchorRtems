@@ -36,20 +36,20 @@ int pthread_getattr_np (pthread_t id, pthread_attr_t * attr)
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  api = the_thread->API_Extensions[THREAD_API_POSIX];
-			  _POSIX_Threads_Copy_attributes (attr, &api->Attributes);
-			  _Objects_Put (&the_thread->Object);
-			  return 0;
+		case OBJECTS_LOCAL:
+			api = the_thread->API_Extensions[THREAD_API_POSIX];
+			_POSIX_Threads_Copy_attributes (attr, &api->Attributes);
+			_Objects_Put (&the_thread->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 }

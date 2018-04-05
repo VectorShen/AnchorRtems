@@ -36,13 +36,13 @@ Scheduler_Void_or_thread _Scheduler_simple_Change_priority (const
 	_Scheduler_simple_Extract (scheduler, the_thread);
 
 	if (prepend_it)
-	  {
-		  _Scheduler_simple_Insert_priority_lifo (&context->Ready, the_thread);
-	  }
+	{
+		_Scheduler_simple_Insert_priority_lifo (&context->Ready, the_thread);
+	}
 	else
-	  {
-		  _Scheduler_simple_Insert_priority_fifo (&context->Ready, the_thread);
-	  }
+	{
+		_Scheduler_simple_Insert_priority_fifo (&context->Ready, the_thread);
+	}
 
 	_Scheduler_simple_Schedule_body (scheduler, the_thread, false);
 

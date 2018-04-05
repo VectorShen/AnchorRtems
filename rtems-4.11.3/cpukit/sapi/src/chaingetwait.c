@@ -35,12 +35,12 @@ rtems_status_code rtems_chain_get_with_wait (rtems_chain_control * chain,
 	rtems_chain_node *node = NULL;
 
 	while (sc == RTEMS_SUCCESSFUL && (node = rtems_chain_get (chain)) == NULL)
-	  {
-		  rtems_event_set out;
-		  sc = rtems_event_receive (events,
+	{
+		rtems_event_set out;
+		sc = rtems_event_receive (events,
 									RTEMS_EVENT_ALL | RTEMS_WAIT,
 									timeout, &out);
-	  }
+	}
 
 	*node_ptr = node;
 

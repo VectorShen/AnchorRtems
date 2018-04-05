@@ -24,7 +24,8 @@
 
 /* XXX this structure should use real constants */
 
-const rtems_filesystem_limits_and_options_t IMFS_LIMITS_AND_OPTIONS = {
+const rtems_filesystem_limits_and_options_t IMFS_LIMITS_AND_OPTIONS =
+{
 	5,							/* link_max */
 	6,							/* max_canon */
 	7,							/* max_input */

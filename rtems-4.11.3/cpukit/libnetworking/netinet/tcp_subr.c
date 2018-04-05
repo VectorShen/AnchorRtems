@@ -124,13 +124,13 @@ struct tcpiphdr *tcp_template (struct tcpcb *tp)
 	register struct tcpiphdr *n;
 
 	if ((n = tp->t_template) == 0)
-	  {
-		  m = m_get (M_DONTWAIT, MT_HEADER);
-		  if (m == NULL)
-			  return (0);
-		  m->m_len = sizeof (struct tcpiphdr);
-		  n = mtod (m, struct tcpiphdr *);
-	  }
+	{
+		m = m_get (M_DONTWAIT, MT_HEADER);
+		if (m == NULL)
+			return (0);
+		m->m_len = sizeof (struct tcpiphdr);
+		n = mtod (m, struct tcpiphdr *);
+	}
 	n->ti_next = n->ti_prev = 0;
 	n->ti_x1 = 0;
 	n->ti_pr = IPPROTO_TCP;
@@ -175,42 +175,42 @@ tcp_respond (struct tcpcb *tp, struct tcpiphdr *ti, struct mbuf *m,
 	struct route sro;
 
 	if (tp)
-	  {
-		  win = sbspace (&tp->t_inpcb->inp_socket->so_rcv);
-		  ro = &tp->t_inpcb->inp_route;
-	  }
+	{
+		win = sbspace (&tp->t_inpcb->inp_socket->so_rcv);
+		ro = &tp->t_inpcb->inp_route;
+	}
 	else
-	  {
-		  ro = &sro;
-		  bzero (ro, sizeof *ro);
-	  }
+	{
+		ro = &sro;
+		bzero (ro, sizeof *ro);
+	}
 	if (m == NULL)
-	  {
-		  m = m_gethdr (M_DONTWAIT, MT_HEADER);
-		  if (m == NULL)
-			  return;
+	{
+		m = m_gethdr (M_DONTWAIT, MT_HEADER);
+		if (m == NULL)
+			return;
 #ifdef TCP_COMPAT_42
-		  tlen = 1;
+		tlen = 1;
 #else
-		  tlen = 0;
+		tlen = 0;
 #endif
-		  m->m_data += max_linkhdr;
-		  *mtod (m, struct tcpiphdr *) = *ti;
-		  ti = mtod (m, struct tcpiphdr *);
-		  flags = TH_ACK;
-	  }
+		m->m_data += max_linkhdr;
+		*mtod (m, struct tcpiphdr *) = *ti;
+		ti = mtod (m, struct tcpiphdr *);
+		flags = TH_ACK;
+	}
 	else
-	  {
-		  m_freem (m->m_next);
-		  m->m_next = NULL;
-		  m->m_data = (caddr_t) ti;
-		  m->m_len = sizeof (struct tcpiphdr);
-		  tlen = 0;
+	{
+		m_freem (m->m_next);
+		m->m_next = NULL;
+		m->m_data = (caddr_t) ti;
+		m->m_len = sizeof (struct tcpiphdr);
+		tlen = 0;
 #define xchg(a,b,type) { type t; t=a; a=b; b=t; }
-		  xchg (ti->ti_dst.s_addr, ti->ti_src.s_addr, u_long);
-		  xchg (ti->ti_dport, ti->ti_sport, u_short);
+		xchg (ti->ti_dst.s_addr, ti->ti_src.s_addr, u_long);
+		xchg (ti->ti_dport, ti->ti_sport, u_short);
 #undef xchg
-	  }
+	}
 	ti->ti_len = htons ((u_short) (sizeof (struct tcphdr) + tlen));
 	tlen += sizeof (struct tcpiphdr);
 	m->m_len = tlen;
@@ -238,9 +238,9 @@ tcp_respond (struct tcpcb *tp, struct tcpiphdr *ti, struct mbuf *m,
 #endif
 	(void)ip_output (m, NULL, ro, 0, NULL);
 	if (ro == &sro && ro->ro_rt)
-	  {
-		  RTFREE (ro->ro_rt);
-	  }
+	{
+		RTFREE (ro->ro_rt);
+	}
 }
 
 /*
@@ -288,11 +288,11 @@ struct tcpcb *tcp_drop (struct tcpcb *tp, int errnum)
 	struct socket *so = tp->t_inpcb->inp_socket;
 
 	if (TCPS_HAVERCVDSYN (tp->t_state))
-	  {
-		  tp->t_state = TCPS_CLOSED;
-		  (void)tcp_output (tp);
-		  tcpstat.tcps_drops++;
-	  }
+	{
+		tp->t_state = TCPS_CLOSED;
+		(void)tcp_output (tp);
+		tcpstat.tcps_drops++;
+	}
 	else
 		tcpstat.tcps_conndrops++;
 	if (errnum == ETIMEDOUT && tp->t_softerror)
@@ -329,73 +329,73 @@ struct tcpcb *tcp_close (struct tcpcb *tp)
 	if (tp->t_rttupdated >= 16 &&
 		(rt = inp->inp_route.ro_rt) &&
 		((struct sockaddr_in *)rt_key (rt))->sin_addr.s_addr != INADDR_ANY)
-	  {
-		  register u_long i = 0;
+	{
+		register u_long i = 0;
 
-		  if ((rt->rt_rmx.rmx_locks & RTV_RTT) == 0)
-			{
-				i = tp->t_srtt * (RTM_RTTUNIT / (PR_SLOWHZ * TCP_RTT_SCALE));
-				if (rt->rt_rmx.rmx_rtt && i)
-					/*
-					 * filter this update to half the old & half
-					 * the new values, converting scale.
-					 * See route.h and tcp_var.h for a
-					 * description of the scaling constants.
-					 */
-					rt->rt_rmx.rmx_rtt = (rt->rt_rmx.rmx_rtt + i) / 2;
-				else
-					rt->rt_rmx.rmx_rtt = i;
-				tcpstat.tcps_cachedrtt++;
-			}
-		  if ((rt->rt_rmx.rmx_locks & RTV_RTTVAR) == 0)
-			{
-				i = tp->t_rttvar *
-					(RTM_RTTUNIT / (PR_SLOWHZ * TCP_RTTVAR_SCALE));
-				if (rt->rt_rmx.rmx_rttvar && i)
-					rt->rt_rmx.rmx_rttvar = (rt->rt_rmx.rmx_rttvar + i) / 2;
-				else
-					rt->rt_rmx.rmx_rttvar = i;
-				tcpstat.tcps_cachedrttvar++;
-			}
-		  /*
-		   * update the pipelimit (ssthresh) if it has been updated
-		   * already or if a pipesize was specified & the threshhold
-		   * got below half the pipesize.  I.e., wait for bad news
-		   * before we start updating, then update on both good
-		   * and bad news.
-		   */
-		  if (((rt->rt_rmx.rmx_locks & RTV_SSTHRESH) == 0 &&
-			   ((i = tp->snd_ssthresh) != 0) && rt->rt_rmx.rmx_ssthresh) ||
-			  i < (rt->rt_rmx.rmx_sendpipe / 2))
-			{
+		if ((rt->rt_rmx.rmx_locks & RTV_RTT) == 0)
+		{
+			i = tp->t_srtt * (RTM_RTTUNIT / (PR_SLOWHZ * TCP_RTT_SCALE));
+			if (rt->rt_rmx.rmx_rtt && i)
 				/*
-				 * convert the limit from user data bytes to
-				 * packets then to packet data bytes.
+				 * filter this update to half the old & half
+				 * the new values, converting scale.
+				 * See route.h and tcp_var.h for a
+				 * description of the scaling constants.
 				 */
-				i = (i + tp->t_maxseg / 2) / tp->t_maxseg;
-				if (i < 2)
-					i = 2;
-				i *= (u_long) (tp->t_maxseg + sizeof (struct tcpiphdr));
-				if (rt->rt_rmx.rmx_ssthresh)
-					rt->rt_rmx.rmx_ssthresh = (rt->rt_rmx.rmx_ssthresh + i) / 2;
-				else
-					rt->rt_rmx.rmx_ssthresh = i;
-				tcpstat.tcps_cachedssthresh++;
-			}
-	  }
+				rt->rt_rmx.rmx_rtt = (rt->rt_rmx.rmx_rtt + i) / 2;
+			else
+				rt->rt_rmx.rmx_rtt = i;
+			tcpstat.tcps_cachedrtt++;
+		}
+		if ((rt->rt_rmx.rmx_locks & RTV_RTTVAR) == 0)
+		{
+			i = tp->t_rttvar *
+				(RTM_RTTUNIT / (PR_SLOWHZ * TCP_RTTVAR_SCALE));
+			if (rt->rt_rmx.rmx_rttvar && i)
+				rt->rt_rmx.rmx_rttvar = (rt->rt_rmx.rmx_rttvar + i) / 2;
+			else
+				rt->rt_rmx.rmx_rttvar = i;
+			tcpstat.tcps_cachedrttvar++;
+		}
+		/*
+		 * update the pipelimit (ssthresh) if it has been updated
+		 * already or if a pipesize was specified & the threshhold
+		 * got below half the pipesize.  I.e., wait for bad news
+		 * before we start updating, then update on both good
+		 * and bad news.
+		 */
+		if (((rt->rt_rmx.rmx_locks & RTV_SSTHRESH) == 0 &&
+			 ((i = tp->snd_ssthresh) != 0) && rt->rt_rmx.rmx_ssthresh) ||
+			i < (rt->rt_rmx.rmx_sendpipe / 2))
+		{
+			/*
+			 * convert the limit from user data bytes to
+			 * packets then to packet data bytes.
+			 */
+			i = (i + tp->t_maxseg / 2) / tp->t_maxseg;
+			if (i < 2)
+				i = 2;
+			i *= (u_long) (tp->t_maxseg + sizeof (struct tcpiphdr));
+			if (rt->rt_rmx.rmx_ssthresh)
+				rt->rt_rmx.rmx_ssthresh = (rt->rt_rmx.rmx_ssthresh + i) / 2;
+			else
+				rt->rt_rmx.rmx_ssthresh = i;
+			tcpstat.tcps_cachedssthresh++;
+		}
+	}
 	/* free the reassembly queue, if any */
 	t = tp->seg_next;
 	while (t != (struct tcpiphdr *)tp)
-	  {
-		  t = (struct tcpiphdr *)t->ti_next;
+	{
+		t = (struct tcpiphdr *)t->ti_next;
 #if (defined(__GNUC__) && (defined(__arm__) || defined(__mips__)))
-		  LD32_UNALGN ((struct tcpiphdr *)t->ti_prev, m);
+		LD32_UNALGN ((struct tcpiphdr *)t->ti_prev, m);
 #else
-		  m = REASS_MBUF ((struct tcpiphdr *)t->ti_prev);
+		m = REASS_MBUF ((struct tcpiphdr *)t->ti_prev);
 #endif
-		  remque (t->ti_prev);
-		  m_freem (m);
-	  }
+		remque (t->ti_prev);
+		m_freem (m);
+	}
 	if (tp->t_template)
 		(void)m_free (dtom (tp->t_template));
 	free (tp, M_PCB);
@@ -430,9 +430,9 @@ static void tcp_notify (struct inpcb *inp, int error)
 	 */
 	if (tp->t_state == TCPS_ESTABLISHED &&
 		(error == EHOSTUNREACH || error == ENETUNREACH || error == EHOSTDOWN))
-	  {
-		  return;
-	  }
+	{
+		return;
+	}
 	else if (tp->t_state < TCPS_ESTABLISHED && tp->t_rxtshift > 3 &&
 			 tp->t_softerror)
 		so->so_error = error;
@@ -462,11 +462,11 @@ static int tcp_pcblist (SYSCTL_HANDLER_ARGS)
 	 * resource-intensive to repeat twice on every request.
 	 */
 	if (req->oldptr == NULL)
-	  {
-		  n = tcbinfo.ipi_count;
-		  req->oldidx = 2 * (sizeof xig) + (n + n / 8) * sizeof (struct xtcpcb);
-		  return (0);
-	  }
+	{
+		n = tcbinfo.ipi_count;
+		req->oldidx = 2 * (sizeof xig) + (n + n / 8) * sizeof (struct xtcpcb);
+		return (0);
+	}
 
 	if (req->newptr != NULL)
 		return (EPERM);
@@ -503,64 +503,64 @@ static int tcp_pcblist (SYSCTL_HANDLER_ARGS)
 	INP_INFO_RLOCK (&tcbinfo);
 	for (inp = LIST_FIRST (tcbinfo.listhead), i = 0; inp && i < n;
 		 inp = LIST_NEXT (inp, inp_list))
-	  {
-		  INP_LOCK (inp);
-		  if (inp->inp_gencnt <= gencnt)
+	{
+		INP_LOCK (inp);
+		if (inp->inp_gencnt <= gencnt)
 #if 0
-			  &&cr_canseesocket (req->td->td_ucred, inp->inp_socket) == 0)
+			&&cr_canseesocket (req->td->td_ucred, inp->inp_socket) == 0)
 #endif
-				  inp_list[i++] = inp;
-		  INP_UNLOCK (inp);
-	  }
+				inp_list[i++] = inp;
+		INP_UNLOCK (inp);
+	}
 	INP_INFO_RUNLOCK (&tcbinfo);
 	splx (s);
 	n = i;
 
 	error = 0;
 	for (i = 0; i < n; i++)
-	  {
-		  inp = inp_list[i];
-		  INP_LOCK (inp);
-		  if (inp->inp_gencnt <= gencnt)
-			{
-				struct xtcpcb xt;
-				caddr_t inp_ppcb;
-				xt.xt_len = sizeof xt;
-				/* XXX should avoid extra copy */
-				bcopy (inp, &xt.xt_inp, sizeof *inp);
-				inp_ppcb = inp->inp_ppcb;
-				if (inp_ppcb != NULL)
-					bcopy (inp_ppcb, &xt.xt_tp, sizeof xt.xt_tp);
-				else
-					bzero ((char *)&xt.xt_tp, sizeof xt.xt_tp);
+	{
+		inp = inp_list[i];
+		INP_LOCK (inp);
+		if (inp->inp_gencnt <= gencnt)
+		{
+			struct xtcpcb xt;
+			caddr_t inp_ppcb;
+			xt.xt_len = sizeof xt;
+			/* XXX should avoid extra copy */
+			bcopy (inp, &xt.xt_inp, sizeof *inp);
+			inp_ppcb = inp->inp_ppcb;
+			if (inp_ppcb != NULL)
+				bcopy (inp_ppcb, &xt.xt_tp, sizeof xt.xt_tp);
+			else
+				bzero ((char *)&xt.xt_tp, sizeof xt.xt_tp);
 #if 0
-				if (inp->inp_socket)
-					sotoxsocket (inp->inp_socket, &xt.xt_socket);
+			if (inp->inp_socket)
+				sotoxsocket (inp->inp_socket, &xt.xt_socket);
 #endif
-				error = SYSCTL_OUT (req, &xt, sizeof xt);
-			}
-		  INP_UNLOCK (inp);
-	  }
+			error = SYSCTL_OUT (req, &xt, sizeof xt);
+		}
+		INP_UNLOCK (inp);
+	}
 	if (!error)
-	  {
-		  /*
-		   * Give the user an updated idea of our state.
-		   * If the generation differs from what we told
-		   * her before, she knows that something happened
-		   * while we were processing this request, and it
-		   * might be necessary to retry.
-		   */
-		  s = splnet ();
-		  INP_INFO_RLOCK (&tcbinfo);
-		  xig.xig_gen = tcbinfo.ipi_gencnt;
+	{
+		/*
+		 * Give the user an updated idea of our state.
+		 * If the generation differs from what we told
+		 * her before, she knows that something happened
+		 * while we were processing this request, and it
+		 * might be necessary to retry.
+		 */
+		s = splnet ();
+		INP_INFO_RLOCK (&tcbinfo);
+		xig.xig_gen = tcbinfo.ipi_gencnt;
 #if 0
-		  xig.xig_sogen = so_gencnt;
+		xig.xig_sogen = so_gencnt;
 #endif
-		  xig.xig_count = tcbinfo.ipi_count;
-		  INP_INFO_RUNLOCK (&tcbinfo);
-		  splx (s);
-		  error = SYSCTL_OUT (req, &xig, sizeof xig);
-	  }
+		xig.xig_count = tcbinfo.ipi_count;
+		INP_INFO_RUNLOCK (&tcbinfo);
+		splx (s);
+		error = SYSCTL_OUT (req, &xig, sizeof xig);
+	}
 	free (inp_list, M_TEMP);
 	return error;
 }
@@ -584,17 +584,17 @@ void tcp_ctlinput (int cmd, struct sockaddr *sa, void *vip)
 			 ((unsigned)cmd > PRC_NCMDS || inetctlerrmap[cmd] == 0))
 		return;
 	if (ip != NULL)
-	  {
+	{
 #ifdef _IP_VHL
-		  th = (struct tcphdr *)((caddr_t) ip + (IP_VHL_HL (ip->ip_vhl) << 2));
+		th = (struct tcphdr *)((caddr_t) ip + (IP_VHL_HL (ip->ip_vhl) << 2));
 #else
-		  th = (struct tcphdr *)((caddr_t) ip + (ip->ip_hl << 2));
+		th = (struct tcphdr *)((caddr_t) ip + (ip->ip_hl << 2));
 #endif
-		  in_pcbnotify (&tcb, sa, th->th_dport, ip->ip_src, th->th_sport,
+		in_pcbnotify (&tcb, sa, th->th_dport, ip->ip_src, th->th_sport,
 						cmd, notify);
-	  }
+	}
 	else
-		  in_pcbnotify (&tcb, sa, 0, zeroin_addr, 0, cmd, notify);
+		in_pcbnotify (&tcb, sa, 0, zeroin_addr, 0, cmd, notify);
 }
 
 /*
@@ -606,7 +606,7 @@ void tcp_quench (struct inpcb *inp, int errnum)
 	struct tcpcb *tp = intotcpcb (inp);
 
 	if (tp)
-		  tp->snd_cwnd = tp->t_maxseg;
+		tp->snd_cwnd = tp->t_maxseg;
 }
 
 /*
@@ -625,62 +625,62 @@ void tcp_mtudisc (struct inpcb *inp, int errnum)
 	int mss;
 
 	if (tp)
-	  {
-		  rt = tcp_rtlookup (inp);
-		  if (!rt || !rt->rt_rmx.rmx_mtu)
-			{
-				tp->t_maxopd = tp->t_maxseg = tcp_mssdflt;
-				return;
-			}
-		  taop = rmx_taop (rt->rt_rmx);
-		  offered = taop->tao_mssopt;
-		  mss = rt->rt_rmx.rmx_mtu - sizeof (struct tcpiphdr);
-		  if (offered)
-			  mss = min (mss, offered);
-		  /*
-		   * XXX - The above conditional probably violates the TCP
-		   * spec.  The problem is that, since we don't know the
-		   * other end's MSS, we are supposed to use a conservative
-		   * default.  But, if we do that, then MTU discovery will
-		   * never actually take place, because the conservative
-		   * default is much less than the MTUs typically seen
-		   * on the Internet today.  For the moment, we'll sweep
-		   * this under the carpet.
-		   *
-		   * The conservative default might not actually be a problem
-		   * if the only case this occurs is when sending an initial
-		   * SYN with options and data to a host we've never talked
-		   * to before.  Then, they will reply with an MSS value which
-		   * will get recorded and the new parameters should get
-		   * recomputed.  For Further Study.
-		   */
-		  if (tp->t_maxopd <= mss)
-			  return;
-		  tp->t_maxopd = mss;
+	{
+		rt = tcp_rtlookup (inp);
+		if (!rt || !rt->rt_rmx.rmx_mtu)
+		{
+			tp->t_maxopd = tp->t_maxseg = tcp_mssdflt;
+			return;
+		}
+		taop = rmx_taop (rt->rt_rmx);
+		offered = taop->tao_mssopt;
+		mss = rt->rt_rmx.rmx_mtu - sizeof (struct tcpiphdr);
+		if (offered)
+			mss = min (mss, offered);
+		/*
+		 * XXX - The above conditional probably violates the TCP
+		 * spec.  The problem is that, since we don't know the
+		 * other end's MSS, we are supposed to use a conservative
+		 * default.  But, if we do that, then MTU discovery will
+		 * never actually take place, because the conservative
+		 * default is much less than the MTUs typically seen
+		 * on the Internet today.  For the moment, we'll sweep
+		 * this under the carpet.
+		 *
+		 * The conservative default might not actually be a problem
+		 * if the only case this occurs is when sending an initial
+		 * SYN with options and data to a host we've never talked
+		 * to before.  Then, they will reply with an MSS value which
+		 * will get recorded and the new parameters should get
+		 * recomputed.  For Further Study.
+		 */
+		if (tp->t_maxopd <= mss)
+			return;
+		tp->t_maxopd = mss;
 
-		  if ((tp->t_flags & (TF_REQ_TSTMP | TF_NOOPT)) == TF_REQ_TSTMP &&
-			  (tp->t_flags & TF_RCVD_TSTMP) == TF_RCVD_TSTMP)
-			  mss -= TCPOLEN_TSTAMP_APPA;
-		  if ((tp->t_flags & (TF_REQ_CC | TF_NOOPT)) == TF_REQ_CC &&
-			  (tp->t_flags & TF_RCVD_CC) == TF_RCVD_CC)
-			  mss -= TCPOLEN_CC_APPA;
+		if ((tp->t_flags & (TF_REQ_TSTMP | TF_NOOPT)) == TF_REQ_TSTMP &&
+			(tp->t_flags & TF_RCVD_TSTMP) == TF_RCVD_TSTMP)
+			mss -= TCPOLEN_TSTAMP_APPA;
+		if ((tp->t_flags & (TF_REQ_CC | TF_NOOPT)) == TF_REQ_CC &&
+			(tp->t_flags & TF_RCVD_CC) == TF_RCVD_CC)
+			mss -= TCPOLEN_CC_APPA;
 #if	(MCLBYTES & (MCLBYTES - 1)) == 0
-		  if (mss > MCLBYTES)
-			  mss &= ~(MCLBYTES - 1);
+		if (mss > MCLBYTES)
+			mss &= ~(MCLBYTES - 1);
 #else
-		  if (mss > MCLBYTES)
-			  mss = mss / MCLBYTES * MCLBYTES;
+		if (mss > MCLBYTES)
+			mss = mss / MCLBYTES * MCLBYTES;
 #endif
-		  if (so->so_snd.sb_hiwat < mss)
-			  mss = so->so_snd.sb_hiwat;
+		if (so->so_snd.sb_hiwat < mss)
+			mss = so->so_snd.sb_hiwat;
 
-		  tp->t_maxseg = mss;
+		tp->t_maxseg = mss;
 
-		  tcpstat.tcps_mturesent++;
-		  tp->t_rtt = 0;
-		  tp->snd_nxt = tp->snd_una;
-		  tcp_output (tp);
-	  }
+		tcpstat.tcps_mturesent++;
+		tp->t_rtt = 0;
+		tp->snd_nxt = tp->snd_una;
+		tcp_output (tp);
+	}
 }
 
 /*
@@ -694,20 +694,20 @@ struct rtentry *tcp_rtlookup (struct inpcb *inp)
 	struct route *ro;
 	struct rtentry *rt;
 
-	  ro = &inp->inp_route;
-	  rt = ro->ro_rt;
+	ro = &inp->inp_route;
+	rt = ro->ro_rt;
 	if (rt == NULL || !(rt->rt_flags & RTF_UP))
-	  {
-		  /* No route yet, so try to acquire one */
-		  if (inp->inp_faddr.s_addr != INADDR_ANY)
-			{
-				ro->ro_dst.sa_family = AF_INET;
-				ro->ro_dst.sa_len = sizeof (ro->ro_dst);
-				((struct sockaddr_in *)&ro->ro_dst)->sin_addr = inp->inp_faddr;
-				rtalloc (ro);
-				rt = ro->ro_rt;
-			}
-	  }
+	{
+		/* No route yet, so try to acquire one */
+		if (inp->inp_faddr.s_addr != INADDR_ANY)
+		{
+			ro->ro_dst.sa_family = AF_INET;
+			ro->ro_dst.sa_len = sizeof (ro->ro_dst);
+			((struct sockaddr_in *)&ro->ro_dst)->sin_addr = inp->inp_faddr;
+			rtalloc (ro);
+			rt = ro->ro_rt;
+		}
+	}
 	return rt;
 }
 
@@ -725,5 +725,5 @@ struct rmxp_tao *tcp_gettaocache (struct inpcb *inp)
 		(rt->rt_flags & (RTF_UP | RTF_HOST)) != (RTF_UP | RTF_HOST))
 		return NULL;
 
-	  return rmx_taop (rt->rt_rmx);
+	return rmx_taop (rt->rt_rmx);
 }

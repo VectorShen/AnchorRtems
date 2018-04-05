@@ -122,38 +122,38 @@ enum auth_stat _authenticate (struct svc_req *rqst, struct rpc_msg *msg)
 	rqst->rq_xprt->xp_verf.oa_length = 0;
 	cred_flavor = rqst->rq_cred.oa_flavor;
 	switch (cred_flavor)
-	  {
-		  case AUTH_NULL:
-			  return (_svcauth_null (rqst, msg));
-		  case AUTH_UNIX:
-			  return (_svcauth_unix (rqst, msg));
-		  case AUTH_SHORT:
-			  return (_svcauth_short (rqst, msg));
-			  /*
-			   * We leave AUTH_DES turned off by default because svcauth_des()
-			   * needs getpublickey(), which is in librpcsvc, not libc. If we
-			   * included AUTH_DES as a built-in flavor, programs that don't
-			   * have -lrpcsvc in their Makefiles wouldn't link correctly, even
-			   * though they don't use AUTH_DES. And I'm too lazy to go through
-			   * the tree looking for all of them.
-			   */
+	{
+		case AUTH_NULL:
+			return (_svcauth_null (rqst, msg));
+		case AUTH_UNIX:
+			return (_svcauth_unix (rqst, msg));
+		case AUTH_SHORT:
+			return (_svcauth_short (rqst, msg));
+			/*
+			 * We leave AUTH_DES turned off by default because svcauth_des()
+			 * needs getpublickey(), which is in librpcsvc, not libc. If we
+			 * included AUTH_DES as a built-in flavor, programs that don't
+			 * have -lrpcsvc in their Makefiles wouldn't link correctly, even
+			 * though they don't use AUTH_DES. And I'm too lazy to go through
+			 * the tree looking for all of them.
+			 */
 #ifdef DES_BUILTIN
-		  case AUTH_DES:
-			  return (_svcauth_des (rqst, msg));
+		case AUTH_DES:
+			return (_svcauth_des (rqst, msg));
 #endif
-	  }
+	}
 
 	/* flavor doesn't match any of the builtin types, so try new ones */
 	for (asp = Auths; asp; asp = asp->next)
-	  {
-		  if (asp->flavor == cred_flavor)
-			{
-				enum auth_stat as;
+	{
+		if (asp->flavor == cred_flavor)
+		{
+			enum auth_stat as;
 
-				as = (*asp->handler) (rqst, msg);
-				return (as);
-			}
-	  }
+			as = (*asp->handler) (rqst, msg);
+			return (as);
+		}
+	}
 
 	return (AUTH_REJECTEDCRED);
 }
@@ -180,43 +180,43 @@ enum auth_stat _authenticate (struct svc_req *rqst, struct rpc_msg *msg)
 
 int
 svc_auth_reg (int cred_flavor,
-			  enum auth_stat (*handler) (struct svc_req * rqst,
+			enum auth_stat (*handler) (struct svc_req * rqst,
 										 struct rpc_msg * msg))
 {
 	register struct authsvc *asp;
 
 	switch (cred_flavor)
-	  {
-		  case AUTH_NULL:
-		  case AUTH_UNIX:
-		  case AUTH_SHORT:
+	{
+		case AUTH_NULL:
+		case AUTH_UNIX:
+		case AUTH_SHORT:
 #ifdef DES_BUILTIN
-		  case AUTH_DES:
+		case AUTH_DES:
 #endif
-			  /* already registered */
-			  return (1);
+			/* already registered */
+			return (1);
 
-		  default:
-			  for (asp = Auths; asp; asp = asp->next)
+		default:
+			for (asp = Auths; asp; asp = asp->next)
+			{
+				if (asp->flavor == cred_flavor)
 				{
-					if (asp->flavor == cred_flavor)
-					  {
-						  /* already registered */
-						  return (1);
-					  }
+					/* already registered */
+					return (1);
 				}
+			}
 
-			  /* this is a new one, so go ahead and register it */
-			  asp = (struct authsvc *)mem_alloc (sizeof (*asp));
-			  if (asp == NULL)
-				{
-					return (-1);
-				}
-			  asp->flavor = cred_flavor;
-			  asp->handler = handler;
-			  asp->next = Auths;
-			  Auths = asp;
-			  break;
-	  }
+			/* this is a new one, so go ahead and register it */
+			asp = (struct authsvc *)mem_alloc (sizeof (*asp));
+			if (asp == NULL)
+			{
+				return (-1);
+			}
+			asp->flavor = cred_flavor;
+			asp->handler = handler;
+			asp->next = Auths;
+			Auths = asp;
+			break;
+	}
 	return (0);
 }

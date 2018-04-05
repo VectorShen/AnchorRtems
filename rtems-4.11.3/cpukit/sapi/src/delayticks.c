@@ -24,14 +24,14 @@ void rtems_counter_delay_ticks (rtems_counter_ticks ticks)
 	rtems_counter_ticks delta = 0;
 
 	do
-	  {
-		  rtems_counter_ticks b;
+	{
+		rtems_counter_ticks b;
 
-		  ticks -= delta;
+		ticks -= delta;
 
-		  b = rtems_counter_read ();
-		  delta = rtems_counter_difference (b, a);
-		  a = b;
-	  }
+		b = rtems_counter_read ();
+		delta = rtems_counter_difference (b, a);
+		a = b;
+	}
 	while (ticks > delta);
 }

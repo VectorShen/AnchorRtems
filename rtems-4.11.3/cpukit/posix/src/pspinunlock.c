@@ -50,20 +50,20 @@ int pthread_spin_unlock (pthread_spinlock_t * spinlock)
 
 	the_spinlock = _POSIX_Spinlock_Get (spinlock, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  status = _CORE_spinlock_Release (&the_spinlock->Spinlock);
-			  _Objects_Put (&the_spinlock->Object);
-			  return
-				  _POSIX_Spinlock_Translate_core_spinlock_return_code (status);
+		case OBJECTS_LOCAL:
+			status = _CORE_spinlock_Release (&the_spinlock->Spinlock);
+			_Objects_Put (&the_spinlock->Object);
+			return
+				_POSIX_Spinlock_Translate_core_spinlock_return_code (status);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

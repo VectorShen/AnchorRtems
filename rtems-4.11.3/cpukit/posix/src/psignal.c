@@ -47,13 +47,14 @@ RTEMS_STATIC_ASSERT (sizeof (_POSIX_signals_Vectors) ==
 sigset_t _POSIX_signals_Pending;
 
 void _POSIX_signals_Abnormal_termination_handler (int signo
-												  __attribute__ ((unused)))
+												__attribute__ ((unused)))
 {
 	exit (1);
 }
 
 #define SIG_ARRAY_MAX  (SIGRTMAX + 1)
-const struct sigaction _POSIX_signals_Default_vectors[SIG_ARRAY_MAX] = {
+const struct sigaction _POSIX_signals_Default_vectors[SIG_ARRAY_MAX] =
+{
 	/* NO SIGNAL 0 */ SIGACTION_IGNORE,
 	/* SIGHUP    1 */ SIGACTION_TERMINATE,
 	/* SIGINT    2 */ SIGACTION_TERMINATE,
@@ -140,29 +141,29 @@ void _POSIX_signals_Action_handler (Thread_Control * executing,
 	 *  processed at all.  No point in doing this loop otherwise.
 	 */
 	while (1)
-	  {
-		  _POSIX_signals_Acquire (&lock_context);
-		  if (!(~api->signals_blocked &
+	{
+		_POSIX_signals_Acquire (&lock_context);
+		if (!(~api->signals_blocked &
 				(api->signals_pending | _POSIX_signals_Pending)))
-			{
-				_POSIX_signals_Release (&lock_context);
-				break;
-			}
-		  _POSIX_signals_Release (&lock_context);
+		{
+			_POSIX_signals_Release (&lock_context);
+			break;
+		}
+		_POSIX_signals_Release (&lock_context);
 
-		  for (signo = SIGRTMIN; signo <= SIGRTMAX; signo++)
-			{
-				_POSIX_signals_Check_signal (api, signo, false);
-				_POSIX_signals_Check_signal (api, signo, true);
-			}
-		  /* Unfortunately - nothing like __SIGFIRSTNOTRT in newlib signal .h */
+		for (signo = SIGRTMIN; signo <= SIGRTMAX; signo++)
+		{
+			_POSIX_signals_Check_signal (api, signo, false);
+			_POSIX_signals_Check_signal (api, signo, true);
+		}
+		/* Unfortunately - nothing like __SIGFIRSTNOTRT in newlib signal .h */
 
-		  for (signo = SIGHUP; signo <= __SIGLASTNOTRT; signo++)
-			{
-				_POSIX_signals_Check_signal (api, signo, false);
-				_POSIX_signals_Check_signal (api, signo, true);
-			}
-	  }
+		for (signo = SIGHUP; signo <= __SIGLASTNOTRT; signo++)
+		{
+			_POSIX_signals_Check_signal (api, signo, false);
+			_POSIX_signals_Check_signal (api, signo, true);
+		}
+	}
 
 	executing->Wait.return_code = hold_errno;
 }
@@ -186,7 +187,7 @@ void _POSIX_signals_Manager_Initialization (void)
 	 *  Initialize the queue we use to block for signals
 	 */
 	_Thread_queue_Initialize (&_POSIX_signals_Wait_queue,
-							  THREAD_QUEUE_DISCIPLINE_FIFO);
+							THREAD_QUEUE_DISCIPLINE_FIFO);
 
 	/* XXX status codes */
 
@@ -197,16 +198,16 @@ void _POSIX_signals_Manager_Initialization (void)
 		_Chain_Initialize_empty (&_POSIX_signals_Siginfo[signo]);
 
 	if (maximum_queued_signals)
-	  {
-		  _Chain_Initialize (&_POSIX_signals_Inactive_siginfo,
+	{
+		_Chain_Initialize (&_POSIX_signals_Inactive_siginfo,
 							 _Workspace_Allocate_or_fatal_error
 							 (maximum_queued_signals *
-							  sizeof (POSIX_signals_Siginfo_node)),
+							sizeof (POSIX_signals_Siginfo_node)),
 							 maximum_queued_signals,
 							 sizeof (POSIX_signals_Siginfo_node));
-	  }
+	}
 	else
-	  {
-		  _Chain_Initialize_empty (&_POSIX_signals_Inactive_siginfo);
-	  }
+	{
+		_Chain_Initialize_empty (&_POSIX_signals_Inactive_siginfo);
+	}
 }

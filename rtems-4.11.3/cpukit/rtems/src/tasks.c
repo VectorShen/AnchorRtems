@@ -45,7 +45,7 @@
  */
 
 static bool _RTEMS_tasks_Create_extension (Thread_Control * executing,
-										   Thread_Control * created)
+										 Thread_Control * created)
 {
 	RTEMS_API_Control *api;
 	size_t i;
@@ -64,10 +64,10 @@ static bool _RTEMS_tasks_Create_extension (Thread_Control * executing,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	if (rtems_configuration_get_notepads_enabled ())
-	  {
-		  for (i = 0; i < RTEMS_NUMBER_NOTEPADS; i++)
-			  api->Notepads[i] = 0;
-	  }
+	{
+		for (i = 0; i < RTEMS_NUMBER_NOTEPADS; i++)
+			api->Notepads[i] = 0;
+	}
 #pragma GCC diagnostic pop
 
 	return true;
@@ -81,7 +81,7 @@ static bool _RTEMS_tasks_Create_extension (Thread_Control * executing,
  */
 
 static void _RTEMS_tasks_Start_extension (Thread_Control * executing,
-										  Thread_Control * started)
+										Thread_Control * started)
 {
 	RTEMS_API_Control *api;
 
@@ -92,7 +92,7 @@ static void _RTEMS_tasks_Start_extension (Thread_Control * executing,
 }
 
 static void _RTEMS_tasks_Delete_extension (Thread_Control * executing,
-										   Thread_Control * deleted)
+										 Thread_Control * deleted)
 {
 	RTEMS_API_Control *api;
 
@@ -115,18 +115,18 @@ static void _RTEMS_tasks_Terminate_extension (Thread_Control * executing)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	do
-	  {
-		  rtems_task_variable_t *tvp, *next;
+	{
+		rtems_task_variable_t *tvp, *next;
 
-		  tvp = executing->task_variables;
-		  executing->task_variables = NULL;
-		  while (tvp)
-			{
-				next = (rtems_task_variable_t *) tvp->next;
-				_RTEMS_Tasks_Invoke_task_variable_dtor (executing, tvp);
-				tvp = next;
-			}
-	  }
+		tvp = executing->task_variables;
+		executing->task_variables = NULL;
+		while (tvp)
+		{
+			next = (rtems_task_variable_t *) tvp->next;
+			_RTEMS_Tasks_Invoke_task_variable_dtor (executing, tvp);
+			tvp = next;
+		}
+	}
 	while (0);
 #pragma GCC diagnostic pop
 #endif
@@ -147,7 +147,7 @@ static void _RTEMS_tasks_Terminate_extension (Thread_Control * executing)
  *        disabled entirely for SMP configurations.
  */
 static void _RTEMS_tasks_Switch_extension (Thread_Control * executing,
-										   Thread_Control * heir)
+										 Thread_Control * heir)
 {
 	rtems_task_variable_t *tvp;
 
@@ -157,19 +157,19 @@ static void _RTEMS_tasks_Switch_extension (Thread_Control * executing,
 
 	tvp = executing->task_variables;
 	while (tvp)
-	  {
-		  tvp->tval = *tvp->ptr;
-		  *tvp->ptr = tvp->gval;
-		  tvp = (rtems_task_variable_t *) tvp->next;
-	  }
+	{
+		tvp->tval = *tvp->ptr;
+		*tvp->ptr = tvp->gval;
+		tvp = (rtems_task_variable_t *) tvp->next;
+	}
 
 	tvp = heir->task_variables;
 	while (tvp)
-	  {
-		  tvp->gval = *tvp->ptr;
-		  *tvp->ptr = tvp->tval;
-		  tvp = (rtems_task_variable_t *) tvp->next;
-	  }
+	{
+		tvp->gval = *tvp->ptr;
+		*tvp->ptr = tvp->tval;
+		tvp = (rtems_task_variable_t *) tvp->next;
+	}
 }
 
 #define RTEMS_TASKS_SWITCH_EXTENSION _RTEMS_tasks_Switch_extension
@@ -177,14 +177,16 @@ static void _RTEMS_tasks_Switch_extension (Thread_Control * executing,
 #define RTEMS_TASKS_SWITCH_EXTENSION NULL
 #endif
 
-API_extensions_Control _RTEMS_tasks_API_extensions = {
+API_extensions_Control _RTEMS_tasks_API_extensions =
+{
 #if defined(FUNCTIONALITY_NOT_CURRENTLY_USED_BY_ANY_API)
 	.predriver_hook = NULL,
 #endif
 	.postdriver_hook = _RTEMS_tasks_Initialize_user_tasks
 };
 
-User_extensions_Control _RTEMS_tasks_User_extensions = {
+User_extensions_Control _RTEMS_tasks_User_extensions =
+{
 	{NULL, NULL}
 	,
 	{{NULL, NULL}

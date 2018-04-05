@@ -46,59 +46,59 @@ int IMFS_make_generic_node (const char *path,
 	mode &= ~rtems_filesystem_umask;
 
 	switch (mode & S_IFMT)
-	  {
-		  case S_IFBLK:
-		  case S_IFCHR:
-		  case S_IFIFO:
-		  case S_IFREG:
-		  case S_IFSOCK:
-			  break;
-		  default:
-			  errno = EINVAL;
-			  rv = -1;
-			  break;
-	  }
+	{
+		case S_IFBLK:
+		case S_IFCHR:
+		case S_IFIFO:
+		case S_IFREG:
+		case S_IFSOCK:
+			break;
+		default:
+			errno = EINVAL;
+			rv = -1;
+			break;
+	}
 
 	if (rv == 0)
-	  {
-		  rtems_filesystem_eval_path_context_t ctx;
-		  int eval_flags = RTEMS_FS_FOLLOW_LINK
-			  | RTEMS_FS_MAKE | RTEMS_FS_EXCLUSIVE;
-		  const rtems_filesystem_location_info_t *currentloc =
-			  rtems_filesystem_eval_path_start (&ctx, path, eval_flags);
+	{
+		rtems_filesystem_eval_path_context_t ctx;
+		int eval_flags = RTEMS_FS_FOLLOW_LINK
+			| RTEMS_FS_MAKE | RTEMS_FS_EXCLUSIVE;
+		const rtems_filesystem_location_info_t *currentloc =
+			rtems_filesystem_eval_path_start (&ctx, path, eval_flags);
 
-		  if (IMFS_is_imfs_instance (currentloc))
+		if (IMFS_is_imfs_instance (currentloc))
+		{
+			IMFS_jnode_t *new_node = IMFS_create_node (currentloc,
+													 node_control,
+													 sizeof
+													 (IMFS_generic_t),
+													 rtems_filesystem_eval_path_get_token
+													 (&ctx),
+													 rtems_filesystem_eval_path_get_tokenlen
+													 (&ctx),
+													 mode,
+													 context);
+
+			if (new_node != NULL)
 			{
-				IMFS_jnode_t *new_node = IMFS_create_node (currentloc,
-														   node_control,
-														   sizeof
-														   (IMFS_generic_t),
-														   rtems_filesystem_eval_path_get_token
-														   (&ctx),
-														   rtems_filesystem_eval_path_get_tokenlen
-														   (&ctx),
-														   mode,
-														   context);
+				IMFS_jnode_t *parent = currentloc->node_access;
 
-				if (new_node != NULL)
-				  {
-					  IMFS_jnode_t *parent = currentloc->node_access;
-
-					  IMFS_mtime_ctime_update (parent);
-				  }
-				else
-				  {
-					  rv = -1;
-				  }
+				IMFS_mtime_ctime_update (parent);
 			}
-		  else
+			else
 			{
-				rtems_filesystem_eval_path_error (&ctx, ENOTSUP);
 				rv = -1;
 			}
+		}
+		else
+		{
+			rtems_filesystem_eval_path_error (&ctx, ENOTSUP);
+			rv = -1;
+		}
 
-		  rtems_filesystem_eval_path_cleanup (&ctx);
-	  }
+		rtems_filesystem_eval_path_cleanup (&ctx);
+	}
 
 	return rv;
 }

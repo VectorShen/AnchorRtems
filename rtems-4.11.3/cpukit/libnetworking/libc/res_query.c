@@ -107,9 +107,9 @@
  * Caller must parse answer and determine whether it answers the question.
  */
 int res_query (const char *name,	/* domain name */
-			   int class, int type,	/* class and type of query */
-			   u_char * answer,	/* buffer to put answer */
-			   int anslen)		/* size of answer buffer */
+			 int class, int type,	/* class and type of query */
+			 u_char * answer,	/* buffer to put answer */
+			 int anslen)		/* size of answer buffer */
 {
 	u_char buf[MAXPACKET];
 	HEADER *hp = (HEADER *) answer;
@@ -118,10 +118,10 @@ int res_query (const char *name,	/* domain name */
 	hp->rcode = NOERROR;		/* default */
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (-1);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
 		printf (";; res_query(%s, %d, %d)\n", name, class, type);
@@ -130,52 +130,52 @@ int res_query (const char *name,	/* domain name */
 	n = res_mkquery (QUERY, name, class, type, NULL, 0, NULL,
 					 buf, sizeof (buf));
 	if (n <= 0)
-	  {
+	{
 #ifdef DEBUG
-		  if (_res.options & RES_DEBUG)
-			  printf (";; res_query: mkquery failed\n");
+		if (_res.options & RES_DEBUG)
+			printf (";; res_query: mkquery failed\n");
 #endif
-		  h_errno = NO_RECOVERY;
-		  return (n);
-	  }
+		h_errno = NO_RECOVERY;
+		return (n);
+	}
 	n = res_send (buf, n, answer, anslen);
 	if (n < 0)
-	  {
+	{
 #ifdef DEBUG
-		  if (_res.options & RES_DEBUG)
-			  printf (";; res_query: send error\n");
+		if (_res.options & RES_DEBUG)
+			printf (";; res_query: send error\n");
 #endif
-		  h_errno = TRY_AGAIN;
-		  return (n);
-	  }
+		h_errno = TRY_AGAIN;
+		return (n);
+	}
 
 	if (hp->rcode != NOERROR || ntohs (hp->ancount) == 0)
-	  {
+	{
 #ifdef DEBUG
-		  if (_res.options & RES_DEBUG)
-			  printf (";; rcode = %d, ancount=%d\n", hp->rcode,
-					  ntohs (hp->ancount));
+		if (_res.options & RES_DEBUG)
+			printf (";; rcode = %d, ancount=%d\n", hp->rcode,
+					ntohs (hp->ancount));
 #endif
-		  switch (hp->rcode)
-			{
-				case NXDOMAIN:
-					h_errno = HOST_NOT_FOUND;
-					break;
-				case SERVFAIL:
-					h_errno = TRY_AGAIN;
-					break;
-				case NOERROR:
-					h_errno = NO_DATA;
-					break;
-				case FORMERR:
-				case NOTIMP:
-				case REFUSED:
-				default:
-					h_errno = NO_RECOVERY;
-					break;
-			}
-		  return (-1);
-	  }
+		switch (hp->rcode)
+		{
+			case NXDOMAIN:
+				h_errno = HOST_NOT_FOUND;
+				break;
+			case SERVFAIL:
+				h_errno = TRY_AGAIN;
+				break;
+			case NOERROR:
+				h_errno = NO_DATA;
+				break;
+			case FORMERR:
+			case NOTIMP:
+			case REFUSED:
+			default:
+				h_errno = NO_RECOVERY;
+				break;
+		}
+		return (-1);
+	}
 	return (n);
 }
 
@@ -197,10 +197,10 @@ int res_search (const char *name,	/* domain name */
 	int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (-1);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
 	errno = 0;
 	h_errno = HOST_NOT_FOUND;	/* default, if we never query */
 	dots = 0;
@@ -220,13 +220,13 @@ int res_search (const char *name,	/* domain name */
 	 */
 	saved_herrno = -1;
 	if (dots >= _res.ndots)
-	  {
-		  ret = res_querydomain (name, NULL, class, type, answer, anslen);
-		  if (ret > 0)
-			  return (ret);
-		  saved_herrno = h_errno;
-		  tried_as_is++;
-	  }
+	{
+		ret = res_querydomain (name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+		saved_herrno = h_errno;
+		tried_as_is++;
+	}
 
 	/*
 	 * We do at least one level of search if
@@ -236,65 +236,65 @@ int res_search (const char *name,	/* domain name */
 	 */
 	if ((!dots && (_res.options & RES_DEFNAMES)) ||
 		(dots && !trailing_dot && (_res.options & RES_DNSRCH)))
-	  {
-		  int done = 0;
+	{
+		int done = 0;
 
-		  for (domain = (const char *const *)_res.dnsrch;
-			   *domain && !done; domain++)
+		for (domain = (const char *const *)_res.dnsrch;
+			 *domain && !done; domain++)
+		{
+
+			ret = res_querydomain (name, *domain, class, type,
+								 answer, anslen);
+			if (ret > 0)
+				return (ret);
+
+			/*
+			 * If no server present, give up.
+			 * If name isn't found in this domain,
+			 * keep trying higher domains in the search list
+			 * (if that's enabled).
+			 * On a NO_DATA error, keep trying, otherwise
+			 * a wildcard entry of another type could keep us
+			 * from finding this entry higher in the domain.
+			 * If we get some other error (negative answer or
+			 * server failure), then stop searching up,
+			 * but try the input name below in case it's
+			 * fully-qualified.
+			 */
+			if (errno == ECONNREFUSED)
 			{
+				h_errno = TRY_AGAIN;
+				return (-1);
+			}
 
-				ret = res_querydomain (name, *domain, class, type,
-									   answer, anslen);
-				if (ret > 0)
-					return (ret);
-
-				/*
-				 * If no server present, give up.
-				 * If name isn't found in this domain,
-				 * keep trying higher domains in the search list
-				 * (if that's enabled).
-				 * On a NO_DATA error, keep trying, otherwise
-				 * a wildcard entry of another type could keep us
-				 * from finding this entry higher in the domain.
-				 * If we get some other error (negative answer or
-				 * server failure), then stop searching up,
-				 * but try the input name below in case it's
-				 * fully-qualified.
-				 */
-				if (errno == ECONNREFUSED)
-				  {
-					  h_errno = TRY_AGAIN;
-					  return (-1);
-				  }
-
-				switch (h_errno)
-				  {
-					  case NO_DATA:
-						  got_nodata++;
-						  /* FALLTHROUGH */
-					  case HOST_NOT_FOUND:
-						  /* keep trying */
-						  break;
-					  case TRY_AGAIN:
-						  if (hp->rcode == SERVFAIL)
-							{
-								/* try next search element, if any */
-								got_servfail++;
-								break;
-							}
-						  /* FALLTHROUGH */
-					  default:
-						  /* anything else implies that we're done */
-						  done++;
-				  }
-
-				/* if we got here for some reason other than DNSRCH,
-				 * we only wanted one iteration of the loop, so stop.
-				 */
-				if (!(_res.options & RES_DNSRCH))
+			switch (h_errno)
+			{
+				case NO_DATA:
+					got_nodata++;
+					/* FALLTHROUGH */
+				case HOST_NOT_FOUND:
+					/* keep trying */
+					break;
+				case TRY_AGAIN:
+					if (hp->rcode == SERVFAIL)
+					{
+						/* try next search element, if any */
+						got_servfail++;
+						break;
+					}
+					/* FALLTHROUGH */
+				default:
+					/* anything else implies that we're done */
 					done++;
 			}
-	  }
+
+			/* if we got here for some reason other than DNSRCH,
+			 * we only wanted one iteration of the loop, so stop.
+			 */
+			if (!(_res.options & RES_DNSRCH))
+				done++;
+		}
+	}
 
 	/*
 	 * If we have not already tried the name "as is", do that now.
@@ -302,11 +302,11 @@ int res_search (const char *name,	/* domain name */
 	 * name or whether it ends with a dot unless NOTLDQUERY is set.
 	 */
 	if (!tried_as_is && (dots || !(_res.options & RES_NOTLDQUERY)))
-	  {
-		  ret = res_querydomain (name, NULL, class, type, answer, anslen);
-		  if (ret > 0)
-			  return (ret);
-	  }
+	{
+		ret = res_querydomain (name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+	}
 
 	/* if we got here, we didn't satisfy the search.
 	 * if we did an initial full query, return that query's h_errno
@@ -337,47 +337,47 @@ int res_querydomain (const char *name, const char *domain, int class, int type,	
 	int n, d;
 
 	if ((_res.options & RES_INIT) == 0 && res_init () == -1)
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (-1);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (-1);
+	}
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
 		printf (";; res_querydomain(%s, %s, %d, %d)\n",
 				name, domain ? domain : "<Nil>", class, type);
 #endif
 	if (domain == NULL)
-	  {
-		  /*
-		   * Check for trailing '.';
-		   * copy without '.' if present.
-		   */
-		  n = strlen (name);
-		  if (n >= MAXDNAME)
-			{
-				h_errno = NO_RECOVERY;
-				return (-1);
-			}
-		  n--;
-		  if (n >= 0 && name[n] == '.')
-			{
-				strncpy (nbuf, name, n);
-				nbuf[n] = '\0';
-			}
-		  else
-			  longname = name;
-	  }
+	{
+		/*
+		 * Check for trailing '.';
+		 * copy without '.' if present.
+		 */
+		n = strlen (name);
+		if (n >= MAXDNAME)
+		{
+			h_errno = NO_RECOVERY;
+			return (-1);
+		}
+		n--;
+		if (n >= 0 && name[n] == '.')
+		{
+			strncpy (nbuf, name, n);
+			nbuf[n] = '\0';
+		}
+		else
+			longname = name;
+	}
 	else
-	  {
-		  n = strlen (name);
-		  d = strlen (domain);
-		  if (n + d + 1 >= MAXDNAME)
-			{
-				h_errno = NO_RECOVERY;
-				return (-1);
-			}
-		  sprintf (nbuf, "%s.%s", name, domain);
-	  }
+	{
+		n = strlen (name);
+		d = strlen (domain);
+		if (n + d + 1 >= MAXDNAME)
+		{
+			h_errno = NO_RECOVERY;
+			return (-1);
+		}
+		sprintf (nbuf, "%s.%s", name, domain);
+	}
 	return (res_query (longname, class, type, answer, anslen));
 }
 
@@ -399,27 +399,27 @@ const char *hostalias (const char *name)
 	setbuf (fp, NULL);
 	buf[sizeof (buf) - 1] = '\0';
 	while (fgets (buf, sizeof (buf), fp))
-	  {
-		  for (cp1 = buf; *cp1 && !isspace ((unsigned char)*cp1); ++cp1)
-			  ;
-		  if (!*cp1)
-			  break;
-		  *cp1 = '\0';
-		  if (!strcasecmp (buf, name))
-			{
-				while (isspace ((unsigned char)*++cp1))
-					;
-				if (!*cp1)
-					break;
-				for (cp2 = cp1 + 1; *cp2 && !isspace ((unsigned char)*cp2);
-					 ++cp2)
-					;
-				abuf[sizeof (abuf) - 1] = *cp2 = '\0';
-				strncpy (abuf, cp1, sizeof (abuf) - 1);
-				fclose (fp);
-				return (abuf);
-			}
-	  }
+	{
+		for (cp1 = buf; *cp1 && !isspace ((unsigned char)*cp1); ++cp1)
+			;
+		if (!*cp1)
+			break;
+		*cp1 = '\0';
+		if (!strcasecmp (buf, name))
+		{
+			while (isspace ((unsigned char)*++cp1))
+				;
+			if (!*cp1)
+				break;
+			for (cp2 = cp1 + 1; *cp2 && !isspace ((unsigned char)*cp2);
+				 ++cp2)
+				;
+			abuf[sizeof (abuf) - 1] = *cp2 = '\0';
+			strncpy (abuf, cp1, sizeof (abuf) - 1);
+			fclose (fp);
+			return (abuf);
+		}
+	}
 	fclose (fp);
 	return (NULL);
 }

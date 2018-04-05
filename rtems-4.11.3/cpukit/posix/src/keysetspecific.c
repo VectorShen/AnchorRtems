@@ -26,43 +26,43 @@
 #include <errno.h>
 
 static int _POSIX_Keys_Set_value (pthread_key_t key,
-								  const void *value,
-								  POSIX_Keys_Control * the_key,
-								  Thread_Control * executing,
-								  RBTree_Node * rb_node)
+								const void *value,
+								POSIX_Keys_Control * the_key,
+								Thread_Control * executing,
+								RBTree_Node * rb_node)
 {
 	POSIX_Keys_Key_value_pair *key_value_pair;
 
 	if (rb_node != NULL)
-	  {
-		  key_value_pair = POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (rb_node);
-		  key_value_pair->value = RTEMS_DECONST (void *, value);
-	  }
+	{
+		key_value_pair = POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (rb_node);
+		key_value_pair->value = RTEMS_DECONST (void *, value);
+	}
 	else
-	  {
-		  key_value_pair = _POSIX_Keys_Key_value_pair_allocate ();
+	{
+		key_value_pair = _POSIX_Keys_Key_value_pair_allocate ();
 
-		  if (key_value_pair == NULL)
-			{
-				return ENOMEM;
-			}
+		if (key_value_pair == NULL)
+		{
+			return ENOMEM;
+		}
 
-		  key_value_pair->key = key;
-		  key_value_pair->thread = executing;
-		  key_value_pair->value = RTEMS_DECONST (void *, value);
+		key_value_pair->key = key;
+		key_value_pair->thread = executing;
+		key_value_pair->value = RTEMS_DECONST (void *, value);
 
-		  /*
-		   * The insert can only go wrong if the same node is already in a unique
-		   * tree.  This has been already checked with the _RBTree_Find().
-		   */
-		  _RBTree_Insert (&_POSIX_Keys_Key_value_lookup_tree,
-						  &key_value_pair->Key_value_lookup_node,
-						  _POSIX_Keys_Key_value_compare, true);
+		/*
+		 * The insert can only go wrong if the same node is already in a unique
+		 * tree.  This has been already checked with the _RBTree_Find().
+		 */
+		_RBTree_Insert (&_POSIX_Keys_Key_value_lookup_tree,
+						&key_value_pair->Key_value_lookup_node,
+						_POSIX_Keys_Key_value_compare, true);
 
-		  _Chain_Append_unprotected (&executing->Key_Chain,
+		_Chain_Append_unprotected (&executing->Key_Chain,
 									 &key_value_pair->
 									 Key_values_per_thread_node);
-	  }
+	}
 
 	return 0;
 }
@@ -73,12 +73,12 @@ static int _POSIX_Keys_Delete_value (pthread_key_t key,
 {
 
 	if (rb_node != NULL)
-	  {
-		  POSIX_Keys_Key_value_pair *key_value_pair =
-			  POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (rb_node);
+	{
+		POSIX_Keys_Key_value_pair *key_value_pair =
+			POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (rb_node);
 
-		  _POSIX_Keys_Free_key_value_pair (key_value_pair);
-	  }
+		_POSIX_Keys_Free_key_value_pair (key_value_pair);
+	}
 
 	return 0;
 }
@@ -97,33 +97,33 @@ int pthread_setspecific (pthread_key_t key, const void *value)
 
 	the_key = _POSIX_Keys_Get (key, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  executing = _Thread_Executing;
-			  rb_node = _POSIX_Keys_Find (key, executing);
+		case OBJECTS_LOCAL:
+			executing = _Thread_Executing;
+			rb_node = _POSIX_Keys_Find (key, executing);
 
-			  if (value != NULL)
-				{
-					eno =
-						_POSIX_Keys_Set_value (key, value, the_key, executing,
-											   rb_node);
-				}
-			  else
-				{
-					eno = _POSIX_Keys_Delete_value (key, the_key, rb_node);
-				}
+			if (value != NULL)
+			{
+				eno =
+					_POSIX_Keys_Set_value (key, value, the_key, executing,
+										 rb_node);
+			}
+			else
+			{
+				eno = _POSIX_Keys_Delete_value (key, the_key, rb_node);
+			}
 
-			  _Objects_Put (&the_key->Object);
+			_Objects_Put (&the_key->Object);
 
-			  return eno;
+			return eno;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never happen */
+		case OBJECTS_REMOTE:	/* should never happen */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

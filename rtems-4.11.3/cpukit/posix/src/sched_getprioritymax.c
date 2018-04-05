@@ -30,16 +30,16 @@
 int sched_get_priority_max (int policy)
 {
 	switch (policy)
-	  {
-		  case SCHED_OTHER:
-		  case SCHED_FIFO:
-		  case SCHED_RR:
-		  case SCHED_SPORADIC:
-			  break;
+	{
+		case SCHED_OTHER:
+		case SCHED_FIFO:
+		case SCHED_RR:
+		case SCHED_SPORADIC:
+			break;
 
-		  default:
-			  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+		default:
+			rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	return POSIX_SCHEDULER_MAXIMUM_PRIORITY;
 }

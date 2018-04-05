@@ -30,16 +30,16 @@ void _SMP_barrier_Wait (SMP_barrier_Control * control,
 											 1U, ATOMIC_ORDER_RELAXED);
 
 	if (previous_value + 1U == count)
-	  {
-		  _Atomic_Store_uint (&control->value, 0U, ATOMIC_ORDER_RELAXED);
-		  _Atomic_Store_uint (&control->sense, sense, ATOMIC_ORDER_RELEASE);
-	  }
+	{
+		_Atomic_Store_uint (&control->value, 0U, ATOMIC_ORDER_RELAXED);
+		_Atomic_Store_uint (&control->sense, sense, ATOMIC_ORDER_RELEASE);
+	}
 	else
-	  {
-		  while (_Atomic_Load_uint (&control->sense, ATOMIC_ORDER_ACQUIRE) !=
+	{
+		while (_Atomic_Load_uint (&control->sense, ATOMIC_ORDER_ACQUIRE) !=
 				 sense)
-			{
-				/* Wait */
-			}
-	  }
+		{
+			/* Wait */
+		}
+	}
 }

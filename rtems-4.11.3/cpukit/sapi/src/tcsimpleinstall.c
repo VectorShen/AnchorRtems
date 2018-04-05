@@ -19,9 +19,9 @@
 #include <rtems/timecounter.h>
 
 void rtems_timecounter_simple_install (rtems_timecounter_simple * tc,
-									   uint32_t frequency_in_hz,
-									   uint32_t counter_ticks_per_clock_tick,
-									   timecounter_get_t * get_timecount)
+									 uint32_t frequency_in_hz,
+									 uint32_t counter_ticks_per_clock_tick,
+									 timecounter_get_t * get_timecount)
 {
 	uint32_t power_of_two = 1;
 	uint32_t mask;
@@ -29,14 +29,14 @@ void rtems_timecounter_simple_install (rtems_timecounter_simple * tc,
 	int i;
 
 	for (i = 0; i < 32; ++i)
-	  {
-		  if (power_of_two >= counter_ticks_per_clock_tick)
-			{
-				break;
-			}
+	{
+		if (power_of_two >= counter_ticks_per_clock_tick)
+		{
+			break;
+		}
 
-		  power_of_two *= 2;
-	  }
+		power_of_two *= 2;
+	}
 
 	mask = (2 * power_of_two) - 1;
 	scaler = ((uint64_t) power_of_two << 32) / counter_ticks_per_clock_tick;

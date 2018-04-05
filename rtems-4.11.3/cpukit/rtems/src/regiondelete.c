@@ -36,29 +36,29 @@ rtems_status_code rtems_region_delete (rtems_id id)
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Region_Debug_Walk (the_region, 5);
-			  if (the_region->number_of_used_blocks != 0)
-				  return_status = RTEMS_RESOURCE_IN_USE;
-			  else
-				{
-					_Objects_Close (&_Region_Information, &the_region->Object);
-					_Region_Free (the_region);
-					return_status = RTEMS_SUCCESSFUL;
-				}
-			  break;
+		case OBJECTS_LOCAL:
+			_Region_Debug_Walk (the_region, 5);
+			if (the_region->number_of_used_blocks != 0)
+				return_status = RTEMS_RESOURCE_IN_USE;
+			else
+			{
+				_Objects_Close (&_Region_Information, &the_region->Object);
+				_Region_Free (the_region);
+				return_status = RTEMS_SUCCESSFUL;
+			}
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

@@ -63,14 +63,14 @@ static struct hostent *_gethostbynis (const char *name, char *map, int af)
 	static char ypbuf[YPMAXRECORD + 2];
 
 	switch (af)
-	  {
-		  case AF_INET:
-			  break;
-		  default:
-		  case AF_INET6:
-			  errno = EAFNOSUPPORT;
-			  return NULL;
-	  }
+	{
+		case AF_INET:
+			break;
+		default:
+		case AF_INET6:
+			errno = EAFNOSUPPORT;
+			return NULL;
+	}
 
 	if (domain == (char *)NULL)
 		if (yp_get_default_domain (&domain))
@@ -103,18 +103,18 @@ static struct hostent *_gethostbynis (const char *name, char *map, int af)
 	if (cp != NULL)
 		*cp++ = '\0';
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &host_aliases[MAXALIASES - 1])
-			  *q++ = cp;
-		  cp = strpbrk (cp, " \t");
-		  if (cp != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &host_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = strpbrk (cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	return (&h);
 #else
@@ -130,5 +130,5 @@ struct hostent *_gethostbynisname (const char *name, int af)
 struct hostent *_gethostbynisaddr (const char *addr, int len, int af)
 {
 	return _gethostbynis (inet_ntoa (*(struct in_addr *)addr), "hosts.byaddr",
-						  af);
+						af);
 }

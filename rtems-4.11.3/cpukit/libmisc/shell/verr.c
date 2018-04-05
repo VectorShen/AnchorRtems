@@ -56,9 +56,9 @@ __RCSID ("$NetBSD: verr.c,v 1.13 2005/09/13 01:44:09 christos Exp $");
 #ifdef __weak_alias
 __weak_alias (verr, _verr)
 #endif
-	 __dead void
-		 verr (jmp_buf * exit_jmp, int eval
-			   __attribute__ ((unused)), const char *fmt, _BSD_VA_LIST_ ap)
+ __dead void
+	 verr (jmp_buf * exit_jmp, int eval
+		 __attribute__ ((unused)), const char *fmt, _BSD_VA_LIST_ ap)
 {
 	int sverrno;
 
@@ -67,10 +67,10 @@ __weak_alias (verr, _verr)
 	(void)fprintf (stderr, "%s: ", getprogname ());
 #endif
 	if (fmt != NULL)
-	  {
-		  (void)vfprintf (stdout, fmt, ap);
-		  (void)fprintf (stdout, ": ");
-	  }
+	{
+		(void)vfprintf (stdout, fmt, ap);
+		(void)fprintf (stdout, ": ");
+	}
 	(void)fprintf (stdout, "%s\n", strerror (sverrno));
 	longjmp (*exit_jmp, 1);
 }

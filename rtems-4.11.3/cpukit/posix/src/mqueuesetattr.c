@@ -45,35 +45,35 @@ int mq_setattr (mqd_t mqdes,
 
 	the_mq_fd = _POSIX_Message_queue_Get_fd (mqdes, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  the_core_mq = &the_mq_fd->Queue->Message_queue;
+			the_core_mq = &the_mq_fd->Queue->Message_queue;
 
-			  /*
-			   *  Return the old values.
-			   */
+			/*
+			 *  Return the old values.
+			 */
 
-			  if (omqstat)
-				{
-					omqstat->mq_flags = the_mq_fd->oflag;
-					omqstat->mq_msgsize = the_core_mq->maximum_message_size;
-					omqstat->mq_maxmsg = the_core_mq->maximum_pending_messages;
-					omqstat->mq_curmsgs =
-						the_core_mq->number_of_pending_messages;
-				}
+			if (omqstat)
+			{
+				omqstat->mq_flags = the_mq_fd->oflag;
+				omqstat->mq_msgsize = the_core_mq->maximum_message_size;
+				omqstat->mq_maxmsg = the_core_mq->maximum_pending_messages;
+				omqstat->mq_curmsgs =
+					the_core_mq->number_of_pending_messages;
+			}
 
-			  the_mq_fd->oflag = mqstat->mq_flags;
-			  _Objects_Put (&the_mq_fd->Object);
-			  return 0;
+			the_mq_fd->oflag = mqstat->mq_flags;
+			_Objects_Put (&the_mq_fd->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EBADF);
 }

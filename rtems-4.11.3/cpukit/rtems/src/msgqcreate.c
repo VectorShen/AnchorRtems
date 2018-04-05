@@ -32,10 +32,10 @@
 #include <rtems/rtems/support.h>
 
 rtems_status_code rtems_message_queue_create (rtems_name name,
-											  uint32_t count,
-											  size_t max_message_size,
-											  rtems_attribute attribute_set,
-											  rtems_id * id)
+											uint32_t count,
+											size_t max_message_size,
+											rtems_attribute attribute_set,
+											rtems_id * id)
 {
 	Message_queue_Control *the_message_queue;
 	CORE_message_queue_Attributes the_msgq_attributes;
@@ -69,36 +69,36 @@ rtems_status_code rtems_message_queue_create (rtems_name name,
 	 * and then just send smaller msgs from remote (or all) nodes.
 	 */
 	if (is_global)
-	  {
-		  size_t max_packet_payload_size = _MPCI_table->maximum_packet_size
-			  - MESSAGE_QUEUE_MP_PACKET_SIZE;
+	{
+		size_t max_packet_payload_size = _MPCI_table->maximum_packet_size
+			- MESSAGE_QUEUE_MP_PACKET_SIZE;
 
-		  if (max_message_size > max_packet_payload_size)
-			{
-				return RTEMS_INVALID_SIZE;
-			}
-	  }
+		if (max_message_size > max_packet_payload_size)
+		{
+			return RTEMS_INVALID_SIZE;
+		}
+	}
 #endif
 #endif
 
 	the_message_queue = _Message_queue_Allocate ();
 
 	if (!the_message_queue)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (is_global &&
 		!(_Objects_MP_Allocate_and_open (&_Message_queue_Information,
 										 name, the_message_queue->Object.id,
 										 false)))
-	  {
-		  _Message_queue_Free (the_message_queue);
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Message_queue_Free (the_message_queue);
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 #endif
 
 	the_message_queue->attribute_set = attribute_set;
@@ -112,28 +112,28 @@ rtems_status_code rtems_message_queue_create (rtems_name name,
 	if (!_CORE_message_queue_Initialize (&the_message_queue->message_queue,
 										 &the_msgq_attributes,
 										 count, max_message_size))
-	  {
+	{
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (is_global)
-			  _Objects_MP_Close (&_Message_queue_Information,
+		if (is_global)
+			_Objects_MP_Close (&_Message_queue_Information,
 								 the_message_queue->Object.id);
 #endif
 
-		  _Message_queue_Free (the_message_queue);
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_UNSATISFIED;
-	  }
+		_Message_queue_Free (the_message_queue);
+		_Objects_Allocator_unlock ();
+		return RTEMS_UNSATISFIED;
+	}
 
 	_Objects_Open (&_Message_queue_Information,
-				   &the_message_queue->Object, (Objects_Name) name);
+				 &the_message_queue->Object, (Objects_Name) name);
 
 	*id = the_message_queue->Object.id;
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (is_global)
 		_Message_queue_MP_Send_process_packet (MESSAGE_QUEUE_MP_ANNOUNCE_CREATE,
-											   the_message_queue->Object.id,
-											   name, 0);
+											 the_message_queue->Object.id,
+											 name, 0);
 #endif
 
 	_Objects_Allocator_unlock ();

@@ -48,11 +48,11 @@ extern "C" {
  * @return This method returns the resulting address.
  */
 RTEMS_INLINE_ROUTINE void *_Addresses_Add_offset (
-  const void *base,
-  uintptr_t   offset
+	const void *base,
+	uintptr_t   offset
 )
 {
-  return (void *)((uintptr_t)base + offset);
+	return (void *)((uintptr_t)base + offset);
 }
 
 /**
@@ -69,11 +69,11 @@ RTEMS_INLINE_ROUTINE void *_Addresses_Add_offset (
  */
 
 RTEMS_INLINE_ROUTINE void *_Addresses_Subtract_offset (
-  const void *base,
-  uintptr_t   offset
+	const void *base,
+	uintptr_t   offset
 )
 {
-  return (void *)((uintptr_t)base - offset);
+	return (void *)((uintptr_t)base - offset);
 }
 
 /**
@@ -91,11 +91,11 @@ RTEMS_INLINE_ROUTINE void *_Addresses_Subtract_offset (
  *        dependent on an addresses being thirty two bits.
  */
 RTEMS_INLINE_ROUTINE int32_t _Addresses_Subtract (
-  const void *left,
-  const void *right
+	const void *left,
+	const void *right
 )
 {
-  return (int32_t) ((const char *) left - (const char *) right);
+	return (int32_t) ((const char *) left - (const char *) right);
 }
 
 /**
@@ -111,7 +111,7 @@ RTEMS_INLINE_ROUTINE int32_t _Addresses_Subtract (
  * @retval false The @a address is not aligned.
  */
 RTEMS_INLINE_ROUTINE bool _Addresses_Is_aligned (
-  const void *address
+	const void *address
 )
 {
 #if (CPU_ALIGNMENT == 0)
@@ -138,12 +138,12 @@ RTEMS_INLINE_ROUTINE bool _Addresses_Is_aligned (
  * @retval false The @a address is not within the memory range specified.
  */
 RTEMS_INLINE_ROUTINE bool _Addresses_Is_in_range (
-  const void *address,
-  const void *base,
-  const void *limit
+	const void *address,
+	const void *base,
+	const void *limit
 )
 {
-  return (address >= base && address <= limit);
+	return (address >= base && address <= limit);
 }
 
 /**
@@ -160,12 +160,12 @@ RTEMS_INLINE_ROUTINE bool _Addresses_Is_in_range (
  * @return Returns the aligned address.
  */
 RTEMS_INLINE_ROUTINE void *_Addresses_Align_up(
-  void *address,
-  size_t alignment
+	void *address,
+	size_t alignment
 )
 {
-  uintptr_t mask = alignment - (uintptr_t)1;
-  return (void*)(((uintptr_t)address + mask) & ~mask);
+	uintptr_t mask = alignment - (uintptr_t)1;
+	return (void*)(((uintptr_t)address + mask) & ~mask);
 }
 
 /**
@@ -182,12 +182,12 @@ RTEMS_INLINE_ROUTINE void *_Addresses_Align_up(
  * @return Returns the aligned address.
  */
 RTEMS_INLINE_ROUTINE void *_Addresses_Align_down(
-  void *address,
-  size_t alignment
+	void *address,
+	size_t alignment
 )
 {
-  uintptr_t mask = alignment - (uintptr_t)1;
-  return (void*)((uintptr_t)address & ~mask);
+	uintptr_t mask = alignment - (uintptr_t)1;
+	return (void*)((uintptr_t)address & ~mask);
 }
 
 /**@}*/

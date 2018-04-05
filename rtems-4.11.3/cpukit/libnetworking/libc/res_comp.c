@@ -89,7 +89,7 @@
  */
 int
 dn_expand (const u_char * msg, const u_char * eom, const u_char * src,
-		   char *dst, int dstsiz)
+		 char *dst, int dstsiz)
 {
 	int n = ns_name_uncompress (msg, eom, src, dst, (size_t) dstsiz);
 
@@ -108,8 +108,8 @@ dn_comp (const char *src, u_char * dst, int dstsiz,
 		 u_char ** dnptrs, u_char ** lastdnptr)
 {
 	return (ns_name_compress (src, dst, (size_t) dstsiz,
-							  (const u_char **)dnptrs,
-							  (const u_char **)lastdnptr));
+							(const u_char **)dnptrs,
+							(const u_char **)lastdnptr));
 }
 
 /*
@@ -140,7 +140,7 @@ int dn_skipname (const u_char * ptr, const u_char * eom)
 #define periodchar(c) ((c) == PERIOD)
 #define asterchar(c) ((c) == 0x2a)
 #define alphachar(c) (((c) >= 0x41 && (c) <= 0x5a) \
-		   || ((c) >= 0x61 && (c) <= 0x7a))
+		 || ((c) >= 0x61 && (c) <= 0x7a))
 #define digitchar(c) ((c) >= 0x30 && (c) <= 0x39)
 
 #define borderchar(c) (alphachar(c) || digitchar(c))
@@ -152,30 +152,30 @@ int res_hnok (const char *dn)
 	int pch = PERIOD, ch = *dn++;
 
 	while (ch != '\0')
-	  {
-		  int nch = *dn++;
+	{
+		int nch = *dn++;
 
-		  if (periodchar (ch))
-			{
-				(void)NULL;
-			}
-		  else if (periodchar (pch))
-			{
-				if (!borderchar (ch))
-					return (0);
-			}
-		  else if (periodchar (nch) || nch == '\0')
-			{
-				if (!borderchar (ch))
-					return (0);
-			}
-		  else
-			{
-				if (!middlechar (ch))
-					return (0);
-			}
-		  pch = ch, ch = nch;
-	  }
+		if (periodchar (ch))
+		{
+			(void)NULL;
+		}
+		else if (periodchar (pch))
+		{
+			if (!borderchar (ch))
+				return (0);
+		}
+		else if (periodchar (nch) || nch == '\0')
+		{
+			if (!borderchar (ch))
+				return (0);
+		}
+		else
+		{
+			if (!middlechar (ch))
+				return (0);
+		}
+		pch = ch, ch = nch;
+	}
 	return (1);
 }
 
@@ -186,12 +186,12 @@ int res_hnok (const char *dn)
 int res_ownok (const char *dn)
 {
 	if (asterchar (dn[0]))
-	  {
-		  if (periodchar (dn[1]))
-			  return (res_hnok (dn + 2));
-		  if (dn[1] == '\0')
-			  return (1);
-	  }
+	{
+		if (periodchar (dn[1]))
+			return (res_hnok (dn + 2));
+		if (dn[1] == '\0')
+			return (1);
+	}
 	return (res_hnok (dn));
 }
 
@@ -209,16 +209,16 @@ int res_mailok (const char *dn)
 
 	/* otherwise <label>.<hostname> */
 	while ((ch = *dn++) != '\0')
-	  {
-		  if (!domainchar (ch))
-			  return (0);
-		  if (!escaped && periodchar (ch))
-			  break;
-		  if (escaped)
-			  escaped = 0;
-		  else if (bslashchar (ch))
-			  escaped = 1;
-	  }
+	{
+		if (!domainchar (ch))
+			return (0);
+		if (!escaped && periodchar (ch))
+			break;
+		if (escaped)
+			escaped = 0;
+		else if (bslashchar (ch))
+			escaped = 1;
+	}
 	if (periodchar (ch))
 		return (res_hnok (dn));
 	return (0);

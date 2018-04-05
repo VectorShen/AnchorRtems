@@ -41,57 +41,58 @@ static void error (const char *s, int eno)
 static int rtems_shell_main_cmdchmod (int argc, char **argv)
 {
 	if (argc >= 2)
-	  {
-		  unsigned long mode;
-		  rtems_status_code sc;
-		  uid_t task_uid;
-		  int i;
+	{
+		unsigned long mode;
+		rtems_status_code sc;
+		uid_t task_uid;
+		int i;
 
-		  sc = rtems_string_to_unsigned_long (argv[1], &mode, NULL, 8);
-		  if (sc != RTEMS_SUCCESSFUL)
+		sc = rtems_string_to_unsigned_long (argv[1], &mode, NULL, 8);
+		if (sc != RTEMS_SUCCESSFUL)
+		{
+			return usage ();
+		}
+
+		task_uid = getuid ();
+
+		for (i = 2; i < argc; ++i)
+		{
+			const char *cmd = argv[i];
+			rtems_shell_cmd_t *shell_cmd = rtems_shell_lookup_cmd (cmd);
+
+			if (shell_cmd != NULL)
 			{
-				return usage ();
-			}
-
-		  task_uid = getuid ();
-
-		  for (i = 2; i < argc; ++i)
-			{
-				const char *cmd = argv[i];
-				rtems_shell_cmd_t *shell_cmd = rtems_shell_lookup_cmd (cmd);
-
-				if (shell_cmd != NULL)
-				  {
-					  if (task_uid == 0 || task_uid == shell_cmd->uid)
-						{
-							shell_cmd->mode = mode
-								& (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP |
-								   S_IROTH | S_IXOTH);
-						}
-					  else if (rtems_shell_can_see_cmd (shell_cmd))
-						{
-							error (cmd, EACCES);
-						}
-					  else
-						{
-							error (cmd, ENOENT);
-						}
-				  }
+				if (task_uid == 0 || task_uid == shell_cmd->uid)
+				{
+					shell_cmd->mode = mode
+						& (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP |
+						 S_IROTH | S_IXOTH);
+				}
+				else if (rtems_shell_can_see_cmd (shell_cmd))
+				{
+					error (cmd, EACCES);
+				}
 				else
-				  {
-					  error (cmd, ENOENT);
-				  }
+				{
+					error (cmd, ENOENT);
+				}
 			}
-	  }
+			else
+			{
+				error (cmd, ENOENT);
+			}
+		}
+	}
 	else
-	  {
-		  return usage ();
-	  }
+	{
+		return usage ();
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CMDCHMOD_Command = {
+rtems_shell_cmd_t rtems_shell_CMDCHMOD_Command =
+{
 	.name = "cmdchmod",
 	.usage = "cmdchmod OCTAL-MODE COMMAND...",
 	.topic = "misc",

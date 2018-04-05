@@ -39,42 +39,42 @@ static rtems_task pppTask (rtems_task_argument arg)
 	in = (RTEMS_EVENT_29 | RTEMS_EVENT_30);
 	options = (RTEMS_EVENT_ANY | RTEMS_WAIT);
 	while (sc == RTEMS_SUCCESSFUL)
-	  {
-		  /* wait for the next event */
-		  sc = rtems_event_receive (in, options, RTEMS_NO_TIMEOUT, &out);
-		  if (sc == RTEMS_SUCCESSFUL)
+	{
+		/* wait for the next event */
+		sc = rtems_event_receive (in, options, RTEMS_NO_TIMEOUT, &out);
+		if (sc == RTEMS_SUCCESSFUL)
+		{
+			/* determine which event was sent */
+			if (out & RTEMS_EVENT_29)
 			{
-				/* determine which event was sent */
-				if (out & RTEMS_EVENT_29)
-				  {
-					  /* terminate event received */
-					  /* set value to break out of event loop */
-					  sc = RTEMS_UNSATISFIED;
-				  }
-				else if (out & RTEMS_EVENT_30)
-				  {
-					  /* connect request */
-					  /* execute the pppd main code */
-					  iStatus = pppdmain (0, NULL);
-					  if (iStatus == EXIT_OK)
-						{
-							/* check exit callback */
-							if (rtems_pppd_exitfp)
-							  {
-								  (*rtems_pppd_exitfp) ();
-							  }
-						}
-					  else
-						{
-							/* check error callback */
-							if (rtems_pppd_errorfp)
-							  {
-								  (*rtems_pppd_errorfp) ();
-							  }
-						}
-				  }
+				/* terminate event received */
+				/* set value to break out of event loop */
+				sc = RTEMS_UNSATISFIED;
 			}
-	  }
+			else if (out & RTEMS_EVENT_30)
+			{
+				/* connect request */
+				/* execute the pppd main code */
+				iStatus = pppdmain (0, NULL);
+				if (iStatus == EXIT_OK)
+				{
+					/* check exit callback */
+					if (rtems_pppd_exitfp)
+					{
+						(*rtems_pppd_exitfp) ();
+					}
+				}
+				else
+				{
+					/* check error callback */
+					if (rtems_pppd_errorfp)
+					{
+						(*rtems_pppd_errorfp) ();
+					}
+				}
+			}
+		}
+	}
 
 	/* terminate myself */
 	rtems_pppd_taskid = 0;
@@ -90,9 +90,9 @@ int rtems_pppd_initialize (void)
 
 	/* determine priority value */
 	if (rtems_bsdnet_config.network_task_priority)
-	  {
-		  priority = rtems_bsdnet_config.network_task_priority;
-	  }
+	{
+		priority = rtems_bsdnet_config.network_task_priority;
+	}
 
 	/* initialize the exit hook */
 	rtems_pppd_exitfp = (rtems_pppd_hookfunction) 0;
@@ -105,13 +105,13 @@ int rtems_pppd_initialize (void)
 								RTEMS_NO_FLOATING_POINT | RTEMS_LOCAL,
 								&rtems_pppd_taskid);
 	if (status == RTEMS_SUCCESSFUL)
-	  {
-		  status = rtems_task_start (rtems_pppd_taskid, pppTask, 0);
-		  if (status == RTEMS_SUCCESSFUL)
-			{
-				iReturn = rtems_pppd_reset_options ();
-			}
-	  }
+	{
+		status = rtems_task_start (rtems_pppd_taskid, pppTask, 0);
+		if (status == RTEMS_SUCCESSFUL)
+		{
+			iReturn = rtems_pppd_reset_options ();
+		}
+	}
 
 	return (iReturn);
 }
@@ -148,29 +148,29 @@ int rtems_pppd_set_hook (int id, rtems_pppd_hookfunction hookfp)
 	int iReturn = (int)0;
 
 	switch (id)
-	  {
-		  case RTEMS_PPPD_LINKUP_HOOK:
-			  auth_linkup_hook = hookfp;
-			  break;
-		  case RTEMS_PPPD_LINKDOWN_HOOK:
-			  auth_linkdown_hook = hookfp;
-			  break;
-		  case RTEMS_PPPD_IPUP_HOOK:
-			  ip_up_hook = hookfp;
-			  break;
-		  case RTEMS_PPPD_IPDOWN_HOOK:
-			  ip_down_hook = hookfp;
-			  break;
-		  case RTEMS_PPPD_ERROR_HOOK:
-			  rtems_pppd_errorfp = hookfp;
-			  break;
-		  case RTEMS_PPPD_EXIT_HOOK:
-			  rtems_pppd_exitfp = hookfp;
-			  break;
-		  default:
-			  iReturn = (int)-1;
-			  break;
-	  }
+	{
+		case RTEMS_PPPD_LINKUP_HOOK:
+			auth_linkup_hook = hookfp;
+			break;
+		case RTEMS_PPPD_LINKDOWN_HOOK:
+			auth_linkdown_hook = hookfp;
+			break;
+		case RTEMS_PPPD_IPUP_HOOK:
+			ip_up_hook = hookfp;
+			break;
+		case RTEMS_PPPD_IPDOWN_HOOK:
+			ip_down_hook = hookfp;
+			break;
+		case RTEMS_PPPD_ERROR_HOOK:
+			rtems_pppd_errorfp = hookfp;
+			break;
+		case RTEMS_PPPD_EXIT_HOOK:
+			rtems_pppd_exitfp = hookfp;
+			break;
+		default:
+			iReturn = (int)-1;
+			break;
+	}
 
 	return (iReturn);
 }
@@ -189,25 +189,25 @@ int rtems_pppd_set_option (const char *pOption, const char *pValue)
 	struct wordlist value;
 
 	if (pOption != (const char *)0)
-	  {
-		  /* initialize the values */
-		  option.word = (char *)pOption;
-		  option.next = (struct wordlist *)0;
-		  if (pValue != (const char *)0)
-			{
-				option.next = &value;
-				value.word = (char *)pValue;
-				value.next = (struct wordlist *)0;
-			}
+	{
+		/* initialize the values */
+		option.word = (char *)pOption;
+		option.next = (struct wordlist *)0;
+		if (pValue != (const char *)0)
+		{
+			option.next = &value;
+			value.word = (char *)pValue;
+			value.next = (struct wordlist *)0;
+		}
 
-		  /* save current phase value */
-		  prevPhase = pppd_phase;
-		  pppd_phase = PHASE_INITIALIZE;
+		/* save current phase value */
+		prevPhase = pppd_phase;
+		pppd_phase = PHASE_INITIALIZE;
 
-		  /* process option and reset phase value */
-		  iReturn = options_from_list (&option, 1);
-		  pppd_phase = prevPhase;
-	  }
+		/* process option and reset phase value */
+		iReturn = options_from_list (&option, 1);
+		pppd_phase = prevPhase;
+	}
 
 	return (iReturn);
 }

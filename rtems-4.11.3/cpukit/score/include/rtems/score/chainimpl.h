@@ -35,7 +35,7 @@ extern "C" {
  *  @brief Chain initializer for an empty chain with designator @a name.
  */
 #define CHAIN_INITIALIZER_EMPTY(name) \
-  { { { &(name).Tail.Node, NULL }, &(name).Head.Node } }
+	{ { { &(name).Tail.Node, NULL }, &(name).Head.Node } }
 
 /**
  *  @brief Chain initializer for a chain with one @a node.
@@ -43,7 +43,7 @@ extern "C" {
  *  @see CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN().
  */
 #define CHAIN_INITIALIZER_ONE_NODE( node ) \
-  { { { (node), NULL }, (node) } }
+	{ { { (node), NULL }, (node) } }
 
 /**
  *  @brief Chain node initializer for a @a chain containing exactly this node.
@@ -51,13 +51,13 @@ extern "C" {
  *  @see CHAIN_INITIALIZER_ONE_NODE().
  */
 #define CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN( chain ) \
-  { &(chain)->Tail.Node, &(chain)->Head.Node }
+	{ &(chain)->Tail.Node, &(chain)->Head.Node }
 
 /**
  *  @brief Chain definition for an empty chain with designator @a name.
  */
 #define CHAIN_DEFINE_EMPTY(name) \
-  Chain_Control name = CHAIN_INITIALIZER_EMPTY(name)
+	Chain_Control name = CHAIN_INITIALIZER_EMPTY(name)
 
 /**
  *  @brief Initialize a chain header.
@@ -73,10 +73,10 @@ extern "C" {
  *  @param[in] node_size is the size of each node
  */
 void _Chain_Initialize(
-  Chain_Control *the_chain,
-  void          *starting_address,
-  size_t         number_nodes,
-  size_t         node_size
+	Chain_Control *the_chain,
+	void          *starting_address,
+	size_t         number_nodes,
+	size_t         node_size
 );
 
 /**
@@ -91,7 +91,7 @@ void _Chain_Initialize(
  *    + single case
  */
 void _Chain_Extract(
-  Chain_Node *the_node
+	Chain_Node *the_node
 );
 
 /**
@@ -107,7 +107,7 @@ void _Chain_Extract(
  *  @note It disables interrupts to ensure the atomicity of the get operation.
  */
 Chain_Node *_Chain_Get(
-  Chain_Control *the_chain
+	Chain_Control *the_chain
 );
 
 /**
@@ -127,8 +127,8 @@ Chain_Node *_Chain_Get(
  *    + single case
  */
 void _Chain_Insert(
-  Chain_Node *after_node,
-  Chain_Node *the_node
+	Chain_Node *after_node,
+	Chain_Node *the_node
 );
 
 /**
@@ -140,8 +140,8 @@ void _Chain_Insert(
  *  append operation.
  */
 void _Chain_Append(
-  Chain_Control *the_chain,
-  Chain_Node    *the_node
+	Chain_Control *the_chain,
+	Chain_Node    *the_node
 );
 
 /**
@@ -228,10 +228,10 @@ size_t _Chain_Node_count_unprotected( const Chain_Control *chain );
  * @param[in] node the node set to off chain.
  */
 RTEMS_INLINE_ROUTINE void _Chain_Set_off_chain(
-  Chain_Node *node
+	Chain_Node *node
 )
 {
-  node->next = NULL;
+	node->next = NULL;
 }
 
 /**
@@ -246,10 +246,10 @@ RTEMS_INLINE_ROUTINE void _Chain_Set_off_chain(
  * @retval false The @a node is not off chain.
  */
 RTEMS_INLINE_ROUTINE bool _Chain_Is_node_off_chain(
-  const Chain_Node *node
+	const Chain_Node *node
 )
 {
-  return node->next == NULL;
+	return node->next == NULL;
 }
 
 /**

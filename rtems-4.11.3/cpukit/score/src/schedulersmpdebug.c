@@ -33,7 +33,8 @@
  * Table with all valid state transitions for _Scheduler_Thread_change_state()
  * in case RTEMS_DEBUG is defined.
  */
-const bool _Scheduler_Thread_state_valid_state_changes[3][3] = {
+const bool _Scheduler_Thread_state_valid_state_changes[3][3] =
+{
 	/* FROM / TO       BLOCKED SCHEDULED READY */
 	/* BLOCKED    */ {false, true, true},
 	/* SCHEDULED  */ {true, false, true},
@@ -44,7 +45,8 @@ const bool _Scheduler_Thread_state_valid_state_changes[3][3] = {
  * Table with all valid state transitions for
  * _Scheduler_SMP_Node_change_state() in case RTEMS_DEBUG is defined.
  */
-const bool _Scheduler_SMP_Node_valid_state_changes[3][3] = {
+const bool _Scheduler_SMP_Node_valid_state_changes[3][3] =
+{
 	/* FROM / TO       BLOCKED SCHEDULED READY */
 	/* BLOCKED    */ {false, true, true},
 	/* SCHEDULED  */ {true, false, true},

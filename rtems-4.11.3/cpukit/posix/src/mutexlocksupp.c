@@ -36,7 +36,7 @@
  */
 
 int _POSIX_Mutex_Lock_support (pthread_mutex_t * mutex,
-							   bool blocking, Watchdog_Interval timeout)
+							 bool blocking, Watchdog_Interval timeout)
 {
 	POSIX_Mutex_Control *the_mutex;
 	Objects_Locations location;
@@ -46,22 +46,22 @@ int _POSIX_Mutex_Lock_support (pthread_mutex_t * mutex,
 	the_mutex = _POSIX_Mutex_Get_interrupt_disable (mutex,
 													&location, &lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  executing = _Thread_Executing;
-			  _CORE_mutex_Seize (&the_mutex->Mutex,
+		case OBJECTS_LOCAL:
+			executing = _Thread_Executing;
+			_CORE_mutex_Seize (&the_mutex->Mutex,
 								 executing,
 								 the_mutex->Object.id,
 								 blocking, timeout, &lock_context);
-			  return _POSIX_Mutex_Translate_core_mutex_return_code ((CORE_mutex_Status) executing->Wait.return_code);
+			return _POSIX_Mutex_Translate_core_mutex_return_code ((CORE_mutex_Status) executing->Wait.return_code);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

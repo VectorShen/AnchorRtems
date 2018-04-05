@@ -33,7 +33,7 @@
 #include <rtems/config.h>
 
 int pthread_setschedparam (pthread_t thread,
-						   int policy, struct sched_param *param)
+						 int policy, struct sched_param *param)
 {
 	Thread_Control *the_thread;
 	POSIX_API_Control *api;
@@ -50,9 +50,9 @@ int pthread_setschedparam (pthread_t thread,
 		return EINVAL;
 
 	rc = _POSIX_Thread_Translate_sched_param (policy,
-											  param,
-											  &budget_algorithm,
-											  &budget_callout);
+											param,
+											&budget_algorithm,
+											&budget_callout);
 	if (rc)
 		return rc;
 
@@ -61,53 +61,53 @@ int pthread_setschedparam (pthread_t thread,
 	 */
 	the_thread = _Thread_Get (thread, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  api = the_thread->API_Extensions[THREAD_API_POSIX];
+		case OBJECTS_LOCAL:
+			api = the_thread->API_Extensions[THREAD_API_POSIX];
 
-			  if (api->schedpolicy == SCHED_SPORADIC)
-				  _Watchdog_Remove_ticks (&api->Sporadic_timer);
+			if (api->schedpolicy == SCHED_SPORADIC)
+				_Watchdog_Remove_ticks (&api->Sporadic_timer);
 
-			  api->schedpolicy = policy;
-			  api->schedparam = *param;
-			  api->Attributes.schedpolicy = policy;
-			  api->Attributes.schedparam = *param;
+			api->schedpolicy = policy;
+			api->schedparam = *param;
+			api->Attributes.schedpolicy = policy;
+			api->Attributes.schedparam = *param;
 
-			  the_thread->budget_algorithm = budget_algorithm;
-			  the_thread->budget_callout = budget_callout;
+			the_thread->budget_algorithm = budget_algorithm;
+			the_thread->budget_callout = budget_callout;
 
-			  switch (api->schedpolicy)
-				{
-					case SCHED_OTHER:
-					case SCHED_FIFO:
-					case SCHED_RR:
-						the_thread->cpu_time_budget =
-							rtems_configuration_get_ticks_per_timeslice ();
+			switch (api->schedpolicy)
+			{
+				case SCHED_OTHER:
+				case SCHED_FIFO:
+				case SCHED_RR:
+					the_thread->cpu_time_budget =
+						rtems_configuration_get_ticks_per_timeslice ();
 
-						_Thread_Set_priority (the_thread,
-											  _POSIX_Priority_To_core (api->
-																	   schedparam.
-																	   sched_priority),
-											  &unused, true);
-						break;
+					_Thread_Set_priority (the_thread,
+										_POSIX_Priority_To_core (api->
+																 schedparam.
+																 sched_priority),
+										&unused, true);
+					break;
 
-					case SCHED_SPORADIC:
-						api->ss_high_priority = api->schedparam.sched_priority;
-						_Watchdog_Remove_ticks (&api->Sporadic_timer);
-						_POSIX_Threads_Sporadic_budget_TSR (0, the_thread);
-						break;
-				}
+				case SCHED_SPORADIC:
+					api->ss_high_priority = api->schedparam.sched_priority;
+					_Watchdog_Remove_ticks (&api->Sporadic_timer);
+					_POSIX_Threads_Sporadic_budget_TSR (0, the_thread);
+					break;
+			}
 
-			  _Objects_Put (&the_thread->Object);
-			  return 0;
+			_Objects_Put (&the_thread->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 }

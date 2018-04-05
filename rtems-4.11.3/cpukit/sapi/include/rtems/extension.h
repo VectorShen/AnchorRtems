@@ -26,14 +26,14 @@ extern "C"
 #include <rtems/rtems/status.h>
 #include <rtems/rtems/types.h>
 
-	typedef struct
-	{
-		Objects_Control Object;
-		User_extensions_Control Extension;
-	} Extension_Control;
+typedef struct
+{
+	Objects_Control Object;
+	User_extensions_Control Extension;
+} Extension_Control;
 
-	typedef User_extensions_routine
-		rtems_extension RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
+typedef User_extensions_routine
+	rtems_extension RTEMS_COMPILER_DEPRECATED_ATTRIBUTE;
 
 /**
  * @defgroup ClassicUserExtensions User Extensions
@@ -162,22 +162,22 @@ extern "C"
  */
 /**@{**/
 
-	typedef User_extensions_thread_create_extension rtems_task_create_extension;
-	typedef User_extensions_thread_delete_extension rtems_task_delete_extension;
-	typedef User_extensions_thread_start_extension rtems_task_start_extension;
-	typedef User_extensions_thread_restart_extension
-		rtems_task_restart_extension;
-	typedef User_extensions_thread_switch_extension rtems_task_switch_extension;
-	typedef User_extensions_thread_begin_extension rtems_task_begin_extension;
-	typedef User_extensions_thread_exitted_extension
-		rtems_task_exitted_extension;
-	typedef User_extensions_fatal_extension rtems_fatal_extension;
+typedef User_extensions_thread_create_extension rtems_task_create_extension;
+typedef User_extensions_thread_delete_extension rtems_task_delete_extension;
+typedef User_extensions_thread_start_extension rtems_task_start_extension;
+typedef User_extensions_thread_restart_extension
+	rtems_task_restart_extension;
+typedef User_extensions_thread_switch_extension rtems_task_switch_extension;
+typedef User_extensions_thread_begin_extension rtems_task_begin_extension;
+typedef User_extensions_thread_exitted_extension
+	rtems_task_exitted_extension;
+typedef User_extensions_fatal_extension rtems_fatal_extension;
 
-	typedef User_extensions_Table rtems_extensions_table;
+typedef User_extensions_Table rtems_extensions_table;
 
-	typedef Internal_errors_Source rtems_fatal_source;
+typedef Internal_errors_Source rtems_fatal_source;
 
-	typedef Internal_errors_t rtems_fatal_code;
+typedef Internal_errors_t rtems_fatal_code;
 
 /**
  * @brief Creates an extension set object.
@@ -198,40 +198,40 @@ extern "C"
  * @retval RTEMS_INVALID_NAME Invalid extension set name.
  * @retval RTEMS_TOO_MANY Too many extension sets created.
  */
-	rtems_status_code rtems_extension_create (rtems_name name,
-											  const rtems_extensions_table *
-											  extension_table, rtems_id * id);
+rtems_status_code rtems_extension_create (rtems_name name,
+										  const rtems_extensions_table *
+										  extension_table, rtems_id * id);
 
 /**
- * @brief Identifies an extension set object by a name.
- *
- * This directive obtains an extension set identifier in @a id associated with
- * the extension set name @a name. If the extension set name is not unique,
- * then the extension set identifier will match one of the extension sets with
- * that name.  However, this extension set identifier is not guaranteed to
- * correspond to the desired extension set. The extension set identifier is
- * used to access this extension set in other extension set related directives.
- *
- * This directive will not cause the calling task to be preempted.
- *
- * @retval RTEMS_SUCCESSFUL Extension set identified successfully.
- * @retval RTEMS_INVALID_ADDRESS Identifier pointer is @c NULL.
- * @retval RTEMS_INVALID_NAME Extension set name not found or invalid name.
- */
-	rtems_status_code rtems_extension_ident (rtems_name name, rtems_id * id);
+* @brief Identifies an extension set object by a name.
+*
+* This directive obtains an extension set identifier in @a id associated with
+* the extension set name @a name. If the extension set name is not unique,
+* then the extension set identifier will match one of the extension sets with
+* that name.  However, this extension set identifier is not guaranteed to
+* correspond to the desired extension set. The extension set identifier is
+* used to access this extension set in other extension set related directives.
+*
+* This directive will not cause the calling task to be preempted.
+*
+* @retval RTEMS_SUCCESSFUL Extension set identified successfully.
+* @retval RTEMS_INVALID_ADDRESS Identifier pointer is @c NULL.
+* @retval RTEMS_INVALID_NAME Extension set name not found or invalid name.
+*/
+rtems_status_code rtems_extension_ident (rtems_name name, rtems_id * id);
 
 /**
- * @brief Deletes an extension set object specified by the identifier @a id.
- *
- * Any subsequent references to the extension's name and identifier are
- * invalid.
- *
- * This directive will not cause the calling task to be preempted.
- *
- * @retval RTEMS_SUCCESSFUL Extension set deleted successfully.
- * @retval RTEMS_INVALID_ID Invalid extension set identifier.
- */
-	rtems_status_code rtems_extension_delete (rtems_id id);
+* @brief Deletes an extension set object specified by the identifier @a id.
+*
+* Any subsequent references to the extension's name and identifier are
+* invalid.
+*
+* This directive will not cause the calling task to be preempted.
+*
+* @retval RTEMS_SUCCESSFUL Extension set deleted successfully.
+* @retval RTEMS_INVALID_ID Invalid extension set identifier.
+*/
+rtems_status_code rtems_extension_delete (rtems_id id);
 
 /** @} */
 

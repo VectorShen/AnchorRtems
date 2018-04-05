@@ -34,20 +34,20 @@ int timer_getoverrun (timer_t timerid)
 
 	ptimer = _POSIX_Timer_Get (timerid, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  overrun = ptimer->overrun;
-			  ptimer->overrun = 0;
-			  _Objects_Put (&ptimer->Object);
-			  return overrun;
+		case OBJECTS_LOCAL:
+			overrun = ptimer->overrun;
+			ptimer->overrun = 0;
+			_Objects_Put (&ptimer->Object);
+			return overrun;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

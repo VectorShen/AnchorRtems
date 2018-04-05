@@ -35,17 +35,17 @@ rtems_status_code rtems_task_wake_after (rtems_interval ticks)
 	executing = _Thread_Executing;
 
 	if (ticks == 0)
-	  {
-		  _Thread_Yield (executing);
-	  }
+	{
+		_Thread_Yield (executing);
+	}
 	else
-	  {
-		  _Thread_Set_state (executing, STATES_DELAYING);
-		  _Thread_Wait_flags_set (executing, THREAD_WAIT_STATE_BLOCKED);
-		  _Watchdog_Initialize (&executing->Timer,
+	{
+		_Thread_Set_state (executing, STATES_DELAYING);
+		_Thread_Wait_flags_set (executing, THREAD_WAIT_STATE_BLOCKED);
+		_Watchdog_Initialize (&executing->Timer,
 								_Thread_Timeout, 0, executing);
-		  _Watchdog_Insert_ticks (&executing->Timer, ticks);
-	  }
+		_Watchdog_Insert_ticks (&executing->Timer, ticks);
+	}
 	_Thread_Dispatch_enable (cpu_self);
 	return RTEMS_SUCCESSFUL;
 }

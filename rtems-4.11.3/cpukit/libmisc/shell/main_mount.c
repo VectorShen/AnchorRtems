@@ -42,100 +42,101 @@ static int rtems_shell_main_mount (int argc, char *argv[])
 	int arg;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
+	{
+		if (argv[arg][0] == '-')
+		{
+			if (argv[arg][1] == 't')
 			{
-				if (argv[arg][1] == 't')
-				  {
-					  arg++;
-					  if (arg == argc)
-						{
-							fprintf (stderr,
-									 "%s: -t needs a type of file-system; see -L.\n",
-									 argv[0]);
-							return 1;
-						}
-					  type = argv[arg];
-				  }
-				else if (argv[arg][1] == 'r')
-				  {
-					  options = RTEMS_FILESYSTEM_READ_ONLY;
-				  }
-				else if (argv[arg][1] == 'L')
-				  {
-					  printf ("File systems: ");
-					  rtems_filesystem_iterate (print_filesystem, NULL);
-					  printf ("\n");
-					  return 0;
-				  }
-				else if (argv[arg][1] == 'o')
-				  {
-					  arg++;
-					  if (arg == argc)
-						{
-							fprintf (stderr,
-									 "%s: -o needs a list of filesystem options.\n",
-									 argv[0]);
-							return 1;
-						}
-					  fsoptions = argv[arg];
-				  }
-				else
-				  {
-					  fprintf (stderr, "unknown option: %s\n", argv[arg]);
-					  return 1;
-				  }
+				arg++;
+				if (arg == argc)
+				{
+					fprintf (stderr,
+							 "%s: -t needs a type of file-system; see -L.\n",
+							 argv[0]);
+					return 1;
+				}
+				type = argv[arg];
 			}
-		  else
+			else if (argv[arg][1] == 'r')
 			{
-				if (!source)
-					source = argv[arg];
-				else if (!target)
-					target = argv[arg];
-				else
-				  {
-					  fprintf (stderr,
-							   "mount: source and mount only require: %s\n",
-							   argv[arg]);
-					  return 1;
-				  }
+				options = RTEMS_FILESYSTEM_READ_ONLY;
 			}
-	  }
+			else if (argv[arg][1] == 'L')
+			{
+				printf ("File systems: ");
+				rtems_filesystem_iterate (print_filesystem, NULL);
+				printf ("\n");
+				return 0;
+			}
+			else if (argv[arg][1] == 'o')
+			{
+				arg++;
+				if (arg == argc)
+				{
+					fprintf (stderr,
+							 "%s: -o needs a list of filesystem options.\n",
+							 argv[0]);
+					return 1;
+				}
+				fsoptions = argv[arg];
+			}
+			else
+			{
+				fprintf (stderr, "unknown option: %s\n", argv[arg]);
+				return 1;
+			}
+		}
+		else
+		{
+			if (!source)
+				source = argv[arg];
+			else if (!target)
+				target = argv[arg];
+			else
+			{
+				fprintf (stderr,
+						 "mount: source and mount only require: %s\n",
+						 argv[arg]);
+				return 1;
+			}
+		}
+	}
 
 	if (!type)
-	  {
-		  fprintf (stderr, "mount: no file-system; see the -L option\n");
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "mount: no file-system; see the -L option\n");
+		return 1;
+	}
 
 	if (!source)
-	  {
-		  fprintf (stderr, "mount: no source\n");
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "mount: no source\n");
+		return 1;
+	}
 
 	if (!target)
-	  {
-		  fprintf (stderr, "mount: no mount point\n");
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "mount: no mount point\n");
+		return 1;
+	}
 
 	/*
 	 * Mount the disk.
 	 */
 
 	if (mount (source, target, type, options, fsoptions) < 0)
-	  {
-		  fprintf (stderr, "error: %s\n", strerror (errno));
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "error: %s\n", strerror (errno));
+		return 1;
+	}
 
 	printf ("mounted %s -> %s\n", source, target);
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_MOUNT_Command = {
+rtems_shell_cmd_t rtems_shell_MOUNT_Command =
+{
 	"mount",					/* name */
 	"mount [-t type] [-r] [-L] [-o options] source target",	/* usage */
 	"files",					/* topic */

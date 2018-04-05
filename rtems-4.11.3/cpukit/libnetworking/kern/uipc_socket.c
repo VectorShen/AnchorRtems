@@ -81,7 +81,8 @@ socreate(int dom, struct socket **aso, int type, int proto,
 	so->so_state = SS_PRIV;
 	so->so_proto = prp;
 	error = (*prp->pr_usrreqs->pru_attach)(so, proto);
-	if (error) {
+	if (error)
+	{
 		so->so_state |= SS_NOFDREF;
 		sofree(so);
 		return (error);
@@ -107,7 +108,8 @@ solisten(struct socket *so, int backlog)
 	int s = splnet(), error;
 
 	error = (*so->so_proto->pr_usrreqs->pru_listen)(so);
-	if (error) {
+	if (error)
+	{
 		splx(s);
 		return (error);
 	}
@@ -127,13 +129,19 @@ sofree(struct socket *so)
 
 	if (so->so_pcb || (so->so_state & SS_NOFDREF) == 0)
 		return;
-	if (head != NULL) {
-		if (so->so_state & SS_INCOMP) {
+	if (head != NULL)
+	{
+		if (so->so_state & SS_INCOMP)
+		{
 			TAILQ_REMOVE(&head->so_incomp, so, so_list);
 			head->so_incqlen--;
-		} else if (so->so_state & SS_COMP) {
+		}
+		else if (so->so_state & SS_COMP)
+		{
 			TAILQ_REMOVE(&head->so_comp, so, so_list);
-		} else {
+		}
+		else
+		{
 			panic("sofree: not queued");
 		}
 		head->so_qlen--;
@@ -148,7 +156,8 @@ sofree(struct socket *so)
 static void
 rtems_socket_close_notify(struct socket *so)
 {
-	if (so->so_pgid) {
+	if (so->so_pgid)
+	{
 		rtems_event_system_send(so->so_pgid, RTEMS_EVENT_SYSTEM_NETWORK_CLOSE);
 	}
 }
@@ -156,7 +165,8 @@ rtems_socket_close_notify(struct socket *so)
 static void
 rtems_sockbuf_close_notify(struct socket *so, struct sockbuf *sb)
 {
-	if (sb->sb_flags & SB_WAIT) {
+	if (sb->sb_flags & SB_WAIT)
+	{
 		rtems_event_system_send(sb->sb_sel.si_pid,
 		    RTEMS_EVENT_SYSTEM_NETWORK_CLOSE);
 	}
@@ -180,37 +190,45 @@ soclose(struct socket *so)
 	rtems_sockbuf_close_notify(so, &so->so_snd);
 	rtems_sockbuf_close_notify(so, &so->so_rcv);
 
-	if (so->so_options & SO_ACCEPTCONN) {
+	if (so->so_options & SO_ACCEPTCONN)
+	{
 		struct socket *sp, *sonext;
 
-		for (sp = so->so_incomp.tqh_first; sp != NULL; sp = sonext) {
+		for (sp = so->so_incomp.tqh_first; sp != NULL; sp = sonext)
+		{
 			sonext = sp->so_list.tqe_next;
 			(void) soabort(sp);
 		}
-		for (sp = so->so_comp.tqh_first; sp != NULL; sp = sonext) {
+		for (sp = so->so_comp.tqh_first; sp != NULL; sp = sonext)
+		{
 			sonext = sp->so_list.tqe_next;
 			(void) soabort(sp);
 		}
 	}
 	if (so->so_pcb == 0)
 		goto discard;
-	if (so->so_state & SS_ISCONNECTED) {
-		if ((so->so_state & SS_ISDISCONNECTING) == 0) {
+	if (so->so_state & SS_ISCONNECTED)
+	{
+		if ((so->so_state & SS_ISDISCONNECTING) == 0)
+		{
 			error = sodisconnect(so);
 			if (error)
 				goto drop;
 		}
-		if (so->so_options & SO_LINGER) {
+		if (so->so_options & SO_LINGER)
+		{
 			if ((so->so_state & SS_ISDISCONNECTING) &&
 			    (so->so_state & SS_NBIO))
 				goto drop;
-			while (so->so_state & SS_ISCONNECTED) {
+			while (so->so_state & SS_ISCONNECTED)
+			{
 				soconnsleep (so);
 			}
 		}
 	}
 drop:
-	if (so->so_pcb) {
+	if (so->so_pcb)
+	{
 		int error2 = (*so->so_proto->pr_usrreqs->pru_detach)(so);
 		if (error == 0)
 			error = error2;
@@ -290,11 +308,13 @@ sodisconnect(struct socket *so)
 	int s = splnet();
 	int error;
 
-	if ((so->so_state & SS_ISCONNECTED) == 0) {
+	if ((so->so_state & SS_ISCONNECTED) == 0)
+	{
 		error = ENOTCONN;
 		goto bad;
 	}
-	if (so->so_state & SS_ISDISCONNECTING) {
+	if (so->so_state & SS_ISDISCONNECTING)
+	{
 		error = EALREADY;
 		goto bad;
 	}
@@ -346,7 +366,8 @@ sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
 	 * Also check to make sure that MSG_EOR isn't used on SOCK_STREAM
 	 * type sockets since that's an error.
 	 */
-	if ((resid < 0) || (so->so_type == SOCK_STREAM && (flags & MSG_EOR))) {
+	if ((resid < 0) || (so->so_type == SOCK_STREAM && (flags & MSG_EOR)))
+	{
 		error = EINVAL;
 		goto out;
 	}
@@ -362,17 +383,20 @@ restart:
 	error = sblock(&so->so_snd, SBLOCKWAIT(flags));
 	if (error)
 		goto out;
-	do {
+	do
+	{
 		s = splnet();
 		if (so->so_state & SS_CANTSENDMORE)
 			snderr(EPIPE);
-		if (so->so_error) {
+		if (so->so_error)
+		{
 			error = so->so_error;
 			so->so_error = 0;
 			splx(s);
 			goto release;
 		}
-		if ((so->so_state & SS_ISCONNECTED) == 0) {
+		if ((so->so_state & SS_ISCONNECTED) == 0)
+		{
 			/*
 			 * `sendto' and `sendmsg' is allowed on a connection-
 			 * based socket if it supports implied connect.
@@ -380,11 +404,13 @@ restart:
 			 * supplied.
 			 */
 			if ((so->so_proto->pr_flags & PR_CONNREQUIRED) &&
-			    (so->so_proto->pr_flags & PR_IMPLOPCL) == 0) {
+			    (so->so_proto->pr_flags & PR_IMPLOPCL) == 0)
+			{
 				if ((so->so_state & SS_ISCONFIRMING) == 0 &&
 				    !(resid == 0 && clen != 0))
 					snderr(ENOTCONN);
-			} else if (addr == 0)
+			}
+			else if (addr == 0)
 			    snderr(so->so_proto->pr_flags & PR_CONNREQUIRED ?
 				   ENOTCONN : EDESTADDRREQ);
 		}
@@ -395,7 +421,8 @@ restart:
 		    clen > so->so_snd.sb_hiwat)
 			snderr(EMSGSIZE);
 		if (space < resid + clen && uio &&
-		    (atomic || space < so->so_snd.sb_lowat || space < clen)) {
+		    (atomic || space < so->so_snd.sb_lowat || space < clen))
+		{
 			if (so->so_state & SS_NBIO)
 				snderr(EWOULDBLOCK);
 			sbunlock(&so->so_snd);
@@ -408,54 +435,65 @@ restart:
 		splx(s);
 		mp = &top;
 		space -= clen;
-		do {
-		    if (uio == NULL) {
-			/*
-			 * Data is prepackaged in "top".
-			 */
-			resid = 0;
-			if (flags & MSG_EOR)
-				top->m_flags |= M_EOR;
-		    } else do {
-			if (top == 0) {
-				MGETHDR(m, M_WAIT, MT_DATA);
-				mlen = MHLEN;
-				m->m_pkthdr.len = 0;
-				m->m_pkthdr.rcvif = (struct ifnet *)0;
-			} else {
-				MGET(m, M_WAIT, MT_DATA);
-				mlen = MLEN;
-			}
-			if (resid >= MINCLSIZE) {
-				MCLGET(m, M_WAIT);
-				if ((m->m_flags & M_EXT) == 0)
-					goto nopages;
-				mlen = MCLBYTES;
-				len = min(min(mlen, resid), space);
-			} else {
-nopages:
-				len = min(min(mlen, resid), space);
+		do
+		{
+		    if (uio == NULL)
+		    {
 				/*
-				 * For datagram protocols, leave room
-				 * for protocol headers in first mbuf.
+				 * Data is prepackaged in "top".
 				 */
-				if (atomic && top == 0 && len < mlen)
-					MH_ALIGN(m, len);
-			}
-			space -= len;
-			error = uiomove(mtod(m, caddr_t), (int)len, uio);
-			resid = uio->uio_resid;
-			m->m_len = len;
-			*mp = m;
-			top->m_pkthdr.len += len;
-			if (error)
-				goto release;
-			mp = &m->m_next;
-			if (resid <= 0) {
+				resid = 0;
 				if (flags & MSG_EOR)
 					top->m_flags |= M_EOR;
-				break;
-			}
+		    }
+		    else do
+		    {
+				if (top == 0)
+				{
+					MGETHDR(m, M_WAIT, MT_DATA);
+					mlen = MHLEN;
+					m->m_pkthdr.len = 0;
+					m->m_pkthdr.rcvif = (struct ifnet *)0;
+				}
+				else
+				{
+					MGET(m, M_WAIT, MT_DATA);
+					mlen = MLEN;
+				}
+				if (resid >= MINCLSIZE)
+				{
+					MCLGET(m, M_WAIT);
+					if ((m->m_flags & M_EXT) == 0)
+						goto nopages;
+					mlen = MCLBYTES;
+					len = min(min(mlen, resid), space);
+				}
+				else
+				{
+	nopages:
+					len = min(min(mlen, resid), space);
+					/*
+					 * For datagram protocols, leave room
+					 * for protocol headers in first mbuf.
+					 */
+					if (atomic && top == 0 && len < mlen)
+						MH_ALIGN(m, len);
+				}
+				space -= len;
+				error = uiomove(mtod(m, caddr_t), (int)len, uio);
+				resid = uio->uio_resid;
+				m->m_len = len;
+				*mp = m;
+				top->m_pkthdr.len += len;
+				if (error)
+					goto release;
+				mp = &m->m_next;
+				if (resid <= 0)
+				{
+					if (flags & MSG_EOR)
+						top->m_flags |= M_EOR;
+					break;
+				}
 		    } while (space > 0 && atomic);
 		    if (dontroute)
 			    so->so_options |= SO_DONTROUTE;
@@ -530,12 +568,14 @@ soreceive(struct socket *so, struct mbuf **paddr, struct uio *uio,
 		flags = *flagsp &~ MSG_EOR;
 	else
 		flags = 0;
-	if (flags & MSG_OOB) {
+	if (flags & MSG_OOB)
+	{
 		m = m_get(M_WAIT, MT_DATA);
 		error = (*pr->pr_usrreqs->pru_rcvoob)(so, m, flags & MSG_PEEK);
 		if (error)
 			goto bad;
-		do {
+		do
+		{
 			error = uiomove(mtod(m, caddr_t),
 			    (int) min(uio->uio_resid, m->m_len), uio);
 			m = m_free(m);
@@ -572,12 +612,14 @@ restart:
 	    so->so_rcv.sb_cc < uio->uio_resid) &&
 	    (so->so_rcv.sb_cc < so->so_rcv.sb_lowat ||
 	    ((flags & MSG_WAITALL) && uio->uio_resid <= so->so_rcv.sb_hiwat)) &&
-	    m->m_nextpkt == 0 && (pr->pr_flags & PR_ATOMIC) == 0)) {
+	    m->m_nextpkt == 0 && (pr->pr_flags & PR_ATOMIC) == 0))
+	{
 #ifdef DIAGNOSTIC
 		if (m == 0 && so->so_rcv.sb_cc)
 			panic("receive 1");
 #endif
-		if (so->so_error) {
+		if (so->so_error)
+		{
 			if (m)
 				goto dontblock;
 			error = so->so_error;
@@ -585,25 +627,29 @@ restart:
 				so->so_error = 0;
 			goto release;
 		}
-		if (so->so_state & SS_CANTRCVMORE) {
+		if (so->so_state & SS_CANTRCVMORE)
+		{
 			if (m)
 				goto dontblock;
 			else
 				goto release;
 		}
 		for (; m; m = m->m_next)
-			if (m->m_type == MT_OOBDATA  || (m->m_flags & M_EOR)) {
+			if (m->m_type == MT_OOBDATA  || (m->m_flags & M_EOR))
+			{
 				m = so->so_rcv.sb_mb;
 				goto dontblock;
 			}
 		if ((so->so_state & (SS_ISCONNECTED|SS_ISCONNECTING)) == 0 &&
-		    (so->so_proto->pr_flags & PR_CONNREQUIRED)) {
+		    (so->so_proto->pr_flags & PR_CONNREQUIRED))
+		{
 			error = ENOTCONN;
 			goto release;
 		}
 		if (uio->uio_resid == 0)
 			goto release;
-		if ((so->so_state & SS_NBIO) || (flags & MSG_DONTWAIT)) {
+		if ((so->so_state & SS_NBIO) || (flags & MSG_DONTWAIT))
+		{
 			error = EWOULDBLOCK;
 			goto release;
 		}
@@ -616,37 +662,49 @@ restart:
 	}
 dontblock:
 	nextrecord = m->m_nextpkt;
-	if (pr->pr_flags & PR_ADDR) {
+	if (pr->pr_flags & PR_ADDR)
+	{
 #ifdef DIAGNOSTIC
 		if (m->m_type != MT_SONAME)
 			panic("receive 1a");
 #endif
 		orig_resid = 0;
-		if (flags & MSG_PEEK) {
+		if (flags & MSG_PEEK)
+		{
 			if (paddr)
 				*paddr = m_copy(m, 0, m->m_len);
 			m = m->m_next;
-		} else {
+		}
+		else
+		{
 			sbfree(&so->so_rcv, m);
-			if (paddr) {
+			if (paddr)
+			{
 				*paddr = m;
 				so->so_rcv.sb_mb = m->m_next;
 				m->m_next = 0;
 				m = so->so_rcv.sb_mb;
-			} else {
+			}
+			else
+			{
 				MFREE(m, so->so_rcv.sb_mb);
 				m = so->so_rcv.sb_mb;
 			}
 		}
 	}
-	while (m && m->m_type == MT_CONTROL && error == 0) {
-		if (flags & MSG_PEEK) {
+	while (m && m->m_type == MT_CONTROL && error == 0)
+	{
+		if (flags & MSG_PEEK)
+		{
 			if (controlp)
 				*controlp = m_copy(m, 0, m->m_len);
 			m = m->m_next;
-		} else {
+		}
+		else
+		{
 			sbfree(&so->so_rcv, m);
-			if (controlp) {
+			if (controlp)
+			{
 				if (pr->pr_domain->dom_externalize &&
 				    mtod(m, struct cmsghdr *)->cmsg_type ==
 				    SCM_RIGHTS)
@@ -655,17 +713,21 @@ dontblock:
 				so->so_rcv.sb_mb = m->m_next;
 				m->m_next = 0;
 				m = so->so_rcv.sb_mb;
-			} else {
+			}
+			else
+			{
 				MFREE(m, so->so_rcv.sb_mb);
 				m = so->so_rcv.sb_mb;
 			}
 		}
-		if (controlp) {
+		if (controlp)
+		{
 			orig_resid = 0;
 			controlp = &(*controlp)->m_next;
 		}
 	}
-	if (m) {
+	if (m)
+	{
 		if ((flags & MSG_PEEK) == 0)
 			m->m_nextpkt = nextrecord;
 		type = m->m_type;
@@ -674,11 +736,14 @@ dontblock:
 	}
 	moff = 0;
 	offset = 0;
-	while (m && uio->uio_resid > 0 && error == 0) {
-		if (m->m_type == MT_OOBDATA) {
+	while (m && uio->uio_resid > 0 && error == 0)
+	{
+		if (m->m_type == MT_OOBDATA)
+		{
 			if (type != MT_OOBDATA)
 				break;
-		} else if (type == MT_OOBDATA)
+		}
+		else if (type == MT_OOBDATA)
 			break;
 #ifdef DIAGNOSTIC
 		else if (m->m_type != MT_DATA && m->m_type != MT_HEADER)
@@ -698,39 +763,51 @@ dontblock:
 		 * we must note any additions to the sockbuf when we
 		 * block interrupts again.
 		 */
-		if (mp == 0) {
+		if (mp == 0)
+		{
 			splx(s);
 			error = uiomove(mtod(m, caddr_t) + moff, (int)len, uio);
 			s = splnet();
 			if (error)
 				goto release;
-		} else
+		}
+		else
 			uio->uio_resid -= len;
-		if (len == m->m_len - moff) {
+		if (len == m->m_len - moff)
+		{
 			if (m->m_flags & M_EOR)
 				flags |= MSG_EOR;
-			if (flags & MSG_PEEK) {
+			if (flags & MSG_PEEK)
+			{
 				m = m->m_next;
 				moff = 0;
-			} else {
+			}
+			else
+			{
 				nextrecord = m->m_nextpkt;
 				sbfree(&so->so_rcv, m);
-				if (mp) {
+				if (mp)
+				{
 					*mp = m;
 					mp = &m->m_next;
 					so->so_rcv.sb_mb = m = m->m_next;
 					*mp = (struct mbuf *)0;
-				} else {
+				}
+				else
+				{
 					MFREE(m, so->so_rcv.sb_mb);
 					m = so->so_rcv.sb_mb;
 				}
 				if (m)
 					m->m_nextpkt = nextrecord;
 			}
-		} else {
+		}
+		else
+		{
 			if (flags & MSG_PEEK)
 				moff += len;
-			else {
+			else
+			{
 				if (mp)
 					*mp = m_copym(m, 0, len, M_WAIT);
 				m->m_data += len;
@@ -738,14 +815,19 @@ dontblock:
 				so->so_rcv.sb_cc -= len;
 			}
 		}
-		if (so->so_oobmark) {
-			if ((flags & MSG_PEEK) == 0) {
+		if (so->so_oobmark)
+		{
+			if ((flags & MSG_PEEK) == 0)
+			{
 				so->so_oobmark -= len;
-				if (so->so_oobmark == 0) {
+				if (so->so_oobmark == 0)
+				{
 					so->so_state |= SS_RCVATMARK;
 					break;
 				}
-			} else {
+			}
+			else
+			{
 				offset += len;
 				if (offset == so->so_oobmark)
 					break;
@@ -761,11 +843,13 @@ dontblock:
 		 * Keep sockbuf locked against other readers.
 		 */
 		while (flags & MSG_WAITALL && m == 0 && uio->uio_resid > 0 &&
-		    !sosendallatonce(so) && !nextrecord) {
+		    !sosendallatonce(so) && !nextrecord)
+		{
 			if (so->so_error || so->so_state & SS_CANTRCVMORE)
 				break;
 			error = sbwait(&so->so_rcv);
-			if (error) {
+			if (error)
+			{
 				if (error != ENXIO)
 					sbunlock(&so->so_rcv);
 				splx(s);
@@ -777,19 +861,22 @@ dontblock:
 		}
 	}
 
-	if (m && pr->pr_flags & PR_ATOMIC) {
+	if (m && pr->pr_flags & PR_ATOMIC)
+	{
 		flags |= MSG_TRUNC;
 		if ((flags & MSG_PEEK) == 0)
 			(void) sbdroprecord(&so->so_rcv);
 	}
-	if ((flags & MSG_PEEK) == 0) {
+	if ((flags & MSG_PEEK) == 0)
+	{
 		if (m == 0)
 			so->so_rcv.sb_mb = nextrecord;
 		if (pr->pr_flags & PR_WANTRCVD && so->so_pcb)
 			(*pr->pr_usrreqs->pru_rcvd)(so, flags);
 	}
 	if (orig_resid == uio->uio_resid && orig_resid &&
-	    (flags & MSG_EOR) == 0 && (so->so_state & SS_CANTRCVMORE) == 0) {
+	    (flags & MSG_EOR) == 0 && (so->so_state & SS_CANTRCVMORE) == 0)
+	{
 		sbunlock(&so->so_rcv);
 		splx(s);
 		goto restart;
@@ -843,160 +930,175 @@ sosetopt(struct socket *so, int level, int optname, struct mbuf *m0)
 	int error = 0;
 	register struct mbuf *m = m0;
 
-	if (level != SOL_SOCKET) {
+	if (level != SOL_SOCKET)
+	{
 		if (so->so_proto && so->so_proto->pr_ctloutput)
 			return ((*so->so_proto->pr_ctloutput)
 				  (PRCO_SETOPT, so, level, optname, &m0));
 		error = ENOPROTOOPT;
-	} else {
-		switch (optname) {
+	}
+	else
+	{
+		switch (optname)
+		{
 
-		case SO_LINGER:
-			if (m == NULL || m->m_len != sizeof (struct linger)) {
-				error = EINVAL;
-				goto bad;
-			}
-			so->so_linger = mtod(m, struct linger *)->l_linger;
-			/* fall thru... */
+			case SO_LINGER:
+				if (m == NULL || m->m_len != sizeof (struct linger))
+				{
+					error = EINVAL;
+					goto bad;
+				}
+				so->so_linger = mtod(m, struct linger *)->l_linger;
+				/* fall thru... */
 
-		case SO_DEBUG:
-		case SO_KEEPALIVE:
-		case SO_DONTROUTE:
-		case SO_USELOOPBACK:
-		case SO_BROADCAST:
-		case SO_REUSEADDR:
-		case SO_REUSEPORT:
-		case SO_OOBINLINE:
-		case SO_TIMESTAMP:
-			if (m == NULL || m->m_len < sizeof (int)) {
-				error = EINVAL;
-				goto bad;
-			}
-			if (*mtod(m, int *))
-				so->so_options |= optname;
-			else
-				so->so_options &= ~optname;
-			break;
-
-		case SO_SNDBUF:
-		case SO_RCVBUF:
-		case SO_SNDLOWAT:
-		case SO_RCVLOWAT:
-		    {
-			int optval;
-
-			if (m == NULL || m->m_len < sizeof (int)) {
-				error = EINVAL;
-				goto bad;
-			}
-
-			/*
-			 * Values < 1 make no sense for any of these
-			 * options, so disallow them.
-			 */
-			optval = *mtod(m, int *);
-			if (optval < 1) {
-				error = EINVAL;
-				goto bad;
-			}
-
-			switch (optname) {
+			case SO_DEBUG:
+			case SO_KEEPALIVE:
+			case SO_DONTROUTE:
+			case SO_USELOOPBACK:
+			case SO_BROADCAST:
+			case SO_REUSEADDR:
+			case SO_REUSEPORT:
+			case SO_OOBINLINE:
+			case SO_TIMESTAMP:
+				if (m == NULL || m->m_len < sizeof (int))
+				{
+					error = EINVAL;
+					goto bad;
+				}
+				if (*mtod(m, int *))
+					so->so_options |= optname;
+				else
+					so->so_options &= ~optname;
+				break;
 
 			case SO_SNDBUF:
 			case SO_RCVBUF:
-				if (sbreserve(optname == SO_SNDBUF ?
-				    &so->so_snd : &so->so_rcv,
-				    (u_long) optval) == 0) {
-					error = ENOBUFS;
+			case SO_SNDLOWAT:
+			case SO_RCVLOWAT:
+				{
+				int optval;
+
+				if (m == NULL || m->m_len < sizeof (int))
+				{
+					error = EINVAL;
 					goto bad;
 				}
+
+				/*
+				 * Values < 1 make no sense for any of these
+				 * options, so disallow them.
+				 */
+				optval = *mtod(m, int *);
+				if (optval < 1)
+				{
+					error = EINVAL;
+					goto bad;
+				}
+
+				switch (optname)
+				{
+
+					case SO_SNDBUF:
+					case SO_RCVBUF:
+						if (sbreserve(optname == SO_SNDBUF ?
+							&so->so_snd : &so->so_rcv,
+							(u_long) optval) == 0)
+						{
+							error = ENOBUFS;
+							goto bad;
+						}
+						break;
+
+					/*
+					 * Make sure the low-water is never greater than
+					 * the high-water.
+					 */
+					case SO_SNDLOWAT:
+						so->so_snd.sb_lowat =
+							(optval > so->so_snd.sb_hiwat) ?
+							so->so_snd.sb_hiwat : optval;
+						break;
+					case SO_RCVLOWAT:
+						so->so_rcv.sb_lowat =
+							(optval > so->so_rcv.sb_hiwat) ?
+							so->so_rcv.sb_hiwat : optval;
+						break;
+				}
 				break;
-
-			/*
-			 * Make sure the low-water is never greater than
-			 * the high-water.
-			 */
-			case SO_SNDLOWAT:
-				so->so_snd.sb_lowat =
-				    (optval > so->so_snd.sb_hiwat) ?
-				    so->so_snd.sb_hiwat : optval;
-				break;
-			case SO_RCVLOWAT:
-				so->so_rcv.sb_lowat =
-				    (optval > so->so_rcv.sb_hiwat) ?
-				    so->so_rcv.sb_hiwat : optval;
-				break;
-			}
-			break;
-		    }
-
-		case SO_SNDTIMEO:
-		case SO_RCVTIMEO:
-		    {
-			struct timeval *tv;
-			unsigned long val;
-
-			if (m == NULL || m->m_len < sizeof (*tv)) {
-				error = EINVAL;
-				goto bad;
-			}
-			tv = mtod(m, struct timeval *);
-			if (tv->tv_sec >= (ULONG_MAX - hz) / hz) {
-				error = EDOM;
-				goto bad;
-			}
-
-			val = tv->tv_sec * hz + tv->tv_usec / tick;
-			if ((val == 0) && (tv->tv_sec || tv->tv_usec))
-				val = 1;
-
-			switch (optname) {
+				}
 
 			case SO_SNDTIMEO:
-				so->so_snd.sb_timeo = val;
-				break;
 			case SO_RCVTIMEO:
-				so->so_rcv.sb_timeo = val;
+			{
+				struct timeval *tv;
+				unsigned long val;
+
+				if (m == NULL || m->m_len < sizeof (*tv))
+				{
+					error = EINVAL;
+					goto bad;
+				}
+				tv = mtod(m, struct timeval *);
+				if (tv->tv_sec >= (ULONG_MAX - hz) / hz)
+				{
+					error = EDOM;
+					goto bad;
+				}
+
+				val = tv->tv_sec * hz + tv->tv_usec / tick;
+				if ((val == 0) && (tv->tv_sec || tv->tv_usec))
+					val = 1;
+
+				switch (optname)
+				{
+
+					case SO_SNDTIMEO:
+						so->so_snd.sb_timeo = val;
+						break;
+					case SO_RCVTIMEO:
+						so->so_rcv.sb_timeo = val;
+						break;
+				}
 				break;
 			}
-			break;
-		    }
 
-		case SO_PRIVSTATE:
-			/* we don't care what the parameter is... */
-			so->so_state &= ~SS_PRIV;
-			break;
+			case SO_PRIVSTATE:
+				/* we don't care what the parameter is... */
+				so->so_state &= ~SS_PRIV;
+				break;
 
-		case SO_SNDWAKEUP:
-		case SO_RCVWAKEUP:
-		    {
-			/* RTEMS addition.  */
-			struct sockwakeup *sw;
-			struct sockbuf *sb;
+			case SO_SNDWAKEUP:
+			case SO_RCVWAKEUP:
+			{
+				/* RTEMS addition.  */
+				struct sockwakeup *sw;
+				struct sockbuf *sb;
 
-			if (m == NULL
-			    || m->m_len != sizeof (struct sockwakeup)) {
-				error = EINVAL;
-				goto bad;
+				if (m == NULL
+					|| m->m_len != sizeof (struct sockwakeup))
+				{
+					error = EINVAL;
+					goto bad;
+				}
+				sw = mtod(m, struct sockwakeup *);
+				sb = (optname == SO_SNDWAKEUP
+					  ? &so->so_snd
+					  : &so->so_rcv);
+				sb->sb_wakeup = sw->sw_pfn;
+				sb->sb_wakeuparg = sw->sw_arg;
+				if (sw->sw_pfn)
+					sb->sb_flags |= SB_ASYNC;
+				else
+					sb->sb_flags &=~ SB_ASYNC;
+				break;
 			}
-			sw = mtod(m, struct sockwakeup *);
-			sb = (optname == SO_SNDWAKEUP
-			      ? &so->so_snd
-			      : &so->so_rcv);
-			sb->sb_wakeup = sw->sw_pfn;
-			sb->sb_wakeuparg = sw->sw_arg;
-			if (sw->sw_pfn)
-				sb->sb_flags |= SB_ASYNC;
-			else
-				sb->sb_flags &=~ SB_ASYNC;
-			break;
-		    }
 
-		default:
-			error = ENOPROTOOPT;
-			break;
+			default:
+				error = ENOPROTOOPT;
+				break;
 		}
-		if (error == 0 && so->so_proto && so->so_proto->pr_ctloutput) {
+		if (error == 0 && so->so_proto && so->so_proto->pr_ctloutput)
+		{
 			(void) ((*so->so_proto->pr_ctloutput)
 				  (PRCO_SETOPT, so, level, optname, &m0));
 			m = NULL;	/* freed by protocol */
@@ -1013,99 +1115,104 @@ sogetopt(struct socket *so, int level, int optname, struct mbuf **mp)
 {
 	register struct mbuf *m;
 
-	if (level != SOL_SOCKET) {
-		if (so->so_proto && so->so_proto->pr_ctloutput) {
+	if (level != SOL_SOCKET)
+	{
+		if (so->so_proto && so->so_proto->pr_ctloutput)
+		{
 			return ((*so->so_proto->pr_ctloutput)
 				  (PRCO_GETOPT, so, level, optname, mp));
 		} else
 			return (ENOPROTOOPT);
-	} else {
+	}
+	else
+	{
 		m = m_get(M_WAIT, MT_SOOPTS);
 		m->m_len = sizeof (int);
 
-		switch (optname) {
+		switch (optname)
+		{
 
-		case SO_LINGER:
-			m->m_len = sizeof (struct linger);
-			mtod(m, struct linger *)->l_onoff =
-				so->so_options & SO_LINGER;
-			mtod(m, struct linger *)->l_linger = so->so_linger;
-			break;
+			case SO_LINGER:
+				m->m_len = sizeof (struct linger);
+				mtod(m, struct linger *)->l_onoff =
+					so->so_options & SO_LINGER;
+				mtod(m, struct linger *)->l_linger = so->so_linger;
+				break;
 
-		case SO_USELOOPBACK:
-		case SO_DONTROUTE:
-		case SO_DEBUG:
-		case SO_KEEPALIVE:
-		case SO_REUSEADDR:
-		case SO_REUSEPORT:
-		case SO_BROADCAST:
-		case SO_OOBINLINE:
-		case SO_TIMESTAMP:
-			*mtod(m, int *) = so->so_options & optname;
-			break;
+			case SO_USELOOPBACK:
+			case SO_DONTROUTE:
+			case SO_DEBUG:
+			case SO_KEEPALIVE:
+			case SO_REUSEADDR:
+			case SO_REUSEPORT:
+			case SO_BROADCAST:
+			case SO_OOBINLINE:
+			case SO_TIMESTAMP:
+				*mtod(m, int *) = so->so_options & optname;
+				break;
 
-		case SO_PRIVSTATE:
-			*mtod(m, int *) = so->so_state & SS_PRIV;
-			break;
+			case SO_PRIVSTATE:
+				*mtod(m, int *) = so->so_state & SS_PRIV;
+				break;
 
-		case SO_TYPE:
-			*mtod(m, int *) = so->so_type;
-			break;
+			case SO_TYPE:
+				*mtod(m, int *) = so->so_type;
+				break;
 
-		case SO_ERROR:
-			*mtod(m, int *) = so->so_error;
-			so->so_error = 0;
-			break;
+			case SO_ERROR:
+				*mtod(m, int *) = so->so_error;
+				so->so_error = 0;
+				break;
 
-		case SO_SNDBUF:
-			*mtod(m, int *) = so->so_snd.sb_hiwat;
-			break;
+			case SO_SNDBUF:
+				*mtod(m, int *) = so->so_snd.sb_hiwat;
+				break;
 
-		case SO_RCVBUF:
-			*mtod(m, int *) = so->so_rcv.sb_hiwat;
-			break;
+			case SO_RCVBUF:
+				*mtod(m, int *) = so->so_rcv.sb_hiwat;
+				break;
 
-		case SO_SNDLOWAT:
-			*mtod(m, int *) = so->so_snd.sb_lowat;
-			break;
+			case SO_SNDLOWAT:
+				*mtod(m, int *) = so->so_snd.sb_lowat;
+				break;
 
-		case SO_RCVLOWAT:
-			*mtod(m, int *) = so->so_rcv.sb_lowat;
-			break;
+			case SO_RCVLOWAT:
+				*mtod(m, int *) = so->so_rcv.sb_lowat;
+				break;
 
-		case SO_SNDTIMEO:
-		case SO_RCVTIMEO:
-		    {
-			unsigned long val = (optname == SO_SNDTIMEO ?
-			     so->so_snd.sb_timeo : so->so_rcv.sb_timeo);
+			case SO_SNDTIMEO:
+			case SO_RCVTIMEO:
+			{
+				unsigned long val = (optname == SO_SNDTIMEO ?
+					 so->so_snd.sb_timeo : so->so_rcv.sb_timeo);
 
-			m->m_len = sizeof(struct timeval);
-			mtod(m, struct timeval *)->tv_sec = val / hz;
-			mtod(m, struct timeval *)->tv_usec =
-			    (val % hz) * tick;
-			break;
-		    }
+				m->m_len = sizeof(struct timeval);
+				mtod(m, struct timeval *)->tv_sec = val / hz;
+				mtod(m, struct timeval *)->tv_usec =
+					(val % hz) * tick;
+				break;
+			}
 
-		case SO_SNDWAKEUP:
-		case SO_RCVWAKEUP:
-		    {
-			struct sockbuf *sb;
-			struct sockwakeup *sw;
+			case SO_SNDWAKEUP:
+			case SO_RCVWAKEUP:
+			{
+				struct sockbuf *sb;
+				struct sockwakeup *sw;
 
-			/* RTEMS additions.  */
-			sb = (optname == SO_SNDWAKEUP
-			      ? &so->so_snd
-			      : &so->so_rcv);
-			m->m_len = sizeof (struct sockwakeup);
-			sw = mtod(m, struct sockwakeup *);
-			sw->sw_pfn = sb->sb_wakeup;
-			sw->sw_arg = sb->sb_wakeuparg;
-			break;
-		    }
+				/* RTEMS additions.  */
+				sb = (optname == SO_SNDWAKEUP
+					  ? &so->so_snd
+					  : &so->so_rcv);
+				m->m_len = sizeof (struct sockwakeup);
+				sw = mtod(m, struct sockwakeup *);
+				sw->sw_pfn = sb->sb_wakeup;
+				sw->sw_arg = sb->sb_wakeuparg;
+				break;
+			}
 
-		default:
-			(void)m_free(m);
-			return (ENOPROTOOPT);
+			default:
+				(void)m_free(m);
+				return (ENOPROTOOPT);
 		}
 		*mp = m;
 		return (0);

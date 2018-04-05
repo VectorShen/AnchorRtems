@@ -29,9 +29,9 @@
 void *_CPU_Thread_Idle_body (uintptr_t ignored)
 {
 	while (true)
-	  {
-		  __asm__ volatile ("wfi");
-	  }
+	{
+		__asm__ volatile ("wfi");
+	}
 }
 
 #endif /* ARM_MULTILIB_HAS_WFI */

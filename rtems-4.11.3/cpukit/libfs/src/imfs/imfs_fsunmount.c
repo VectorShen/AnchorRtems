@@ -48,27 +48,27 @@ void IMFS_fsunmount (rtems_filesystem_mount_table_entry_t * temp_mt_entry)
 	jnode = (IMFS_jnode_t *) loc.node_access;
 
 	do
-	  {
-		  next = jnode->Parent;
-		  loc.node_access = (void *)jnode;
-		  IMFS_Set_handlers (&loc);
+	{
+		next = jnode->Parent;
+		loc.node_access = (void *)jnode;
+		IMFS_Set_handlers (&loc);
 
-		  if (!IMFS_is_directory (jnode) || jnode_has_no_children (jnode))
+		if (!IMFS_is_directory (jnode) || jnode_has_no_children (jnode))
+		{
+			result = IMFS_rmnod (NULL, &loc);
+			if (result != 0)
+				rtems_fatal_error_occurred (0xdeadbeef);
+			IMFS_node_destroy (jnode);
+			jnode = next;
+		}
+		if (jnode != NULL)
+		{
+			if (IMFS_is_directory (jnode))
 			{
-				result = IMFS_rmnod (NULL, &loc);
-				if (result != 0)
-					rtems_fatal_error_occurred (0xdeadbeef);
-				IMFS_node_destroy (jnode);
-				jnode = next;
+				if (jnode_has_children (jnode))
+					jnode = jnode_get_first_child (jnode);
 			}
-		  if (jnode != NULL)
-			{
-				if (IMFS_is_directory (jnode))
-				  {
-					  if (jnode_has_children (jnode))
-						  jnode = jnode_get_first_child (jnode);
-				  }
-			}
-	  }
+		}
+	}
 	while (jnode != NULL);
 }

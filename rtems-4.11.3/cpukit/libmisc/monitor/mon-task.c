@@ -14,7 +14,7 @@
 
 void
 rtems_monitor_task_canonical (rtems_monitor_task_t * canonical_task,
-							  const void *thread_void)
+							const void *thread_void)
 {
 	const Thread_Control *rtems_thread = (const Thread_Control *)thread_void;
 	RTEMS_API_Control *api;
@@ -53,10 +53,10 @@ rtems_monitor_task_canonical (rtems_monitor_task_t * canonical_task,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	if (rtems_configuration_get_notepads_enabled ())
-	  {
-		  (void)memcpy (canonical_task->notepad, api->Notepads,
+	{
+		(void)memcpy (canonical_task->notepad, api->Notepads,
 						sizeof (canonical_task->notepad));
-	  }
+	}
 #pragma GCC diagnostic pop
 
 /* XXX more to fix */
@@ -97,12 +97,12 @@ rtems_monitor_task_dump (rtems_monitor_task_t * monitor_task,
 	length += rtems_monitor_pad (45, length);
 	length += rtems_monitor_dump_events (monitor_task->events);
 	if (monitor_task->wait_id)
-	  {
-		  length += rtems_monitor_pad (54, length);
-		  length += rtems_monitor_dump_id (monitor_task->wait_id);
-		  length += rtems_monitor_pad (63, length);
-		  length += rtems_monitor_dump_hex (monitor_task->wait_args);
-	  }
+	{
+		length += rtems_monitor_pad (54, length);
+		length += rtems_monitor_dump_id (monitor_task->wait_id);
+		length += rtems_monitor_pad (63, length);
+		length += rtems_monitor_dump_hex (monitor_task->wait_args);
+	}
 
 	length += rtems_monitor_pad (72, length);
 

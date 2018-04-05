@@ -29,7 +29,8 @@ typedef struct
 	uint32_t nest_level;
 } Giant_Control;
 
-static Giant_Control _Giant = {
+static Giant_Control _Giant =
+{
 	.lock = SMP_LOCK_INITIALIZER ("Giant"),
 	.owner_cpu = NO_OWNER_CPU,
 	.nest_level = 0
@@ -40,15 +41,15 @@ static void _Giant_Do_acquire (Per_CPU_Control * cpu_self)
 	Giant_Control *giant = &_Giant;
 
 	if (giant->owner_cpu != cpu_self)
-	  {
-		  _SMP_lock_Acquire (&giant->lock, &cpu_self->Giant_lock_context);
-		  giant->owner_cpu = cpu_self;
-		  giant->nest_level = 1;
-	  }
+	{
+		_SMP_lock_Acquire (&giant->lock, &cpu_self->Giant_lock_context);
+		giant->owner_cpu = cpu_self;
+		giant->nest_level = 1;
+	}
 	else
-	  {
-		  ++giant->nest_level;
-	  }
+	{
+		++giant->nest_level;
+	}
 }
 
 static void _Giant_Do_release (Per_CPU_Control * cpu_self)
@@ -57,10 +58,10 @@ static void _Giant_Do_release (Per_CPU_Control * cpu_self)
 
 	--giant->nest_level;
 	if (giant->nest_level == 0)
-	  {
-		  giant->owner_cpu = NO_OWNER_CPU;
-		  _SMP_lock_Release (&giant->lock, &cpu_self->Giant_lock_context);
-	  }
+	{
+		giant->owner_cpu = NO_OWNER_CPU;
+		_SMP_lock_Release (&giant->lock, &cpu_self->Giant_lock_context);
+	}
 }
 
 void _Giant_Drop (Per_CPU_Control * cpu_self)
@@ -70,11 +71,11 @@ void _Giant_Drop (Per_CPU_Control * cpu_self)
 	_Assert (_ISR_Get_level () != 0);
 
 	if (giant->owner_cpu == cpu_self)
-	  {
-		  giant->nest_level = 0;
-		  giant->owner_cpu = NO_OWNER_CPU;
-		  _SMP_lock_Release (&giant->lock, &cpu_self->Giant_lock_context);
-	  }
+	{
+		giant->nest_level = 0;
+		giant->owner_cpu = NO_OWNER_CPU;
+		_SMP_lock_Release (&giant->lock, &cpu_self->Giant_lock_context);
+	}
 }
 
 uint32_t _Thread_Dispatch_increment_disable_level (void)

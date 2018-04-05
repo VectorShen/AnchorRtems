@@ -43,16 +43,16 @@ int sem_unlink (const char *name)
 
 	status = _POSIX_Semaphore_Name_to_id (name, &the_semaphore_id, &name_len);
 	if (status != 0)
-	  {
-		  _Thread_Enable_dispatch ();
-		  _Objects_Allocator_unlock ();
-		  rtems_set_errno_and_return_minus_one (status);
-	  }
+	{
+		_Thread_Enable_dispatch ();
+		_Objects_Allocator_unlock ();
+		rtems_set_errno_and_return_minus_one (status);
+	}
 
 	the_semaphore =
 		(POSIX_Semaphore_Control *)
 		_Objects_Get_local_object (&_POSIX_Semaphore_Information,
-								   _Objects_Get_index (the_semaphore_id));
+								 _Objects_Get_index (the_semaphore_id));
 
 	the_semaphore->linked = false;
 	_POSIX_Semaphore_Namespace_remove (the_semaphore);

@@ -25,23 +25,23 @@ extern "C"
 #define RTEMS_PPPD_EXIT_HOOK        6
 
 /* define hook function pointer prototype */
-	typedef void (*rtems_pppd_hookfunction) (void);
-	typedef int (*rtems_pppd_dialerfunction) (int tty, int mode, char *pScript);
+typedef void (*rtems_pppd_hookfunction) (void);
+typedef int (*rtems_pppd_dialerfunction) (int tty, int mode, char *pScript);
 
 /* define pppd function prototyes */
-	int rtems_pppd_initialize (void);
-	int rtems_pppd_terminate (void);
-	int rtems_pppd_reset_options (void);
-	int rtems_pppd_set_hook (int id, rtems_pppd_hookfunction hookfp);
-	int rtems_pppd_set_dialer (rtems_pppd_dialerfunction dialerfp);
-	int rtems_pppd_set_option (const char *pOption, const char *pValue);
-	int rtems_pppd_connect (void);
-	int rtems_pppd_disconnect (void);
+int rtems_pppd_initialize (void);
+int rtems_pppd_terminate (void);
+int rtems_pppd_reset_options (void);
+int rtems_pppd_set_hook (int id, rtems_pppd_hookfunction hookfp);
+int rtems_pppd_set_dialer (rtems_pppd_dialerfunction dialerfp);
+int rtems_pppd_set_option (const char *pOption, const char *pValue);
+int rtems_pppd_connect (void);
+int rtems_pppd_disconnect (void);
 
-	struct rtems_bsdnet_ifconfig;
+struct rtems_bsdnet_ifconfig;
 
-	int rtems_ppp_driver_attach (struct rtems_bsdnet_ifconfig *config,
-								 int attaching);
+int rtems_ppp_driver_attach (struct rtems_bsdnet_ifconfig *config,
+							 int attaching);
 
 #ifdef __cplusplus
 }

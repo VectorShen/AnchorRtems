@@ -34,10 +34,10 @@ void _API_Mutex_Unlock (API_Mutex_Control * the_mutex)
 
 	_ISR_lock_ISR_disable (&lock_context);
 	_CORE_mutex_Surrender (&the_mutex->Mutex,
-						   the_mutex->Object.id, NULL, &lock_context);
+						 the_mutex->Object.id, NULL, &lock_context);
 
 	if (restore_thread_life_protection)
-	  {
-		  _Thread_Set_life_protection (previous_thread_life_protection);
-	  }
+	{
+		_Thread_Set_life_protection (previous_thread_life_protection);
+	}
 }

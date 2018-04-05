@@ -39,6 +39,6 @@ void rtems_shell_get_prompt (rtems_shell_env_t * shell_env,
 	cwd = getcwd (buf, sizeof (buf));
 	cwd = cwd != NULL ? cwd : "?";
 	snprintf (prompt, size - 1, "%s%s[%s] %c ",
-			  ((shell_env->taskname) ? shell_env->taskname : ""),
-			  ((shell_env->taskname) ? " " : ""), cwd, geteuid ()? '$' : '#');
+			((shell_env->taskname) ? shell_env->taskname : ""),
+			((shell_env->taskname) ? " " : ""), cwd, geteuid ()? '$' : '#');
 }

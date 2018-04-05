@@ -32,7 +32,7 @@
 #include <rtems/seterr.h>
 
 int _POSIX_Semaphore_Wait_support (sem_t * sem,
-								   bool blocking, Watchdog_Interval timeout)
+								 bool blocking, Watchdog_Interval timeout)
 {
 	POSIX_Semaphore_Control *the_semaphore;
 	Objects_Locations location;
@@ -43,28 +43,28 @@ int _POSIX_Semaphore_Wait_support (sem_t * sem,
 															&location,
 															&lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  executing = _Thread_Executing;
-			  _CORE_semaphore_Seize (&the_semaphore->Semaphore,
+		case OBJECTS_LOCAL:
+			executing = _Thread_Executing;
+			_CORE_semaphore_Seize (&the_semaphore->Semaphore,
 									 executing,
 									 the_semaphore->Object.id,
 									 blocking, timeout, &lock_context);
 
-			  if (!executing->Wait.return_code)
-				  return 0;
+			if (!executing->Wait.return_code)
+				return 0;
 
-			  rtems_set_errno_and_return_minus_one
-				  (_POSIX_Semaphore_Translate_core_semaphore_return_code
-				   (executing->Wait.return_code));
+			rtems_set_errno_and_return_minus_one
+				(_POSIX_Semaphore_Translate_core_semaphore_return_code
+				 (executing->Wait.return_code));
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

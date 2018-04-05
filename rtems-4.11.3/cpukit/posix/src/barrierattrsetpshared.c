@@ -30,13 +30,13 @@ int pthread_barrierattr_setpshared (pthread_barrierattr_t * attr, int pshared)
 		return EINVAL;
 
 	switch (pshared)
-	  {
-		  case PTHREAD_PROCESS_SHARED:
-		  case PTHREAD_PROCESS_PRIVATE:
-			  attr->process_shared = pshared;
-			  return 0;
+	{
+		case PTHREAD_PROCESS_SHARED:
+		case PTHREAD_PROCESS_PRIVATE:
+			attr->process_shared = pshared;
+			return 0;
 
-		  default:
-			  return EINVAL;
-	  }
+		default:
+			return EINVAL;
+	}
 }

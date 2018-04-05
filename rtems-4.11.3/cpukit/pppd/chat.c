@@ -220,14 +220,14 @@ char *getnextcommand (char *string, char *buff)
 
 	token = strchr (string, '@');
 	if (token == NULL)
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 	len = token - string;
 	if (len > 78)
-	  {
-		  len = 78;
-	  }
+	{
+		len = 78;
+	}
 	memcpy (buff, string, len);
 	buff[len] = 0;
 	return (token + 1);
@@ -245,30 +245,30 @@ int chatmain (int fd, int mode, char *pScript)
 	script = pScript;
 
 	if (debug)
-	  {
-		  dbglog ("chat_main: %s\n", script);
-	  }
+	{
+		dbglog ("chat_main: %s\n", script);
+	}
 
 	/* get first expect string */
 	script = getnextcommand (script, arg);
 	while ((script != NULL) && (exit_code == 0))
-	  {
-		  /* process the expect string */
-		  chat_expect (arg);
-		  if (exit_code == 0)
+	{
+		/* process the expect string */
+		chat_expect (arg);
+		if (exit_code == 0)
+		{
+			/* get the next send string */
+			script = getnextcommand (script, arg);
+			if (script != NULL)
 			{
-				/* get the next send string */
-				script = getnextcommand (script, arg);
-				if (script != NULL)
-				  {
-					  /* process the send string */
-					  chat_send (arg);
+				/* process the send string */
+				chat_send (arg);
 
-					  /* get the next expect string */
-					  script = getnextcommand (script, arg);
-				  }
+				/* get the next expect string */
+				script = getnextcommand (script, arg);
 			}
-	  }
+		}
+	}
 	ttyfd = (int)-1;
 
 	return (exit_code);
@@ -295,171 +295,171 @@ static char *clean (char *s, int sending)	/* set to 1 when sending (putting) thi
 
 	s1 = temp;
 	while (*s)
-	  {
-		  cur_chr = *s++;
-		  if (cur_chr == '^')
+	{
+		cur_chr = *s++;
+		if (cur_chr == '^')
+		{
+			cur_chr = *s++;
+			if (cur_chr == '\0')
 			{
-				cur_chr = *s++;
-				if (cur_chr == '\0')
-				  {
-					  *s1++ = '^';
-					  break;
-				  }
-				cur_chr &= 0x1F;
-				if (cur_chr != 0)
-				  {
-					  *s1++ = cur_chr;
-				  }
-				continue;
-			}
-
-		  if (use_env && cur_chr == '$')
-			{					/* ARI */
-				phchar = env_str;
-				while (isalnumx (*s))
-					*phchar++ = *s++;
-				*phchar = '\0';
-				phchar = getenv (env_str);
-				if (phchar)
-					while (*phchar)
-						*s1++ = *phchar++;
-				continue;
-			}
-
-		  if (cur_chr != '\\')
-			{
-				*s1++ = cur_chr;
-				continue;
-			}
-
-		  cur_chr = *s++;
-		  if (cur_chr == '\0')
-			{
-				if (sending)
-				  {
-					  *s1++ = '\\';
-					  *s1++ = '\\';
-				  }
+				*s1++ = '^';
 				break;
 			}
-
-		  switch (cur_chr)
+			cur_chr &= 0x1F;
+			if (cur_chr != 0)
 			{
-				case 'b':
-					*s1++ = '\b';
-					break;
-
-				case 'c':
-					if (sending && *s == '\0')
-						add_return = 0;
-					else
-						*s1++ = cur_chr;
-					break;
-
-				case '\\':
-				case 'K':
-				case 'p':
-				case 'd':
-					if (sending)
-						*s1++ = '\\';
-					*s1++ = cur_chr;
-					break;
-
-				case 'T':
-					if (sending && phone_num)
-					  {
-						  for (phchar = phone_num; *phchar != '\0'; phchar++)
-							  *s1++ = *phchar;
-					  }
-					else
-					  {
-						  *s1++ = '\\';
-						  *s1++ = 'T';
-					  }
-					break;
-
-				case 'U':
-					if (sending && phone_num2)
-					  {
-						  for (phchar = phone_num2; *phchar != '\0'; phchar++)
-							  *s1++ = *phchar;
-					  }
-					else
-					  {
-						  *s1++ = '\\';
-						  *s1++ = 'U';
-					  }
-					break;
-
-				case 'q':
-					quiet = 1;
-					break;
-
-				case 'r':
-					*s1++ = '\r';
-					break;
-
-				case 'n':
-					*s1++ = '\n';
-					break;
-
-				case 's':
-					*s1++ = ' ';
-					break;
-
-				case 't':
-					*s1++ = '\t';
-					break;
-
-				case 'N':
-					if (sending)
-					  {
-						  *s1++ = '\\';
-						  *s1++ = '\0';
-					  }
-					else
-						*s1++ = 'N';
-					break;
-
-				case '$':		/* ARI */
-					if (use_env)
-					  {
-						  *s1++ = cur_chr;
-						  break;
-					  }
-					/* FALL THROUGH */
-
-				default:
-					if (isoctal (cur_chr))
-					  {
-						  cur_chr &= 0x07;
-						  if (isoctal (*s))
-							{
-								cur_chr <<= 3;
-								cur_chr |= *s++ - '0';
-								if (isoctal (*s))
-								  {
-									  cur_chr <<= 3;
-									  cur_chr |= *s++ - '0';
-								  }
-							}
-
-						  if (cur_chr != 0 || sending)
-							{
-								if (sending
-									&& (cur_chr == '\\' || cur_chr == 0))
-									*s1++ = '\\';
-								*s1++ = cur_chr;
-							}
-						  break;
-					  }
-
-					if (sending)
-						*s1++ = '\\';
-					*s1++ = cur_chr;
-					break;
+				*s1++ = cur_chr;
 			}
-	  }
+			continue;
+		}
+
+		if (use_env && cur_chr == '$')
+		{					/* ARI */
+			phchar = env_str;
+			while (isalnumx (*s))
+				*phchar++ = *s++;
+			*phchar = '\0';
+			phchar = getenv (env_str);
+			if (phchar)
+				while (*phchar)
+					*s1++ = *phchar++;
+			continue;
+		}
+
+		if (cur_chr != '\\')
+		{
+			*s1++ = cur_chr;
+			continue;
+		}
+
+		cur_chr = *s++;
+		if (cur_chr == '\0')
+		{
+			if (sending)
+			{
+				*s1++ = '\\';
+				*s1++ = '\\';
+			}
+			break;
+		}
+
+		switch (cur_chr)
+		{
+			case 'b':
+				*s1++ = '\b';
+				break;
+
+			case 'c':
+				if (sending && *s == '\0')
+					add_return = 0;
+				else
+					*s1++ = cur_chr;
+				break;
+
+			case '\\':
+			case 'K':
+			case 'p':
+			case 'd':
+				if (sending)
+					*s1++ = '\\';
+				*s1++ = cur_chr;
+				break;
+
+			case 'T':
+				if (sending && phone_num)
+				{
+					for (phchar = phone_num; *phchar != '\0'; phchar++)
+						*s1++ = *phchar;
+				}
+				else
+				{
+					*s1++ = '\\';
+					*s1++ = 'T';
+				}
+				break;
+
+			case 'U':
+				if (sending && phone_num2)
+				{
+					for (phchar = phone_num2; *phchar != '\0'; phchar++)
+						*s1++ = *phchar;
+				}
+				else
+				{
+					*s1++ = '\\';
+					*s1++ = 'U';
+				}
+				break;
+
+			case 'q':
+				quiet = 1;
+				break;
+
+			case 'r':
+				*s1++ = '\r';
+				break;
+
+			case 'n':
+				*s1++ = '\n';
+				break;
+
+			case 's':
+				*s1++ = ' ';
+				break;
+
+			case 't':
+				*s1++ = '\t';
+				break;
+
+			case 'N':
+				if (sending)
+				{
+					*s1++ = '\\';
+					*s1++ = '\0';
+				}
+				else
+					*s1++ = 'N';
+				break;
+
+			case '$':		/* ARI */
+				if (use_env)
+				{
+					*s1++ = cur_chr;
+					break;
+				}
+				/* FALL THROUGH */
+
+			default:
+				if (isoctal (cur_chr))
+				{
+					cur_chr &= 0x07;
+					if (isoctal (*s))
+					{
+						cur_chr <<= 3;
+						cur_chr |= *s++ - '0';
+						if (isoctal (*s))
+						{
+							cur_chr <<= 3;
+							cur_chr |= *s++ - '0';
+						}
+					}
+
+					if (cur_chr != 0 || sending)
+					{
+						if (sending
+							&& (cur_chr == '\\' || cur_chr == 0))
+							*s1++ = '\\';
+						*s1++ = cur_chr;
+					}
+					break;
+				}
+
+				if (sending)
+					*s1++ = '\\';
+				*s1++ = cur_chr;
+				break;
+		}
+	}
 
 	if (add_return)
 		*s1++ = '\r';
@@ -493,36 +493,36 @@ char *expect_strtok (char *s, char *term)
 		result = (char *)0;
 
 	while (*str)
-	  {
-		  if (escape_flag)
-			{
-				escape_flag = 0;
-				++str;
-				continue;
-			}
+	{
+		if (escape_flag)
+		{
+			escape_flag = 0;
+			++str;
+			continue;
+		}
 
-		  if (*str == '\\')
-			{
-				++str;
-				escape_flag = 1;
-				continue;
-			}
+		if (*str == '\\')
+		{
+			++str;
+			escape_flag = 1;
+			continue;
+		}
 
 /*
  * If this is not in the termination string, continue.
  */
-		  if (strchr (term, *str) == (char *)0)
-			{
-				++str;
-				continue;
-			}
+		if (strchr (term, *str) == (char *)0)
+		{
+			++str;
+			continue;
+		}
 
 /*
  * This is the terminator. Mark the end of the string and stop.
  */
-		  *str++ = '\0';
-		  break;
-	  }
+		*str++ = '\0';
+		break;
+	}
 	return (result);
 }
 
@@ -535,81 +535,81 @@ void chat_expect (char *s)
 	char *reply;
 
 	if (strcmp (s, "HANGUP") == 0)
-	  {
-		  ++hup_next;
-		  return;
-	  }
+	{
+		++hup_next;
+		return;
+	}
 
 	if (strcmp (s, "ABORT") == 0)
-	  {
-		  ++abort_next;
-		  return;
-	  }
+	{
+		++abort_next;
+		return;
+	}
 
 	if (strcmp (s, "CLR_ABORT") == 0)
-	  {
-		  ++clear_abort_next;
-		  return;
-	  }
+	{
+		++clear_abort_next;
+		return;
+	}
 
 	if (strcmp (s, "REPORT") == 0)
-	  {
-		  ++report_next;
-		  return;
-	  }
+	{
+		++report_next;
+		return;
+	}
 
 	if (strcmp (s, "CLR_REPORT") == 0)
-	  {
-		  ++clear_report_next;
-		  return;
-	  }
+	{
+		++clear_report_next;
+		return;
+	}
 
 	if (strcmp (s, "TIMEOUT") == 0)
-	  {
-		  ++timeout_next;
-		  return;
-	  }
+	{
+		++timeout_next;
+		return;
+	}
 
 	if (strcmp (s, "ECHO") == 0)
-	  {
-		  ++echo_next;
-		  return;
-	  }
+	{
+		++echo_next;
+		return;
+	}
 
 	if (strcmp (s, "SAY") == 0)
-	  {
-		  ++say_next;
-		  return;
-	  }
+	{
+		++say_next;
+		return;
+	}
 
 /*
  * Fetch the expect and reply string.
  */
 	for (;;)
-	  {
-		  expect = expect_strtok (s, "-");
-		  s = (char *)0;
+	{
+		expect = expect_strtok (s, "-");
+		s = (char *)0;
 
-		  if (expect == (char *)0)
-			  return;
+		if (expect == (char *)0)
+			return;
 
-		  reply = expect_strtok (s, "-");
+		reply = expect_strtok (s, "-");
 
 /*
  * Handle the expect string. If successful then exit.
  */
-		  if (get_string (expect))
-			  return;
+		if (get_string (expect))
+			return;
 
 /*
  * If there is a sub-reply string then send it. Otherwise any condition
  * is terminal.
  */
-		  if (reply == (char *)0 || exit_code != 3)
-			  break;
+		if (reply == (char *)0 || exit_code != 3)
+			break;
 
-		  chat_send (reply);
-	  }
+		chat_send (reply);
+	}
 }
 
 #if 0
@@ -645,89 +645,89 @@ void chat_send (char *s)
 /*  char file_data[STR_LEN];  */
 
 	if (say_next)
-	  {
-		  say_next = 0;
-		  s = clean (s, 1);
-		  write (2, s, strlen (s));
-		  free (s);
-		  return;
-	  }
+	{
+		say_next = 0;
+		s = clean (s, 1);
+		write (2, s, strlen (s));
+		free (s);
+		return;
+	}
 
 	if (hup_next)
-	  {
-		  hup_next = 0;
-		  return;
-	  }
+	{
+		hup_next = 0;
+		return;
+	}
 
 	if (echo_next)
-	  {
-		  echo_next = 0;
-		  echo = (strcmp (s, "ON") == 0);
-		  return;
-	  }
+	{
+		echo_next = 0;
+		echo = (strcmp (s, "ON") == 0);
+		return;
+	}
 
 	if (abort_next)
-	  {
-		  abort_next = 0;
-		  if (n_aborts < MAX_ABORTS)
-			{
-				char *s1;
-				s1 = clean (s, 0);
-				if ((strlen (s1) <= strlen (s))
-					&& (strlen (s1) < sizeof (fail_buffer)))
-					abort_string[n_aborts++] = s1;
-				else
-					free (s1);
-			}
-		  return;
-	  }
+	{
+		abort_next = 0;
+		if (n_aborts < MAX_ABORTS)
+		{
+			char *s1;
+			s1 = clean (s, 0);
+			if ((strlen (s1) <= strlen (s))
+				&& (strlen (s1) < sizeof (fail_buffer)))
+				abort_string[n_aborts++] = s1;
+			else
+				free (s1);
+		}
+		return;
+	}
 
 	if (clear_abort_next)
-	  {
-		  clear_abort_next = 0;
-		  return;
-	  }
+	{
+		clear_abort_next = 0;
+		return;
+	}
 
 	if (report_next)
-	  {
-		  report_next = 0;
-		  return;
-	  }
+	{
+		report_next = 0;
+		return;
+	}
 
 	if (clear_report_next)
-	  {
-		  clear_report_next = 0;
-		  return;
-	  }
+	{
+		clear_report_next = 0;
+		return;
+	}
 
 	if (timeout_next)
-	  {
-		  timeout_next = 0;
-		  timeout = atoi (s);
+	{
+		timeout_next = 0;
+		timeout = atoi (s);
 
-		  if (timeout <= 0)
-			{
-				timeout = DEFAULT_CHAT_TIMEOUT;
-			}
-		  return;
-	  }
+		if (timeout <= 0)
+		{
+			timeout = DEFAULT_CHAT_TIMEOUT;
+		}
+		return;
+	}
 
 	if (strcmp (s, "EOT") == 0)
-	  {
-		  s = "^D\\c";
-	  }
+	{
+		s = "^D\\c";
+	}
 	else
-	  {
-		  if (strcmp (s, "BREAK") == 0)
-			{
-				s = "\\K\\c";
-			}
+	{
+		if (strcmp (s, "BREAK") == 0)
+		{
+			s = "\\K\\c";
+		}
 
-		  if (!put_string (s))
-			{
-				exit_code = 2;
-			}
-	  }
+		if (!put_string (s))
+		{
+			exit_code = 2;
+		}
+	}
 }
 
 static int get_char (void)
@@ -737,16 +737,16 @@ static int get_char (void)
 	int tries = MAX_TIMEOUTS;
 
 	while (tries)
-	  {
-		  status = read (ttyfd, &c, 1);
-		  switch (status)
-			{
-				case 1:
-					return ((int)c & 0x7F);
-				default:
-					tries--;
-			}
-	  }
+	{
+		status = read (ttyfd, &c, 1);
+		switch (status)
+		{
+			case 1:
+				return ((int)c & 0x7F);
+			default:
+				tries--;
+		}
+	}
 	return -1;
 }
 
@@ -760,9 +760,9 @@ static int put_char (int c)
 static int write_char (int c)
 {
 	if (put_char (c) < 1)
-	  {
-		  return (0);
-	  }
+	{
+		return (0);
+	}
 	return (1);
 }
 
@@ -773,48 +773,48 @@ static int put_string (char *s)
 	quiet = 0;
 	out = free_ptr = clean (s, 1);
 	while (*out)
-	  {
-		  register char c = *out++;
+	{
+		register char c = *out++;
 
-		  if (c != '\\')
+		if (c != '\\')
+		{
+			if (!write_char (c))
 			{
-				if (!write_char (c))
-				  {
-					  free (free_ptr);
-					  return 0;
-				  }
-				continue;
+				free (free_ptr);
+				return 0;
 			}
+			continue;
+		}
 
-		  c = *out++;
+		c = *out++;
 
-		  switch (c)
-			{
-				case 'd':
-					sleep (1);
-					break;
+		switch (c)
+		{
+			case 'd':
+				sleep (1);
+				break;
 
-				case 'K':
-					break_sequence ();
-					break;
+			case 'K':
+				break_sequence ();
+				break;
 
-				case 'p':
+			case 'p':
 #if 0							/* FIXME!!! */
-					usleep (10000);	/* 1/100th of a second (arg is microseconds) */
+				usleep (10000);	/* 1/100th of a second (arg is microseconds) */
 #else
-					sleep (1);
+				sleep (1);
 #endif
-					break;
+				break;
 
-				default:
-					if (!write_char (c))
-					  {
-						  free (free_ptr);
-						  return 0;
-					  }
-					break;
-			}
-	  }
+			default:
+				if (!write_char (c))
+				{
+					free (free_ptr);
+					return 0;
+				}
+				break;
+		}
+	}
 	free (free_ptr);
 
 	return (1);
@@ -843,65 +843,65 @@ static int get_string (char *in_string)
 	minlen = (len > sizeof (fail_buffer) ? len : sizeof (fail_buffer)) - 1;
 
 	if (len > STR_LEN)
-	  {
-		  exit_code = 1;
-		  free (string);
-		  return 0;
-	  }
+	{
+		exit_code = 1;
+		free (string);
+		return 0;
+	}
 
 	if (len == 0)
-	  {
-		  free (string);
-		  return (1);
-	  }
+	{
+		free (string);
+		return (1);
+	}
 
 	while ((c = get_char ()) >= 0)
-	  {
-		  int n, abort_len;
+	{
+		int n, abort_len;
 
-		  if (c == '\n' || c == '\r')
-			{
-				s = temp2;
-				*s = 0;
-			}
-		  else
-			{
-				*s++ = c;
-				*s = 0;
-			}
+		if (c == '\n' || c == '\r')
+		{
+			s = temp2;
+			*s = 0;
+		}
+		else
+		{
+			*s++ = c;
+			*s = 0;
+		}
 
-		  if (s - temp2 >= len &&
-			  c == string[len - 1] && strncmp (s - len, string, len) == 0)
+		if (s - temp2 >= len &&
+			c == string[len - 1] && strncmp (s - len, string, len) == 0)
+		{
+			free (string);
+			return (1);
+		}
+
+		for (n = 0; n < n_aborts; ++n)
+		{
+			if (s - temp2 >= (abort_len = strlen (abort_string[n])) &&
+				strncmp (s - abort_len, abort_string[n], abort_len) == 0)
 			{
+
+				exit_code = n + 4;
+				strcpy (fail_reason = fail_buffer, abort_string[n]);
 				free (string);
-				return (1);
+				return (0);
 			}
+		}
 
-		  for (n = 0; n < n_aborts; ++n)
+		if (s >= end)
+		{
+			if (logged < s - minlen)
 			{
-				if (s - temp2 >= (abort_len = strlen (abort_string[n])) &&
-					strncmp (s - abort_len, abort_string[n], abort_len) == 0)
-				  {
-
-					  exit_code = n + 4;
-					  strcpy (fail_reason = fail_buffer, abort_string[n]);
-					  free (string);
-					  return (0);
-				  }
+				logged = s;
 			}
-
-		  if (s >= end)
-			{
-				if (logged < s - minlen)
-				  {
-					  logged = s;
-				  }
-				s -= minlen;
-				memmove (temp2, s, minlen);
-				logged = temp2 + (logged - s);
-				s = temp2 + minlen;
-			}
-	  }
+			s -= minlen;
+			memmove (temp2, s, minlen);
+			logged = temp2 + (logged - s);
+			s = temp2 + minlen;
+		}
+	}
 
 	exit_code = 3;
 	free (string);

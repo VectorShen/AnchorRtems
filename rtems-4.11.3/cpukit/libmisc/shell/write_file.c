@@ -28,13 +28,13 @@ void rtems_shell_write_file (const char *name, const char *content)
 
 	fd = fopen (name, "w");
 	if (!fd)
-	  {
-		  fprintf (stderr, "Unable to write %s\n", name);
-	  }
+	{
+		fprintf (stderr, "Unable to write %s\n", name);
+	}
 
 	if (fd)
-	  {
-		  fwrite (content, 1, strlen (content), fd);
-		  fclose (fd);
-	  }
+	{
+		fwrite (content, 1, strlen (content), fd);
+		fclose (fd);
+	}
 }

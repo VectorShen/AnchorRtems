@@ -3,13 +3,13 @@
  * ----------
  * This software was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2003-2007
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * This software was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -87,13 +87,13 @@ bool rtems_telnetd_login_check (const char *user, const char *passphrase)
 	char salt[3];
 
 	if (pw == NULL || strlen (pw) == 0)
-	  {
+	{
 #ifdef TELNETD_DEFAULT_PASSWD
-		  pw = TELNETD_DEFAULT_PASSWD;
+		pw = TELNETD_DEFAULT_PASSWD;
 #else
-		  return true;
+		return true;
 #endif
-	  }
+	}
 
 	strncpy (salt, pw, 2);
 	salt[2] = '\0';

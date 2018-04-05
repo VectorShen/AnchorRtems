@@ -32,16 +32,16 @@ int rtems_shell_main_monitor (int argc, char **argv)
 	const rtems_monitor_command_entry_t *command = NULL;
 
 	if (argc < 1)
-	  {
-		  return 1;
-	  }
+	{
+		return 1;
+	}
 
 	command = rtems_monitor_command_lookup (argv[0]);
 
 	if (command == NULL)
-	  {
-		  return 1;
-	  }
+	{
+		return 1;
+	}
 
 	command->command_function (argc, argv, &command->command_arg, 0);
 
@@ -49,27 +49,27 @@ int rtems_shell_main_monitor (int argc, char **argv)
 }
 
 static bool rtems_shell_register_command (const rtems_monitor_command_entry_t *
-										  e, void *arg __attribute__ ((unused)))
+										e, void *arg __attribute__ ((unused)))
 {
 	/* Exclude EXIT (alias quit) */
 	if (strcmp ("exit", e->command) != 0)
-	  {
-		  rtems_shell_cmd_t *shell_cmd =
-			  (rtems_shell_cmd_t *) calloc (1, sizeof (*shell_cmd));
+	{
+		rtems_shell_cmd_t *shell_cmd =
+			(rtems_shell_cmd_t *) calloc (1, sizeof (*shell_cmd));
 
-		  if (shell_cmd != NULL)
+		if (shell_cmd != NULL)
+		{
+			shell_cmd->name = e->command;
+			shell_cmd->topic = "monitor";
+			shell_cmd->usage = e->usage;
+			shell_cmd->command = rtems_shell_main_monitor;
+
+			if (rtems_shell_add_cmd_struct (shell_cmd) == NULL)
 			{
-				shell_cmd->name = e->command;
-				shell_cmd->topic = "monitor";
-				shell_cmd->usage = e->usage;
-				shell_cmd->command = rtems_shell_main_monitor;
-
-				if (rtems_shell_add_cmd_struct (shell_cmd) == NULL)
-				  {
-					  free (shell_cmd);
-				  }
+				free (shell_cmd);
 			}
-	  }
+		}
+	}
 
 	return true;
 }

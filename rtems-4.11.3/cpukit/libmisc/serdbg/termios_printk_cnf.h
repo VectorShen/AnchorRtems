@@ -50,29 +50,30 @@ extern "C"
 
 #ifdef CONFIGURE_USE_TERMIOS_PRINTK
 /*
- * fill in termios_printk_conf structure
- */
-	termios_printk_conf_t termios_printk_conf = {
-		CONFIGURE_TERMIOS_PRINTK_BAUDRATE,
+* fill in termios_printk_conf structure
+*/
+termios_printk_conf_t termios_printk_conf =
+{
+	CONFIGURE_TERMIOS_PRINTK_BAUDRATE,
 
 #ifdef CONFIGURE_TERMIOS_PRINTK_CALLOUT
-		CONFIGURE_TERMIOS_PRINTK_CALLOUT,
+	CONFIGURE_TERMIOS_PRINTK_CALLOUT,
 #else
-		NULL,
+	NULL,
 #endif
-		CONFIGURE_TERMIOS_PRINTK_DEVNAME,
-	};
+	CONFIGURE_TERMIOS_PRINTK_DEVNAME,
+};
 #endif
 
-	int termios_printk_init (void)
-	{
+int termios_printk_init (void)
+{
 #ifdef CONFIGURE_USE_TERMIOS_PRINTK
-		return termios_printk_open (termios_printk_conf.devname,
-									termios_printk_conf.baudrate);
+	return termios_printk_open (termios_printk_conf.devname,
+								termios_printk_conf.baudrate);
 #else
-		return 0;
+	return 0;
 #endif
-	}
+}
 
 #endif /* CONFIGURE_INIT */
 

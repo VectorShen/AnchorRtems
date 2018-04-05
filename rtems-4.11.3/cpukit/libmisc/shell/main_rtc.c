@@ -56,7 +56,8 @@ static const char rtems_rtc_shell_usage[] =
 static int rtems_rtc_shell_main (int argc, char **argv)
 {
 	rtems_status_code sc = RTEMS_SUCCESSFUL;
-	rtems_time_of_day tod = {
+	rtems_time_of_day tod =
+	{
 		.year = 1988,
 		.month = 1,
 		.day = 1,
@@ -67,112 +68,113 @@ static int rtems_rtc_shell_main (int argc, char **argv)
 	};
 
 	if (argc == 1)
-	  {
-		  sc = rtems_clock_get_tod (&tod);
-		  RTEMS_RTC_SHELL_ERROR_SC (sc, "get time of day");
+	{
+		sc = rtems_clock_get_tod (&tod);
+		RTEMS_RTC_SHELL_ERROR_SC (sc, "get time of day");
 
-		  printf ("%04" PRIu32 "-%02" PRIu32 "-%02" PRIu32
-				  " %02" PRIu32 ":%02" PRIu32 ":%02" PRIu32
-				  " %02" PRIu32 "\n",
-				  tod.year,
-				  tod.month,
-				  tod.day, tod.hour, tod.minute, tod.second, tod.ticks);
-	  }
+		printf ("%04" PRIu32 "-%02" PRIu32 "-%02" PRIu32
+				" %02" PRIu32 ":%02" PRIu32 ":%02" PRIu32
+				" %02" PRIu32 "\n",
+				tod.year,
+				tod.month,
+				tod.day, tod.hour, tod.minute, tod.second, tod.ticks);
+	}
 	else if (argc > 1 && argc < 5)
-	  {
-		  int rv = 0;
-		  int fd = 0;
-		  ssize_t n = 0;
-		  uint32_t v[3];
+	{
+		int rv = 0;
+		int fd = 0;
+		ssize_t n = 0;
+		uint32_t v[3];
 
-		  if (argc > 1)
+		if (argc > 1)
+		{
+			rv = sscanf (argv[1],
+						 "%04" PRIu32 "-%02" PRIu32 "-%02" PRIu32,
+						 v, v + 1, v + 2);
+
+			if (rv == 3)
 			{
-				rv = sscanf (argv[1],
-							 "%04" PRIu32 "-%02" PRIu32 "-%02" PRIu32,
-							 v, v + 1, v + 2);
-
-				if (rv == 3)
-				  {
-					  tod.year = v[0];
-					  tod.month = v[1];
-					  tod.day = v[2];
-				  }
-				else
-				  {
-					  RTEMS_RTC_SHELL_ERROR ("unexpected YYYY-MM-DD input: %s",
-											 argv[1]);
-				  }
+				tod.year = v[0];
+				tod.month = v[1];
+				tod.day = v[2];
 			}
-
-		  if (argc > 2)
+			else
 			{
-				rv = sscanf (argv[2],
-							 "%04" PRIu32 ":%02" PRIu32 ":%02" PRIu32,
-							 v, v + 1, v + 2);
-
-				if (rv == 3)
-				  {
-					  tod.hour = v[0];
-					  tod.minute = v[1];
-					  tod.second = v[2];
-				  }
-				else
-				  {
-					  RTEMS_RTC_SHELL_ERROR ("unexpected HH:MM:SS input: %s",
-											 argv[2]);
-				  }
+				RTEMS_RTC_SHELL_ERROR ("unexpected YYYY-MM-DD input: %s",
+										 argv[1]);
 			}
+		}
 
-		  if (argc > 3)
+		if (argc > 2)
+		{
+			rv = sscanf (argv[2],
+						 "%04" PRIu32 ":%02" PRIu32 ":%02" PRIu32,
+						 v, v + 1, v + 2);
+
+			if (rv == 3)
 			{
-				rv = sscanf (argv[3], "%5" PRIu32, v);
-
-				if (rv == 1)
-				  {
-					  tod.ticks = v[0];
-				  }
-				else
-				  {
-					  RTEMS_RTC_SHELL_ERROR ("unexpected TICKS input: %s",
-											 argv[3]);
-				  }
+				tod.hour = v[0];
+				tod.minute = v[1];
+				tod.second = v[2];
 			}
-
-		  sc = rtems_clock_set (&tod);
-		  RTEMS_RTC_SHELL_ERROR_SC (sc, "set time of day");
-
-		  fd = open (RTC_DEVICE_NAME, O_WRONLY);
-		  if (fd < 0)
+			else
 			{
-				perror ("error: open " RTC_DEVICE_NAME);
-				return -1;
+				RTEMS_RTC_SHELL_ERROR ("unexpected HH:MM:SS input: %s",
+										 argv[2]);
 			}
+		}
 
-		  n = write (fd, &tod, sizeof (tod));
-		  if (n != (ssize_t) sizeof (tod))
-			{
-				perror ("error: write to " RTC_DEVICE_NAME);
-				close (fd);
-				return -1;
-			}
+		if (argc > 3)
+		{
+			rv = sscanf (argv[3], "%5" PRIu32, v);
 
-		  rv = close (fd);
-		  if (rv != 0)
+			if (rv == 1)
 			{
-				perror ("error: close " RTC_DEVICE_NAME);
-				return -1;
+				tod.ticks = v[0];
 			}
-	  }
+			else
+			{
+				RTEMS_RTC_SHELL_ERROR ("unexpected TICKS input: %s",
+										 argv[3]);
+			}
+		}
+
+		sc = rtems_clock_set (&tod);
+		RTEMS_RTC_SHELL_ERROR_SC (sc, "set time of day");
+
+		fd = open (RTC_DEVICE_NAME, O_WRONLY);
+		if (fd < 0)
+		{
+			perror ("error: open " RTC_DEVICE_NAME);
+			return -1;
+		}
+
+		n = write (fd, &tod, sizeof (tod));
+		if (n != (ssize_t) sizeof (tod))
+		{
+			perror ("error: write to " RTC_DEVICE_NAME);
+			close (fd);
+			return -1;
+		}
+
+		rv = close (fd);
+		if (rv != 0)
+		{
+			perror ("error: close " RTC_DEVICE_NAME);
+			return -1;
+		}
+	}
 	else
-	  {
-		  puts (rtems_rtc_shell_usage);
-		  return -1;
-	  }
+	{
+		puts (rtems_rtc_shell_usage);
+		return -1;
+	}
 
 	return 0;
 }
 
-struct rtems_shell_cmd_tt rtems_shell_RTC_Command = {
+struct rtems_shell_cmd_tt rtems_shell_RTC_Command =
+{
 	.name = "rtc",
 	.usage = rtems_rtc_shell_usage,
 	.topic = "misc",

@@ -137,12 +137,12 @@ typedef struct _ftsent
 __BEGIN_DECLS
 #ifndef __LIBC12_SOURCE__
 FTSENT * fts_children (FTS *, int) __RENAME (__fts_children30);
-	 int fts_close (FTS *) __RENAME (__fts_close30);
-	 FTS *fts_open (char *const *, int,
-					int (*)(const FTSENT **,
-							const FTSENT **)) __RENAME (__fts_open30);
-	 FTSENT *fts_read (FTS *) __RENAME (__fts_read30);
-	 int fts_set (FTS *, FTSENT *, int) __RENAME (__fts_set30);
+int fts_close (FTS *) __RENAME (__fts_close30);
+FTS *fts_open (char *const *, int,
+			int (*)(const FTSENT **,
+					const FTSENT **)) __RENAME (__fts_open30);
+FTSENT *fts_read (FTS *) __RENAME (__fts_read30);
+int fts_set (FTS *, FTSENT *, int) __RENAME (__fts_set30);
 #endif
 __END_DECLS
 #endif /* !_FTS_H_ */

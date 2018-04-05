@@ -40,12 +40,12 @@ static uint32_t _Get_maximum_thread_count (void)
 
 	thread_count +=
 		rtems_resource_maximum_per_allocation (Configuration_RTEMS_API.
-											   maximum_tasks);
+											 maximum_tasks);
 
 #if defined(RTEMS_POSIX_API)
 	thread_count +=
 		rtems_resource_maximum_per_allocation (Configuration_POSIX_API.
-											   maximum_threads);
+											 maximum_threads);
 #endif
 
 	return thread_count;
@@ -74,77 +74,77 @@ void _Workspace_Handler_initialization (Heap_Area * areas,
 	 * determined at application link-time.
 	 */
 	if (tls_size > 0)
-	  {
-		  uintptr_t tls_align = _TLS_Heap_align_up ((uintptr_t) _TLS_Alignment);
-		  uintptr_t tls_alloc = _TLS_Get_allocation_size (tls_size, tls_align);
+	{
+		uintptr_t tls_align = _TLS_Heap_align_up ((uintptr_t) _TLS_Alignment);
+		uintptr_t tls_alloc = _TLS_Get_allocation_size (tls_size, tls_align);
 
-		  /*
-		   * Memory allocated with an alignment constraint is allocated from the end
-		   * of a free block.  The last allocation may need one free block of minimum
-		   * size.
-		   */
-		  remaining += _Heap_Min_block_size (page_size);
+		/*
+		 * Memory allocated with an alignment constraint is allocated from the end
+		 * of a free block.  The last allocation may need one free block of minimum
+		 * size.
+		 */
+		remaining += _Heap_Min_block_size (page_size);
 
-		  remaining += _Get_maximum_thread_count ()
-			  * _Heap_Size_with_overhead (page_size, tls_alloc, tls_align);
-	  }
+		remaining += _Get_maximum_thread_count ()
+			* _Heap_Size_with_overhead (page_size, tls_alloc, tls_align);
+	}
 
 	for (i = 0; i < area_count; ++i)
-	  {
-		  Heap_Area *area = &areas[i];
+	{
+		Heap_Area *area = &areas[i];
 
-		  if (do_zero)
+		if (do_zero)
+		{
+			memset (area->begin, 0, area->size);
+		}
+
+		if (area->size > overhead)
+		{
+			uintptr_t space_available;
+			uintptr_t size;
+
+			if (unified)
 			{
-				memset (area->begin, 0, area->size);
+				size = area->size;
+			}
+			else
+			{
+				if (remaining > 0)
+				{
+					size = remaining < area->size - overhead ?
+						remaining + overhead : area->size;
+				}
+				else
+				{
+					size = 0;
+				}
 			}
 
-		  if (area->size > overhead)
+			space_available = (*init_or_extend) (&_Workspace_Area,
+												 area->begin,
+												 size, page_size);
+
+			area->begin = (char *)area->begin + size;
+			area->size -= size;
+
+			if (space_available < remaining)
 			{
-				uintptr_t space_available;
-				uintptr_t size;
-
-				if (unified)
-				  {
-					  size = area->size;
-				  }
-				else
-				  {
-					  if (remaining > 0)
-						{
-							size = remaining < area->size - overhead ?
-								remaining + overhead : area->size;
-						}
-					  else
-						{
-							size = 0;
-						}
-				  }
-
-				space_available = (*init_or_extend) (&_Workspace_Area,
-													 area->begin,
-													 size, page_size);
-
-				area->begin = (char *)area->begin + size;
-				area->size -= size;
-
-				if (space_available < remaining)
-				  {
-					  remaining -= space_available;
-				  }
-				else
-				  {
-					  remaining = 0;
-				  }
-
-				init_or_extend = extend;
+				remaining -= space_available;
 			}
-	  }
+			else
+			{
+				remaining = 0;
+			}
+
+			init_or_extend = extend;
+		}
+	}
 
 	if (remaining > 0)
-	  {
-		  _Terminate (INTERNAL_ERROR_CORE,
-					  true, INTERNAL_ERROR_TOO_LITTLE_WORKSPACE);
-	  }
+	{
+		_Terminate (INTERNAL_ERROR_CORE,
+					true, INTERNAL_ERROR_TOO_LITTLE_WORKSPACE);
+	}
 
 	_Heap_Protection_set_delayed_free_fraction (&_Workspace_Area, 1);
 }

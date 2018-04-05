@@ -33,30 +33,31 @@ static int rtems_shell_main_blkstats (int argc, char **argv)
 	const char *device;
 
 	if (argc == 2)
-	  {
-		  ok = true;
-		  device = argv[1];
-	  }
+	{
+		ok = true;
+		device = argv[1];
+	}
 	else if (argc == 3 && is_reset_option (argv[1]))
-	  {
-		  ok = true;
-		  reset = true;
-		  device = argv[2];
-	  }
+	{
+		ok = true;
+		reset = true;
+		device = argv[2];
+	}
 
 	if (ok)
-	  {
-		  rtems_blkstats (stdout, device, reset);
-	  }
+	{
+		rtems_blkstats (stdout, device, reset);
+	}
 	else
-	  {
-		  fprintf (stdout, "usage: %s\n", rtems_shell_BLKSTATS_Command.usage);
-	  }
+	{
+		fprintf (stdout, "usage: %s\n", rtems_shell_BLKSTATS_Command.usage);
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_BLKSTATS_Command = {
+rtems_shell_cmd_t rtems_shell_BLKSTATS_Command =
+{
 	.name = "blkstats",
 	.usage = "blkstats [-r|--reset] PATH_TO_DEVICE",
 	.topic = "files",

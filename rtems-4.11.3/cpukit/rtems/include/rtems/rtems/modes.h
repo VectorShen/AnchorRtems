@@ -29,36 +29,36 @@ extern "C"
 #endif
 
 /**
- *  @defgroup ClassicModes Modes
- *
- *  @ingroup ClassicRTEMS
- *
- *  This encapsulates functionality related to the task modes supported
- *  by the Classic API Task Manager.
- */
+*  @defgroup ClassicModes Modes
+*
+*  @ingroup ClassicRTEMS
+*
+*  This encapsulates functionality related to the task modes supported
+*  by the Classic API Task Manager.
+*/
 /**@{*/
 
 /**
- *  The following type defines the control block used to manage
- *  each a mode set.
- */
-	typedef uint32_t Modes_Control;
+*  The following type defines the control block used to manage
+*  each a mode set.
+*/
+typedef uint32_t Modes_Control;
 
 /**
- *  The following constants define the individual modes and masks
- *  which may be used to compose a mode set and to alter modes.
- */
+*  The following constants define the individual modes and masks
+*  which may be used to compose a mode set and to alter modes.
+*/
 #define RTEMS_ALL_MODE_MASKS     0x0000ffff
 
 /**
- *  This mode constant is the default mode set.
- */
+*  This mode constant is the default mode set.
+*/
 #define RTEMS_DEFAULT_MODES     0x00000000
 
 /**
- *  This mode constant is used when the user wishes to obtain their
- *  current execution mode.
- */
+*  This mode constant is used when the user wishes to obtain their
+*  current execution mode.
+*/
 #define RTEMS_CURRENT_MODE      0
 
 /** This mode constant corresponds to the timeslice enable/disable bit. */
@@ -89,37 +89,37 @@ extern "C"
 #define RTEMS_NO_ASR       0x00000400
 
 /**
- * @brief RTEMS_INTERRUPT_LEVEL
- *
- * This function returns the processor dependent interrupt
- * level which corresponds to the requested interrupt level.
- *
- * @note RTEMS supports 256 interrupt levels using the least
- *       significant eight bits of MODES.CONTROL. On any
- *       particular CPU, fewer than 256 levels may be supported.
- */
+* @brief RTEMS_INTERRUPT_LEVEL
+*
+* This function returns the processor dependent interrupt
+* level which corresponds to the requested interrupt level.
+*
+* @note RTEMS supports 256 interrupt levels using the least
+*       significant eight bits of MODES.CONTROL. On any
+*       particular CPU, fewer than 256 levels may be supported.
+*/
 #define RTEMS_INTERRUPT_LEVEL( _mode_set ) \
-  ( (_mode_set) & RTEMS_INTERRUPT_MASK )
+( (_mode_set) & RTEMS_INTERRUPT_MASK )
 
 /**
- *  @brief Interrupt Mask Variable
- *
- *  This variable is used by bindings from languages other than C and C++.
- */
-	extern const uint32_t rtems_interrupt_mask;
+*  @brief Interrupt Mask Variable
+*
+*  This variable is used by bindings from languages other than C and C++.
+*/
+extern const uint32_t rtems_interrupt_mask;
 
 /**
- * @brief Body for RTEMS_INTERRUPT_LEVEL Macro
- *
- * @param[in] level is the desired interrupt level
- *
- * @retval This methods returns a mode with the desired interrupt
- *         @a level in the proper bitfield location.
- *
- * @note This variable is used by bindings from languages other than
- *       C and C++.
- */
-	Modes_Control rtems_interrupt_level_body (uint32_t level);
+* @brief Body for RTEMS_INTERRUPT_LEVEL Macro
+*
+* @param[in] level is the desired interrupt level
+*
+* @retval This methods returns a mode with the desired interrupt
+*         @a level in the proper bitfield location.
+*
+* @note This variable is used by bindings from languages other than
+*       C and C++.
+*/
+Modes_Control rtems_interrupt_level_body (uint32_t level);
 
 /**@}*/
 

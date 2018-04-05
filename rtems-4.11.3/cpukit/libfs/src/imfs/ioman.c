@@ -27,8 +27,8 @@
 #include <rtems/libio_.h>
 
 rtems_status_code rtems_io_register_name (const char *device_name,
-										  rtems_device_major_number major,
-										  rtems_device_minor_number minor)
+										rtems_device_major_number major,
+										rtems_device_minor_number minor)
 {
 	int status;
 	dev_t dev;
@@ -51,16 +51,16 @@ rtems_status_code rtems_io_lookup_name (const char *name,
 	int rv = stat (name, &st);
 
 	if (rv == 0 && S_ISCHR (st.st_mode))
-	  {
-		  device_info->device_name = name;
-		  device_info->device_name_length = strlen (name);
-		  device_info->major = rtems_filesystem_dev_major_t (st.st_rdev);
-		  device_info->minor = rtems_filesystem_dev_minor_t (st.st_rdev);
-	  }
+	{
+		device_info->device_name = name;
+		device_info->device_name_length = strlen (name);
+		device_info->major = rtems_filesystem_dev_major_t (st.st_rdev);
+		device_info->minor = rtems_filesystem_dev_minor_t (st.st_rdev);
+	}
 	else
-	  {
-		  sc = RTEMS_UNSATISFIED;
-	  }
+	{
+		sc = RTEMS_UNSATISFIED;
+	}
 
 	return sc;
 }

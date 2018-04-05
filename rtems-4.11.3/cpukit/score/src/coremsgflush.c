@@ -62,23 +62,23 @@ uint32_t _CORE_message_queue_Flush (CORE_message_queue_Control *
 
 	count = the_message_queue->number_of_pending_messages;
 	if (count != 0)
-	  {
-		  the_message_queue->number_of_pending_messages = 0;
+	{
+		the_message_queue->number_of_pending_messages = 0;
 
-		  inactive_head = _Chain_Head (&the_message_queue->Inactive_messages);
-		  inactive_first = inactive_head->next;
-		  message_queue_first =
-			  _Chain_First (&the_message_queue->Pending_messages);
-		  message_queue_last =
-			  _Chain_Last (&the_message_queue->Pending_messages);
+		inactive_head = _Chain_Head (&the_message_queue->Inactive_messages);
+		inactive_first = inactive_head->next;
+		message_queue_first =
+			_Chain_First (&the_message_queue->Pending_messages);
+		message_queue_last =
+			_Chain_Last (&the_message_queue->Pending_messages);
 
-		  inactive_head->next = message_queue_first;
-		  message_queue_last->next = inactive_first;
-		  inactive_first->previous = message_queue_last;
-		  message_queue_first->previous = inactive_head;
+		inactive_head->next = message_queue_first;
+		message_queue_last->next = inactive_first;
+		inactive_first->previous = message_queue_last;
+		message_queue_first->previous = inactive_head;
 
-		  _Chain_Initialize_empty (&the_message_queue->Pending_messages);
-	  }
+		_Chain_Initialize_empty (&the_message_queue->Pending_messages);
+	}
 
 	_CORE_message_queue_Release (the_message_queue, lock_context);
 	return count;

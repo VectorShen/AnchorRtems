@@ -54,16 +54,16 @@ void pthread_cleanup_push (void (*routine) (void *), void *arg)
 	handler = _Workspace_Allocate (sizeof (POSIX_Cancel_Handler_control));
 
 	if (handler)
-	  {
-		  thread_support = _Thread_Executing->API_Extensions[THREAD_API_POSIX];
+	{
+		thread_support = _Thread_Executing->API_Extensions[THREAD_API_POSIX];
 
-		  handler_stack = &thread_support->Cancellation_Handlers;
+		handler_stack = &thread_support->Cancellation_Handlers;
 
-		  handler->routine = routine;
-		  handler->arg = arg;
+		handler->routine = routine;
+		handler->arg = arg;
 
-		  _Chain_Append (handler_stack, &handler->Node);
-	  }
+		_Chain_Append (handler_stack, &handler->Node);
+	}
 	_Thread_Enable_dispatch ();
 }
 

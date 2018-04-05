@@ -45,17 +45,17 @@ rtems_status_code rtems_port_create (rtems_name name,
 	the_port = _Dual_ported_memory_Allocate ();
 
 	if (!the_port)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 	the_port->internal_base = internal_start;
 	the_port->external_base = external_start;
 	the_port->length = length - 1;
 
 	_Objects_Open (&_Dual_ported_memory_Information,
-				   &the_port->Object, (Objects_Name) name);
+				 &the_port->Object, (Objects_Name) name);
 
 	*id = the_port->Object.id;
 	_Objects_Allocator_unlock ();

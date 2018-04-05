@@ -55,28 +55,28 @@ struct socket *rtems_bsdnet_fdToSocket (int fd);
 static int socket_select (struct socket *so, int which, rtems_id tid)
 {
 	switch (which)
-	  {
+	{
 
-		  case FREAD:
-			  if (soreadable (so))
-				  return (1);
-			  so->so_rcv.sb_flags |= SB_WAIT;
-			  so->so_rcv.sb_sel.si_pid = tid;
-			  break;
+		case FREAD:
+			if (soreadable (so))
+				return (1);
+			so->so_rcv.sb_flags |= SB_WAIT;
+			so->so_rcv.sb_sel.si_pid = tid;
+			break;
 
-		  case FWRITE:
-			  if (sowriteable (so))
-				  return (1);
-			  so->so_snd.sb_flags |= SB_WAIT;
-			  so->so_snd.sb_sel.si_pid = tid;
-			  break;
+		case FWRITE:
+			if (sowriteable (so))
+				return (1);
+			so->so_snd.sb_flags |= SB_WAIT;
+			so->so_snd.sb_sel.si_pid = tid;
+			break;
 
-		  case 0:
-			  if (so->so_oobmark || (so->so_state & SS_RCVATMARK))
-				  return (1);
-			  so->so_rcv.sb_sel.si_pid = tid;
-			  break;
-	  }
+		case 0:
+			if (so->so_oobmark || (so->so_state & SS_RCVATMARK))
+				return (1);
+			so->so_rcv.sb_sel.si_pid = tid;
+			break;
+	}
 	return (0);
 }
 
@@ -90,28 +90,28 @@ selscan (rtems_id tid, fd_mask ** ibits, fd_mask ** obits, int nfd, int *retval)
 	static int flag[3] = { FREAD, FWRITE, 0 };
 
 	for (msk = 0; msk < 3; msk++)
-	  {
-		  if (ibits[msk] == NULL)
-			  continue;
-		  for (i = 0; i < nfd; i += NFDBITS)
+	{
+		if (ibits[msk] == NULL)
+			continue;
+		for (i = 0; i < nfd; i += NFDBITS)
+		{
+			bits = ibits[msk][i / NFDBITS];
+			for (fd = i, bit = 1; bits && (fd < nfd); fd++, bit <<= 1)
 			{
-				bits = ibits[msk][i / NFDBITS];
-				for (fd = i, bit = 1; bits && (fd < nfd); fd++, bit <<= 1)
-				  {
-					  if ((bits & bit) == 0)
-						  continue;
-					  bits &= ~bit;
-					  so = rtems_bsdnet_fdToSocket (fd);
-					  if (so == NULL)
-						  return (EBADF);
-					  if (socket_select (so, flag[msk], tid))
-						{
-							obits[msk][fd / NFDBITS] |= (1 << (fd % NFDBITS));
-							n++;
-						}
-				  }
+				if ((bits & bit) == 0)
+					continue;
+				bits &= ~bit;
+				so = rtems_bsdnet_fdToSocket (fd);
+				if (so == NULL)
+					return (EBADF);
+				if (socket_select (so, flag[msk], tid))
+				{
+					obits[msk][fd / NFDBITS] |= (1 << (fd % NFDBITS));
+					n++;
+				}
 			}
-	  }
+		}
+	}
 	*retval = n;
 	return (0);
 }
@@ -132,16 +132,16 @@ select (int nfds, fd_set * __restrict readfds, fd_set * __restrict writefds,
 	if (nfds < 0)
 		return (EINVAL);
 	if (tv)
-	  {
-		  timo = tv->tv_sec * hz + tv->tv_usec / tick;
-		  if (timo == 0)
-			  timo = 1;
-		  then = rtems_clock_get_ticks_since_boot ();
-	  }
+	{
+		timo = tv->tv_sec * hz + tv->tv_usec / tick;
+		if (timo == 0)
+			timo = 1;
+		then = rtems_clock_get_ticks_since_boot ();
+	}
 	else
-	  {
-		  timo = 0;
-	  }
+	{
+		timo = 0;
+	}
 
 #define getbits(name,i) if (name) { \
 		ibits[i] = &name->fds_bits[0]; \
@@ -158,23 +158,23 @@ select (int nfds, fd_set * __restrict readfds, fd_set * __restrict writefds,
 	rtems_event_system_receive (in, RTEMS_EVENT_ANY | RTEMS_NO_WAIT,
 								RTEMS_NO_TIMEOUT, &out);
 	for (;;)
-	  {
-		  rtems_bsdnet_semaphore_obtain ();
-		  error = selscan (tid, ibits, obits, nfds, &retval);
-		  rtems_bsdnet_semaphore_release ();
-		  if (error || retval)
-			  break;
-		  if (timo)
-			{
-				now = rtems_clock_get_ticks_since_boot ();
-				timo -= now - then;
-				if (timo <= 0)
-					break;
-				then = now;
-			}
-		  rtems_event_system_receive (in, RTEMS_EVENT_ANY | RTEMS_WAIT, timo,
-									  &out);
-	  }
+	{
+		rtems_bsdnet_semaphore_obtain ();
+		error = selscan (tid, ibits, obits, nfds, &retval);
+		rtems_bsdnet_semaphore_release ();
+		if (error || retval)
+			break;
+		if (timo)
+		{
+			now = rtems_clock_get_ticks_since_boot ();
+			timo -= now - then;
+			if (timo <= 0)
+				break;
+			then = now;
+		}
+		rtems_event_system_receive (in, RTEMS_EVENT_ANY | RTEMS_WAIT, timo,
+									&out);
+	}
 
 #define putbits(name,i) if (name) *name = ob[i]
 	putbits (readfds, 0);
@@ -182,9 +182,9 @@ select (int nfds, fd_set * __restrict readfds, fd_set * __restrict writefds,
 	putbits (exceptfds, 2);
 #undef putbits
 	if (error)
-	  {
-		  errno = error;
-		  retval = -1;
-	  }
+	{
+		errno = error;
+		retval = -1;
+	}
 	return (retval);
 }

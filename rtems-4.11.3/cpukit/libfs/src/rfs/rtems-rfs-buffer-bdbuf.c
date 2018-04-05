@@ -47,14 +47,14 @@ rtems_rfs_buffer_bdbuf_request (rtems_rfs_file_system * fs,
 		sc = rtems_bdbuf_get (rtems_rfs_fs_device (fs), block, buffer);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
+	{
 #if RTEMS_RFS_BUFFER_ERRORS
-		  printf
-			  ("rtems-rfs: buffer-bdbuf-request: block=%lu: bdbuf-%s: %d: %s\n",
-			   block, read ? "read" : "get", sc, rtems_status_text (sc));
+		printf
+			("rtems-rfs: buffer-bdbuf-request: block=%lu: bdbuf-%s: %d: %s\n",
+			 block, read ? "read" : "get", sc, rtems_status_text (sc));
 #endif
-		  rc = EIO;
-	  }
+		rc = EIO;
+	}
 
 	return rc;
 }
@@ -75,14 +75,14 @@ int rtems_rfs_buffer_bdbuf_release (rtems_rfs_buffer * buffer, bool modified)
 		sc = rtems_bdbuf_release (buffer);
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
+	{
 #if RTEMS_RFS_BUFFER_ERRORS
-		  printf ("rtems-rfs: buffer-release: bdbuf-%s: %s(%d)\n",
-				  modified ? "modified" : "not-modified",
-				  rtems_status_text (sc), sc);
+		printf ("rtems-rfs: buffer-release: bdbuf-%s: %s(%d)\n",
+				modified ? "modified" : "not-modified",
+				rtems_status_text (sc), sc);
 #endif
-		  rc = EIO;
-	  }
+		rc = EIO;
+	}
 
 	return rc;
 }

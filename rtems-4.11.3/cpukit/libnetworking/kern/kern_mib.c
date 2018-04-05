@@ -206,7 +206,8 @@ sysctl_hostname(SYSCTL_HANDLER_ARGS)
 	int error;
 
 	pr = req->td->td_ucred->cr_prison;
-	if (pr != NULL) {
+	if (pr != NULL)
+	{
 		if (!jail_set_hostname_allowed && req->newptr)
 			return (EPERM);
 		/*
@@ -221,7 +222,8 @@ sysctl_hostname(SYSCTL_HANDLER_ARGS)
 		error = sysctl_handle_string(oidp, tmphostname,
 		    sizeof pr->pr_host, req);
 
-		if (req->newptr != NULL && error == 0) {
+		if (req->newptr != NULL && error == 0)
+		{
 			/*
 			 * Copy the locally set hostname to the jail, if
 			 * appropriate.
@@ -230,7 +232,8 @@ sysctl_hostname(SYSCTL_HANDLER_ARGS)
 			bcopy(tmphostname, pr->pr_host, MAXHOSTNAMELEN);
 			mtx_unlock(&pr->pr_mtx);
 		}
-	} else
+	}
+	else
 		error = sysctl_handle_string(oidp,
 		    hostname, sizeof hostname, req);
 	return (error);
@@ -265,11 +268,13 @@ sysctl_kern_securelvl(SYSCTL_HANDLER_ARGS)
 	 * If the process is in jail, return the maximum of the global and
 	 * local levels; otherwise, return the global level.
 	 */
-	if (pr != NULL) {
+	if (pr != NULL)
+	{
 		mtx_lock(&pr->pr_mtx);
 		level = imax(securelevel, pr->pr_securelevel);
 		mtx_unlock(&pr->pr_mtx);
-	} else
+	}
+	else
 		level = securelevel;
 	error = sysctl_handle_int(oidp, &level, 0, req);
 	if (error || !req->newptr)
@@ -278,19 +283,24 @@ sysctl_kern_securelvl(SYSCTL_HANDLER_ARGS)
 	 * Permit update only if the new securelevel exceeds the
 	 * global level, and local level if any.
 	 */
-	if (pr != NULL) {
+	if (pr != NULL)
+	{
 		mtx_lock(&pr->pr_mtx);
 		if (!regression_securelevel_nonmonotonic &&
-		    (level < imax(securelevel, pr->pr_securelevel))) {
+		    (level < imax(securelevel, pr->pr_securelevel)))
+		{
 			mtx_unlock(&pr->pr_mtx);
 			return (EPERM);
 		}
 		pr->pr_securelevel = level;
 		mtx_unlock(&pr->pr_mtx);
-	} else {
+	}
+	else
+	{
 		mtx_lock(&securelevel_mtx);
 		if (!regression_securelevel_nonmonotonic &&
-		    (level < securelevel)) {
+		    (level < securelevel))
+		{
 			mtx_unlock(&securelevel_mtx);
 			return (EPERM);
 		}

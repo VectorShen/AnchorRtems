@@ -161,7 +161,8 @@ static struct option_list *extra_options = NULL;
 /*
  * Valid arguments.
  */
-option_t general_options[] = {
+option_t general_options[] =
+{
 	{"debug", o_int, &debug,
 	 "Increase debugging level", OPT_INC | OPT_NOARG | 1, NULL, 0, 0},
 	{"-d", o_int, &debug,
@@ -316,44 +317,44 @@ int parse_args (int argc, char **argv)
 	privileged_option = privileged;
 	option_source = "command line";
 	while (argc > 0)
-	  {
-		  arg = *argv++;
-		  --argc;
+	{
+		arg = *argv++;
+		--argc;
 
-		  /*
-		   * First see if it's an option in the new option list.
-		   */
-		  opt = find_option (arg);
-		  if (opt != NULL)
+		/*
+		 * First see if it's an option in the new option list.
+		 */
+		opt = find_option (arg);
+		if (opt != NULL)
+		{
+			int n = n_arguments (opt);
+			if (argc < n)
 			{
-				int n = n_arguments (opt);
-				if (argc < n)
-				  {
-					  option_error ("too few parameters for option %s", arg);
-					  return 0;
-				  }
-				current_option = arg;
-				if (!process_option (opt, argv))
-					return 0;
-				argc -= n;
-				argv += n;
-				continue;
-			}
-
-		  /*
-		   * Maybe a tty name, speed or IP address?
-		   */
-		  if ((ret = setdevname (arg)) == 0
-			  && (ret = setspeed (arg)) == 0
-			  && (ret = setipaddr (arg)) == 0 && !prepass)
-			{
-				option_error ("unrecognized option '%s'", arg);
-				usage ();
+				option_error ("too few parameters for option %s", arg);
 				return 0;
 			}
-		  if (ret < 0)			/* error */
-			  return 0;
-	  }
+			current_option = arg;
+			if (!process_option (opt, argv))
+				return 0;
+			argc -= n;
+			argv += n;
+			continue;
+		}
+
+		/*
+		 * Maybe a tty name, speed or IP address?
+		 */
+		if ((ret = setdevname (arg)) == 0
+			&& (ret = setspeed (arg)) == 0
+			&& (ret = setipaddr (arg)) == 0 && !prepass)
+		{
+			option_error ("unrecognized option '%s'", arg);
+			usage ();
+			return 0;
+		}
+		if (ret < 0)			/* error */
+			return 0;
+	}
 	return 1;
 }
 
@@ -371,26 +372,26 @@ void scan_args (argc, argv)
 
 	privileged_option = privileged;
 	while (argc > 0)
-	  {
-		  arg = *argv++;
-		  --argc;
+	{
+		arg = *argv++;
+		--argc;
 
-		  if (strcmp (arg, "notty") == 0 || strcmp (arg, "pty") == 0)
-			  using_pty = 1;
+		if (strcmp (arg, "notty") == 0 || strcmp (arg, "pty") == 0)
+			using_pty = 1;
 
-		  /* Skip options and their arguments */
-		  opt = find_option (arg);
-		  if (opt != NULL)
-			{
-				int n = n_arguments (opt);
-				argc -= n;
-				argv += n;
-				continue;
-			}
+		/* Skip options and their arguments */
+		opt = find_option (arg);
+		if (opt != NULL)
+		{
+			int n = n_arguments (opt);
+			argc -= n;
+			argv += n;
+			continue;
+		}
 
-		  /* Check if it's a tty name and copy it if so */
-		  (void)setdevname (arg, 1);
-	  }
+		/* Check if it's a tty name and copy it if so */
+		(void)setdevname (arg, 1);
+	}
 }
 #endif
 
@@ -412,13 +413,13 @@ int options_from_file (char *filename, int must_exist, int check_prot, int priv)
 	f = fopen (filename, "r");
 	err = errno;
 	if (f == NULL)
-	  {
-		  if (!must_exist && err == ENOENT)
-			  return 1;
-		  errno = err;
-		  option_error ("Can't open options file %s: %m", filename);
-		  return 0;
-	  }
+	{
+		if (!must_exist && err == ENOENT)
+			return 1;
+		errno = err;
+		option_error ("Can't open options file %s: %m", filename);
+		return 0;
+	}
 
 	oldpriv = privileged_option;
 	privileged_option = priv;
@@ -428,51 +429,51 @@ int options_from_file (char *filename, int must_exist, int check_prot, int priv)
 		option_source = "file";
 	ret = 0;
 	while (getword (f, cmd, &newline, filename))
-	  {
-		  /*
-		   * First see if it's a command.
-		   */
-		  opt = find_option (cmd);
-		  if (opt != NULL)
+	{
+		/*
+		 * First see if it's a command.
+		 */
+		opt = find_option (cmd);
+		if (opt != NULL)
+		{
+			int n = n_arguments (opt);
+			for (i = 0; i < n; ++i)
 			{
-				int n = n_arguments (opt);
-				for (i = 0; i < n; ++i)
-				  {
-					  if (!getword (f, args[i], &newline, filename))
-						{
-							option_error
-								("In file %s: too few parameters for option '%s'",
-								 filename, cmd);
-							goto err;
-						}
-					  argv[i] = args[i];
-				  }
-				current_option = cmd;
-				if ((opt->flags & OPT_DEVEQUIV) && devnam_fixed)
-				  {
-					  option_error
-						  ("the %s option may not be used in the %s file", cmd,
-						   filename);
-					  goto err;
-				  }
-				if (!process_option (opt, argv))
+				if (!getword (f, args[i], &newline, filename))
+				{
+					option_error
+						("In file %s: too few parameters for option '%s'",
+						 filename, cmd);
 					goto err;
-				continue;
+				}
+				argv[i] = args[i];
 			}
-
-		  /*
-		   * Maybe a tty name, speed or IP address?
-		   */
-		  if ((i = setdevname (cmd)) == 0
-			  && (i = setspeed (cmd)) == 0 && (i = setipaddr (cmd)) == 0)
+			current_option = cmd;
+			if ((opt->flags & OPT_DEVEQUIV) && devnam_fixed)
 			{
-				option_error ("In file %s: unrecognized option '%s'",
-							  filename, cmd);
+				option_error
+					("the %s option may not be used in the %s file", cmd,
+					 filename);
 				goto err;
 			}
-		  if (i < 0)			/* error */
-			  goto err;
-	  }
+			if (!process_option (opt, argv))
+				goto err;
+			continue;
+		}
+
+		/*
+		 * Maybe a tty name, speed or IP address?
+		 */
+		if ((i = setdevname (cmd)) == 0
+			&& (i = setspeed (cmd)) == 0 && (i = setipaddr (cmd)) == 0)
+		{
+			option_error ("In file %s: unrecognized option '%s'",
+						filename, cmd);
+			goto err;
+		}
+		if (i < 0)			/* error */
+			goto err;
+	}
 	ret = 1;
 
   err:
@@ -533,49 +534,49 @@ int options_from_list (struct wordlist *w, int priv)
 	option_source = "secrets file";
 
 	while (w != NULL)
-	  {
-		  /*
-		   * First see if it's a command.
-		   */
-		  opt = find_option (w->word);
-		  if (opt != NULL)
+	{
+		/*
+		 * First see if it's a command.
+		 */
+		opt = find_option (w->word);
+		if (opt != NULL)
+		{
+			int n = n_arguments (opt);
+			struct wordlist *w0 = w;
+			for (i = 0; i < n; ++i)
 			{
-				int n = n_arguments (opt);
-				struct wordlist *w0 = w;
-				for (i = 0; i < n; ++i)
-				  {
-					  w = w->next;
-					  if (w == NULL)
-						{
-							option_error
-								("In secrets file: too few parameters for option '%s'",
-								 w0->word);
-							goto err;
-						}
-					  argv[i] = w->word;
-				  }
-				current_option = w0->word;
-				if (!process_option (opt, argv))
-					goto err;
 				w = w->next;
-				continue;
+				if (w == NULL)
+				{
+					option_error
+						("In secrets file: too few parameters for option '%s'",
+						 w0->word);
+					goto err;
+				}
+				argv[i] = w->word;
 			}
-
-		  /*
-		   * Maybe a tty name, speed or IP address?
-		   */
-		  if ((i = setdevname (w->word)) == 0
-			  && (i = setspeed (w->word)) == 0
-			  && (i = setipaddr (w->word)) == 0)
-			{
-				option_error ("In secrets file: unrecognized option '%s'",
-							  w->word);
+			current_option = w0->word;
+			if (!process_option (opt, argv))
 				goto err;
-			}
-		  if (i < 0)			/* error */
-			  goto err;
-		  w = w->next;
-	  }
+			w = w->next;
+			continue;
+		}
+
+		/*
+		 * Maybe a tty name, speed or IP address?
+		 */
+		if ((i = setdevname (w->word)) == 0
+			&& (i = setspeed (w->word)) == 0
+			&& (i = setipaddr (w->word)) == 0)
+		{
+			option_error ("In secrets file: unrecognized option '%s'",
+						w->word);
+			goto err;
+		}
+		if (i < 0)			/* error */
+			goto err;
+		w = w->next;
+	}
 	ret = 1;
 
   err:
@@ -624,149 +625,149 @@ static int process_option (option_t * opt, char **argv)
 	if ((opt->flags & OPT_PREPASS) == 0 && prepass)
 		return 1;
 	if ((opt->flags & OPT_INITONLY) && pppd_phase != PHASE_INITIALIZE)
-	  {
-		  option_error ("it's too late to use the %s option", opt->name);
-		  return 0;
-	  }
+	{
+		option_error ("it's too late to use the %s option", opt->name);
+		return 0;
+	}
 	if ((opt->flags & OPT_PRIV) && !privileged_option)
-	  {
-		  option_error ("using the %s option requires root privilege",
+	{
+		option_error ("using the %s option requires root privilege",
 						opt->name);
-		  return 0;
-	  }
+		return 0;
+	}
 	if ((opt->flags & OPT_ENABLE) && *(bool *) (opt->addr2) == 0)
-	  {
-		  option_error ("%s option is disabled", opt->name);
-		  return 0;
-	  }
+	{
+		option_error ("%s option is disabled", opt->name);
+		return 0;
+	}
 	if ((opt->flags & OPT_PRIVFIX) && !privileged_option)
-	  {
-		  struct option_info *ip = (struct option_info *)opt->addr2;
-		  if (ip && ip->priv)
-			{
-				option_error ("%s option cannot be overridden", opt->name);
-				return 0;
-			}
-	  }
+	{
+		struct option_info *ip = (struct option_info *)opt->addr2;
+		if (ip && ip->priv)
+		{
+			option_error ("%s option cannot be overridden", opt->name);
+			return 0;
+		}
+	}
 
 	switch (opt->type)
-	  {
-		  case o_bool:
-			  v = opt->flags & OPT_VALUE;
-			  *(bool *) (opt->addr) = v;
-			  if (opt->addr2 && (opt->flags & OPT_A2COPY))
-				  *(bool *) (opt->addr2) = v;
-			  break;
+	{
+		case o_bool:
+			v = opt->flags & OPT_VALUE;
+			*(bool *) (opt->addr) = v;
+			if (opt->addr2 && (opt->flags & OPT_A2COPY))
+				*(bool *) (opt->addr2) = v;
+			break;
 
-		  case o_int:
-			  iv = 0;
-			  if ((opt->flags & OPT_NOARG) == 0)
+		case o_int:
+			iv = 0;
+			if ((opt->flags & OPT_NOARG) == 0)
+			{
+				if (!int_option (*argv, &iv))
+					return 0;
+				if ((((opt->flags & OPT_LLIMIT) && iv < opt->lower_limit)
+					 || ((opt->flags & OPT_ULIMIT)
+						 && iv > opt->upper_limit))
+					&& !((opt->flags & OPT_ZEROOK && iv == 0)))
 				{
-					if (!int_option (*argv, &iv))
-						return 0;
-					if ((((opt->flags & OPT_LLIMIT) && iv < opt->lower_limit)
-						 || ((opt->flags & OPT_ULIMIT)
-							 && iv > opt->upper_limit))
-						&& !((opt->flags & OPT_ZEROOK && iv == 0)))
-					  {
-						  char *zok =
-							  (opt->flags & OPT_ZEROOK) ? " zero or" : "";
-						  switch (opt->flags & OPT_LIMITS)
-							{
-								case OPT_LLIMIT:
-									option_error ("%s value must be%s >= %d",
-												  opt->name, zok,
-												  opt->lower_limit);
-									break;
-								case OPT_ULIMIT:
-									option_error ("%s value must be%s <= %d",
-												  opt->name, zok,
-												  opt->upper_limit);
-									break;
-								case OPT_LIMITS:
-									option_error
-										("%s value must be%s between %d and %d",
-										 opt->name, opt->lower_limit,
-										 opt->upper_limit);
-									break;
-							}
-						  return 0;
-					  }
+					char *zok =
+						(opt->flags & OPT_ZEROOK) ? " zero or" : "";
+					switch (opt->flags & OPT_LIMITS)
+					{
+						case OPT_LLIMIT:
+							option_error ("%s value must be%s >= %d",
+										opt->name, zok,
+										opt->lower_limit);
+							break;
+						case OPT_ULIMIT:
+							option_error ("%s value must be%s <= %d",
+										opt->name, zok,
+										opt->upper_limit);
+							break;
+						case OPT_LIMITS:
+							option_error
+								("%s value must be%s between %d and %d",
+								 opt->name, opt->lower_limit,
+								 opt->upper_limit);
+							break;
+					}
+					return 0;
 				}
-			  a = opt->flags & OPT_VALUE;
-			  if (a >= 128)
-				  a -= 256;		/* sign extend */
-			  iv += a;
-			  if (opt->flags & OPT_INC)
-				  iv += *(int *)(opt->addr);
-			  if ((opt->flags & OPT_NOINCR) && !privileged_option)
+			}
+			a = opt->flags & OPT_VALUE;
+			if (a >= 128)
+				a -= 256;		/* sign extend */
+			iv += a;
+			if (opt->flags & OPT_INC)
+				iv += *(int *)(opt->addr);
+			if ((opt->flags & OPT_NOINCR) && !privileged_option)
+			{
+				int oldv = *(int *)(opt->addr);
+				if ((opt->flags & OPT_ZEROINF) ?
+					(oldv != 0 && (iv == 0 || iv > oldv)) : (iv > oldv))
 				{
-					int oldv = *(int *)(opt->addr);
-					if ((opt->flags & OPT_ZEROINF) ?
-						(oldv != 0 && (iv == 0 || iv > oldv)) : (iv > oldv))
-					  {
-						  option_error ("%s value cannot be increased",
-										opt->name);
-						  return 0;
-					  }
+					option_error ("%s value cannot be increased",
+									opt->name);
+					return 0;
 				}
-			  *(int *)(opt->addr) = iv;
-			  if (opt->addr2 && (opt->flags & OPT_A2COPY))
-				  *(int *)(opt->addr2) = iv;
-			  break;
+			}
+			*(int *)(opt->addr) = iv;
+			if (opt->addr2 && (opt->flags & OPT_A2COPY))
+				*(int *)(opt->addr2) = iv;
+			break;
 
-		  case o_uint32:
-			  if (opt->flags & OPT_NOARG)
+		case o_uint32:
+			if (opt->flags & OPT_NOARG)
 				{
 					v = opt->flags & OPT_VALUE;
 				}
-			  else if (!number_option (*argv, &v, 16))
-				  return 0;
-			  if (opt->flags & OPT_OR)
-				  v |= *(uint32_t *) (opt->addr);
-			  *(uint32_t *) (opt->addr) = v;
-			  if (opt->addr2 && (opt->flags & OPT_A2COPY))
-				  *(uint32_t *) (opt->addr2) = v;
-			  break;
+			else if (!number_option (*argv, &v, 16))
+				return 0;
+			if (opt->flags & OPT_OR)
+				v |= *(uint32_t *) (opt->addr);
+			*(uint32_t *) (opt->addr) = v;
+			if (opt->addr2 && (opt->flags & OPT_A2COPY))
+				*(uint32_t *) (opt->addr2) = v;
+			break;
 
-		  case o_string:
-			  if (opt->flags & OPT_STATIC)
+		case o_string:
+			if (opt->flags & OPT_STATIC)
+			{
+				strlcpy ((char *)(opt->addr), *argv, opt->upper_limit);
+			}
+			else
+			{
+				sv = strdup (*argv);
+				if (sv == NULL)
+					novm ("option argument");
+				if (*(char **)(opt->addr) != NULL)
 				{
-					strlcpy ((char *)(opt->addr), *argv, opt->upper_limit);
+					free ((void *)*(char **)(opt->addr));
+					*(char **)(opt->addr) = NULL;
 				}
-			  else
-				{
-					sv = strdup (*argv);
-					if (sv == NULL)
-						novm ("option argument");
-					if (*(char **)(opt->addr) != NULL)
-					  {
-						  free ((void *)*(char **)(opt->addr));
-						  *(char **)(opt->addr) = NULL;
-					  }
-					*(char **)(opt->addr) = sv;
-				}
-			  break;
+				*(char **)(opt->addr) = sv;
+			}
+			break;
 
-		  case o_special_noarg:
-		  case o_special:
-			  parser = (int (*)(char **))opt->addr;
-			  if (!(*parser) (argv))
-				  return 0;
-			  break;
-	  }
+		case o_special_noarg:
+		case o_special:
+			parser = (int (*)(char **))opt->addr;
+			if (!(*parser) (argv))
+				return 0;
+			break;
+	}
 
 	if (opt->addr2)
-	  {
-		  if (opt->flags & OPT_A2INFO)
-			{
-				struct option_info *ip = (struct option_info *)opt->addr2;
-				ip->priv = privileged_option;
-				ip->source = option_source;
-			}
-		  else if ((opt->flags & (OPT_A2COPY | OPT_ENABLE)) == 0)
-			  *(bool *) (opt->addr2) = 1;
-	  }
+	{
+		if (opt->flags & OPT_A2INFO)
+		{
+			struct option_info *ip = (struct option_info *)opt->addr2;
+			ip->priv = privileged_option;
+			ip->source = option_source;
+		}
+		else if ((opt->flags & (OPT_A2COPY | OPT_ENABLE)) == 0)
+			*(bool *) (opt->addr2) = 1;
+	}
 
 	return 1;
 }
@@ -823,10 +824,10 @@ void option_error __V ((char *fmt, ...))
 	fmt = va_arg (args, char *);
 #endif
 	if (prepass)
-	  {
-		  va_end (args);
-		  return;
-	  }
+	{
+		va_end (args);
+		return;
+	}
 	vslprintf (buf, sizeof (buf), fmt, args);
 	va_end (args);
 
@@ -856,72 +857,72 @@ int getword (FILE * f, char *word, int *newlinep, char *filename)
 	 * First skip white-space and comments.
 	 */
 	for (;;)
-	  {
-		  c = getc (f);
-		  if (c == EOF)
-			  break;
+	{
+		c = getc (f);
+		if (c == EOF)
+			break;
 
-		  /*
-		   * A newline means the end of a comment; backslash-newline
-		   * is ignored.  Note that we cannot have escape && comment.
-		   */
-		  if (c == '\n')
+		/*
+		 * A newline means the end of a comment; backslash-newline
+		 * is ignored.  Note that we cannot have escape && comment.
+		 */
+		if (c == '\n')
+		{
+			if (!escape)
 			{
-				if (!escape)
-				  {
-					  *newlinep = 1;
-					  comment = 0;
-				  }
-				else
-					escape = 0;
-				continue;
+				*newlinep = 1;
+				comment = 0;
 			}
+			else
+				escape = 0;
+			continue;
+		}
 
-		  /*
-		   * Ignore characters other than newline in a comment.
-		   */
-		  if (comment)
-			  continue;
+		/*
+		 * Ignore characters other than newline in a comment.
+		 */
+		if (comment)
+			continue;
 
-		  /*
-		   * If this character is escaped, we have a word start.
-		   */
-		  if (escape)
-			  break;
+		/*
+		 * If this character is escaped, we have a word start.
+		 */
+		if (escape)
+			break;
 
-		  /*
-		   * If this is the escape character, look at the next character.
-		   */
-		  if (c == '\\')
-			{
-				escape = 1;
-				continue;
-			}
+		/*
+		 * If this is the escape character, look at the next character.
+		 */
+		if (c == '\\')
+		{
+			escape = 1;
+			continue;
+		}
 
-		  /*
-		   * If this is the start of a comment, ignore the rest of the line.
-		   */
-		  if (c == '#')
-			{
-				comment = 1;
-				continue;
-			}
+		/*
+		 * If this is the start of a comment, ignore the rest of the line.
+		 */
+		if (c == '#')
+		{
+			comment = 1;
+			continue;
+		}
 
-		  /*
-		   * A non-whitespace character is the start of a word.
-		   */
-		  if (!isspace (c))
-			  break;
-	  }
+		/*
+		 * A non-whitespace character is the start of a word.
+		 */
+		if (!isspace (c))
+			break;
+	}
 
 	/*
 	 * Save the delimiter for quoted strings.
 	 */
 	if (!escape && (c == '"' || c == '\''))
-	  {
-		  quoted = c;
-		  c = getc (f);
-	  }
+	{
+		quoted = c;
+		c = getc (f);
+	}
 	else
 		quoted = 0;
 
@@ -929,167 +930,167 @@ int getword (FILE * f, char *word, int *newlinep, char *filename)
 	 * Process characters until the end of the word.
 	 */
 	while (c != EOF)
-	  {
-		  if (escape)
+	{
+		if (escape)
+		{
+			/*
+			 * This character is escaped: backslash-newline is ignored,
+			 * various other characters indicate particular values
+			 * as for C backslash-escapes.
+			 */
+			escape = 0;
+			if (c == '\n')
 			{
-				/*
-				 * This character is escaped: backslash-newline is ignored,
-				 * various other characters indicate particular values
-				 * as for C backslash-escapes.
-				 */
-				escape = 0;
-				if (c == '\n')
-				  {
-					  c = getc (f);
-					  continue;
-				  }
-
-				got = 0;
-				switch (c)
-				  {
-					  case 'a':
-						  value = '\a';
-						  break;
-					  case 'b':
-						  value = '\b';
-						  break;
-					  case 'f':
-						  value = '\f';
-						  break;
-					  case 'n':
-						  value = '\n';
-						  break;
-					  case 'r':
-						  value = '\r';
-						  break;
-					  case 's':
-						  value = ' ';
-						  break;
-					  case 't':
-						  value = '\t';
-						  break;
-
-					  default:
-						  if (isoctal (c))
-							{
-								/*
-								 * \ddd octal sequence
-								 */
-								value = 0;
-								for (n = 0; n < 3 && isoctal (c); ++n)
-								  {
-									  value = (value << 3) + (c & 07);
-									  c = getc (f);
-								  }
-								got = 1;
-								break;
-							}
-
-						  if (c == 'x')
-							{
-								/*
-								 * \x<hex_string> sequence
-								 */
-								value = 0;
-								c = getc (f);
-								for (n = 0; n < 2 && isxdigit (c); ++n)
-								  {
-									  digit = toupper (c) - '0';
-									  if (digit > 10)
-										  digit += '0' + 10 - 'A';
-									  value = (value << 4) + digit;
-									  c = getc (f);
-								  }
-								got = 1;
-								break;
-							}
-
-						  /*
-						   * Otherwise the character stands for itself.
-						   */
-						  value = c;
-						  break;
-				  }
-
-				/*
-				 * Store the resulting character for the escape sequence.
-				 */
-				if (len < MAXWORDLEN - 1)
-					word[len] = value;
-				++len;
-
-				if (!got)
-					c = getc (f);
-				continue;
-
-			}
-
-		  /*
-		   * Not escaped: see if we've reached the end of the word.
-		   */
-		  if (quoted)
-			{
-				if (c == quoted)
-					break;
-			}
-		  else
-			{
-				if (isspace (c) || c == '#')
-				  {
-					  ungetc (c, f);
-					  break;
-				  }
-			}
-
-		  /*
-		   * Backslash starts an escape sequence.
-		   */
-		  if (c == '\\')
-			{
-				escape = 1;
 				c = getc (f);
 				continue;
 			}
 
-		  /*
-		   * An ordinary character: store it in the word and get another.
-		   */
-		  if (len < MAXWORDLEN - 1)
-			  word[len] = c;
-		  ++len;
+			got = 0;
+			switch (c)
+			{
+				case 'a':
+					value = '\a';
+					break;
+				case 'b':
+					value = '\b';
+					break;
+				case 'f':
+					value = '\f';
+					break;
+				case 'n':
+					value = '\n';
+					break;
+				case 'r':
+					value = '\r';
+					break;
+				case 's':
+					value = ' ';
+					break;
+				case 't':
+					value = '\t';
+					break;
 
-		  c = getc (f);
-	  }
+				default:
+					if (isoctal (c))
+					{
+						/*
+						 * \ddd octal sequence
+						 */
+						value = 0;
+						for (n = 0; n < 3 && isoctal (c); ++n)
+						{
+							value = (value << 3) + (c & 07);
+							c = getc (f);
+						}
+						got = 1;
+						break;
+					}
+
+					if (c == 'x')
+					{
+						/*
+						 * \x<hex_string> sequence
+						 */
+						value = 0;
+						c = getc (f);
+						for (n = 0; n < 2 && isxdigit (c); ++n)
+						{
+							digit = toupper (c) - '0';
+							if (digit > 10)
+								digit += '0' + 10 - 'A';
+							value = (value << 4) + digit;
+							c = getc (f);
+						}
+						got = 1;
+						break;
+					}
+
+					/*
+					 * Otherwise the character stands for itself.
+					 */
+					value = c;
+					break;
+			}
+
+			/*
+			 * Store the resulting character for the escape sequence.
+			 */
+			if (len < MAXWORDLEN - 1)
+				word[len] = value;
+			++len;
+
+			if (!got)
+				c = getc (f);
+			continue;
+
+		}
+
+		/*
+		 * Not escaped: see if we've reached the end of the word.
+		 */
+		if (quoted)
+		{
+			if (c == quoted)
+				break;
+		}
+		else
+		{
+			if (isspace (c) || c == '#')
+			{
+				ungetc (c, f);
+				break;
+			}
+		}
+
+		/*
+		 * Backslash starts an escape sequence.
+		 */
+		if (c == '\\')
+		{
+			escape = 1;
+			c = getc (f);
+			continue;
+		}
+
+		/*
+		 * An ordinary character: store it in the word and get another.
+		 */
+		if (len < MAXWORDLEN - 1)
+			word[len] = c;
+		++len;
+
+		c = getc (f);
+	}
 
 	/*
 	 * End of the word: check for errors.
 	 */
 	if (c == EOF)
-	  {
-		  if (ferror (f))
-			{
-				if (errno == 0)
-					errno = EIO;
-				option_error ("Error reading %s: %m", filename);
-				die (1);
-			}
-		  /*
-		   * If len is zero, then we didn't find a word before the
-		   * end of the file.
-		   */
-		  if (len == 0)
-			  return 0;
-	  }
+	{
+		if (ferror (f))
+		{
+			if (errno == 0)
+				errno = EIO;
+			option_error ("Error reading %s: %m", filename);
+			die (1);
+		}
+		/*
+		 * If len is zero, then we didn't find a word before the
+		 * end of the file.
+		 */
+		if (len == 0)
+			return 0;
+	}
 
 	/*
 	 * Warn if the word was too long, and append a terminating null.
 	 */
 	if (len >= MAXWORDLEN)
-	  {
-		  option_error ("warning: word in file %s too long (%.20s...)",
+	{
+		option_error ("warning: word in file %s too long (%.20s...)",
 						filename, word);
-		  len = MAXWORDLEN - 1;
-	  }
+		len = MAXWORDLEN - 1;
+	}
 	word[len] = 0;
 
 	return 1;
@@ -1107,11 +1108,11 @@ static int number_option (char *str, uint32_t * valp, int base)
 
 	*valp = strtoul (str, &ptr, base);
 	if (ptr == str)
-	  {
-		  option_error ("invalid numeric parameter '%s' for %s option",
+	{
+		option_error ("invalid numeric parameter '%s' for %s option",
 						str, current_option);
-		  return 0;
-	  }
+		return 0;
+	}
 	return 1;
 }
 
@@ -1156,25 +1157,25 @@ static int callfile (char **argv)
 	if (arg[0] == '/' || arg[0] == 0)
 		ok = 0;
 	else
-	  {
-		  for (p = arg; *p != 0;)
+	{
+		for (p = arg; *p != 0;)
+		{
+			if (p[0] == '.' && p[1] == '.' && (p[2] == '/' || p[2] == 0))
 			{
-				if (p[0] == '.' && p[1] == '.' && (p[2] == '/' || p[2] == 0))
-				  {
-					  ok = 0;
-					  break;
-				  }
-				while (*p != '/' && *p != 0)
-					++p;
-				if (*p == '/')
-					++p;
+				ok = 0;
+				break;
 			}
-	  }
+			while (*p != '/' && *p != 0)
+				++p;
+			if (*p == '/')
+				++p;
+		}
+	}
 	if (!ok)
-	  {
-		  option_error ("call option value may not contain .. or start with /");
-		  return 0;
-	  }
+	{
+		option_error ("call option value may not contain .. or start with /");
+		return 0;
+	}
 
 	l = strlen (arg) + strlen (_PATH_PEERFILES) + 1;
 	if ((fname = (char *)malloc (l)) == NULL)
@@ -1244,17 +1245,17 @@ static int noopt (char **argv)
 static int setdomain (char **argv)
 {
 	if (!privileged_option)
-	  {
-		  option_error ("using the domain option requires root privilege");
-		  return 0;
-	  }
+	{
+		option_error ("using the domain option requires root privilege");
+		return 0;
+	}
 	gethostname (hostname, MAXNAMELEN);
 	if (**argv != 0)
-	  {
-		  if (**argv != '.')
-			  strncat (hostname, ".", MAXNAMELEN - strlen (hostname));
-		  strncat (hostname, *argv, MAXNAMELEN - strlen (hostname));
-	  }
+	{
+		if (**argv != '.')
+			strncat (hostname, ".", MAXNAMELEN - strlen (hostname));
+		strncat (hostname, *argv, MAXNAMELEN - strlen (hostname));
+	}
 	hostname[MAXNAMELEN - 1] = 0;
 	return (1);
 }
@@ -1270,48 +1271,48 @@ static int setspeed (char *arg)
 	char *ptr;
 
 	if (!prepass)
-	  {
-		  spd = strtol (arg, &ptr, 0);
-		  if (ptr == arg || *ptr != 0 || spd == 0)
+	{
+		spd = strtol (arg, &ptr, 0);
+		if (ptr == arg || *ptr != 0 || spd == 0)
+		{
+			ret = 0;
+		}
+		else
+		{
+			switch (spd)
 			{
-				ret = 0;
+				case 2400L:
+					spdValue = B2400;
+					break;
+				case 4800L:
+					spdValue = B4800;
+					break;
+				case 9600L:
+					spdValue = B9600;
+					break;
+				case 19200L:
+					spdValue = B19200;
+					break;
+				case 38400L:
+					spdValue = B38400;
+					break;
+				case 57600L:
+					spdValue = B57600;
+					break;
+				case 115200L:
+					spdValue = B115200;
+					break;
+				default:
+					ret = 0;
+					break;
 			}
-		  else
-			{
-				switch (spd)
-				  {
-					  case 2400L:
-						  spdValue = B2400;
-						  break;
-					  case 4800L:
-						  spdValue = B4800;
-						  break;
-					  case 9600L:
-						  spdValue = B9600;
-						  break;
-					  case 19200L:
-						  spdValue = B19200;
-						  break;
-					  case 38400L:
-						  spdValue = B38400;
-						  break;
-					  case 57600L:
-						  spdValue = B57600;
-						  break;
-					  case 115200L:
-						  spdValue = B115200;
-						  break;
-					  default:
-						  ret = 0;
-						  break;
-				  }
 
-				if (spdValue)
-				  {
-					  inspeed = spdValue;
-				  }
+			if (spdValue)
+			{
+				inspeed = spdValue;
 			}
-	  }
+		}
+	}
 
 	return (ret);
 }
@@ -1328,44 +1329,44 @@ static int setdevname (char *cp)
 		return 0;
 
 	if (strncmp ("/dev/", cp, 5) != 0)
-	  {
-		  strlcpy (dev, "/dev/", sizeof (dev));
-		  strlcat (dev, cp, sizeof (dev));
-		  cp = dev;
-	  }
+	{
+		strlcpy (dev, "/dev/", sizeof (dev));
+		strlcat (dev, cp, sizeof (dev));
+		cp = dev;
+	}
 
 	/*
 	 * Check if there is a character device by this name.
 	 */
 	if (stat (cp, &statbuf) < 0)
-	  {
-		  if (errno == ENOENT)
-			  return 0;
-		  option_error ("Couldn't stat %s: %m", cp);
-		  return -1;
-	  }
+	{
+		if (errno == ENOENT)
+			return 0;
+		option_error ("Couldn't stat %s: %m", cp);
+		return -1;
+	}
 	if (!S_ISCHR (statbuf.st_mode))
-	  {
-		  option_error ("%s is not a character device", cp);
-		  return -1;
-	  }
+	{
+		option_error ("%s is not a character device", cp);
+		return -1;
+	}
 
 	if (pppd_phase != PHASE_INITIALIZE)
-	  {
-		  option_error ("device name cannot be changed after initialization");
-		  return -1;
-	  }
+	{
+		option_error ("device name cannot be changed after initialization");
+		return -1;
+	}
 	else if (devnam_fixed)
-	  {
-		  option_error ("per-tty options file may not specify device name");
-		  return -1;
-	  }
+	{
+		option_error ("per-tty options file may not specify device name");
+		return -1;
+	}
 
 	if (devnam_info.priv && !privileged_option)
-	  {
-		  option_error ("device name cannot be overridden");
-		  return -1;
-	  }
+	{
+		option_error ("device name cannot be overridden");
+		return -1;
+	}
 
 	strlcpy (devnam, cp, sizeof (devnam));
 	devstat = statbuf;
@@ -1398,57 +1399,57 @@ static int setipaddr (char *arg)
 	 * If colon first character, then no local addr.
 	 */
 	if (colon != arg)
-	  {
-		  *colon = '\0';
-		  if ((local = inet_addr (arg)) == (uint32_t) - 1)
+	{
+		*colon = '\0';
+		if ((local = inet_addr (arg)) == (uint32_t) - 1)
+		{
+			if ((hp = gethostbyname (arg)) == NULL)
 			{
-				if ((hp = gethostbyname (arg)) == NULL)
-				  {
-					  option_error ("unknown host: %s", arg);
-					  return -1;
-				  }
-				else
-				  {
-					  local = *(uint32_t *) hp->h_addr;
-				  }
-			}
-		  if (bad_ip_adrs (local))
-			{
-				option_error ("bad local IP address %s", ip_ntoa (local));
+				option_error ("unknown host: %s", arg);
 				return -1;
 			}
-		  if (local != 0)
-			  wo->ouraddr = local;
-		  *colon = ':';
-	  }
+			else
+			{
+				local = *(uint32_t *) hp->h_addr;
+			}
+		}
+		if (bad_ip_adrs (local))
+		{
+			option_error ("bad local IP address %s", ip_ntoa (local));
+			return -1;
+		}
+		if (local != 0)
+			wo->ouraddr = local;
+		*colon = ':';
+	}
 
 	/*
 	 * If colon last character, then no remote addr.
 	 */
 	if (*++colon != '\0')
-	  {
-		  if ((remote = inet_addr (colon)) == (uint32_t) - 1)
+	{
+		if ((remote = inet_addr (colon)) == (uint32_t) - 1)
+		{
+			if ((hp = gethostbyname (colon)) == NULL)
 			{
-				if ((hp = gethostbyname (colon)) == NULL)
-				  {
-					  option_error ("unknown host: %s", colon);
-					  return -1;
-				  }
-				else
-				  {
-					  remote = *(uint32_t *) hp->h_addr;
-					  if (remote_name[0] == 0)
-						  strlcpy (remote_name, colon, sizeof (remote_name));
-				  }
-			}
-		  if (bad_ip_adrs (remote))
-			{
-				option_error ("bad remote IP address %s", ip_ntoa (remote));
+				option_error ("unknown host: %s", colon);
 				return -1;
 			}
-		  if (remote != 0)
-			  wo->hisaddr = remote;
-	  }
+			else
+			{
+				remote = *(uint32_t *) hp->h_addr;
+				if (remote_name[0] == 0)
+					strlcpy (remote_name, colon, sizeof (remote_name));
+			}
+		}
+		if (bad_ip_adrs (remote))
+		{
+			option_error ("bad remote IP address %s", ip_ntoa (remote));
+			return -1;
+		}
+		if (remote != 0)
+			wo->hisaddr = remote;
+	}
 
 	return 1;
 }
@@ -1469,34 +1470,34 @@ static int setnetmask (char **argv)
 	p = *argv;
 	mask = 0;
 	for (n = 3;; --n)
-	  {
-		  b = strtoul (p, &endp, 0);
-		  if (endp == p)
-			  break;
-		  if (b > 255)
+	{
+		b = strtoul (p, &endp, 0);
+		if (endp == p)
+			break;
+		if (b > 255)
+		{
+			if (n == 3)
 			{
-				if (n == 3)
-				  {
-					  /* accept e.g. 0xffffff00 */
-					  p = endp;
-					  mask = b;
-				  }
-				break;
+				/* accept e.g. 0xffffff00 */
+				p = endp;
+				mask = b;
 			}
-		  mask |= b << (n * 8);
-		  p = endp;
-		  if (*p != '.' || n == 0)
-			  break;
-		  ++p;
-	  }
+			break;
+		}
+		mask |= b << (n * 8);
+		p = endp;
+		if (*p != '.' || n == 0)
+			break;
+		++p;
+	}
 
 	mask = htonl (mask);
 
 	if (*p != 0 || (netmask & ~mask) != 0)
-	  {
-		  option_error ("invalid netmask value '%s'", *argv);
-		  return 0;
-	  }
+	{
+		option_error ("invalid netmask value '%s'", *argv);
+		return 0;
+	}
 
 	netmask = mask;
 	return (1);
@@ -1520,11 +1521,11 @@ static int setlogfile (char **argv)
 		fd = open (*argv, O_WRONLY | O_APPEND);
 	err = errno;
 	if (fd < 0)
-	  {
-		  errno = err;
-		  option_error ("Can't open log file %s: %m", *argv);
-		  return 0;
-	  }
+	{
+		errno = err;
+		option_error ("Can't open log file %s: %m", *argv);
+		return 0;
+	}
 	if (log_to_file && log_to_fd >= 0)
 		close (log_to_fd);
 	log_to_fd = fd;
@@ -1542,20 +1543,20 @@ static int loadplugin (char **argv)
 
 	handle = dlopen (arg, RTLD_GLOBAL | RTLD_NOW);
 	if (handle == 0)
-	  {
-		  err = dlerror ();
-		  if (err != 0)
-			  option_error ("%s", err);
-		  option_error ("Couldn't load plugin %s", arg);
-		  return 0;
-	  }
+	{
+		err = dlerror ();
+		if (err != 0)
+			option_error ("%s", err);
+		option_error ("Couldn't load plugin %s", arg);
+		return 0;
+	}
 	init = dlsym (handle, "plugin_init");
 	if (init == 0)
-	  {
-		  option_error ("%s has no initialization entry point", arg);
-		  dlclose (handle);
-		  return 0;
-	  }
+	{
+		option_error ("%s has no initialization entry point", arg);
+		dlclose (handle);
+		return 0;
+	}
 	info ("Plugin %s loaded.", arg);
 	(*init) ();
 	return 1;

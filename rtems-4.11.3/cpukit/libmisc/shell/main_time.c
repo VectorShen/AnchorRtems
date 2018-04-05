@@ -48,9 +48,9 @@ static int rtems_shell_main_time (int argc, char *argv[])
 		fprintf (stderr, "error: cannot read time\n");
 
 	if (argc)
-	  {
-		  errorlevel = rtems_shell_execute_cmd (argv[1], argc, &argv[1]);
-	  }
+	{
+		errorlevel = rtems_shell_execute_cmd (argv[1], argc, &argv[1]);
+	}
 
 	sc = rtems_clock_get_uptime (&end);
 	if (sc != RTEMS_SUCCESSFUL)
@@ -59,10 +59,10 @@ static int rtems_shell_main_time (int argc, char *argv[])
 	period.tv_sec = end.tv_sec - start.tv_sec;
 	period.tv_nsec = end.tv_nsec - start.tv_nsec;
 	if (period.tv_nsec < 0)
-	  {
-		  --period.tv_sec;
-		  period.tv_nsec += 1000000000UL;
-	  }
+	{
+		--period.tv_sec;
+		period.tv_nsec += 1000000000UL;
+	}
 
 	fprintf (stderr,
 			 "time: %" PRIdtime_t ":%02" PRIdtime_t ":%02" PRIdtime_t
@@ -72,7 +72,8 @@ static int rtems_shell_main_time (int argc, char *argv[])
 	return errorlevel;
 }
 
-rtems_shell_cmd_t rtems_shell_TIME_Command = {
+rtems_shell_cmd_t rtems_shell_TIME_Command =
+{
 	.name = "time",
 	.usage = "time command [arguments...]",
 	.topic = "misc",

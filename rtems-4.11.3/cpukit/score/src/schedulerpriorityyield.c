@@ -30,10 +30,10 @@ Scheduler_Void_or_thread _Scheduler_priority_Yield (const Scheduler_Control *
 	Chain_Control *ready_chain = node->Ready_queue.ready_chain;
 
 	if (!_Chain_Has_only_one_node (ready_chain))
-	  {
-		  _Chain_Extract_unprotected (&the_thread->Object.Node);
-		  _Chain_Append_unprotected (ready_chain, &the_thread->Object.Node);
-	  }
+	{
+		_Chain_Extract_unprotected (&the_thread->Object.Node);
+		_Chain_Append_unprotected (ready_chain, &the_thread->Object.Node);
+	}
 
 	_Scheduler_priority_Schedule_body (scheduler, the_thread, true);
 

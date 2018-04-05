@@ -25,7 +25,7 @@
 static const IMFS_node_control IMFS_node_control_sym_link;
 
 int IMFS_symlink (const rtems_filesystem_location_info_t * parentloc,
-				  const char *name, size_t namelen, const char *target)
+				const char *name, size_t namelen, const char *target)
 {
 	IMFS_jnode_t *new_node;
 
@@ -41,15 +41,15 @@ int IMFS_symlink (const rtems_filesystem_location_info_t * parentloc,
 								 RTEMS_DECONST (char *, target));
 
 	if (new_node == NULL)
-	  {
-		  rtems_set_errno_and_return_minus_one (ENOMEM);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ENOMEM);
+	}
 
 	return 0;
 }
 
 ssize_t IMFS_readlink (const rtems_filesystem_location_info_t * loc,
-					   char *buf, size_t bufsize)
+					 char *buf, size_t bufsize)
 {
 	IMFS_sym_link_t *sym_link;
 	ssize_t i;
@@ -63,7 +63,7 @@ ssize_t IMFS_readlink (const rtems_filesystem_location_info_t * loc,
 }
 
 static int IMFS_stat_sym_link (const rtems_filesystem_location_info_t * loc,
-							   struct stat *buf)
+							 struct stat *buf)
 {
 	const IMFS_sym_link_t *sym_link = loc->node_access;
 
@@ -72,7 +72,8 @@ static int IMFS_stat_sym_link (const rtems_filesystem_location_info_t * loc,
 	return IMFS_stat (loc, buf);
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_link_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_link_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = rtems_filesystem_default_read,
@@ -101,7 +102,8 @@ static IMFS_jnode_t *IMFS_node_initialize_sym_link (IMFS_jnode_t * node,
 	return node;
 }
 
-static const IMFS_node_control IMFS_node_control_sym_link = {
+static const IMFS_node_control IMFS_node_control_sym_link =
+{
 	.handlers = &IMFS_link_handlers,
 	.node_initialize = IMFS_node_initialize_sym_link,
 	.node_remove = IMFS_node_remove_default,

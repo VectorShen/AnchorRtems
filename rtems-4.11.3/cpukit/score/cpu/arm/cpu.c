@@ -75,11 +75,11 @@ RTEMS_STATIC_ASSERT (sizeof (ARM_VFP_context) == ARM_VFP_CONTEXT_SIZE,
 uint32_t arm_cpu_mode = 0x13;
 
 void _CPU_Context_Initialize (Context_Control * the_context,
-							  void *stack_area_begin,
-							  size_t stack_area_size,
-							  uint32_t new_level,
-							  void (*entry_point) (void),
-							  bool is_fp, void *tls_area)
+							void *stack_area_begin,
+							size_t stack_area_size,
+							uint32_t new_level,
+							void (*entry_point) (void),
+							bool is_fp, void *tls_area)
 {
 	the_context->register_sp = (uint32_t) stack_area_begin + stack_area_size;
 	the_context->register_lr = (uint32_t) entry_point;
@@ -91,9 +91,9 @@ void _CPU_Context_Initialize (Context_Control * the_context,
 #endif
 
 	if (tls_area != NULL)
-	  {
-		  _TLS_TCB_at_area_begin_initialize (tls_area);
-	  }
+	{
+		_TLS_TCB_at_area_begin_initialize (tls_area);
+	}
 }
 
 /* Preprocessor magic for stringification of x */
@@ -107,12 +107,12 @@ void _CPU_ISR_Set_level (uint32_t level)
 	level = (level != 0) ? ARM_PSR_I : 0;
 
 	__asm__ volatile (ARM_SWITCH_TO_ARM
-					  "mrs %[arm_switch_reg], cpsr\n"
-					  "bic %[arm_switch_reg], #"
-					  _CPU_ISR_LEVEL_STRINGOF (ARM_PSR_I) "\n"
-					  "orr %[arm_switch_reg], %[level]\n" "msr cpsr, %0\n"
-					  ARM_SWITCH_BACK:[arm_switch_reg]
-					  "=&r" (arm_switch_reg):[level] "r" (level));
+					"mrs %[arm_switch_reg], cpsr\n"
+					"bic %[arm_switch_reg], #"
+					_CPU_ISR_LEVEL_STRINGOF (ARM_PSR_I) "\n"
+					"orr %[arm_switch_reg], %[level]\n" "msr cpsr, %0\n"
+					ARM_SWITCH_BACK:[arm_switch_reg]
+					"=&r" (arm_switch_reg):[level] "r" (level));
 }
 
 uint32_t _CPU_ISR_Get_level (void)
@@ -121,16 +121,16 @@ uint32_t _CPU_ISR_Get_level (void)
 	uint32_t level;
 
 	__asm__ volatile (ARM_SWITCH_TO_ARM
-					  "mrs %[level], cpsr\n"
-					  "and %[level], #" _CPU_ISR_LEVEL_STRINGOF (ARM_PSR_I) "\n"
-					  ARM_SWITCH_BACK:[level] "=&r" (level)
-					  ARM_SWITCH_ADDITIONAL_OUTPUT);
+					"mrs %[level], cpsr\n"
+					"and %[level], #" _CPU_ISR_LEVEL_STRINGOF (ARM_PSR_I) "\n"
+					ARM_SWITCH_BACK:[level] "=&r" (level)
+					ARM_SWITCH_ADDITIONAL_OUTPUT);
 
 	return (level & ARM_PSR_I) != 0;
 }
 
 void _CPU_ISR_install_vector (uint32_t vector,
-							  proc_ptr new_handler, proc_ptr * old_handler)
+							proc_ptr new_handler, proc_ptr * old_handler)
 {
 	/* Redirection table starts at the end of the vector table */
 	volatile uint32_t *table = (volatile uint32_t *)(MAX_EXCEPTIONS * 4);
@@ -139,15 +139,15 @@ void _CPU_ISR_install_vector (uint32_t vector,
 
 	/* The current handler is now the old one */
 	if (old_handler != NULL)
-	  {
-		  *old_handler = (proc_ptr) current_handler;
-	  }
+	{
+		*old_handler = (proc_ptr) current_handler;
+	}
 
 	/* Write only if necessary to avoid writes to a maybe read-only memory */
 	if (current_handler != (uint32_t) new_handler)
-	  {
-		  table[vector] = (uint32_t) new_handler;
-	  }
+	{
+		table[vector] = (uint32_t) new_handler;
+	}
 }
 
 void _CPU_Initialize (void)

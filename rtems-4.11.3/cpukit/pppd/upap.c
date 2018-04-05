@@ -36,7 +36,8 @@ static bool hide_password = true;
 /*
  * Command-line options.
  */
-static option_t pap_option_list[] = {
+static option_t pap_option_list[] =
+{
 	{"hide-password", o_bool, &hide_password,
 	 "Don't output passwords to log", 1, NULL, 0, 0},
 	{"show-password", o_bool, &hide_password,
@@ -60,7 +61,8 @@ static void upap_input (int, u_char *, int);
 static void upap_protrej (int);
 static int upap_printpkt (u_char *, int, void (*)(void *, char *, ...), void *);
 
-struct protent pap_protent = {
+struct protent pap_protent =
+{
 	PPP_PAP,
 	upap_init,
 	upap_input,
@@ -129,10 +131,10 @@ void upap_authwithpeer (int unit, char *user, char *password)
 	/* Lower layer up yet? */
 	if (u->us_clientstate == UPAPCS_INITIAL ||
 		u->us_clientstate == UPAPCS_PENDING)
-	  {
-		  u->us_clientstate = UPAPCS_PENDING;
-		  return;
-	  }
+	{
+		u->us_clientstate = UPAPCS_PENDING;
+		return;
+	}
 
 	upap_sauthreq (u);			/* Start protocol */
 }
@@ -149,10 +151,10 @@ void upap_authpeer (int unit)
 	/* Lower layer up yet? */
 	if (u->us_serverstate == UPAPSS_INITIAL ||
 		u->us_serverstate == UPAPSS_PENDING)
-	  {
-		  u->us_serverstate = UPAPSS_PENDING;
-		  return;
-	  }
+	{
+		u->us_serverstate = UPAPSS_PENDING;
+		return;
+	}
 
 	u->us_serverstate = UPAPSS_LISTEN;
 	if (u->us_reqtimeout > 0)
@@ -170,13 +172,13 @@ static void upap_timeout (void *arg)
 		return;
 
 	if (u->us_transmits >= u->us_maxtransmits)
-	  {
-		  /* give up in disgust */
-		  error ("No response to PAP authenticate-requests");
-		  u->us_clientstate = UPAPCS_BADAUTH;
-		  auth_withpeer_fail (u->us_unit, PPP_PAP);
-		  return;
-	  }
+	{
+		/* give up in disgust */
+		error ("No response to PAP authenticate-requests");
+		u->us_clientstate = UPAPCS_BADAUTH;
+		auth_withpeer_fail (u->us_unit, PPP_PAP);
+		return;
+	}
 
 	upap_sauthreq (u);			/* Send Authenticate-Request */
 }
@@ -207,18 +209,18 @@ static void upap_lowerup (int unit)
 	if (u->us_clientstate == UPAPCS_INITIAL)
 		u->us_clientstate = UPAPCS_CLOSED;
 	else if (u->us_clientstate == UPAPCS_PENDING)
-	  {
-		  upap_sauthreq (u);	/* send an auth-request */
-	  }
+	{
+		upap_sauthreq (u);	/* send an auth-request */
+	}
 
 	if (u->us_serverstate == UPAPSS_INITIAL)
 		u->us_serverstate = UPAPSS_CLOSED;
 	else if (u->us_serverstate == UPAPSS_PENDING)
-	  {
-		  u->us_serverstate = UPAPSS_LISTEN;
-		  if (u->us_reqtimeout > 0)
-			  TIMEOUT (upap_reqtimeout, u, u->us_reqtimeout);
-	  }
+	{
+		u->us_serverstate = UPAPSS_LISTEN;
+		if (u->us_reqtimeout > 0)
+			TIMEOUT (upap_reqtimeout, u, u->us_reqtimeout);
+	}
 }
 
 /*
@@ -249,15 +251,15 @@ static void upap_protrej (int unit)
 	upap_state *u = &upap[unit];
 
 	if (u->us_clientstate == UPAPCS_AUTHREQ)
-	  {
-		  error ("PAP authentication failed due to protocol-reject");
-		  auth_withpeer_fail (unit, PPP_PAP);
-	  }
+	{
+		error ("PAP authentication failed due to protocol-reject");
+		auth_withpeer_fail (unit, PPP_PAP);
+	}
 	if (u->us_serverstate == UPAPSS_LISTEN)
-	  {
-		  error ("PAP authentication of peer failed (protocol-reject)");
-		  auth_peer_fail (unit, PPP_PAP);
-	  }
+	{
+		error ("PAP authentication of peer failed (protocol-reject)");
+		auth_peer_fail (unit, PPP_PAP);
+	}
 	upap_lowerdown (unit);
 }
 
@@ -277,45 +279,45 @@ static void upap_input (int unit, u_char * inpacket, int l)
 	 */
 	inp = inpacket;
 	if (l < UPAP_HEADERLEN)
-	  {
-		  UPAPDEBUG (("pap_input: rcvd short header."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_input: rcvd short header."));
+		return;
+	}
 	GETCHAR (code, inp);
 	GETCHAR (id, inp);
 	GETSHORT (len, inp);
 	if (len < UPAP_HEADERLEN)
-	  {
-		  UPAPDEBUG (("pap_input: rcvd illegal length."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_input: rcvd illegal length."));
+		return;
+	}
 	if (len > l)
-	  {
-		  UPAPDEBUG (("pap_input: rcvd short packet."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_input: rcvd short packet."));
+		return;
+	}
 	len -= UPAP_HEADERLEN;
 
 	/*
 	 * Action depends on code.
 	 */
 	switch (code)
-	  {
-		  case UPAP_AUTHREQ:
-			  upap_rauthreq (u, inp, id, len);
-			  break;
+	{
+		case UPAP_AUTHREQ:
+			upap_rauthreq (u, inp, id, len);
+			break;
 
-		  case UPAP_AUTHACK:
-			  upap_rauthack (u, inp, id, len);
-			  break;
+		case UPAP_AUTHACK:
+			upap_rauthack (u, inp, id, len);
+			break;
 
-		  case UPAP_AUTHNAK:
-			  upap_rauthnak (u, inp, id, len);
-			  break;
+		case UPAP_AUTHNAK:
+			upap_rauthnak (u, inp, id, len);
+			break;
 
-		  default:				/* XXX Need code reject */
-			  break;
-	  }
+		default:				/* XXX Need code reject */
+			break;
+	}
 }
 
 /*
@@ -337,39 +339,39 @@ static void upap_rauthreq (upap_state * u, u_char * inp, int id, int len)
 	 * supposed to return the same status as for the first request.
 	 */
 	if (u->us_serverstate == UPAPSS_OPEN)
-	  {
-		  upap_sresp (u, UPAP_AUTHACK, id, "", 0);	/* return auth-ack */
-		  return;
-	  }
+	{
+		upap_sresp (u, UPAP_AUTHACK, id, "", 0);	/* return auth-ack */
+		return;
+	}
 	if (u->us_serverstate == UPAPSS_BADAUTH)
-	  {
-		  upap_sresp (u, UPAP_AUTHNAK, id, "", 0);	/* return auth-nak */
-		  return;
-	  }
+	{
+		upap_sresp (u, UPAP_AUTHNAK, id, "", 0);	/* return auth-nak */
+		return;
+	}
 
 	/*
 	 * Parse user/passwd.
 	 */
 	if (len < 1)
-	  {
-		  UPAPDEBUG (("pap_rauth: rcvd short packet."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_rauth: rcvd short packet."));
+		return;
+	}
 	GETCHAR (ruserlen, inp);
 	len -= sizeof (u_char) + ruserlen + sizeof (u_char);
 	if (len < 0)
-	  {
-		  UPAPDEBUG (("pap_rauth: rcvd short packet."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_rauth: rcvd short packet."));
+		return;
+	}
 	ruser = (char *)inp;
 	INCPTR (ruserlen, inp);
 	GETCHAR (rpasswdlen, inp);
 	if (len < rpasswdlen)
-	  {
-		  UPAPDEBUG (("pap_rauth: rcvd short packet."));
-		  return;
-	  }
+	{
+		UPAPDEBUG (("pap_rauth: rcvd short packet."));
+		return;
+	}
 	rpasswd = (char *)inp;
 
 	/*
@@ -385,15 +387,15 @@ static void upap_rauthreq (upap_state * u, u_char * inp, int id, int len)
 	upap_sresp (u, retcode, id, msg, msglen);
 
 	if (retcode == UPAP_AUTHACK)
-	  {
-		  u->us_serverstate = UPAPSS_OPEN;
-		  auth_peer_success (u->us_unit, PPP_PAP, ruser, ruserlen);
-	  }
+	{
+		u->us_serverstate = UPAPSS_OPEN;
+		auth_peer_success (u->us_unit, PPP_PAP, ruser, ruserlen);
+	}
 	else
-	  {
-		  u->us_serverstate = UPAPSS_BADAUTH;
-		  auth_peer_fail (u->us_unit, PPP_PAP);
-	  }
+	{
+		u->us_serverstate = UPAPSS_BADAUTH;
+		auth_peer_fail (u->us_unit, PPP_PAP);
+	}
 
 	if (u->us_reqtimeout > 0)
 		UNTIMEOUT (upap_reqtimeout, u);
@@ -414,24 +416,24 @@ static void upap_rauthack (upap_state * u, u_char * inp, int id, int len)
 	 * Parse message.
 	 */
 	if (len < 1)
-	  {
-		  UPAPDEBUG (("pap_rauthack: ignoring missing msg-length."));
-	  }
+	{
+		UPAPDEBUG (("pap_rauthack: ignoring missing msg-length."));
+	}
 	else
-	  {
-		  GETCHAR (msglen, inp);
-		  if (msglen > 0)
+	{
+		GETCHAR (msglen, inp);
+		if (msglen > 0)
+		{
+			len -= sizeof (u_char);
+			if (len < msglen)
 			{
-				len -= sizeof (u_char);
-				if (len < msglen)
-				  {
-					  UPAPDEBUG (("pap_rauthack: rcvd short packet."));
-					  return;
-				  }
-				msg = (char *)inp;
-				PRINTMSG (msg, msglen);
+				UPAPDEBUG (("pap_rauthack: rcvd short packet."));
+				return;
 			}
-	  }
+			msg = (char *)inp;
+			PRINTMSG (msg, msglen);
+		}
+	}
 
 	u->us_clientstate = UPAPCS_OPEN;
 
@@ -453,24 +455,24 @@ static void upap_rauthnak (upap_state * u, u_char * inp, int id, int len)
 	 * Parse message.
 	 */
 	if (len < 1)
-	  {
-		  UPAPDEBUG (("pap_rauthnak: ignoring missing msg-length."));
-	  }
+	{
+		UPAPDEBUG (("pap_rauthnak: ignoring missing msg-length."));
+	}
 	else
-	  {
-		  GETCHAR (msglen, inp);
-		  if (msglen > 0)
+	{
+		GETCHAR (msglen, inp);
+		if (msglen > 0)
+		{
+			len -= sizeof (u_char);
+			if (len < msglen)
 			{
-				len -= sizeof (u_char);
-				if (len < msglen)
-				  {
-					  UPAPDEBUG (("pap_rauthnak: rcvd short packet."));
-					  return;
-				  }
-				msg = (char *)inp;
-				PRINTMSG (msg, msglen);
+				UPAPDEBUG (("pap_rauthnak: rcvd short packet."));
+				return;
 			}
-	  }
+			msg = (char *)inp;
+			PRINTMSG (msg, msglen);
+		}
+	}
 
 	u->us_clientstate = UPAPCS_BADAUTH;
 
@@ -532,13 +534,14 @@ upap_sresp (upap_state * u, u_char code, u_char id, char *msg, int msglen)
 /*
  * upap_printpkt - print the contents of a PAP packet.
  */
-static char *upap_codenames[] = {
+static char *upap_codenames[] =
+{
 	"AuthReq", "AuthAck", "AuthNak"
 };
 
 static int
 upap_printpkt (u_char * p,
-			   int plen, void (*printer) (void *, char *, ...), void *arg)
+			 int plen, void (*printer) (void *, char *, ...), void *arg)
 {
 	int code, id, len;
 	int mlen, ulen, wlen;
@@ -561,49 +564,49 @@ upap_printpkt (u_char * p,
 	printer (arg, " id=0x%x", id);
 	len -= UPAP_HEADERLEN;
 	switch (code)
-	  {
-		  case UPAP_AUTHREQ:
-			  if (len < 1)
-				  break;
-			  ulen = p[0];
-			  if (len < ulen + 2)
-				  break;
-			  wlen = p[ulen + 1];
-			  if (len < ulen + wlen + 2)
-				  break;
-			  user = (char *)(p + 1);
-			  pwd = (char *)(p + ulen + 2);
-			  p += ulen + wlen + 2;
-			  len -= ulen + wlen + 2;
-			  printer (arg, " user=");
-			  print_string (user, ulen, printer, arg);
-			  printer (arg, " password=");
-			  if (!hide_password)
-				  print_string (pwd, wlen, printer, arg);
-			  else
-				  printer (arg, "<hidden>");
-			  break;
-		  case UPAP_AUTHACK:
-		  case UPAP_AUTHNAK:
-			  if (len < 1)
-				  break;
-			  mlen = p[0];
-			  if (len < mlen + 1)
-				  break;
-			  msg = (char *)(p + 1);
-			  p += mlen + 1;
-			  len -= mlen + 1;
-			  printer (arg, " ");
-			  print_string (msg, mlen, printer, arg);
-			  break;
-	  }
+	{
+		case UPAP_AUTHREQ:
+			if (len < 1)
+				break;
+			ulen = p[0];
+			if (len < ulen + 2)
+				break;
+			wlen = p[ulen + 1];
+			if (len < ulen + wlen + 2)
+				break;
+			user = (char *)(p + 1);
+			pwd = (char *)(p + ulen + 2);
+			p += ulen + wlen + 2;
+			len -= ulen + wlen + 2;
+			printer (arg, " user=");
+			print_string (user, ulen, printer, arg);
+			printer (arg, " password=");
+			if (!hide_password)
+				print_string (pwd, wlen, printer, arg);
+			else
+				printer (arg, "<hidden>");
+			break;
+		case UPAP_AUTHACK:
+		case UPAP_AUTHNAK:
+			if (len < 1)
+				break;
+			mlen = p[0];
+			if (len < mlen + 1)
+				break;
+			msg = (char *)(p + 1);
+			p += mlen + 1;
+			len -= mlen + 1;
+			printer (arg, " ");
+			print_string (msg, mlen, printer, arg);
+			break;
+	}
 
 	/* print the rest of the bytes in the packet */
 	for (; len > 0; --len)
-	  {
-		  GETCHAR (code, p);
-		  printer (arg, " %.2x", code);
-	  }
+	{
+		GETCHAR (code, p);
+		printer (arg, " %.2x", code);
+	}
 
 	return p - pstart;
 }

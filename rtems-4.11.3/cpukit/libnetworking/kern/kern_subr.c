@@ -55,10 +55,12 @@ uiomove(void *cp, int n, struct uio *uio)
 	if (uio->uio_rw != UIO_READ && uio->uio_rw != UIO_WRITE)
 		panic("uiomove: mode");
 #endif
-	while (n > 0 && uio->uio_resid) {
+	while (n > 0 && uio->uio_resid)
+	{
 		iov = uio->uio_iov;
 		cnt = iov->iov_len;
-		if (cnt == 0) {
+		if (cnt == 0)
+		{
 			uio->uio_iov++;
 			uio->uio_iovcnt--;
 			continue;
@@ -66,25 +68,26 @@ uiomove(void *cp, int n, struct uio *uio)
 		if (cnt > n)
 			cnt = n;
 
-		switch (uio->uio_segflg) {
+		switch (uio->uio_segflg)
+		{
 
-		case UIO_USERSPACE:
-			if (uio->uio_rw == UIO_READ)
-				error = copyout(cp, iov->iov_base, cnt);
-			else
-				error = copyin(iov->iov_base, cp, cnt);
-			if (error)
-				return (error);
-			break;
+			case UIO_USERSPACE:
+				if (uio->uio_rw == UIO_READ)
+					error = copyout(cp, iov->iov_base, cnt);
+				else
+					error = copyin(iov->iov_base, cp, cnt);
+				if (error)
+					return (error);
+				break;
 
-		case UIO_SYSSPACE:
-			if (uio->uio_rw == UIO_READ)
-				bcopy((caddr_t)cp, iov->iov_base, cnt);
-			else
-				bcopy(iov->iov_base, (caddr_t)cp, cnt);
-			break;
-		case UIO_NOCOPY:
-			break;
+			case UIO_SYSSPACE:
+				if (uio->uio_rw == UIO_READ)
+					bcopy((caddr_t)cp, iov->iov_base, cnt);
+				else
+					bcopy(iov->iov_base, (caddr_t)cp, cnt);
+				break;
+			case UIO_NOCOPY:
+				break;
 		}
 		iov->iov_base += cnt;
 		iov->iov_len -= cnt;
@@ -139,7 +142,8 @@ phashinit(elements, type, nentries)
 
 	if (elements <= 0)
 		panic("phashinit: bad elements");
-	for (i = 1, hashsize = primes[1]; hashsize <= elements;) {
+	for (i = 1, hashsize = primes[1]; hashsize <= elements;)
+	{
 		i++;
 		if (i == NPRIMES)
 			break;

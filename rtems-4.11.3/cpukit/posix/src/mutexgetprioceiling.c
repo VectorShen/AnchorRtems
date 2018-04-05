@@ -42,21 +42,21 @@ int pthread_mutex_getprioceiling (pthread_mutex_t * mutex, int *prioceiling)
 
 	the_mutex = _POSIX_Mutex_Get (mutex, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  *prioceiling =
-				  _POSIX_Priority_From_core (the_mutex->Mutex.Attributes.
+		case OBJECTS_LOCAL:
+			*prioceiling =
+				_POSIX_Priority_From_core (the_mutex->Mutex.Attributes.
 											 priority_ceiling);
-			  _Objects_Put (&the_mutex->Object);
-			  return 0;
+			_Objects_Put (&the_mutex->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

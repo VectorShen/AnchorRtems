@@ -61,12 +61,12 @@ static uint32_t _Year_day_as_month (uint32_t year, uint32_t * day)
 	days_to_date += 2;
 
 	while (month < 11)
-	  {
-		  if (*day < *days_to_date)
-			  break;
-		  ++month;
-		  ++days_to_date;
-	  }
+	{
+		if (*day < *days_to_date)
+			break;
+		++month;
+		++days_to_date;
+	}
 
 	*day -= *(days_to_date - 1);
 
@@ -106,13 +106,13 @@ rtems_status_code rtems_clock_get_tod (rtems_time_of_day * time_buffer)
 
 	/* Adjust the year and days in the year if in the leap year overflow. */
 	if (leap_years > (days % RTEMS_DAYS_PER_YEAR))
-	  {
-		  year -= 1;
-		  if (_Leap_year (year))
-			{
-				year_days += 1;
-			}
-	  }
+	{
+		year -= 1;
+		if (_Leap_year (year))
+		{
+			year_days += 1;
+		}
+	}
 
 	time_buffer->year = year;
 	time_buffer->month = _Year_day_as_month (year, &year_days) + 1;

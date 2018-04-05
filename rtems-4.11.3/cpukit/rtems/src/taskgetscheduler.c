@@ -25,37 +25,37 @@ rtems_status_code rtems_task_get_scheduler (rtems_id task_id,
 	rtems_status_code sc;
 
 	if (scheduler_id != NULL)
-	  {
-		  Thread_Control *the_thread;
-		  Objects_Locations location;
-		  const Scheduler_Control *scheduler;
+	{
+		Thread_Control *the_thread;
+		Objects_Locations location;
+		const Scheduler_Control *scheduler;
 
-		  the_thread = _Thread_Get (task_id, &location);
+		the_thread = _Thread_Get (task_id, &location);
 
-		  switch (location)
-			{
-				case OBJECTS_LOCAL:
-					scheduler = _Scheduler_Get (the_thread);
-					*scheduler_id =
-						_Scheduler_Build_id (_Scheduler_Get_index (scheduler));
-					_Objects_Put (&the_thread->Object);
-					sc = RTEMS_SUCCESSFUL;
-					break;
+		switch (location)
+		{
+			case OBJECTS_LOCAL:
+				scheduler = _Scheduler_Get (the_thread);
+				*scheduler_id =
+					_Scheduler_Build_id (_Scheduler_Get_index (scheduler));
+				_Objects_Put (&the_thread->Object);
+				sc = RTEMS_SUCCESSFUL;
+				break;
 #if defined(RTEMS_MULTIPROCESSING)
-				case OBJECTS_REMOTE:
-					_Thread_Dispatch ();
-					sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
-					break;
+			case OBJECTS_REMOTE:
+				_Thread_Dispatch ();
+				sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+				break;
 #endif
-				default:
-					sc = RTEMS_INVALID_ID;
-					break;
-			}
-	  }
+			default:
+				sc = RTEMS_INVALID_ID;
+				break;
+		}
+	}
 	else
-	  {
-		  sc = RTEMS_INVALID_ADDRESS;
-	  }
+	{
+		sc = RTEMS_INVALID_ADDRESS;
+	}
 
 	return sc;
 }

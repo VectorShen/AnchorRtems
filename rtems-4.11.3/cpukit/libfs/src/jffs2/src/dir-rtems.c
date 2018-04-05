@@ -41,31 +41,31 @@ struct _inode *jffs2_lookup (struct _inode *dir_i, const unsigned char *name,
 	/* NB: The 2.2 backport will need to explicitly check for '.' and '..' here */
 	for (fd_list = dir_f->dents; fd_list && fd_list->nhash <= hash;
 		 fd_list = fd_list->next)
-	  {
-		  if (fd_list->nhash == hash &&
-			  (!fd || fd_list->version > fd->version) &&
-			  strlen ((char *)fd_list->name) == namelen &&
-			  !strncmp ((char *)fd_list->name, (char *)name, namelen))
-			{
-				fd = fd_list;
-			}
-	  }
+	{
+		if (fd_list->nhash == hash &&
+			(!fd || fd_list->version > fd->version) &&
+			strlen ((char *)fd_list->name) == namelen &&
+			!strncmp ((char *)fd_list->name, (char *)name, namelen))
+		{
+			fd = fd_list;
+		}
+	}
 	if (fd)
 		ino = fd->ino;
 	mutex_unlock (&dir_f->sem);
 	if (ino)
-	  {
-		  inode = jffs2_iget (dir_i->i_sb, ino);
-		  if (IS_ERR (inode))
-			{
-				printk ("jffs2_iget() failed for ino #%u\n", ino);
-				return inode;
-			}
-		  else
-			{
-				inode->i_fd = fd;
-			}
-	  }
+	{
+		inode = jffs2_iget (dir_i->i_sb, ino);
+		if (IS_ERR (inode))
+		{
+			printk ("jffs2_iget() failed for ino #%u\n", ino);
+			return inode;
+		}
+		else
+		{
+			inode->i_fd = fd;
+		}
+	}
 
 	return inode;
 }
@@ -73,7 +73,7 @@ struct _inode *jffs2_lookup (struct _inode *dir_i, const unsigned char *name,
 /***********************************************************************/
 
 int jffs2_create (struct _inode *dir_i, const char *d_name, size_t d_namelen,
-				  int mode)
+				int mode)
 {
 	struct jffs2_raw_inode *ri;
 	struct jffs2_inode_info *f, *dir_f;
@@ -96,11 +96,11 @@ int jffs2_create (struct _inode *dir_i, const char *d_name, size_t d_namelen,
 	inode = jffs2_new_inode (dir_i, mode, ri);
 
 	if (IS_ERR (inode))
-	  {
-		  D1 (printk (KERN_DEBUG "jffs2_new_inode() failed\n"));
-		  jffs2_free_raw_inode (ri);
-		  return PTR_ERR (inode);
-	  }
+	{
+		D1 (printk (KERN_DEBUG "jffs2_new_inode() failed\n"));
+		jffs2_free_raw_inode (ri);
+		return PTR_ERR (inode);
+	}
 
 	f = JFFS2_INODE_INFO (inode);
 	dir_f = JFFS2_INODE_INFO (dir_i);
@@ -108,12 +108,12 @@ int jffs2_create (struct _inode *dir_i, const char *d_name, size_t d_namelen,
 	ret = jffs2_do_create (c, dir_f, f, ri, &qstr);
 
 	if (ret)
-	  {
-		  inode->i_nlink = 0;
-		  jffs2_iput (inode);
-		  jffs2_free_raw_inode (ri);
-		  return ret;
-	  }
+	{
+		inode->i_nlink = 0;
+		jffs2_iput (inode);
+		jffs2_free_raw_inode (ri);
+		return ret;
+	}
 
 	dir_i->i_mtime = dir_i->i_ctime = ITIME (je32_to_cpu (ri->ctime));
 
@@ -130,7 +130,7 @@ int jffs2_create (struct _inode *dir_i, const char *d_name, size_t d_namelen,
 /***********************************************************************/
 
 int jffs2_unlink (struct _inode *dir_i, struct _inode *d_inode,
-				  const unsigned char *d_name, size_t d_namelen)
+				const unsigned char *d_name, size_t d_namelen)
 {
 	struct jffs2_sb_info *c = JFFS2_SB_INFO (dir_i->i_sb);
 	struct jffs2_inode_info *dir_f = JFFS2_INODE_INFO (dir_i);
@@ -138,7 +138,7 @@ int jffs2_unlink (struct _inode *dir_i, struct _inode *d_inode,
 	int ret;
 
 	ret = jffs2_do_unlink (c, dir_f, (const char *)d_name,
-						   d_namelen, dead_f, get_seconds ());
+						 d_namelen, dead_f, get_seconds ());
 	if (dead_f->inocache)
 		d_inode->i_nlink = dead_f->inocache->pino_nlink;
 	return ret;
@@ -163,11 +163,11 @@ int jffs2_link (struct _inode *old_d_inode, struct _inode *dir_i,
 						 (const char *)d_name, d_namelen, get_seconds ());
 
 	if (!ret)
-	  {
-		  mutex_lock (&f->sem);
-		  old_d_inode->i_nlink = ++f->inocache->pino_nlink;
-		  mutex_unlock (&f->sem);
-	  }
+	{
+		mutex_lock (&f->sem);
+		old_d_inode->i_nlink = ++f->inocache->pino_nlink;
+		mutex_unlock (&f->sem);
+	}
 	return ret;
 }
 
@@ -189,7 +189,7 @@ int jffs2_mknod (struct _inode *dir_i,
 	int ret;
 
 	/* FIXME: If you care. We'd need to use frags for the data
-	   if it grows much more than this */
+	 if it grows much more than this */
 	if (datalen > 254)
 		return -ENAMETOOLONG;
 
@@ -204,22 +204,22 @@ int jffs2_mknod (struct _inode *dir_i,
 	 * Just the node will do for now, though
 	 */
 	ret = jffs2_reserve_space (c, sizeof (*ri) + datalen, &alloclen,
-							   ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+							 ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
 
 	if (ret)
-	  {
-		  jffs2_free_raw_inode (ri);
-		  return ret;
-	  }
+	{
+		jffs2_free_raw_inode (ri);
+		return ret;
+	}
 
 	inode = jffs2_new_inode (dir_i, mode, ri);
 
 	if (IS_ERR (inode))
-	  {
-		  jffs2_free_raw_inode (ri);
-		  jffs2_complete_reservation (c);
-		  return PTR_ERR (inode);
-	  }
+	{
+		jffs2_free_raw_inode (ri);
+		jffs2_complete_reservation (c);
+		return PTR_ERR (inode);
+	}
 
 	f = JFFS2_INODE_INFO (inode);
 
@@ -238,33 +238,33 @@ int jffs2_mknod (struct _inode *dir_i,
 	jffs2_free_raw_inode (ri);
 
 	if (IS_ERR (fn))
-	  {
-		  /* Eeek. Wave bye bye */
-		  mutex_unlock (&f->sem);
-		  jffs2_complete_reservation (c);
-		  ret = PTR_ERR (fn);
-		  goto fail;
-	  }
+	{
+		/* Eeek. Wave bye bye */
+		mutex_unlock (&f->sem);
+		jffs2_complete_reservation (c);
+		ret = PTR_ERR (fn);
+		goto fail;
+	}
 
 	if (S_ISLNK (mode))
-	  {
-		  /* We use f->target field to store the target path. */
-		  f->target = kmemdup (data, datalen + 1, GFP_KERNEL);
-		  if (!f->target)
-			{
-				pr_warn ("Can't allocate %d bytes of memory\n", datalen + 1);
-				mutex_unlock (&f->sem);
-				jffs2_complete_reservation (c);
-				ret = -ENOMEM;
-				goto fail;
-			}
+	{
+		/* We use f->target field to store the target path. */
+		f->target = kmemdup (data, datalen + 1, GFP_KERNEL);
+		if (!f->target)
+		{
+			pr_warn ("Can't allocate %d bytes of memory\n", datalen + 1);
+			mutex_unlock (&f->sem);
+			jffs2_complete_reservation (c);
+			ret = -ENOMEM;
+			goto fail;
+		}
 
-		  jffs2_dbg (1, "%s(): symlink's target '%s' cached\n",
+		jffs2_dbg (1, "%s(): symlink's target '%s' cached\n",
 					 __func__, (char *)f->target);
-	  }
+	}
 
 	/* No data here. Only a metadata node, which will be
-	   obsoleted by the first data write
+	 obsoleted by the first data write
 	 */
 	f->metadata = fn;
 	mutex_unlock (&f->sem);
@@ -272,19 +272,19 @@ int jffs2_mknod (struct _inode *dir_i,
 	jffs2_complete_reservation (c);
 
 	ret = jffs2_reserve_space (c, sizeof (*rd) + d_namelen, &alloclen,
-							   ALLOC_NORMAL,
-							   JFFS2_SUMMARY_DIRENT_SIZE (d_namelen));
+							 ALLOC_NORMAL,
+							 JFFS2_SUMMARY_DIRENT_SIZE (d_namelen));
 	if (ret)
 		goto fail;
 
 	rd = jffs2_alloc_raw_dirent ();
 	if (!rd)
-	  {
-		  /* Argh. Now we treat it like a normal delete */
-		  jffs2_complete_reservation (c);
-		  ret = -ENOMEM;
-		  goto fail;
-	  }
+	{
+		/* Argh. Now we treat it like a normal delete */
+		jffs2_complete_reservation (c);
+		ret = -ENOMEM;
+		goto fail;
+	}
 
 	dir_f = JFFS2_INODE_INFO (dir_i);
 	mutex_lock (&dir_f->sem);
@@ -310,22 +310,22 @@ int jffs2_mknod (struct _inode *dir_i,
 	fd = jffs2_write_dirent (c, dir_f, rd, d_name, d_namelen, ALLOC_NORMAL);
 
 	if (IS_ERR (fd))
-	  {
-		  /* dirent failed to write. Delete the inode normally
-		     as if it were the final unlink() */
-		  jffs2_complete_reservation (c);
-		  jffs2_free_raw_dirent (rd);
-		  mutex_unlock (&dir_f->sem);
-		  ret = PTR_ERR (fd);
-		  goto fail;
-	  }
+	{
+		/* dirent failed to write. Delete the inode normally
+		   as if it were the final unlink() */
+		jffs2_complete_reservation (c);
+		jffs2_free_raw_dirent (rd);
+		mutex_unlock (&dir_f->sem);
+		ret = PTR_ERR (fd);
+		goto fail;
+	}
 
 	dir_i->i_mtime = dir_i->i_ctime = ITIME (je32_to_cpu (rd->mctime));
 
 	jffs2_free_raw_dirent (rd);
 
 	/* Link the fd into the inode's list, obsoleting an old
-	   one if necessary. */
+	 one if necessary. */
 	jffs2_add_fd_to_list (c, fd, &dir_f->dents);
 
 	mutex_unlock (&dir_f->sem);
@@ -344,17 +344,17 @@ int jffs2_rmdir (struct _inode *dir_i, struct _inode *d_inode,
 	struct jffs2_full_dirent *fd;
 
 	for (fd = f->dents; fd; fd = fd->next)
-	  {
-		  if (fd->ino)
-			  return -ENOTEMPTY;
-	  }
+	{
+		if (fd->ino)
+			return -ENOTEMPTY;
+	}
 	return jffs2_unlink (dir_i, d_inode, d_name, d_namelen);
 }
 
 int jffs2_rename (struct _inode *old_dir_i, struct _inode *d_inode,
-				  const unsigned char *old_d_name, size_t old_d_namelen,
-				  struct _inode *new_dir_i, const unsigned char *new_d_name,
-				  size_t new_d_namelen)
+				const unsigned char *old_d_name, size_t old_d_namelen,
+				struct _inode *new_dir_i, const unsigned char *new_d_name,
+				size_t new_d_namelen)
 {
 	int ret;
 	struct jffs2_sb_info *c = JFFS2_SB_INFO (old_dir_i->i_sb);
@@ -363,44 +363,44 @@ int jffs2_rename (struct _inode *old_dir_i, struct _inode *d_inode,
 	uint32_t now;
 
 #if 0							/* FIXME -- this really doesn't belong in individual file systems. 
-								   The fileio code ought to do this for us, or at least part of it */
+								 The fileio code ought to do this for us, or at least part of it */
 	if (new_dentry->d_inode)
-	  {
-		  if (S_ISDIR (d_inode->i_mode) &&
-			  !S_ISDIR (new_dentry->d_inode->i_mode))
+	{
+		if (S_ISDIR (d_inode->i_mode) &&
+			!S_ISDIR (new_dentry->d_inode->i_mode))
+		{
+			/* Cannot rename directory over non-directory */
+			return -EINVAL;
+		}
+
+		victim_f = JFFS2_INODE_INFO (new_dentry->d_inode);
+
+		if (S_ISDIR (new_dentry->d_inode->i_mode))
+		{
+			struct jffs2_full_dirent *fd;
+
+			if (!S_ISDIR (d_inode->i_mode))
 			{
-				/* Cannot rename directory over non-directory */
+				/* Cannot rename non-directory over directory */
 				return -EINVAL;
 			}
-
-		  victim_f = JFFS2_INODE_INFO (new_dentry->d_inode);
-
-		  if (S_ISDIR (new_dentry->d_inode->i_mode))
+			mutex_lock (&victim_f->sem);
+			for (fd = victim_f->dents; fd; fd = fd->next)
 			{
-				struct jffs2_full_dirent *fd;
-
-				if (!S_ISDIR (d_inode->i_mode))
-				  {
-					  /* Cannot rename non-directory over directory */
-					  return -EINVAL;
-				  }
-				mutex_lock (&victim_f->sem);
-				for (fd = victim_f->dents; fd; fd = fd->next)
-				  {
-					  if (fd->ino)
-						{
-							mutex_unlock (&victim_f->sem);
-							return -ENOTEMPTY;
-						}
-				  }
-				mutex_unlock (&victim_f->sem);
+				if (fd->ino)
+				{
+					mutex_unlock (&victim_f->sem);
+					return -ENOTEMPTY;
+				}
 			}
-	  }
+			mutex_unlock (&victim_f->sem);
+		}
+	}
 #endif
 
 	/* XXX: We probably ought to alloc enough space for
-	   both nodes at the same time. Writing the new link, 
-	   then getting -ENOSPC, is quite bad :)
+	 both nodes at the same time. Writing the new link,
+	 then getting -ENOSPC, is quite bad :)
 	 */
 
 	/* Make a hard link */
@@ -419,34 +419,34 @@ int jffs2_rename (struct _inode *old_dir_i, struct _inode *d_inode,
 		return ret;
 
 	if (victim_f)
-	  {
-		  /* There was a victim. Kill it off nicely */
-		  /* Don't oops if the victim was a dirent pointing to an
-		     inode which didn't exist. */
-		  if (victim_f->inocache)
-			{
-				mutex_lock (&victim_f->sem);
-				victim_f->inocache->pino_nlink--;
-				mutex_unlock (&victim_f->sem);
-			}
-	  }
+	{
+		/* There was a victim. Kill it off nicely */
+		/* Don't oops if the victim was a dirent pointing to an
+		   inode which didn't exist. */
+		if (victim_f->inocache)
+		{
+			mutex_lock (&victim_f->sem);
+			victim_f->inocache->pino_nlink--;
+			mutex_unlock (&victim_f->sem);
+		}
+	}
 
 	/* Unlink the original */
 	ret = jffs2_do_unlink (c, JFFS2_INODE_INFO (old_dir_i),
-						   (const char *)old_d_name, old_d_namelen, NULL, now);
+						 (const char *)old_d_name, old_d_namelen, NULL, now);
 
 	if (ret)
-	  {
-		  /* Oh shit. We really ought to make a single node which can do both atomically */
-		  struct jffs2_inode_info *f = JFFS2_INODE_INFO (d_inode);
-		  mutex_lock (&f->sem);
-		  if (f->inocache)
-			  d_inode->i_nlink = f->inocache->pino_nlink++;
-		  mutex_unlock (&f->sem);
+	{
+		/* Oh shit. We really ought to make a single node which can do both atomically */
+		struct jffs2_inode_info *f = JFFS2_INODE_INFO (d_inode);
+		mutex_lock (&f->sem);
+		if (f->inocache)
+			d_inode->i_nlink = f->inocache->pino_nlink++;
+		mutex_unlock (&f->sem);
 
-		  printk (KERN_NOTICE
-				  "jffs2_rename(): Link succeeded, unlink failed (err %d). You now have a hard link\n",
-				  ret);
-	  }
+		printk (KERN_NOTICE
+				"jffs2_rename(): Link succeeded, unlink failed (err %d). You now have a hard link\n",
+				ret);
+	}
 	return ret;
 }

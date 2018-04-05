@@ -183,7 +183,9 @@ static unsigned long dhcp_lease_time;
 static unsigned long dhcp_elapsed_time = 0;
 static const char dhcp_magic_cookie[4] = { 99, 130, 83, 99 };
 
-static const char dhcp_request_parameters[5] = { DHCP_SUBNET,
+static const char dhcp_request_parameters[5] =
+{
+	DHCP_SUBNET,
 	DHCP_GATEWAY,
 	DHCP_DNS,
 	DHCP_HOST,
@@ -202,22 +204,22 @@ static void clean_dns_entries (void)
 {
 	int e;
 	for (e = 0; e < rtems_dhcpd_nameserver_count; ++e)
-	  {
-		  int n;
-		  for (n = 0; n < rtems_bsdnet_nameserver_count; ++n)
+	{
+		int n;
+		for (n = 0; n < rtems_bsdnet_nameserver_count; ++n)
+		{
+			if (memcmp
+				(&rtems_dhcpd_nameserver[e], &rtems_bsdnet_nameserver[n],
+				 4) == 0)
 			{
-				if (memcmp
-					(&rtems_dhcpd_nameserver[e], &rtems_bsdnet_nameserver[n],
-					 4) == 0)
-				  {
-					  if (n < (NUM_NAMESERVERS - 1))
-						  memmove (&rtems_bsdnet_nameserver[n],
-								   &rtems_bsdnet_nameserver[n + 1],
-								   (NUM_NAMESERVERS - n - 1) * 4);
-					  --rtems_bsdnet_nameserver_count;
-				  }
+				if (n < (NUM_NAMESERVERS - 1))
+					memmove (&rtems_bsdnet_nameserver[n],
+							 &rtems_bsdnet_nameserver[n + 1],
+							 (NUM_NAMESERVERS - n - 1) * 4);
+				--rtems_bsdnet_nameserver_count;
 			}
-	  }
+		}
+	}
 	rtems_dhcpd_nameserver_count = 0;
 }
 
@@ -281,259 +283,259 @@ static void process_options (unsigned char *optbuf, int optbufSize)
 
 	ncode = optbuf[0];
 	while (j < optbufSize)
-	  {
-		  code = optbuf[j] = ncode;
-		  if (code == 255)
-			  return;
-		  if (code == 0)
-			{
-				j++;
-				continue;
-			}
-		  len = optbuf[j + 1];
-		  j += 2;
+	{
+		code = optbuf[j] = ncode;
+		if (code == 255)
+			return;
+		if (code == 0)
+		{
+			j++;
+			continue;
+		}
+		len = optbuf[j + 1];
+		j += 2;
 
-		  if ((len + j) >= optbufSize)
-			{
-				printf ("Truncated field for code %d", code);
-				return;
-			}
+		if ((len + j) >= optbufSize)
+		{
+			printf ("Truncated field for code %d", code);
+			return;
+		}
 
-		  ncode = optbuf[j + len];
-		  optbuf[j + len] = '\0';
-		  p = (char *)&optbuf[j];
-		  j += len;
+		ncode = optbuf[j + len];
+		optbuf[j + len] = '\0';
+		p = (char *)&optbuf[j];
+		j += len;
 
-		  /*
-		   * Process the option
-		   */
-		  switch (code)
-			{
-				case 1:
-					/* Subnet mask */
-					if (len != 4)
-					  {
-						  printf ("dhcpc: subnet mask len is %d\n", len);
-						  continue;
-					  }
-					memcpy (&dhcp_netmask.sin_addr, p, 4);
-					dhcp_gotnetmask = 1;
-					break;
+		/*
+		 * Process the option
+		 */
+		switch (code)
+		{
+			case 1:
+				/* Subnet mask */
+				if (len != 4)
+				{
+					printf ("dhcpc: subnet mask len is %d\n", len);
+					continue;
+				}
+				memcpy (&dhcp_netmask.sin_addr, p, 4);
+				dhcp_gotnetmask = 1;
+				break;
 
-				case 2:
-					/* Time offset */
-					if (len != 4)
-					  {
-						  printf ("dhcpc: time offset len is %d\n", len);
-						  continue;
-					  }
-					memcpy (&rtems_bsdnet_timeoffset, p, 4);
-					rtems_bsdnet_timeoffset = ntohl (rtems_bsdnet_timeoffset);
-					break;
+			case 2:
+				/* Time offset */
+				if (len != 4)
+				{
+					printf ("dhcpc: time offset len is %d\n", len);
+					continue;
+				}
+				memcpy (&rtems_bsdnet_timeoffset, p, 4);
+				rtems_bsdnet_timeoffset = ntohl (rtems_bsdnet_timeoffset);
+				break;
 
-				case 3:
-					/* Routers */
-					if (len % 4)
-					  {
-						  printf ("dhcpc: Router Len is %d\n", len);
-						  continue;
-					  }
-					if (len > 0)
-					  {
-						  memcpy (&dhcp_gw.sin_addr, p, 4);
-						  dhcp_gotgw = 1;
-					  }
-					break;
+			case 3:
+				/* Routers */
+				if (len % 4)
+				{
+					printf ("dhcpc: Router Len is %d\n", len);
+					continue;
+				}
+				if (len > 0)
+				{
+					memcpy (&dhcp_gw.sin_addr, p, 4);
+					dhcp_gotgw = 1;
+				}
+				break;
 
-				case 42:
-					/* NTP servers */
-					if (len % 4)
-					  {
-						  printf ("dhcpc: time server Len is %d\n", len);
-						  continue;
-					  }
+			case 42:
+				/* NTP servers */
+				if (len % 4)
+				{
+					printf ("dhcpc: time server Len is %d\n", len);
+					continue;
+				}
+				{
+					int tlen = 0;
+					while ((tlen < len) &&
+						 (rtems_bsdnet_ntpserver_count <
+							sizeof rtems_bsdnet_config.ntp_server /
+							sizeof rtems_bsdnet_config.ntp_server[0]))
 					{
-						int tlen = 0;
-						while ((tlen < len) &&
-							   (rtems_bsdnet_ntpserver_count <
-								sizeof rtems_bsdnet_config.ntp_server /
-								sizeof rtems_bsdnet_config.ntp_server[0]))
-						  {
-							  memcpy (&rtems_bsdnet_ntpserver
-									  [rtems_bsdnet_ntpserver_count], p + tlen,
-									  4);
-							  rtems_bsdnet_ntpserver_count++;
-							  tlen += 4;
-						  }
+						memcpy (&rtems_bsdnet_ntpserver
+								[rtems_bsdnet_ntpserver_count], p + tlen,
+								4);
+						rtems_bsdnet_ntpserver_count++;
+						tlen += 4;
 					}
-					break;
+				}
+				break;
 
-				case 6:
-					/* Domain Name servers */
-					if (len % 4)
-					  {
-						  printf ("dhcpc: DNS Len is %d\n", len);
-						  continue;
-					  }
+			case 6:
+				/* Domain Name servers */
+				if (len % 4)
+				{
+					printf ("dhcpc: DNS Len is %d\n", len);
+					continue;
+				}
+				{
+					int dlen = 0;
+					while ((dlen < len) &&
+						 (rtems_dhcpd_nameserver_count < NUM_NAMESERVERS)
+						 && (rtems_bsdnet_nameserver_count <
+							 NUM_NAMESERVERS))
 					{
-						int dlen = 0;
-						while ((dlen < len) &&
-							   (rtems_dhcpd_nameserver_count < NUM_NAMESERVERS)
-							   && (rtems_bsdnet_nameserver_count <
-								   NUM_NAMESERVERS))
-						  {
-							  memcpy (&rtems_dhcpd_nameserver
-									  [rtems_dhcpd_nameserver_count], p + dlen,
-									  4);
-							  rtems_dhcpd_nameserver_count++;
-							  memcpy (&rtems_bsdnet_nameserver
-									  [rtems_bsdnet_nameserver_count], p + dlen,
-									  4);
-							  rtems_bsdnet_nameserver_count++;
-							  dlen += 4;
-						  }
+						memcpy (&rtems_dhcpd_nameserver
+								[rtems_dhcpd_nameserver_count], p + dlen,
+								4);
+						rtems_dhcpd_nameserver_count++;
+						memcpy (&rtems_bsdnet_nameserver
+								[rtems_bsdnet_nameserver_count], p + dlen,
+								4);
+						rtems_bsdnet_nameserver_count++;
+						dlen += 4;
 					}
-					break;
+				}
+				break;
 
-				case 12:
-					/* Host name */
-					if (len >= MAXHOSTNAMELEN)
-					  {
-						  printf ("dhcpc: hostname >= %d bytes\n",
-								  MAXHOSTNAMELEN);
-						  len = MAXHOSTNAMELEN - 1;
-					  }
-					if (sethostname (p, len) < 0)
-					  {
-						  printf ("dhcpc: can't set host name");
-					  }
-					if (dhcp_hostname != NULL)
-					  {
-						  char *tmp = realloc (dhcp_hostname, len);
-						  if (tmp != NULL)
-							{
-								dhcp_hostname = tmp;
-								strncpy (dhcp_hostname, p, len);
-							}
-						  else
-							{	/* realloc failed */
-								printf ("dhcpc: realloc failed (%s:%d)",
-										__FILE__, __LINE__);
-								free (dhcp_hostname, 0);
-								dhcp_hostname = NULL;
-							}
-					  }
+			case 12:
+				/* Host name */
+				if (len >= MAXHOSTNAMELEN)
+				{
+					printf ("dhcpc: hostname >= %d bytes\n",
+							MAXHOSTNAMELEN);
+					len = MAXHOSTNAMELEN - 1;
+				}
+				if (sethostname (p, len) < 0)
+				{
+					printf ("dhcpc: can't set host name");
+				}
+				if (dhcp_hostname != NULL)
+				{
+					char *tmp = realloc (dhcp_hostname, len);
+					if (tmp != NULL)
+					{
+						dhcp_hostname = tmp;
+						strncpy (dhcp_hostname, p, len);
+					}
 					else
-					  {			/* dhcp_hostname == NULL */
-						  dhcp_hostname = strndup (p, len);
-					  }
-					break;
+					{	/* realloc failed */
+						printf ("dhcpc: realloc failed (%s:%d)",
+								__FILE__, __LINE__);
+						free (dhcp_hostname, 0);
+						dhcp_hostname = NULL;
+					}
+				}
+				else
+				{			/* dhcp_hostname == NULL */
+					dhcp_hostname = strndup (p, len);
+				}
+				break;
 
-				case 7:
-					/* Log servers */
-					if (len % 4)
-					  {
-						  printf ("dhcpc: Log server Len is %d\n", len);
-						  continue;
-					  }
-					if (len > 0)
-					  {
-						  memcpy (&rtems_bsdnet_log_host_address, p, 4);
-						  dhcp_gotlogserver = 1;
-					  }
-					break;
+			case 7:
+				/* Log servers */
+				if (len % 4)
+				{
+					printf ("dhcpc: Log server Len is %d\n", len);
+					continue;
+				}
+				if (len > 0)
+				{
+					memcpy (&rtems_bsdnet_log_host_address, p, 4);
+					dhcp_gotlogserver = 1;
+				}
+				break;
 
-				case 15:
-					/* Domain name */
-					if (p[0])
-					  {
-						  rtems_bsdnet_domain_name = strdup (p);
-					  }
-					break;
+			case 15:
+				/* Domain name */
+				if (p[0])
+				{
+					rtems_bsdnet_domain_name = strdup (p);
+				}
+				break;
 
-				case 16:		/* Swap server IP address. unused */
-					break;
+			case 16:		/* Swap server IP address. unused */
+				break;
 
-				case 50:
-					/* DHCP Requested IP Address */
-					if (len != 4)
-						printf ("dhcpc: DHCP option requested IP len is %d",
-								len);
-					/*
-					 * although nothing happens here, this case keeps the client
-					 * from complaining about unknown options.  The Requested IP
-					 * is necessary to return to the server for a DHCP REQUEST
-					 */
-					break;
+			case 50:
+				/* DHCP Requested IP Address */
+				if (len != 4)
+					printf ("dhcpc: DHCP option requested IP len is %d",
+							len);
+				/*
+				 * although nothing happens here, this case keeps the client
+				 * from complaining about unknown options.  The Requested IP
+				 * is necessary to return to the server for a DHCP REQUEST
+				 */
+				break;
 
-				case 51:
-					/* DHCP Lease Length */
-					if (len != 4)
-					  {
-						  printf ("dhcpc: DHCP option lease-length len is %d",
-								  len);
-						  continue;
-					  }
-					memcpy (&dhcp_lease_time, &p[0], 4);
-					dhcp_lease_time = ntohl (dhcp_lease_time);
-					break;
+			case 51:
+				/* DHCP Lease Length */
+				if (len != 4)
+				{
+					printf ("dhcpc: DHCP option lease-length len is %d",
+							len);
+					continue;
+				}
+				memcpy (&dhcp_lease_time, &p[0], 4);
+				dhcp_lease_time = ntohl (dhcp_lease_time);
+				break;
 
-				case 52:
-					/* DHCP option override */
-					if (len != 1)
-					  {
-						  printf ("dhcpc: DHCP option overload len is %d", len);
-						  continue;
-					  }
-					dhcp_option_overload = p[0];
-					break;
+			case 52:
+				/* DHCP option override */
+				if (len != 1)
+				{
+					printf ("dhcpc: DHCP option overload len is %d", len);
+					continue;
+				}
+				dhcp_option_overload = p[0];
+				break;
 
-				case 53:
-					/* DHCP message */
-					if (len != 1)
-					  {
-						  printf ("dhcpc: DHCP message len is %d", len);
-						  continue;
-					  }
-					dhcp_message_type = p[0];
-					break;
+			case 53:
+				/* DHCP message */
+				if (len != 1)
+				{
+					printf ("dhcpc: DHCP message len is %d", len);
+					continue;
+				}
+				dhcp_message_type = p[0];
+				break;
 
-				case 128:		/* Site-specific option for DHCP servers that
-								 *   a) don't supply tag 54
-								 * and
-								 *   b) don't supply the server address in siaddr
-								 * For example, on Solaris 2.6 in.dhcpd, include in the dhcptab:
-								 *    Bootsrv s Site,128,IP,1,1
-								 * and use that symbol in the macro that defines the client:
-								 *    Bootsrv=<tftp-server-ip-address>
-								 */
-				case 54:
-					/* DHCP server */
-					if (len != 4)
-					  {
-						  printf ("dhcpc: DHCP server len is %d", len);
-						  continue;
-					  }
-					memcpy (&rtems_bsdnet_bootp_server_address, p, 4);
-					dhcp_gotserver = 1;
-					break;
+			case 128:		/* Site-specific option for DHCP servers that
+							 *   a) don't supply tag 54
+							 * and
+							 *   b) don't supply the server address in siaddr
+							 * For example, on Solaris 2.6 in.dhcpd, include in the dhcptab:
+							 *    Bootsrv s Site,128,IP,1,1
+							 * and use that symbol in the macro that defines the client:
+							 *    Bootsrv=<tftp-server-ip-address>
+							 */
+			case 54:
+				/* DHCP server */
+				if (len != 4)
+				{
+					printf ("dhcpc: DHCP server len is %d", len);
+					continue;
+				}
+				memcpy (&rtems_bsdnet_bootp_server_address, p, 4);
+				dhcp_gotserver = 1;
+				break;
 
-				case 66:
-					/* DHCP server name option */
-					if (p[0])
-						rtems_bsdnet_bootp_server_name = strdup (p);
-					break;
+			case 66:
+				/* DHCP server name option */
+				if (p[0])
+					rtems_bsdnet_bootp_server_name = strdup (p);
+				break;
 
-				case 67:
-					/* DHCP bootfile option */
-					if (p[0])
-						rtems_bsdnet_bootp_boot_file_name = strdup (p);
-					break;
+			case 67:
+				/* DHCP bootfile option */
+				if (p[0])
+					rtems_bsdnet_bootp_boot_file_name = strdup (p);
+				break;
 
-				default:
-					break;
-			}
-	  }
+			default:
+				break;
+		}
+	}
 }
 
 /*
@@ -541,7 +543,7 @@ static void process_options (unsigned char *optbuf, int optbufSize)
  */
 static int
 dhcp_discover_req (struct dhcp_packet *call,
-				   struct sockaddr_dl *sdl, unsigned long *xid)
+				 struct sockaddr_dl *sdl, unsigned long *xid)
 {
 	int len = 0;
 
@@ -579,14 +581,14 @@ dhcp_discover_req (struct dhcp_packet *call,
 	if (rtems_bsdnet_config.hostname &&
 		(strlen (rtems_bsdnet_config.hostname) > 1) &&
 		(strlen (rtems_bsdnet_config.hostname) < 32))
-	  {
-		  call->vend[len++] = DHCP_HOST;
-		  call->vend[len++] = strlen (rtems_bsdnet_config.hostname);
-		  memcpy (&call->vend[len],
-				  rtems_bsdnet_config.hostname,
-				  strlen (rtems_bsdnet_config.hostname));
-		  len += strlen (rtems_bsdnet_config.hostname);
-	  }
+	{
+		call->vend[len++] = DHCP_HOST;
+		call->vend[len++] = strlen (rtems_bsdnet_config.hostname);
+		memcpy (&call->vend[len],
+				rtems_bsdnet_config.hostname,
+				strlen (rtems_bsdnet_config.hostname));
+		len += strlen (rtems_bsdnet_config.hostname);
+	}
 
 	/*
 	 * DHCP Parameter request list
@@ -619,8 +621,8 @@ dhcp_discover_req (struct dhcp_packet *call,
  */
 static int
 dhcp_request_req (struct dhcp_packet *call,
-				  struct dhcp_packet *reply,
-				  struct sockaddr_dl *sdl, int broadcast)
+				struct dhcp_packet *reply,
+				struct sockaddr_dl *sdl, int broadcast)
 {
 	int len = 0;
 	unsigned long temp;
@@ -639,10 +641,10 @@ dhcp_request_req (struct dhcp_packet *call,
 	if (broadcast)
 		call->flags = htons (DHCP_BROADCAST);
 	else
-	  {
-		  call->flags = htons (DHCP_UNICAST);
-		  call->ciaddr = reply->yiaddr;
-	  }
+	{
+		call->flags = htons (DHCP_UNICAST);
+		call->ciaddr = reply->yiaddr;
+	}
 	memcpy (&call->chaddr, LLADDR (sdl), sdl->sdl_alen);
 
 	/*
@@ -662,13 +664,13 @@ dhcp_request_req (struct dhcp_packet *call,
 	 * DHCP server
 	 */
 	if (broadcast)
-	  {
-		  call->vend[len++] = DHCP_SERVER;
-		  call->vend[len++] = sizeof (rtems_bsdnet_bootp_server_address);
-		  memcpy (&call->vend[len], &rtems_bsdnet_bootp_server_address,
-				  sizeof (rtems_bsdnet_bootp_server_address));
-		  len += sizeof (rtems_bsdnet_bootp_server_address);
-	  }
+	{
+		call->vend[len++] = DHCP_SERVER;
+		call->vend[len++] = sizeof (rtems_bsdnet_bootp_server_address);
+		memcpy (&call->vend[len], &rtems_bsdnet_bootp_server_address,
+				sizeof (rtems_bsdnet_bootp_server_address));
+		len += sizeof (rtems_bsdnet_bootp_server_address);
+	}
 
 	/*
 	 * Requested IP
@@ -702,16 +704,16 @@ dhcp_request_req (struct dhcp_packet *call,
 	 */
 	hostname = malloc (MAXHOSTNAMELEN, 0, M_NOWAIT);
 	if (hostname != NULL)
-	  {
-		  if (gethostname (hostname, MAXHOSTNAMELEN) == 0)
-			{
-				call->vend[len++] = DHCP_HOST;
-				call->vend[len++] = strlen (hostname);
-				strcpy ((char *)&call->vend[len], hostname);
-				len += strlen (hostname);
-			}
-		  free (hostname, 0);
-	  }
+	{
+		if (gethostname (hostname, MAXHOSTNAMELEN) == 0)
+		{
+			call->vend[len++] = DHCP_HOST;
+			call->vend[len++] = strlen (hostname);
+			strcpy ((char *)&call->vend[len], hostname);
+			len += strlen (hostname);
+		}
+		free (hostname, 0);
+	}
 
 	/*
 	 * End.
@@ -753,79 +755,79 @@ static void dhcp_task (rtems_task_argument _sdl)
 	count = dhcp_elapsed_time;
 
 	while (true)
-	  {
-		  /*
-		   * Sleep until the next poll
-		   */
-		  timeout = RTEMS_MILLISECONDS_TO_TICKS (1000);
-		  ev_st = rtems_event_receive (RTEMS_EVENT_0,
-									   RTEMS_WAIT | RTEMS_EVENT_ANY,
-									   timeout, &event_out);
+	{
+		/*
+		 * Sleep until the next poll
+		 */
+		timeout = RTEMS_MILLISECONDS_TO_TICKS (1000);
+		ev_st = rtems_event_receive (RTEMS_EVENT_0,
+									 RTEMS_WAIT | RTEMS_EVENT_ANY,
+									 timeout, &event_out);
 
-		  /*
-		   * Check if not a poll timeout. So when ANY event received, exit task.
-		   * Actually, only event RTEMS_EVENT_0 sent from rtem_dhcp_failsafe.c
-		   * if "failsafe" dhcp enabled when interface down.  Otherwise, no
-		   * event should occur, just timeout.
-		   */
-		  if (ev_st != RTEMS_TIMEOUT)
-			  break;
+		/*
+		 * Check if not a poll timeout. So when ANY event received, exit task.
+		 * Actually, only event RTEMS_EVENT_0 sent from rtem_dhcp_failsafe.c
+		 * if "failsafe" dhcp enabled when interface down.  Otherwise, no
+		 * event should occur, just timeout.
+		 */
+		if (ev_st != RTEMS_TIMEOUT)
+			break;
 
-		  count++;
+		count++;
 
-		  if (count >= (dhcp_lease_time / 2))
+		if (count >= (dhcp_lease_time / 2))
+		{
+			rtems_bsdnet_semaphore_obtain ();
+
+			dhcp_request_req (&call, &dhcp_req, sdl, true);
+
+			/*
+			 * Send the Request.
+			 */
+			error =
+				bootpc_call ((struct bootp_packet *)&call,
+							 (struct bootp_packet *)&dhcp_req, procp);
+			if (error)
 			{
-				rtems_bsdnet_semaphore_obtain ();
-
-				dhcp_request_req (&call, &dhcp_req, sdl, true);
-
-				/*
-				 * Send the Request.
-				 */
-				error =
-					bootpc_call ((struct bootp_packet *)&call,
-								 (struct bootp_packet *)&dhcp_req, procp);
-				if (error)
-				  {
-					  rtems_bsdnet_semaphore_release ();
-					  printf ("DHCP call failed -- error %d", error);
-					  continue;
-				  }
-
-				/*
-				 * Check for DHCP ACK/NACK
-				 */
-				if (memcmp (&dhcp_req.vend[0],
-							dhcp_magic_cookie, sizeof (dhcp_magic_cookie)) != 0)
-				  {
-					  rtems_bsdnet_semaphore_release ();
-					  printf ("DHCP server did not send Magic Cookie.\n");
-					  continue;
-				  }
-
-				/*
-				 * We have an ack. Clear the DNS entries that have been assigned by a previous
-				 * DHCP request.
-				 */
-				clean_dns_entries ();
-
-				/*
-				 * Process this requests options.
-				 */
-				process_options (&dhcp_req.vend[4], sizeof (dhcp_req.vend) - 4);
-
-				if (dhcp_message_type != DHCP_ACK)
-				  {
-					  rtems_bsdnet_semaphore_release ();
-					  printf ("DHCP server did not accept the DHCP request");
-					  continue;
-				  }
-
 				rtems_bsdnet_semaphore_release ();
-
-				count = 0;
+				printf ("DHCP call failed -- error %d", error);
+				continue;
 			}
-	  }
+
+			/*
+			 * Check for DHCP ACK/NACK
+			 */
+			if (memcmp (&dhcp_req.vend[0],
+						dhcp_magic_cookie, sizeof (dhcp_magic_cookie)) != 0)
+			{
+				rtems_bsdnet_semaphore_release ();
+				printf ("DHCP server did not send Magic Cookie.\n");
+				continue;
+			}
+
+			/*
+			 * We have an ack. Clear the DNS entries that have been assigned by a previous
+			 * DHCP request.
+			 */
+			clean_dns_entries ();
+
+			/*
+			 * Process this requests options.
+			 */
+			process_options (&dhcp_req.vend[4], sizeof (dhcp_req.vend) - 4);
+
+			if (dhcp_message_type != DHCP_ACK)
+			{
+				rtems_bsdnet_semaphore_release ();
+				printf ("DHCP server did not accept the DHCP request");
+				continue;
+			}
+
+			rtems_bsdnet_semaphore_release ();
+
+			count = 0;
+		}
+	}
 
 	dhcp_task_id = 0;
 	printf ("dhcpc: exiting lease renewal task.\n");
@@ -869,7 +871,7 @@ dhcp_start_task (struct sockaddr_dl *sdl,
  */
 static int
 dhcp_interface_has_ip (struct ifreq *ireq, struct socket *so,
-					   struct proc *procp)
+					 struct proc *procp)
 {
 	struct sockaddr_in *sin;
 	int error;
@@ -929,11 +931,11 @@ static int dhcp_init (int update_files)
 	 */
 	if (update_files)
 		if (rtems_create_root_fs () < 0)
-		  {
-			  printf
-				  ("Error creating the root filesystem.\nFile not created.\n");
-			  update_files = 0;
-		  }
+		{
+			printf
+				("Error creating the root filesystem.\nFile not created.\n");
+			update_files = 0;
+		}
 
 	/*
 	 * Find a network interface.
@@ -942,19 +944,19 @@ static int dhcp_init (int update_files)
 		if ((ifp->if_flags & (IFF_LOOPBACK | IFF_POINTOPOINT)) == 0)
 			break;
 	if (ifp == NULL)
-	  {
-		  printf ("dhcpc_init: no suitable interface\n");
-		  return -1;
-	  }
+	{
+		printf ("dhcpc_init: no suitable interface\n");
+		return -1;
+	}
 
 	memset (&ireq, 0, sizeof (ireq));
 	sprintf (ireq.ifr_name, "%s%d", ifp->if_name, ifp->if_unit);
 
 	if ((error = socreate (AF_INET, &so, SOCK_DGRAM, 0, procp)) != 0)
-	  {
-		  printf ("dhcpc_init: socreate, error: %s\n", strerror (error));
-		  return -1;
-	  }
+	{
+		printf ("dhcpc_init: socreate, error: %s\n", strerror (error));
+		return -1;
+	}
 
 	if (!dhcp_interface_has_ip (&ireq, so, procp))
 		bootpc_fakeup_interface (&ireq, so, procp);
@@ -969,18 +971,18 @@ static int dhcp_init (int update_files)
 			break;
 
 	if (!sdl)
-	  {
-		  printf ("dhcpc_init: Unable to find HW address\n");
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("dhcpc_init: Unable to find HW address\n");
+		soclose (so);
+		return -1;
+	}
 	if (sdl->sdl_alen != EALEN)
-	  {
-		  printf ("dhcpc_init: HW address len is %d, expected value is %d\n",
-				  sdl->sdl_alen, EALEN);
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("dhcpc_init: HW address len is %d, expected value is %d\n",
+				sdl->sdl_alen, EALEN);
+		soclose (so);
+		return -1;
+	}
 
 	/*
 	 * Build the DHCP Discover
@@ -994,31 +996,31 @@ static int dhcp_init (int update_files)
 		bootpc_call ((struct bootp_packet *)&call,
 					 (struct bootp_packet *)&reply, procp);
 	if (error)
-	  {
-		  printf ("BOOTP call failed -- %s\n", strerror (error));
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("BOOTP call failed -- %s\n", strerror (error));
+		soclose (so);
+		return -1;
+	}
 
 	/*
 	 * Check for DHCP OFFER
 	 */
 	if (memcmp (&reply.vend[0], dhcp_magic_cookie, sizeof (dhcp_magic_cookie))
 		!= 0)
-	  {
-		  printf ("DHCP server did not send Magic Cookie.\n");
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("DHCP server did not send Magic Cookie.\n");
+		soclose (so);
+		return -1;
+	}
 
 	process_options (&reply.vend[4], sizeof (reply.vend) - 4);
 
 	if (dhcp_message_type != DHCP_OFFER)
-	  {
-		  printf ("DHCP server did not send a DHCP Offer.\n");
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("DHCP server did not send a DHCP Offer.\n");
+		soclose (so);
+		return -1;
+	}
 
 	/*
 	 * Send a DHCP REQUEST
@@ -1029,31 +1031,31 @@ static int dhcp_init (int update_files)
 		bootpc_call ((struct bootp_packet *)&call,
 					 (struct bootp_packet *)&reply, procp);
 	if (error)
-	  {
-		  printf ("BOOTP call failed -- %s\n", strerror (error));
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("BOOTP call failed -- %s\n", strerror (error));
+		soclose (so);
+		return -1;
+	}
 
 	/*
 	 * Check for DHCP ACK/NACK
 	 */
 	if (memcmp (&reply.vend[0], dhcp_magic_cookie, sizeof (dhcp_magic_cookie))
 		!= 0)
-	  {
-		  printf ("DHCP server did not send Magic Cookie.\n");
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("DHCP server did not send Magic Cookie.\n");
+		soclose (so);
+		return -1;
+	}
 
 	process_options (&reply.vend[4], sizeof (reply.vend) - 4);
 
 	if (dhcp_message_type != DHCP_ACK)
-	  {
-		  printf ("DHCP server did not accept the DHCP request\n");
-		  soclose (so);
-		  return -1;
-	  }
+	{
+		printf ("DHCP server did not accept the DHCP request\n");
+		soclose (so);
+		return -1;
+	}
 
 	/*
 	 * Initialize network address structures
@@ -1094,14 +1096,14 @@ static int dhcp_init (int update_files)
 	 * Use defaults if values were not supplied by BOOTP/DHCP options
 	 */
 	if (!dhcp_gotnetmask)
-	  {
-		  if (IN_CLASSA (ntohl (myaddr.sin_addr.s_addr)))
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSA_NET);
-		  else if (IN_CLASSB (ntohl (myaddr.sin_addr.s_addr)))
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSB_NET);
-		  else
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSC_NET);
-	  }
+	{
+		if (IN_CLASSA (ntohl (myaddr.sin_addr.s_addr)))
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSA_NET);
+		else if (IN_CLASSB (ntohl (myaddr.sin_addr.s_addr)))
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSB_NET);
+		else
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSC_NET);
+	}
 
 	if (!dhcp_gotserver)
 		rtems_bsdnet_bootp_server_address = reply.siaddr;
@@ -1119,71 +1121,71 @@ static int dhcp_init (int update_files)
 	 * Update the files if we are asked too.
 	 */
 	if (update_files)
-	  {
-		  char *dn = rtems_bsdnet_domain_name;
-		  char *hn = dhcp_hostname;
-		  if (!dn)
-			  dn = "mydomain";
-		  if (!hn)
-			{
-				hn = "me";
-				sethostname (hn, strlen (hn));
-			}
-		  rtems_rootfs_append_host_rec (myaddr.sin_addr.s_addr, hn, dn);
+	{
+		char *dn = rtems_bsdnet_domain_name;
+		char *hn = dhcp_hostname;
+		if (!dn)
+			dn = "mydomain";
+		if (!hn)
+		{
+			hn = "me";
+			sethostname (hn, strlen (hn));
+		}
+		rtems_rootfs_append_host_rec (myaddr.sin_addr.s_addr, hn, dn);
 
-		  /*
-		   * Should the given domainname be used here ?
-		   */
-		  if (dhcp_gotserver)
-			{
-				if (rtems_bsdnet_bootp_server_name)
-					hn = rtems_bsdnet_bootp_server_name;
-				else
-					hn = "bootps";
-				rtems_rootfs_append_host_rec (rtems_bsdnet_bootp_server_address.
-											  s_addr, hn, dn);
-			}
+		/*
+		 * Should the given domainname be used here ?
+		 */
+		if (dhcp_gotserver)
+		{
+			if (rtems_bsdnet_bootp_server_name)
+				hn = rtems_bsdnet_bootp_server_name;
+			else
+				hn = "bootps";
+			rtems_rootfs_append_host_rec (rtems_bsdnet_bootp_server_address.
+										s_addr, hn, dn);
+		}
 
-		  if (dhcp_gotlogserver)
-			{
-				rtems_rootfs_append_host_rec (rtems_bsdnet_log_host_address.
-											  s_addr, "logs", dn);
-			}
+		if (dhcp_gotlogserver)
+		{
+			rtems_rootfs_append_host_rec (rtems_bsdnet_log_host_address.
+										s_addr, "logs", dn);
+		}
 
-		  /*
-		   * Setup the DNS configuration file /etc/resolv.conf.
-		   */
-		  if (rtems_bsdnet_nameserver_count)
-			{
-				int i;
-				char buf[64];
-				const char *bufl[1];
+		/*
+		 * Setup the DNS configuration file /etc/resolv.conf.
+		 */
+		if (rtems_bsdnet_nameserver_count)
+		{
+			int i;
+			char buf[64];
+			const char *bufl[1];
 
-				bufl[0] = buf;
+			bufl[0] = buf;
 
 #define MKFILE_MODE (S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH)
 
-				if (rtems_bsdnet_domain_name &&
-					(strlen (rtems_bsdnet_domain_name) < (sizeof (buf) - 1)))
-				  {
-					  strcpy (buf, "search ");
-					  strcat (buf, rtems_bsdnet_domain_name);
-					  strcat (buf, "\n");
-					  rtems_rootfs_file_append ("/etc/resolv.conf", MKFILE_MODE,
-												1, bufl);
-				  }
-
-				for (i = 0; i < rtems_bsdnet_nameserver_count; i++)
-				  {
-					  strcpy (buf, "nameserver ");
-					  strcat (buf, inet_ntoa (rtems_bsdnet_ntpserver[i]));
-					  strcat (buf, "\n");
-					  if (rtems_rootfs_file_append
-						  ("/etc/resolv.conf", MKFILE_MODE, 1, bufl))
-						  break;
-				  }
+			if (rtems_bsdnet_domain_name &&
+				(strlen (rtems_bsdnet_domain_name) < (sizeof (buf) - 1)))
+			{
+				strcpy (buf, "search ");
+				strcat (buf, rtems_bsdnet_domain_name);
+				strcat (buf, "\n");
+				rtems_rootfs_file_append ("/etc/resolv.conf", MKFILE_MODE,
+											1, bufl);
 			}
-	  }
+
+			for (i = 0; i < rtems_bsdnet_nameserver_count; i++)
+			{
+				strcpy (buf, "nameserver ");
+				strcat (buf, inet_ntoa (rtems_bsdnet_ntpserver[i]));
+				strcat (buf, "\n");
+				if (rtems_rootfs_file_append
+					("/etc/resolv.conf", MKFILE_MODE, 1, bufl))
+					break;
+			}
+		}
+	}
 
 	/*
 	 * Configure the interface with the new settings
@@ -1212,12 +1214,12 @@ void rtems_bsdnet_do_dhcp (void)
 	bool update = true;
 	rtems_bsdnet_semaphore_obtain ();
 	while (dhcp_init (update) < 0)
-	  {
-		  update = false;
-		  rtems_bsdnet_semaphore_release ();
-		  rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (1000));
-		  rtems_bsdnet_semaphore_obtain ();
-	  }
+	{
+		update = false;
+		rtems_bsdnet_semaphore_release ();
+		rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (1000));
+		rtems_bsdnet_semaphore_obtain ();
+	}
 	rtems_bsdnet_semaphore_release ();
 }
 
@@ -1235,18 +1237,18 @@ int rtems_bsdnet_do_dhcp_timeout (void)
 void rtems_bsdnet_dhcp_down (void)
 {
 	if (dhcp_task_id != 0)
-	  {
-		  rtems_event_send (dhcp_task_id, RTEMS_EVENT_0);
-	  }
+	{
+		rtems_event_send (dhcp_task_id, RTEMS_EVENT_0);
+	}
 }
 
 void
 rtems_bsdnet_do_dhcp_refresh_only (unsigned long xid,
-								   unsigned long lease_time,
-								   unsigned long elapsed_time,
-								   unsigned long ip_address,
-								   unsigned long srv_address,
-								   const char *hostname)
+								 unsigned long lease_time,
+								 unsigned long elapsed_time,
+								 unsigned long ip_address,
+								 unsigned long srv_address,
+								 const char *hostname)
 {
 	struct dhcp_packet reply;
 	struct ifnet *ifp = NULL;
@@ -1269,21 +1271,21 @@ rtems_bsdnet_do_dhcp_refresh_only (unsigned long xid,
 		if ((ifp->if_flags & (IFF_LOOPBACK | IFF_POINTOPOINT)) == 0)
 			for (ifa = ifp->if_addrlist; ifa; ifa = ifa->ifa_next)
 				if (ifa->ifa_addr->sa_family == AF_INET)
-				  {
-					  sin = (struct sockaddr_in *)ifa->ifa_addr;
-					  if (sin->sin_addr.s_addr == htonl (ip_address))
-						{
-							mtif = ifp;
-							match = 1;
-							break;
-						}
-				  }
+				{
+					sin = (struct sockaddr_in *)ifa->ifa_addr;
+					if (sin->sin_addr.s_addr == htonl (ip_address))
+					{
+						mtif = ifp;
+						match = 1;
+						break;
+					}
+				}
 
 	if (!match)
-	  {
-		  printf ("dhcpc: no matching interface\n");
-		  return;
-	  }
+	{
+		printf ("dhcpc: no matching interface\n");
+		return;
+	}
 
 	for (ifa = mtif->if_addrlist; ifa != NULL; ifa = ifa->ifa_next)
 		if (ifa->ifa_addr->sa_family == AF_LINK &&
@@ -1292,10 +1294,10 @@ rtems_bsdnet_do_dhcp_refresh_only (unsigned long xid,
 			break;
 
 	if (!match)
-	  {
-		  printf ("dhcpc: no matching interface address\n");
-		  return;
-	  }
+	{
+		printf ("dhcpc: no matching interface address\n");
+		return;
+	}
 
 	/*
 	 * Set up given values in a simulated DHCP reply.
@@ -1305,19 +1307,19 @@ rtems_bsdnet_do_dhcp_refresh_only (unsigned long xid,
 	reply.yiaddr.s_addr = htonl (ip_address);
 	reply.siaddr.s_addr = htonl (srv_address);
 	if (reply.siaddr.s_addr != rtems_bsdnet_bootp_server_address.s_addr)
-	  {
-		  memcpy (&rtems_bsdnet_bootp_server_address, &reply.siaddr,
-				  sizeof (reply.siaddr));
-	  }
+	{
+		memcpy (&rtems_bsdnet_bootp_server_address, &reply.siaddr,
+				sizeof (reply.siaddr));
+	}
 
 	dhcp_lease_time = lease_time;
 	dhcp_elapsed_time = elapsed_time;
 
 	if (hostname)
-	  {
-		  sethostname ((char *)hostname, strlen (hostname));
-		  dhcp_hostname = bootp_strdup_realloc (dhcp_hostname, hostname);
-	  }
+	{
+		sethostname ((char *)hostname, strlen (hostname));
+		dhcp_hostname = bootp_strdup_realloc (dhcp_hostname, hostname);
+	}
 
 	dhcp_start_task (sdl, &reply, 150);
 }

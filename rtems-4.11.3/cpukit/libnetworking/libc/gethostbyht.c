@@ -100,10 +100,10 @@ void _sethosthtent (int f)
 void _endhosthtent (void)
 {
 	if (hostf && !stayopen)
-	  {
-		  (void)fclose (hostf);
-		  hostf = NULL;
-	  }
+	{
+		(void)fclose (hostf);
+		hostf = NULL;
+	}
 }
 
 struct hostent *gethostent (void)
@@ -113,16 +113,16 @@ struct hostent *gethostent (void)
 	int af, len;
 
 	if (!hostf && !(hostf = fopen (_PATH_HOSTS, "r")))
-	  {
-		  h_errno = NETDB_INTERNAL;
-		  return (NULL);
-	  }
+	{
+		h_errno = NETDB_INTERNAL;
+		return (NULL);
+	}
   again:
 	if (!(p = fgets (hostbuf, sizeof hostbuf, hostf)))
-	  {
-		  h_errno = HOST_NOT_FOUND;
-		  return (NULL);
-	  }
+	{
+		h_errno = HOST_NOT_FOUND;
+		return (NULL);
+	}
 	if (*p == '#')
 		goto again;
 	if (!(cp = strpbrk (p, "#\n")))
@@ -132,28 +132,28 @@ struct hostent *gethostent (void)
 		goto again;
 	*cp++ = '\0';
 	if (inet_pton (AF_INET6, p, host_addr) > 0)
-	  {
-		  af = AF_INET6;
-		  len = IN6ADDRSZ;
-	  }
+	{
+		af = AF_INET6;
+		len = IN6ADDRSZ;
+	}
 	else if (inet_pton (AF_INET, p, host_addr) > 0)
-	  {
-		  if (_res.options & RES_USE_INET6)
-			{
-				_map_v4v6_address ((char *)host_addr, (char *)host_addr);
-				af = AF_INET6;
-				len = IN6ADDRSZ;
-			}
-		  else
-			{
-				af = AF_INET;
-				len = INADDRSZ;
-			}
-	  }
+	{
+		if (_res.options & RES_USE_INET6)
+		{
+			_map_v4v6_address ((char *)host_addr, (char *)host_addr);
+			af = AF_INET6;
+			len = IN6ADDRSZ;
+		}
+		else
+		{
+			af = AF_INET;
+			len = INADDRSZ;
+		}
+	}
 	else
-	  {
-		  goto again;
-	  }
+	{
+		goto again;
+	}
 	h_addr_ptrs[0] = (char *)host_addr;
 	h_addr_ptrs[1] = NULL;
 	host.h_addr_list = h_addr_ptrs;
@@ -166,17 +166,17 @@ struct hostent *gethostent (void)
 	if ((cp = strpbrk (cp, " \t")) != NULL)
 		*cp++ = '\0';
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &host_aliases[MAXALIASES - 1])
-			  *q++ = cp;
-		  if ((cp = strpbrk (cp, " \t")) != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &host_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		if ((cp = strpbrk (cp, " \t")) != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	h_errno = NETDB_SUCCESS;
 	return (&host);
@@ -189,15 +189,15 @@ struct hostent *_gethostbyhtname (const char *name, int af)
 
 	sethostent (0);
 	while ((p = gethostent ()) != NULL)
-	  {
-		  if (p->h_addrtype != af)
-			  continue;
-		  if (strcasecmp (p->h_name, name) == 0)
-			  break;
-		  for (cp = p->h_aliases; *cp != 0; cp++)
-			  if (strcasecmp (*cp, name) == 0)
-				  goto found;
-	  }
+	{
+		if (p->h_addrtype != af)
+			continue;
+		if (strcasecmp (p->h_name, name) == 0)
+			break;
+		for (cp = p->h_aliases; *cp != 0; cp++)
+			if (strcasecmp (*cp, name) == 0)
+				goto found;
+	}
   found:
 	endhostent ();
 	return (p);
@@ -232,27 +232,27 @@ struct hostent *gethostent_r (char *buf, int len)
 	fseek (hostf, 0, SEEK_SET);
 
 	if (curlen > hostlen)
-	  {
-		  if (hostmap)
-			{
-				hostmap = realloc (hostmap, curlen);
-			}
-		  else
-			{
-				hostmap = malloc (curlen);
-			}
-	  }
+	{
+		if (hostmap)
+		{
+			hostmap = realloc (hostmap, curlen);
+		}
+		else
+		{
+			hostmap = malloc (curlen);
+		}
+	}
 	hostlen = curlen;
 
 	if (hostmap)
-	  {
-		  if (fread (hostmap, hostlen, 1, hostf) != hostlen)
-			{
-				hostmap = 0;
-				goto error;
-			}
-		  cur = hostmap;
-	  }
+	{
+		if (fread (hostmap, hostlen, 1, hostf) != hostlen)
+		{
+			hostmap = 0;
+			goto error;
+		}
+		cur = hostmap;
+	}
 	last = hostmap + hostlen;
   again:
 	if ((size_t) len < sizeof (struct hostent) + 11 * sizeof (char *))
@@ -284,54 +284,54 @@ struct hostent *gethostent_r (char *buf, int len)
 		if (max - dest < 16)
 			goto nospace;
 		if (inet_pton (AF_INET6, pe->h_name, dest) > 0)
-		  {
-			  pe->h_addrtype = AF_INET6;
-			  pe->h_length = 16;
-			  dest += 16;
-		  }
+		{
+			pe->h_addrtype = AF_INET6;
+			pe->h_length = 16;
+			dest += 16;
+		}
 		else if (inet_pton (AF_INET, pe->h_name, dest) > 0)
-		  {
-			  pe->h_addrtype = AF_INET;
-			  pe->h_length = 4;
-			  dest += 4;
-		  }
+		{
+			pe->h_addrtype = AF_INET;
+			pe->h_length = 4;
+			dest += 4;
+		}
 		else
-		  {
-			  *cur = save;
-			  goto parseerror;
-		  }
+		{
+			*cur = save;
+			goto parseerror;
+		}
 		*cur = save;
 	}
 	++cur;
 	/* now the aliases */
 	for (aliasidx = 0; aliasidx < 9; ++aliasidx)
-	  {
-		  while (cur < last && isblank ((unsigned char)*cur))
-			  ++cur;
-		  pe->h_aliases[aliasidx] = cur;
-		  while (cur < last && !isspace ((unsigned char)*cur))
-			  ++cur;
-		  {
-			  char *from = pe->h_aliases[aliasidx];
-			  int len = cur - from;
-			  if (max - dest < len + 2)
-				  goto nospace;
-			  pe->h_aliases[aliasidx] = dest;
-			  memmove (dest, from, (size_t) (cur - from));
-			  dest += len;
-			  *dest = 0;
-			  ++dest;
-		  }
-		  if (*cur == '\n')
-			{
-				++cur;
-				++aliasidx;
-				break;
-			}
-		  if (cur >= last || !isblank ((unsigned char)*cur))
-			  break;
-		  cur++;
-	  }
+	{
+		while (cur < last && isblank ((unsigned char)*cur))
+			++cur;
+		pe->h_aliases[aliasidx] = cur;
+		while (cur < last && !isspace ((unsigned char)*cur))
+			++cur;
+		{
+			char *from = pe->h_aliases[aliasidx];
+			int len = cur - from;
+			if (max - dest < len + 2)
+				goto nospace;
+			pe->h_aliases[aliasidx] = dest;
+			memmove (dest, from, (size_t) (cur - from));
+			dest += len;
+			*dest = 0;
+			++dest;
+		}
+		if (*cur == '\n')
+		{
+			++cur;
+			++aliasidx;
+			break;
+		}
+		if (cur >= last || !isblank ((unsigned char)*cur))
+			break;
+		cur++;
+	}
 	pe->h_aliases[aliasidx] = 0;
 	pe->h_name = pe->h_aliases[0];
 	pe->h_aliases++;

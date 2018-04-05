@@ -38,7 +38,7 @@
  */
 
 int sem_timedwait (sem_t * __restrict sem,
-				   const struct timespec *__restrict abstime)
+				 const struct timespec *__restrict abstime)
 {
 	Watchdog_Interval ticks;
 	bool do_wait = true;
@@ -71,13 +71,13 @@ int sem_timedwait (sem_t * __restrict sem,
 	 *  make sure the right reason is returned.
 	 */
 	if (!do_wait && (lock_status == EBUSY))
-	  {
-		  if (lock_status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
-			  rtems_set_errno_and_return_minus_one (EINVAL);
-		  if (lock_status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
-			  lock_status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
-			  rtems_set_errno_and_return_minus_one (ETIMEDOUT);
-	  }
+	{
+		if (lock_status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
+			rtems_set_errno_and_return_minus_one (EINVAL);
+		if (lock_status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
+			lock_status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
+			rtems_set_errno_and_return_minus_one (ETIMEDOUT);
+	}
 
 	return lock_status;
 }

@@ -43,7 +43,7 @@
  */
 static bool
 rtems_rfs_bitmap_test (rtems_rfs_bitmap_element target,
-					   rtems_rfs_bitmap_bit bit)
+					 rtems_rfs_bitmap_bit bit)
 {
 	return RTEMS_RFS_BITMAP_TEST_BIT (target, bit);
 }
@@ -58,7 +58,7 @@ rtems_rfs_bitmap_test (rtems_rfs_bitmap_element target,
  */
 static rtems_rfs_bitmap_element
 rtems_rfs_bitmap_set (rtems_rfs_bitmap_element target,
-					  rtems_rfs_bitmap_element bits)
+					rtems_rfs_bitmap_element bits)
 {
 	return RTEMS_RFS_BITMAP_SET_BITS (target, bits);
 }
@@ -126,8 +126,8 @@ rtems_rfs_bitmap_match (rtems_rfs_bitmap_element bits1,
  */
 static bool
 rtems_rfs_bitmap_match_masked (rtems_rfs_bitmap_element mask,
-							   rtems_rfs_bitmap_element bits1,
-							   rtems_rfs_bitmap_element bits2)
+							 rtems_rfs_bitmap_element bits1,
+							 rtems_rfs_bitmap_element bits2)
 {
 	return (bits1 ^ bits2) & mask ? false : true;
 }
@@ -142,7 +142,7 @@ rtems_rfs_bitmap_match_masked (rtems_rfs_bitmap_element mask,
  */
 static int
 rtems_rfs_bitmap_load_map (rtems_rfs_bitmap_control * control,
-						   rtems_rfs_bitmap_map * map)
+						 rtems_rfs_bitmap_map * map)
 {
 	int rc;
 
@@ -152,8 +152,8 @@ rtems_rfs_bitmap_load_map (rtems_rfs_bitmap_control * control,
 	*map = NULL;
 
 	rc = rtems_rfs_buffer_handle_request (control->fs,
-										  control->buffer,
-										  control->block, true);
+										control->buffer,
+										control->block, true);
 	if (rc)
 		return rc;
 
@@ -179,7 +179,7 @@ rtems_rfs_bitmap_mask_section (unsigned int start, unsigned int end)
 
 int
 rtems_rfs_bitmap_map_set (rtems_rfs_bitmap_control * control,
-						  rtems_rfs_bitmap_bit bit)
+						rtems_rfs_bitmap_bit bit)
 {
 	rtems_rfs_bitmap_map map;
 	rtems_rfs_bitmap_map search_map;
@@ -196,15 +196,15 @@ rtems_rfs_bitmap_map_set (rtems_rfs_bitmap_control * control,
 	offset = rtems_rfs_bitmap_map_offset (bit);
 	map[index] = rtems_rfs_bitmap_set (map[index], 1 << offset);
 	if (rtems_rfs_bitmap_match (map[index], RTEMS_RFS_BITMAP_ELEMENT_SET))
-	  {
-		  bit = index;
-		  index = rtems_rfs_bitmap_map_index (bit);
-		  offset = rtems_rfs_bitmap_map_offset (bit);
-		  search_map[index] =
-			  rtems_rfs_bitmap_set (search_map[index], 1 << offset);
-		  control->free--;
-		  rtems_rfs_buffer_mark_dirty (control->buffer);
-	  }
+	{
+		bit = index;
+		index = rtems_rfs_bitmap_map_index (bit);
+		offset = rtems_rfs_bitmap_map_offset (bit);
+		search_map[index] =
+			rtems_rfs_bitmap_set (search_map[index], 1 << offset);
+		control->free--;
+		rtems_rfs_buffer_mark_dirty (control->buffer);
+	}
 	return 0;
 }
 
@@ -237,7 +237,7 @@ rtems_rfs_bitmap_map_clear (rtems_rfs_bitmap_control * control,
 
 int
 rtems_rfs_bitmap_map_test (rtems_rfs_bitmap_control * control,
-						   rtems_rfs_bitmap_bit bit, bool * state)
+						 rtems_rfs_bitmap_bit bit, bool * state)
 {
 	rtems_rfs_bitmap_map map;
 	int index;
@@ -371,119 +371,119 @@ rtems_rfs_search_map_for_clear_bit (rtems_rfs_bitmap_control * control,
 	 * Check each bit from the search map offset for a clear bit.
 	 */
 	do
-	  {
-		  /*
-		   * If any bit is clear find that bit and then search the map element. If
-		   * all bits are set there are no map bits so move to the next search
-		   * element.
-		   */
-		  if (!rtems_rfs_bitmap_match
-			  (*search_bits, RTEMS_RFS_BITMAP_ELEMENT_SET))
+	{
+		/*
+		 * If any bit is clear find that bit and then search the map element. If
+		 * all bits are set there are no map bits so move to the next search
+		 * element.
+		 */
+		if (!rtems_rfs_bitmap_match
+			(*search_bits, RTEMS_RFS_BITMAP_ELEMENT_SET))
+		{
+			while ((search_offset >= 0)
+				 && (search_offset < rtems_rfs_bitmap_element_bits ()))
 			{
-				while ((search_offset >= 0)
-					   && (search_offset < rtems_rfs_bitmap_element_bits ()))
-				  {
-					  if (!rtems_rfs_bitmap_test (*search_bits, search_offset))
+				if (!rtems_rfs_bitmap_test (*search_bits, search_offset))
+				{
+					/*
+					 * Find the clear bit in the map. Update the search map and map if
+					 * found. We may find none are spare if searching up from the seed.
+					 */
+					while ((map_offset >= 0)
+						 && (map_offset <
+							 rtems_rfs_bitmap_element_bits ()))
+					{
+						if (!rtems_rfs_bitmap_test
+							(*map_bits, map_offset))
 						{
-							/*
-							 * Find the clear bit in the map. Update the search map and map if
-							 * found. We may find none are spare if searching up from the seed.
-							 */
-							while ((map_offset >= 0)
-								   && (map_offset <
-									   rtems_rfs_bitmap_element_bits ()))
-							  {
-								  if (!rtems_rfs_bitmap_test
-									  (*map_bits, map_offset))
-									{
-										*map_bits =
-											rtems_rfs_bitmap_set (*map_bits,
-																  1 <<
-																  map_offset);
-										if (rtems_rfs_bitmap_match
-											(*map_bits,
-											 RTEMS_RFS_BITMAP_ELEMENT_SET))
-											*search_bits =
-												rtems_rfs_bitmap_set
-												(*search_bits,
-												 1 << search_offset);
-										control->free--;
-										*bit = test_bit;
-										*found = true;
-										rtems_rfs_buffer_mark_dirty (control->
-																	 buffer);
-										return 0;
-									}
-
-								  if (test_bit == end_bit)
-									  break;
-
-								  map_offset += direction;
-								  test_bit += direction;
-							  }
+							*map_bits =
+								rtems_rfs_bitmap_set (*map_bits,
+													1 <<
+													map_offset);
+							if (rtems_rfs_bitmap_match
+								(*map_bits,
+								 RTEMS_RFS_BITMAP_ELEMENT_SET))
+								*search_bits =
+									rtems_rfs_bitmap_set
+									(*search_bits,
+									 1 << search_offset);
+							control->free--;
+							*bit = test_bit;
+							*found = true;
+							rtems_rfs_buffer_mark_dirty (control->
+														 buffer);
+							return 0;
 						}
 
-					  map_bits += direction;
-					  map_index += direction;
-					  map_offset =
-						  direction >
-						  0 ? 0 : rtems_rfs_bitmap_element_bits () - 1;
+						if (test_bit == end_bit)
+							break;
 
-					  test_bit =
-						  (map_index * rtems_rfs_bitmap_element_bits ()) +
-						  map_offset;
+						map_offset += direction;
+						test_bit += direction;
+					}
+				}
 
-					  search_offset += direction;
+				map_bits += direction;
+				map_index += direction;
+				map_offset =
+					direction >
+					0 ? 0 : rtems_rfs_bitmap_element_bits () - 1;
 
-					  if (((direction < 0) && (test_bit <= end_bit))
-						  || ((direction > 0) && (test_bit >= end_bit)))
-						  break;
-				  }
+				test_bit =
+					(map_index * rtems_rfs_bitmap_element_bits ()) +
+					map_offset;
+
+				search_offset += direction;
+
+				if (((direction < 0) && (test_bit <= end_bit))
+					|| ((direction > 0) && (test_bit >= end_bit)))
+					break;
 			}
-		  else
+		}
+		else
+		{
+			/*
+			 * Move to the next search element. We need to determine the number of
+			 * bits in the search offset that are being skipped so the map bits
+			 * pointer can be updated. If we are moving down and we have a search
+			 * offset of 0 then the search map adjustment is to the top bit of the
+			 * pervious search bit's value.
+			 *
+			 * Align test_bit either up or down depending on the direction to next 32
+			 * bit boundary.
+			 */
+			rtems_rfs_bitmap_bit bits_skipped;
+			test_bit &= ~((1 << RTEMS_RFS_ELEMENT_BITS_POWER_2) - 1);
+			if (direction > 0)
 			{
-				/*
-				 * Move to the next search element. We need to determine the number of
-				 * bits in the search offset that are being skipped so the map bits
-				 * pointer can be updated. If we are moving down and we have a search
-				 * offset of 0 then the search map adjustment is to the top bit of the
-				 * pervious search bit's value.
-				 *
-				 * Align test_bit either up or down depending on the direction to next 32
-				 * bit boundary.
-				 */
-				rtems_rfs_bitmap_bit bits_skipped;
-				test_bit &= ~((1 << RTEMS_RFS_ELEMENT_BITS_POWER_2) - 1);
-				if (direction > 0)
-				  {
-					  bits_skipped =
-						  rtems_rfs_bitmap_element_bits () - search_offset;
-					  test_bit +=
-						  bits_skipped * rtems_rfs_bitmap_element_bits ();
-					  map_offset = 0;
-				  }
-				else
-				  {
-					  bits_skipped = search_offset + 1;
-					  /*
-					   * Need to remove 1 for the rounding up. The above rounds down and
-					   * adds 1. Remember the logic is for subtraction.
-					   */
-					  test_bit -=
-						  ((bits_skipped -
-							1) * rtems_rfs_bitmap_element_bits ()) + 1;
-					  map_offset = rtems_rfs_bitmap_element_bits () - 1;
-				  }
-				map_bits += direction * bits_skipped;
-				map_index += direction * bits_skipped;
+				bits_skipped =
+					rtems_rfs_bitmap_element_bits () - search_offset;
+				test_bit +=
+					bits_skipped * rtems_rfs_bitmap_element_bits ();
+				map_offset = 0;
 			}
+			else
+			{
+				bits_skipped = search_offset + 1;
+				/*
+				 * Need to remove 1 for the rounding up. The above rounds down and
+				 * adds 1. Remember the logic is for subtraction.
+				 */
+				test_bit -=
+					((bits_skipped -
+						1) * rtems_rfs_bitmap_element_bits ()) + 1;
+				map_offset = rtems_rfs_bitmap_element_bits () - 1;
+			}
+			map_bits += direction * bits_skipped;
+			map_index += direction * bits_skipped;
+		}
 
-		  search_bits += direction;
-		  search_offset =
-			  direction > 0 ? 0 : rtems_rfs_bitmap_element_bits () - 1;
-	  }
+		search_bits += direction;
+		search_offset =
+			direction > 0 ? 0 : rtems_rfs_bitmap_element_bits () - 1;
+	}
 	while (((direction < 0) && (test_bit >= end_bit))
-		   || ((direction > 0) && (test_bit <= end_bit)));
+		 || ((direction > 0) && (test_bit <= end_bit)));
 
 	return 0;
 }
@@ -527,38 +527,38 @@ rtems_rfs_bitmap_map_alloc (rtems_rfs_bitmap_control * control,
 	 * then return false if no clear bits are found.
 	 */
 	while (((upper_seed >= 0) && (upper_seed < control->size))
-		   || ((lower_seed >= 0) && (lower_seed < control->size)))
-	  {
-		  /*
-		   * Search up first so bits allocated in succession are grouped together.
-		   */
-		  if (upper_seed < control->size)
-			{
-				*bit = upper_seed;
-				rc = rtems_rfs_search_map_for_clear_bit (control, bit,
-														 allocated, window, 1);
-				if ((rc > 0) || *allocated)
-					break;
-			}
+		 || ((lower_seed >= 0) && (lower_seed < control->size)))
+	{
+		/*
+		 * Search up first so bits allocated in succession are grouped together.
+		 */
+		if (upper_seed < control->size)
+		{
+			*bit = upper_seed;
+			rc = rtems_rfs_search_map_for_clear_bit (control, bit,
+													 allocated, window, 1);
+			if ((rc > 0) || *allocated)
+				break;
+		}
 
-		  if (lower_seed >= 0)
-			{
-				*bit = lower_seed;
-				rc = rtems_rfs_search_map_for_clear_bit (control, bit,
-														 allocated, window, -1);
-				if ((rc > 0) || *allocated)
-					break;
-			}
+		if (lower_seed >= 0)
+		{
+			*bit = lower_seed;
+			rc = rtems_rfs_search_map_for_clear_bit (control, bit,
+													 allocated, window, -1);
+			if ((rc > 0) || *allocated)
+				break;
+		}
 
-		  /*
-		   * Do not bound the limits at the edges of the map. Do not update if an
-		   * edge has been passed.
-		   */
-		  if (upper_seed < control->size)
-			  upper_seed += window;
-		  if (lower_seed >= 0)
-			  lower_seed -= window;
-	  }
+		/*
+		 * Do not bound the limits at the edges of the map. Do not update if an
+		 * edge has been passed.
+		 */
+		if (upper_seed < control->size)
+			upper_seed += window;
+		if (lower_seed >= 0)
+			lower_seed -= window;
+	}
 
 	return 0;
 }
@@ -582,55 +582,55 @@ int rtems_rfs_bitmap_create_search (rtems_rfs_bitmap_control * control)
 
 	*search_map = RTEMS_RFS_BITMAP_ELEMENT_CLEAR;
 	while (size)
-	  {
-		  rtems_rfs_bitmap_element bits;
-		  int available;
-		  if (size < rtems_rfs_bitmap_element_bits ())
-			{
-				bits = rtems_rfs_bitmap_merge (*map,
-											   RTEMS_RFS_BITMAP_ELEMENT_SET,
-											   rtems_rfs_bitmap_mask_section (0,
-																			  size));
-				available = size;
-			}
-		  else
-			{
-				bits = *map;
-				available = rtems_rfs_bitmap_element_bits ();
-			}
+	{
+		rtems_rfs_bitmap_element bits;
+		int available;
+		if (size < rtems_rfs_bitmap_element_bits ())
+		{
+			bits = rtems_rfs_bitmap_merge (*map,
+										 RTEMS_RFS_BITMAP_ELEMENT_SET,
+										 rtems_rfs_bitmap_mask_section (0,
+																		size));
+			available = size;
+		}
+		else
+		{
+			bits = *map;
+			available = rtems_rfs_bitmap_element_bits ();
+		}
 
-		  if (rtems_rfs_bitmap_match (bits, RTEMS_RFS_BITMAP_ELEMENT_SET))
-			  rtems_rfs_bitmap_set (*search_map, bit);
-		  else
-			{
-				int b;
-				for (b = 0; b < available; b++)
-					if (!rtems_rfs_bitmap_test (bits, b))
-						control->free++;
-			}
+		if (rtems_rfs_bitmap_match (bits, RTEMS_RFS_BITMAP_ELEMENT_SET))
+			rtems_rfs_bitmap_set (*search_map, bit);
+		else
+		{
+			int b;
+			for (b = 0; b < available; b++)
+				if (!rtems_rfs_bitmap_test (bits, b))
+					control->free++;
+		}
 
-		  size -= available;
+		size -= available;
 
-		  /* Iterate from 0 to 1 less than the number of bits in an element */
-		  if (bit == (rtems_rfs_bitmap_element_bits () - 1))
-			{
-				bit = 0;
-				search_map++;
-				*search_map = RTEMS_RFS_BITMAP_ELEMENT_CLEAR;
-			}
-		  else
-			  bit++;
-		  map++;
-	  }
+		/* Iterate from 0 to 1 less than the number of bits in an element */
+		if (bit == (rtems_rfs_bitmap_element_bits () - 1))
+		{
+			bit = 0;
+			search_map++;
+			*search_map = RTEMS_RFS_BITMAP_ELEMENT_CLEAR;
+		}
+		else
+			bit++;
+		map++;
+	}
 
 	return 0;
 }
 
 int
 rtems_rfs_bitmap_open (rtems_rfs_bitmap_control * control,
-					   rtems_rfs_file_system * fs,
-					   rtems_rfs_buffer_handle * buffer,
-					   size_t size, rtems_rfs_buffer_block block)
+					 rtems_rfs_file_system * fs,
+					 rtems_rfs_buffer_handle * buffer,
+					 size_t size, rtems_rfs_buffer_block block)
 {
 	size_t elements = rtems_rfs_bitmap_elements (size);
 

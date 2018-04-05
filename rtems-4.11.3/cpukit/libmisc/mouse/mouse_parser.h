@@ -73,19 +73,19 @@ extern "C"
 /**
  *  This type is the device coordinates.
  */
-	typedef int COORD;
+typedef int COORD;
 
 /**
  *  This type is the mouse button mask.
  */
-	typedef unsigned int BUTTON;
+typedef unsigned int BUTTON;
 
 /**
  *  This type defines a pointer to the enqueue method.  It is
  *  available since some device drivers keep pointers to the method
  *  to know when to enqueue or not.
  */
-	typedef void (*mouse_parser_enqueue_handler) (unsigned char *, size_t);
+typedef void (*mouse_parser_enqueue_handler) (unsigned char *, size_t);
 
 /**
  * @brief Initialize the mouse parser engine.
@@ -98,7 +98,7 @@ extern "C"
  *
  * @retval This method returns 0 on success and -1 on error.
  */
-	int mouse_parser_initialize (const char *type);
+int mouse_parser_initialize (const char *type);
 
 /**
  * @brief Enqueue input to the mouse parser engine.
@@ -108,7 +108,7 @@ extern "C"
  * @a param[in] buffer is the data to enqueue
  * @a param[in] size is the amount of data to enqueue
  */
-	void mouse_parser_enqueue (unsigned char *buffer, size_t size);
+void mouse_parser_enqueue (unsigned char *buffer, size_t size);
 
 #ifdef __cplusplus
 }

@@ -33,47 +33,48 @@ static int rtems_shell_main_blksync (int argc, char *argv[])
 	int fd;
 
 	for (arg = 1; arg < argc; arg++)
-	  {
-		  if (argv[arg][0] == '-')
+	{
+		if (argv[arg][0] == '-')
+		{
+			fprintf (stderr, "%s: invalid option: %s\n", argv[0],
+					 argv[arg]);
+			return 1;
+		}
+		else
+		{
+			if (!driver)
+				driver = argv[arg];
+			else
 			{
-				fprintf (stderr, "%s: invalid option: %s\n", argv[0],
-						 argv[arg]);
+				fprintf (stderr, "%s: only one driver name allowed: %s\n",
+						 argv[0], argv[arg]);
 				return 1;
 			}
-		  else
-			{
-				if (!driver)
-					driver = argv[arg];
-				else
-				  {
-					  fprintf (stderr, "%s: only one driver name allowed: %s\n",
-							   argv[0], argv[arg]);
-					  return 1;
-				  }
-			}
-	  }
+		}
+	}
 
 	fd = open (driver, O_WRONLY, 0);
 	if (fd < 0)
-	  {
-		  fprintf (stderr, "%s: driver open failed: %s\n", argv[0],
-				   strerror (errno));
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "%s: driver open failed: %s\n", argv[0],
+				 strerror (errno));
+		return 1;
+	}
 
 	if (rtems_disk_fd_sync (fd) < 0)
-	  {
-		  fprintf (stderr, "%s: driver sync failed: %s\n", argv[0],
-				   strerror (errno));
-		  close (fd);
-		  return 1;
-	  }
+	{
+		fprintf (stderr, "%s: driver sync failed: %s\n", argv[0],
+				 strerror (errno));
+		close (fd);
+		return 1;
+	}
 
 	close (fd);
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_BLKSYNC_Command = {
+rtems_shell_cmd_t rtems_shell_BLKSYNC_Command =
+{
 	"blksync",					/* name */
 	"blksync driver # sync the block driver",	/* usage */
 	"files",					/* topic */

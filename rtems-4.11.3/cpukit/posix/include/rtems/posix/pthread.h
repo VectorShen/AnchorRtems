@@ -44,7 +44,7 @@ extern "C"
  * This routine creates and starts all configured user
  * initialization threads.
  */
-	extern void _POSIX_Threads_Initialize_user_threads_body (void);
+extern void _POSIX_Threads_Initialize_user_threads_body (void);
 
 /** @} */
 

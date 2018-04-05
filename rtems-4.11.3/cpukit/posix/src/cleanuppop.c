@@ -59,11 +59,11 @@ void pthread_cleanup_pop (int execute)
 	_ISR_Disable (level);
 
 	if (_Chain_Is_empty (handler_stack))
-	  {
-		  _Thread_Enable_dispatch ();
-		  _ISR_Enable (level);
-		  return;
-	  }
+	{
+		_Thread_Enable_dispatch ();
+		_ISR_Enable (level);
+		return;
+	}
 
 	handler = (POSIX_Cancel_Handler_control *)
 		_Chain_Tail (handler_stack)->previous;
@@ -84,14 +84,14 @@ void pthread_cleanup_pop (int execute)
 #else /* HAVE_STRUCT__PTHREAD_CLEANUP_CONTEXT */
 
 void _pthread_cleanup_pop (struct _pthread_cleanup_context *context,
-						   int execute)
+						 int execute)
 {
 	POSIX_API_Control *thread_support;
 
 	if (execute != 0)
-	  {
-		  (*context->_routine) (context->_arg);
-	  }
+	{
+		(*context->_routine) (context->_arg);
+	}
 
 	_Thread_Disable_dispatch ();
 

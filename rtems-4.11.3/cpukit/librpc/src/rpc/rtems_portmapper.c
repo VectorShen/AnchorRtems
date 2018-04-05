@@ -61,27 +61,27 @@ static rtems_task rtems_portmapper (rtems_task_argument unused)
 
 	rtems_rpc_task_init ();
 	if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-	  {
-		  perror ("portmap cannot create socket");
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		perror ("portmap cannot create socket");
+		rtems_task_delete (RTEMS_SELF);
+	}
 
 	addr.sin_addr.s_addr = 0;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons (PMAPPORT);
 	if (bind (sock, (struct sockaddr *)&addr, len) != 0)
-	  {
-		  perror ("portmap cannot bind");
-		  close (sock);
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		perror ("portmap cannot bind");
+		close (sock);
+		rtems_task_delete (RTEMS_SELF);
+	}
 
 	if ((xprt = svcudp_create (sock)) == (SVCXPRT *) NULL)
-	  {
-		  fprintf (stderr, "couldn't do udp_create\n");
-		  close (sock);
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		fprintf (stderr, "couldn't do udp_create\n");
+		close (sock);
+		rtems_task_delete (RTEMS_SELF);
+	}
 	/* make an entry for ourself */
 	pml = (struct pmaplist *)malloc (sizeof (struct pmaplist));
 	pml->pml_next = 0;
@@ -92,24 +92,24 @@ static rtems_task rtems_portmapper (rtems_task_argument unused)
 	pmaplist = pml;
 
 	if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-	  {
-		  perror ("portmap cannot create socket");
-		  close (sock);
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		perror ("portmap cannot create socket");
+		close (sock);
+		rtems_task_delete (RTEMS_SELF);
+	}
 	if (bind (sock, (struct sockaddr *)&addr, len) != 0)
-	  {
-		  perror ("portmap cannot bind");
-		  close (sock);
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		perror ("portmap cannot bind");
+		close (sock);
+		rtems_task_delete (RTEMS_SELF);
+	}
 	if ((xprt = svctcp_create (sock, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE))
 		== (SVCXPRT *) NULL)
-	  {
-		  fprintf (stderr, "couldn't do tcp_create\n");
-		  close (sock);
-		  rtems_task_delete (RTEMS_SELF);
-	  }
+	{
+		fprintf (stderr, "couldn't do tcp_create\n");
+		close (sock);
+		rtems_task_delete (RTEMS_SELF);
+	}
 	/* make an entry for ourself */
 	pml = (struct pmaplist *)malloc (sizeof (struct pmaplist));
 	pml->pml_map.pm_prog = PMAPPROG;
@@ -133,13 +133,13 @@ static struct pmaplist *find_service (u_long prog, u_long vers, int prot)
 	register struct pmaplist *pml;
 
 	for (pml = pmaplist; pml != NULL; pml = pml->pml_next)
-	  {
-		  if ((pml->pml_map.pm_prog != prog) || (pml->pml_map.pm_prot != prot))
-			  continue;
-		  hit = pml;
-		  if (pml->pml_map.pm_vers == vers)
-			  break;
-	  }
+	{
+		if ((pml->pml_map.pm_prog != prog) || (pml->pml_map.pm_prot != prot))
+			continue;
+		hit = pml;
+		if (pml->pml_map.pm_vers == vers)
+			break;
+	}
 	return (hit);
 }
 
@@ -157,173 +157,173 @@ static void reg_service (struct svc_req *rqstp, SVCXPRT * xprt)
 	fprintf (stderr, "server: about do a switch\n");
 #endif
 	switch (rqstp->rq_proc)
-	  {
+	{
 
-		  case PMAPPROC_NULL:
-			  /*
-			   * Null proc call
-			   */
-			  if ((!svc_sendreply (xprt, (xdrproc_t) xdr_void, NULL)) &&
-				  debugging)
+		case PMAPPROC_NULL:
+			/*
+			 * Null proc call
+			 */
+			if ((!svc_sendreply (xprt, (xdrproc_t) xdr_void, NULL)) &&
+				debugging)
+			{
+				abort ();
+			}
+			break;
+
+		case PMAPPROC_SET:
+			/*
+			 * Set a program,version to port mapping
+			 */
+			if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
+				svcerr_decode (xprt);
+			else
+			{
+				/*
+				 * check to see if already used
+				 * find_service returns a hit even if
+				 * the versions don't match, so check for it
+				 */
+				fnd = find_service (reg.pm_prog, reg.pm_vers, reg.pm_prot);
+				if (fnd && fnd->pml_map.pm_vers == reg.pm_vers)
 				{
-					abort ();
+					if (fnd->pml_map.pm_port == reg.pm_port)
+					{
+						ans = 1;
+						goto done;
+					}
+					else
+					{
+						ans = 0;
+						goto done;
+					}
 				}
-			  break;
-
-		  case PMAPPROC_SET:
-			  /*
-			   * Set a program,version to port mapping
-			   */
-			  if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
-				  svcerr_decode (xprt);
-			  else
+				else
 				{
 					/*
-					 * check to see if already used
-					 * find_service returns a hit even if
-					 * the versions don't match, so check for it
+					 * add to END of list
 					 */
-					fnd = find_service (reg.pm_prog, reg.pm_vers, reg.pm_prot);
-					if (fnd && fnd->pml_map.pm_vers == reg.pm_vers)
-					  {
-						  if (fnd->pml_map.pm_port == reg.pm_port)
-							{
-								ans = 1;
-								goto done;
-							}
-						  else
-							{
-								ans = 0;
-								goto done;
-							}
-					  }
+					pml =
+						(struct pmaplist
+						 *)malloc (sizeof (struct pmaplist));
+					pml->pml_map = reg;
+					pml->pml_next = 0;
+					if (pmaplist == 0)
+					{
+						pmaplist = pml;
+					}
 					else
-					  {
-						  /* 
-						   * add to END of list
-						   */
-						  pml =
-							  (struct pmaplist
-							   *)malloc (sizeof (struct pmaplist));
-						  pml->pml_map = reg;
-						  pml->pml_next = 0;
-						  if (pmaplist == 0)
-							{
-								pmaplist = pml;
-							}
-						  else
-							{
-								for (fnd = pmaplist; fnd->pml_next != 0;
-									 fnd = fnd->pml_next) ;
-								fnd->pml_next = pml;
-							}
-						  ans = 1;
-					  }
-				  done:
-					if ((!svc_sendreply
-						 (xprt, (xdrproc_t) xdr_long, (caddr_t) & ans))
-						&& debugging)
-					  {
-						  fprintf (stderr, "svc_sendreply\n");
-						  abort ();
-					  }
+					{
+						for (fnd = pmaplist; fnd->pml_next != 0;
+							 fnd = fnd->pml_next) ;
+						fnd->pml_next = pml;
+					}
+					ans = 1;
 				}
-			  break;
-
-		  case PMAPPROC_UNSET:
-			  /*
-			   * Remove a program,version to port mapping.
-			   */
-			  if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
-				  svcerr_decode (xprt);
-			  else
+			done:
+				if ((!svc_sendreply
+					 (xprt, (xdrproc_t) xdr_long, (caddr_t) & ans))
+					&& debugging)
 				{
-					ans = 0;
-					for (prevpml = NULL, pml = pmaplist; pml != NULL;)
-					  {
-						  if ((pml->pml_map.pm_prog != reg.pm_prog) ||
-							  (pml->pml_map.pm_vers != reg.pm_vers))
-							{
-								/* both pml & prevpml move forwards */
-								prevpml = pml;
-								pml = pml->pml_next;
-								continue;
-							}
-						  /* found it; pml moves forward, prevpml stays */
-						  ans = 1;
-						  t = (caddr_t) pml;
-						  pml = pml->pml_next;
-						  if (prevpml == NULL)
-							  pmaplist = pml;
-						  else
-							  prevpml->pml_next = pml;
-						  free (t);
-					  }
-					if ((!svc_sendreply
-						 (xprt, (xdrproc_t) xdr_long, (caddr_t) & ans))
-						&& debugging)
-					  {
-						  fprintf (stderr, "svc_sendreply\n");
-						  abort ();
-					  }
+					fprintf (stderr, "svc_sendreply\n");
+					abort ();
 				}
-			  break;
+			}
+			break;
 
-		  case PMAPPROC_GETPORT:
-			  /*
-			   * Lookup the mapping for a program,version and return its port
-			   */
-			  if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
-				  svcerr_decode (xprt);
-			  else
+		case PMAPPROC_UNSET:
+			/*
+			 * Remove a program,version to port mapping.
+			 */
+			if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
+				svcerr_decode (xprt);
+			else
+			{
+				ans = 0;
+				for (prevpml = NULL, pml = pmaplist; pml != NULL;)
 				{
-					fnd = find_service (reg.pm_prog, reg.pm_vers, reg.pm_prot);
-					if (fnd)
-						port = fnd->pml_map.pm_port;
+					if ((pml->pml_map.pm_prog != reg.pm_prog) ||
+						(pml->pml_map.pm_vers != reg.pm_vers))
+					{
+						/* both pml & prevpml move forwards */
+						prevpml = pml;
+						pml = pml->pml_next;
+						continue;
+					}
+					/* found it; pml moves forward, prevpml stays */
+					ans = 1;
+					t = (caddr_t) pml;
+					pml = pml->pml_next;
+					if (prevpml == NULL)
+						pmaplist = pml;
 					else
-						port = 0;
-					if ((!svc_sendreply
-						 (xprt, (xdrproc_t) xdr_long, (caddr_t) & port))
-						&& debugging)
-					  {
-						  fprintf (stderr, "svc_sendreply\n");
-						  abort ();
-					  }
+						prevpml->pml_next = pml;
+					free (t);
 				}
-			  break;
-
-		  case PMAPPROC_DUMP:
-			  /*
-			   * Return the current set of mapped program,version
-			   */
-			  if (!svc_getargs (xprt, (xdrproc_t) xdr_void, NULL))
-				  svcerr_decode (xprt);
-			  else
+				if ((!svc_sendreply
+					 (xprt, (xdrproc_t) xdr_long, (caddr_t) & ans))
+					&& debugging)
 				{
-					if ((!svc_sendreply (xprt, (xdrproc_t) xdr_pmaplist,
-										 (caddr_t) & pmaplist)) && debugging)
-					  {
-						  fprintf (stderr, "svc_sendreply\n");
-						  abort ();
-					  }
+					fprintf (stderr, "svc_sendreply\n");
+					abort ();
 				}
-			  break;
+			}
+			break;
 
-		  case PMAPPROC_CALLIT:
-			  /*
-			   * Calls a procedure on the local machine.  If the requested
-			   * procedure is not registered this procedure does not return
-			   * error information!!
-			   * This procedure is only supported on rpc/udp and calls via 
-			   * rpc/udp.  It passes null authentication parameters.
-			   */
-			  callit (rqstp, xprt);
-			  break;
+		case PMAPPROC_GETPORT:
+			/*
+			 * Lookup the mapping for a program,version and return its port
+			 */
+			if (!svc_getargs (xprt, (xdrproc_t) xdr_pmap, (caddr_t) & reg))
+				svcerr_decode (xprt);
+			else
+			{
+				fnd = find_service (reg.pm_prog, reg.pm_vers, reg.pm_prot);
+				if (fnd)
+					port = fnd->pml_map.pm_port;
+				else
+					port = 0;
+				if ((!svc_sendreply
+					 (xprt, (xdrproc_t) xdr_long, (caddr_t) & port))
+					&& debugging)
+				{
+					fprintf (stderr, "svc_sendreply\n");
+					abort ();
+				}
+			}
+			break;
 
-		  default:
-			  svcerr_noproc (xprt);
-			  break;
-	  }
+		case PMAPPROC_DUMP:
+			/*
+			 * Return the current set of mapped program,version
+			 */
+			if (!svc_getargs (xprt, (xdrproc_t) xdr_void, NULL))
+				svcerr_decode (xprt);
+			else
+			{
+				if ((!svc_sendreply (xprt, (xdrproc_t) xdr_pmaplist,
+									 (caddr_t) & pmaplist)) && debugging)
+				{
+					fprintf (stderr, "svc_sendreply\n");
+					abort ();
+				}
+			}
+			break;
+
+		case PMAPPROC_CALLIT:
+			/*
+			 * Calls a procedure on the local machine.  If the requested
+			 * procedure is not registered this procedure does not return
+			 * error information!!
+			 * This procedure is only supported on rpc/udp and calls via
+			 * rpc/udp.  It passes null authentication parameters.
+			 */
+			callit (rqstp, xprt);
+			break;
+
+		default:
+			svcerr_noproc (xprt);
+			break;
+	}
 }
 
 /*
@@ -361,9 +361,9 @@ xdr_rmtcall_args (register XDR * xdrs, register struct rmtcallargs *cap)
 	if (xdr_u_long (xdrs, &(cap->rmt_prog)) &&
 		xdr_u_long (xdrs, &(cap->rmt_vers)) &&
 		xdr_u_long (xdrs, &(cap->rmt_proc)))
-	  {
-		  return (xdr_encap_parms (xdrs, &(cap->rmt_args)));
-	  }
+	{
+		return (xdr_encap_parms (xdrs, &(cap->rmt_args)));
+	}
 	return (FALSE);
 }
 
@@ -398,18 +398,18 @@ static bool_t xdr_len_opaque_parms (XDR * xdrs, void *args, ...)
 	beginpos = lowpos = pos = xdr_getpos (xdrs);
 	highpos = lowpos + ARGSIZE;
 	while ((int)(highpos - lowpos) >= 0)
-	  {
-		  currpos = (lowpos + highpos) / 2;
-		  if (xdr_setpos (xdrs, currpos))
-			{
-				pos = currpos;
-				lowpos = currpos + 1;
-			}
-		  else
-			{
-				highpos = currpos - 1;
-			}
-	  }
+	{
+		currpos = (lowpos + highpos) / 2;
+		if (xdr_setpos (xdrs, currpos))
+		{
+			pos = currpos;
+			lowpos = currpos + 1;
+		}
+		else
+		{
+			highpos = currpos - 1;
+		}
+	}
 	xdr_setpos (xdrs, beginpos);
 	cap->rmt_args.arglen = pos - beginpos;
 	return (xdr_opaque_parms (xdrs, cap));
@@ -449,35 +449,35 @@ static void callit (struct svc_req *rqstp, SVCXPRT * xprt)
 	 * Child exits upon completion.
 	 */
 	if ((pid = fork ()) != 0)
-	  {
-		  if (debugging && (pid < 0))
-			{
-				fprintf (stderr, "portmap CALLIT: cannot fork.\n");
-			}
-		  return;
-	  }
+	{
+		if (debugging && (pid < 0))
+		{
+			fprintf (stderr, "portmap CALLIT: cannot fork.\n");
+		}
+		return;
+	}
 	port = pml->pml_map.pm_port;
 	get_myaddress (&me);
 	me.sin_port = htons (port);
 	client = clntudp_create (&me, a.rmt_prog, a.rmt_vers, timeout, &socket);
 	if (client != (CLIENT *) NULL)
-	  {
-		  if (rqstp->rq_cred.oa_flavor == AUTH_UNIX)
-			{
-				client->cl_auth = authunix_create (au->aup_machname,
-												   au->aup_uid, au->aup_gid,
-												   au->aup_len, au->aup_gids);
-			}
-		  a.rmt_port = (u_long) port;
-		  if (clnt_call (client, a.rmt_proc, xdr_opaque_parms, &a,
+	{
+		if (rqstp->rq_cred.oa_flavor == AUTH_UNIX)
+		{
+			client->cl_auth = authunix_create (au->aup_machname,
+											 au->aup_uid, au->aup_gid,
+											 au->aup_len, au->aup_gids);
+		}
+		a.rmt_port = (u_long) port;
+		if (clnt_call (client, a.rmt_proc, xdr_opaque_parms, &a,
 						 xdr_len_opaque_parms, &a, timeout) == RPC_SUCCESS)
-			{
-				svc_sendreply (xprt, (xdrproc_t) xdr_rmtcall_result,
-							   (caddr_t) & a);
-			}
-		  AUTH_DESTROY (client->cl_auth);
-		  clnt_destroy (client);
-	  }
+		{
+			svc_sendreply (xprt, (xdrproc_t) xdr_rmtcall_result,
+						 (caddr_t) & a);
+		}
+		AUTH_DESTROY (client->cl_auth);
+		clnt_destroy (client);
+	}
 	(void)close (socket);
 	exit (0);
 }
@@ -494,10 +494,10 @@ int rtems_rpc_start_portmapper (int priority)
 
 	rtems_task_mode (RTEMS_NO_PREEMPT, RTEMS_PREEMPT_MASK, &mode);
 	if (started)
-	  {
-		  rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
-		  return RTEMS_SUCCESSFUL;
-	  }
+	{
+		rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
+		return RTEMS_SUCCESSFUL;
+	}
 	sc = rtems_task_create (rtems_build_name ('P', 'M', 'A', 'P'),
 							priority,
 							ARGSIZE + 8000,
@@ -505,16 +505,16 @@ int rtems_rpc_start_portmapper (int priority)
 							RTEMS_INTERRUPT_LEVEL (0),
 							RTEMS_NO_FLOATING_POINT | RTEMS_LOCAL, &tid);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
-		  return sc;
-	  }
+	{
+		rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
+		return sc;
+	}
 	sc = rtems_task_start (tid, rtems_portmapper, 0);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
-		  return sc;
-	  }
+	{
+		rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
+		return sc;
+	}
 	started = 1;
 	rtems_task_mode (mode, RTEMS_PREEMPT_MASK, &mode);
 	return RTEMS_SUCCESSFUL;

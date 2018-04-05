@@ -44,78 +44,78 @@ void _Resource_Iterate (Resource_Node * top,
 	bool stop = false;
 
 	do
-	  {
-		  switch (dir)
-			{
-				case NODE_FORWARD:
-					while (!stop && &rival->Node != rival_stop)
-					  {
-						  Resource_Node *current = rival;
+	{
+		switch (dir)
+		{
+			case NODE_FORWARD:
+				while (!stop && &rival->Node != rival_stop)
+				{
+					Resource_Node *current = rival;
 
-						  rival = (Resource_Node *) _Chain_Next (&rival->Node);
-						  stop = (*visitor) (current, arg);
-					  }
+					rival = (Resource_Node *) _Chain_Next (&rival->Node);
+					stop = (*visitor) (current, arg);
+				}
 
-					rival_stop = _Chain_Head (&resource->Rivals);
-					dir = NODE_BACKWARD;
-					break;
-				case NODE_BACKWARD:
-					rival = (Resource_Node *) _Chain_Previous (&rival->Node);
+				rival_stop = _Chain_Head (&resource->Rivals);
+				dir = NODE_BACKWARD;
+				break;
+			case NODE_BACKWARD:
+				rival = (Resource_Node *) _Chain_Previous (&rival->Node);
 
-					while (&rival->Node != rival_stop
-						   && _Chain_Is_empty (&rival->Resources))
-					  {
-						  rival =
-							  (Resource_Node *) _Chain_Previous (&rival->Node);
-					  }
+				while (&rival->Node != rival_stop
+					 && _Chain_Is_empty (&rival->Resources))
+				{
+					rival =
+						(Resource_Node *) _Chain_Previous (&rival->Node);
+				}
 
-					if (&rival->Node != rival_stop)
-					  {
-						  resource_tail = _Chain_Tail (&rival->Resources);
-						  resource =
-							  (Resource_Control *) _Chain_Head (&rival->
-																Resources);
-					  }
-					else
-					  {
-						  resource =
-							  _Resource_Rival_head_to_resource (rival_stop);
-						  resource_tail =
-							  _Chain_Tail (&resource->owner->Resources);
-					  }
-
-					dir = RESOURCE_FORWARD;
-					break;
-				case RESOURCE_FORWARD:
+				if (&rival->Node != rival_stop)
+				{
+					resource_tail = _Chain_Tail (&rival->Resources);
 					resource =
-						(Resource_Control *) _Chain_Next (&resource->Node);
+						(Resource_Control *) _Chain_Head (&rival->
+															Resources);
+				}
+				else
+				{
+					resource =
+						_Resource_Rival_head_to_resource (rival_stop);
+					resource_tail =
+						_Chain_Tail (&resource->owner->Resources);
+				}
 
-					while (&resource->Node != resource_tail
-						   && _Chain_Is_empty (&resource->Rivals))
-					  {
-						  resource =
-							  (Resource_Control *) _Chain_Next (&resource->
-																Node);
-					  }
+				dir = RESOURCE_FORWARD;
+				break;
+			case RESOURCE_FORWARD:
+				resource =
+					(Resource_Control *) _Chain_Next (&resource->Node);
 
-					if (&resource->Node != resource_tail)
-					  {
-						  rival_stop = _Chain_Tail (&resource->Rivals);
-						  rival =
-							  (Resource_Node *) _Chain_First (&resource->
-															  Rivals);
-						  dir = NODE_FORWARD;
-					  }
-					else
-					  {
-						  rival =
-							  _Resource_Resource_tail_to_rival (resource_tail);
-						  rival_stop = _Chain_Head (&rival->dependency->Rivals);
-						  dir = NODE_BACKWARD;
-					  }
+				while (&resource->Node != resource_tail
+					 && _Chain_Is_empty (&resource->Rivals))
+				{
+					resource =
+						(Resource_Control *) _Chain_Next (&resource->
+															Node);
+				}
 
-					break;
-			}
-	  }
+				if (&resource->Node != resource_tail)
+				{
+					rival_stop = _Chain_Tail (&resource->Rivals);
+					rival =
+						(Resource_Node *) _Chain_First (&resource->
+														Rivals);
+					dir = NODE_FORWARD;
+				}
+				else
+				{
+					rival =
+						_Resource_Resource_tail_to_rival (resource_tail);
+					rival_stop = _Chain_Head (&rival->dependency->Rivals);
+					dir = NODE_BACKWARD;
+				}
+
+				break;
+		}
+	}
 	while (!stop && rival != top);
 }

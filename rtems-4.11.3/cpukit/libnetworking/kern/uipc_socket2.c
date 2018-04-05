@@ -65,12 +65,12 @@ SYSCTL_INT(_kern, OID_AUTO, sockbuf_waste_factor, CTLFLAG_RW, &sb_efficiency,
 	   0, "");
 
 #if defined(__rtems__)
-  void rtems_set_sb_efficiency(
-    u_long efficiency
-  )
-  {
-    sb_efficiency = (efficiency == 0) ? 2 : efficiency;
-  }
+void rtems_set_sb_efficiency(
+u_long efficiency
+)
+{
+	sb_efficiency = (efficiency == 0) ? 2 : efficiency;
+}
 #endif
 
 /*
@@ -118,7 +118,8 @@ soisconnected(struct socket *so)
 
 	so->so_state &= ~(SS_ISCONNECTING|SS_ISDISCONNECTING|SS_ISCONFIRMING);
 	so->so_state |= SS_ISCONNECTED;
-	if (head && (so->so_state & SS_INCOMP)) {
+	if (head && (so->so_state & SS_INCOMP))
+	{
 		TAILQ_REMOVE(&head->so_incomp, so, so_list);
 		head->so_incqlen--;
 		so->so_state &= ~SS_INCOMP;
@@ -126,7 +127,9 @@ soisconnected(struct socket *so)
 		so->so_state |= SS_COMP;
 		sorwakeup(head);
 		soconnwakeup(head);
-	} else {
+	}
+	else
+	{
 		soconnwakeup(so);
 		sorwakeup(so);
 		sowwakeup(so);
@@ -175,7 +178,8 @@ sodropablereq(struct socket *head)
 	static long old_mono_secs;
 	static unsigned int cur_cnt, old_cnt;
 
-	if ((i = (m = rtems_bsdnet_seconds_since_boot()) - old_mono_secs) != 0) {
+	if ((i = (m = rtems_bsdnet_seconds_since_boot()) - old_mono_secs) != 0)
+	{
 		old_mono_secs = m;
 		old_cnt = cur_cnt / i;
 		cur_cnt = 0;
@@ -186,7 +190,8 @@ sodropablereq(struct socket *head)
 		return (so);
 
 	qlen = head->so_incqlen;
-	if (++cur_cnt > qlen || old_cnt > qlen) {
+	if (++cur_cnt > qlen || old_cnt > qlen)
+	{
 		rnd = (314159 * rnd + 66329) & 0xffff;
 		j = ((qlen + 1) * rnd) >> 16;
 
@@ -227,19 +232,26 @@ sonewconn1(struct socket *head, int connstatus)
 	so->so_proto = head->so_proto;
 	so->so_timeo = head->so_timeo;
 	(void) soreserve(so, head->so_snd.sb_hiwat, head->so_rcv.sb_hiwat);
-	if (connstatus) {
+	if (connstatus)
+	{
 		TAILQ_INSERT_TAIL(&head->so_comp, so, so_list);
 		so->so_state |= SS_COMP;
-	} else {
+	}
+	else
+	{
 		TAILQ_INSERT_TAIL(&head->so_incomp, so, so_list);
 		so->so_state |= SS_INCOMP;
 		head->so_incqlen++;
 	}
 	head->so_qlen++;
-	if ((*so->so_proto->pr_usrreqs->pru_attach)(so, 0)) {
-		if (so->so_state & SS_COMP) {
+	if ((*so->so_proto->pr_usrreqs->pru_attach)(so, 0))
+	{
+		if (so->so_state & SS_COMP)
+		{
 			TAILQ_REMOVE(&head->so_comp, so, so_list);
-		} else {
+		}
+		else
+		{
 			TAILQ_REMOVE(&head->so_incomp, so, so_list);
 			head->so_incqlen--;
 		}
@@ -247,7 +259,8 @@ sonewconn1(struct socket *head, int connstatus)
 		(void) free((caddr_t)so, M_SOCKET);
 		return ((struct socket *)0);
 	}
-	if (connstatus) {
+	if (connstatus)
+	{
 		sorwakeup(head);
 		soconnwakeup(head);
 		so->so_state |= connstatus;
@@ -402,11 +415,14 @@ sbappend(struct sockbuf *sb, struct mbuf *m)
 	if (m == 0)
 		return;
 	n = sb->sb_mb;
-	if (n) {
+	if (n)
+	{
 		while (n->m_nextpkt)
 			n = n->m_nextpkt;
-		do {
-			if (n->m_flags & M_EOR) {
+		do
+		{
+			if (n->m_flags & M_EOR)
+			{
 				sbappendrecord(sb, m); /* XXXXXX!!!! */
 				return;
 			}
@@ -422,7 +438,8 @@ sbcheck(struct sockbuf *sb)
 	register struct mbuf *m;
 	register int len = 0, mbcnt = 0;
 
-	for (m = sb->sb_mb; m; m = m->m_next) {
+	for (m = sb->sb_mb; m; m = m->m_next)
+	{
 		len += m->m_len;
 		mbcnt += MSIZE;
 		if (m->m_flags & M_EXT) /*XXX*/ /* pretty sure this is bogus */
@@ -430,7 +447,8 @@ sbcheck(struct sockbuf *sb)
 		if (m->m_nextpkt)
 			panic("sbcheck nextpkt");
 	}
-	if (len != sb->sb_cc || mbcnt != sb->sb_mbcnt) {
+	if (len != sb->sb_cc || mbcnt != sb->sb_mbcnt)
+	{
 		printf("cc %d != %d || mbcnt %d != %d\n", len, sb->sb_cc,
 		    mbcnt, sb->sb_mbcnt);
 		panic("sbcheck");
@@ -464,7 +482,8 @@ sbappendrecord(struct sockbuf *sb, struct mbuf *m0)
 		sb->sb_mb = m0;
 	m = m0->m_next;
 	m0->m_next = 0;
-	if (m && (m0->m_flags & M_EOR)) {
+	if (m && (m0->m_flags & M_EOR))
+	{
 		m0->m_flags &= ~M_EOR;
 		m->m_flags |= M_EOR;
 	}
@@ -484,18 +503,20 @@ sbinsertoob(struct sockbuf *sb, struct mbuf *m0)
 
 	if (m0 == 0)
 		return;
-	for (mp = &sb->sb_mb; *mp ; mp = &((*mp)->m_nextpkt)) {
+	for (mp = &sb->sb_mb; *mp ; mp = &((*mp)->m_nextpkt))
+	{
 	    m = *mp;
 	    again:
-		switch (m->m_type) {
+		switch (m->m_type)
+		{
 
-		case MT_OOBDATA:
-			continue;		/* WANT next train */
+			case MT_OOBDATA:
+				continue;		/* WANT next train */
 
-		case MT_CONTROL:
-			m = m->m_next;
-			if (m)
-				goto again;	/* inspect THIS train further */
+			case MT_CONTROL:
+				m = m->m_next;
+				if (m)
+					goto again;	/* inspect THIS train further */
 		}
 		break;
 	}
@@ -508,7 +529,8 @@ sbinsertoob(struct sockbuf *sb, struct mbuf *m0)
 	*mp = m0;
 	m = m0->m_next;
 	m0->m_next = 0;
-	if (m && (m0->m_flags & M_EOR)) {
+	if (m && (m0->m_flags & M_EOR))
+	{
 		m0->m_flags &= ~M_EOR;
 		m->m_flags |= M_EOR;
 	}
@@ -532,7 +554,8 @@ if (m0 && (m0->m_flags & M_PKTHDR) == 0)
 panic("sbappendaddr");
 	if (m0)
 		space += m0->m_pkthdr.len;
-	for (n = control; n; n = n->m_next) {
+	for (n = control; n; n = n->m_next)
+	{
 		space += n->m_len;
 		if (n->m_next == 0)	/* keep pointer to last control buf */
 			break;
@@ -554,11 +577,13 @@ panic("sbappendaddr");
 	for (n = m; n; n = n->m_next)
 		sballoc(sb, n);
 	n = sb->sb_mb;
-	if (n) {
+	if (n)
+	{
 		while (n->m_nextpkt)
 			n = n->m_nextpkt;
 		n->m_nextpkt = m;
-	} else
+	}
+	else
 		sb->sb_mb = m;
 	return (1);
 }
@@ -572,7 +597,8 @@ sbappendcontrol(struct sockbuf *sb, struct mbuf *m0,
 
 	if (control == 0)
 		panic("sbappendcontrol");
-	for (m = control; ; m = m->m_next) {
+	for (m = control; ; m = m->m_next)
+	{
 		space += m->m_len;
 		if (m->m_next == 0)
 			break;
@@ -586,11 +612,13 @@ sbappendcontrol(struct sockbuf *sb, struct mbuf *m0,
 	for (m = control; m; m = m->m_next)
 		sballoc(sb, m);
 	n = sb->sb_mb;
-	if (n) {
+	if (n)
+	{
 		while (n->m_nextpkt)
 			n = n->m_nextpkt;
 		n->m_nextpkt = control;
-	} else
+	}
+	else
 		sb->sb_mb = control;
 	return (1);
 }
@@ -606,18 +634,21 @@ sbcompress(struct sockbuf *sb, struct mbuf *m, struct mbuf *n)
 	register int eor = 0;
 	register struct mbuf *o;
 
-	while (m) {
+	while (m)
+	{
 		eor |= m->m_flags & M_EOR;
 		if (m->m_len == 0 &&
 		    (eor == 0 ||
 		     (((o = m->m_next) || (o = n)) &&
-		      o->m_type == m->m_type))) {
+		      o->m_type == m->m_type)))
+		{
 			m = m_free(m);
 			continue;
 		}
 		if (n && (n->m_flags & (M_EXT | M_EOR)) == 0 &&
 		    (n->m_data + n->m_len + m->m_len) < &n->m_dat[MLEN] &&
-		    n->m_type == m->m_type) {
+		    n->m_type == m->m_type)
+		{
 			bcopy(mtod(m, caddr_t), mtod(n, caddr_t) + n->m_len,
 			    (unsigned)m->m_len);
 			n->m_len += m->m_len;
@@ -635,7 +666,8 @@ sbcompress(struct sockbuf *sb, struct mbuf *m, struct mbuf *n)
 		m = m->m_next;
 		n->m_next = 0;
 	}
-	if (eor) {
+	if (eor)
+	{
 		if (n)
 			n->m_flags |= eor;
 		else
@@ -669,15 +701,18 @@ sbdrop(struct sockbuf *sb, int len)
 	struct mbuf *next;
 
 	next = (m = sb->sb_mb) ? m->m_nextpkt : 0;
-	while (len > 0) {
-		if (m == 0) {
+	while (len > 0)
+	{
+		if (m == 0)
+		{
 			if (next == 0)
 				panic("sbdrop");
 			m = next;
 			next = m->m_nextpkt;
 			continue;
 		}
-		if (m->m_len > len) {
+		if (m->m_len > len)
+		{
 			m->m_len -= len;
 			m->m_data += len;
 			sb->sb_cc -= len;
@@ -688,12 +723,14 @@ sbdrop(struct sockbuf *sb, int len)
 		MFREE(m, mn);
 		m = mn;
 	}
-	while (m && m->m_len == 0) {
+	while (m && m->m_len == 0)
+	{
 		sbfree(sb, m);
 		MFREE(m, mn);
 		m = mn;
 	}
-	if (m) {
+	if (m)
+	{
 		sb->sb_mb = m;
 		m->m_nextpkt = next;
 	} else
@@ -710,9 +747,11 @@ sbdroprecord(struct sockbuf *sb)
 	register struct mbuf *m, *mn;
 
 	m = sb->sb_mb;
-	if (m) {
+	if (m)
+	{
 		sb->sb_mb = m->m_nextpkt;
-		do {
+		do
+		{
 			sbfree(sb, m);
 			MFREE(m, mn);
 			m = mn;
@@ -846,11 +885,16 @@ old_send(struct socket *so, int flags, struct mbuf *m, struct mbuf *addr,
 {
 	int req;
 
-	if (flags & PRUS_OOB) {
+	if (flags & PRUS_OOB)
+	{
 		req = PRU_SENDOOB;
-	} else if(flags & PRUS_EOF) {
+	}
+	else if(flags & PRUS_EOF)
+	{
 		req = PRU_SEND_EOF;
-	} else {
+	}
+	else
+	{
 		req = PRU_SEND;
 	}
 	return so->so_proto->pr_ousrreq(so, req, m, addr, control);
@@ -875,7 +919,8 @@ old_sockaddr(struct socket *so, struct mbuf *nam)
 	return so->so_proto->pr_ousrreq(so, PRU_SOCKADDR, nomb, nam, nomb);
 }
 
-struct pr_usrreqs pru_oldstyle = {
+struct pr_usrreqs pru_oldstyle =
+{
 	old_abort, old_accept, old_attach, old_bind, old_connect,
 	old_connect2, old_control, old_detach, old_disconnect,
 	old_listen, old_peeraddr, old_rcvd, old_rcvoob, old_send,

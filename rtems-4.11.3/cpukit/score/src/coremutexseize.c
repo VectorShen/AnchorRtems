@@ -37,9 +37,9 @@ void _CORE_mutex_Seize (CORE_mutex_Control * _the_mutex,
 #endif
 
 void _CORE_mutex_Seize_interrupt_blocking (CORE_mutex_Control * the_mutex,
-										   Thread_Control * executing,
-										   Watchdog_Interval timeout,
-										   ISR_lock_Context * lock_context)
+										 Thread_Control * executing,
+										 Watchdog_Interval timeout,
+										 ISR_lock_Context * lock_context)
 {
 #if !defined(RTEMS_SMP)
 	/*
@@ -50,27 +50,27 @@ void _CORE_mutex_Seize_interrupt_blocking (CORE_mutex_Control * the_mutex,
 #endif
 
 	if (_CORE_mutex_Is_inherit_priority (&the_mutex->Attributes))
-	  {
-		  Thread_Control *holder = the_mutex->holder;
+	{
+		Thread_Control *holder = the_mutex->holder;
 
 #if !defined(RTEMS_SMP)
-		  /*
-		   * To enable interrupts here works only since exactly one executing thread
-		   * exists and only threads are allowed to seize and surrender mutexes with
-		   * the priority inheritance protocol.  On SMP configurations more than one
-		   * executing thread may exist, so here we must not release the lock, since
-		   * otherwise the current holder may be no longer the holder of the mutex
-		   * once we released the lock.
-		   */
-		  _Thread_queue_Release (&the_mutex->Wait_queue, lock_context);
+		/*
+		 * To enable interrupts here works only since exactly one executing thread
+		 * exists and only threads are allowed to seize and surrender mutexes with
+		 * the priority inheritance protocol.  On SMP configurations more than one
+		 * executing thread may exist, so here we must not release the lock, since
+		 * otherwise the current holder may be no longer the holder of the mutex
+		 * once we released the lock.
+		 */
+		_Thread_queue_Release (&the_mutex->Wait_queue, lock_context);
 #endif
 
-		  _Thread_Raise_priority (holder, executing->current_priority);
+		_Thread_Raise_priority (holder, executing->current_priority);
 
 #if !defined(RTEMS_SMP)
-		  _Thread_queue_Acquire (&the_mutex->Wait_queue, lock_context);
+		_Thread_queue_Acquire (&the_mutex->Wait_queue, lock_context);
 #endif
-	  }
+	}
 
 	_Thread_queue_Enqueue_critical (&the_mutex->Wait_queue,
 									executing,

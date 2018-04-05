@@ -111,7 +111,8 @@ static Thread_Control *_Thread_queue_Priority_first (Thread_queue_Control *
 	return first != NULL ? THREAD_RBTREE_NODE_TO_THREAD (first) : NULL;
 }
 
-const Thread_queue_Operations _Thread_queue_Operations_default = {
+const Thread_queue_Operations _Thread_queue_Operations_default =
+{
 	.priority_change = _Thread_queue_Do_nothing_priority_change,
 	.extract = _Thread_queue_Do_nothing_extract
 		/*
@@ -121,7 +122,8 @@ const Thread_queue_Operations _Thread_queue_Operations_default = {
 		 */
 };
 
-const Thread_queue_Operations _Thread_queue_Operations_FIFO = {
+const Thread_queue_Operations _Thread_queue_Operations_FIFO =
+{
 	.priority_change = _Thread_queue_Do_nothing_priority_change,
 	.initialize = _Thread_queue_FIFO_initialize,
 	.enqueue = _Thread_queue_FIFO_enqueue,
@@ -129,7 +131,8 @@ const Thread_queue_Operations _Thread_queue_Operations_FIFO = {
 	.first = _Thread_queue_FIFO_first
 };
 
-const Thread_queue_Operations _Thread_queue_Operations_priority = {
+const Thread_queue_Operations _Thread_queue_Operations_priority =
+{
 	.priority_change = _Thread_queue_Priority_priority_change,
 	.initialize = _Thread_queue_Priority_initialize,
 	.enqueue = _Thread_queue_Priority_enqueue,

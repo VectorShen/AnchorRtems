@@ -87,7 +87,8 @@
  * #define TTYDEFCHARS to include an array of default control characters.
  */
 #ifdef TTYDEFCHARS
-static cc_t ttydefchars[NCCS] = {
+static cc_t ttydefchars[NCCS] =
+{
 	CEOF, CEOL, CEOL, CERASE, CWERASE, CKILL, CREPRINT,
 	_POSIX_VDISABLE, CINTR, CQUIT, CSUSP, CDSUSP, CSTART, CSTOP, CLNEXT,
 	CDISCARD, CMIN, CTIME, CSTATUS, _POSIX_VDISABLE

@@ -33,32 +33,32 @@ IMFS_jnode_t *IMFS_create_node (const rtems_filesystem_location_info_t *
 
 	allocated_node = calloc (1, node_size + namelen);
 	if (allocated_node == NULL)
-	  {
-		  errno = ENOMEM;
+	{
+		errno = ENOMEM;
 
-		  return NULL;
-	  }
+		return NULL;
+	}
 
 	node = IMFS_initialize_node (allocated_node,
 								 node_control,
 								 (char *)allocated_node + node_size,
 								 namelen, mode, arg);
 	if (node != NULL)
-	  {
-		  IMFS_jnode_t *parent = parentloc->node_access;
+	{
+		IMFS_jnode_t *parent = parentloc->node_access;
 
-		  memcpy (RTEMS_DECONST (char *, node->name), name, namelen);
+		memcpy (RTEMS_DECONST (char *, node->name), name, namelen);
 
-		  /*
-		   *  This node MUST have a parent, so put it in that directory list.
-		   */
-		  IMFS_assert (parent != NULL);
-		  IMFS_add_to_directory (parent, node);
-	  }
+		/*
+		 *  This node MUST have a parent, so put it in that directory list.
+		 */
+		IMFS_assert (parent != NULL);
+		IMFS_add_to_directory (parent, node);
+	}
 	else
-	  {
-		  free (allocated_node);
-	  }
+	{
+		free (allocated_node);
+	}
 
 	return node;
 }

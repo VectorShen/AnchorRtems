@@ -46,29 +46,29 @@ int pthread_spin_destroy (pthread_spinlock_t * spinlock)
 	_Objects_Allocator_lock ();
 	the_spinlock = _POSIX_Spinlock_Get (spinlock, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  if (_CORE_spinlock_Is_busy (&the_spinlock->Spinlock))
-				{
-					_Objects_Put (&the_spinlock->Object);
-					return EBUSY;
-				}
+		case OBJECTS_LOCAL:
+			if (_CORE_spinlock_Is_busy (&the_spinlock->Spinlock))
+			{
+				_Objects_Put (&the_spinlock->Object);
+				return EBUSY;
+			}
 
-			  _Objects_Close (&_POSIX_Spinlock_Information,
-							  &the_spinlock->Object);
-			  _Objects_Put (&the_spinlock->Object);
-			  _POSIX_Spinlock_Free (the_spinlock);
-			  _Objects_Allocator_unlock ();
+			_Objects_Close (&_POSIX_Spinlock_Information,
+							&the_spinlock->Object);
+			_Objects_Put (&the_spinlock->Object);
+			_POSIX_Spinlock_Free (the_spinlock);
+			_Objects_Allocator_unlock ();
 
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

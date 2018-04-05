@@ -19,7 +19,7 @@
 #include "msdos.h"
 
 int msdos_statvfs (const rtems_filesystem_location_info_t * __restrict root_loc,
-				   struct statvfs *__restrict sb)
+				 struct statvfs *__restrict sb)
 {
 	msdos_fs_info_t *fs_info = root_loc->mt_entry->fs_info;
 	fat_vol_t *vol = &fs_info->fat.vol;
@@ -42,33 +42,33 @@ int msdos_statvfs (const rtems_filesystem_location_info_t * __restrict root_loc,
 	sb->f_namemax = MSDOS_NAME_MAX_LNF_LEN;
 
 	if (vol->free_cls == FAT_UNDEFINED_VALUE)
-	  {
-		  int rc;
-		  uint32_t cur_cl = 2;
-		  uint32_t value = 0;
-		  uint32_t data_cls_val = vol->data_cls + 2;
+	{
+		int rc;
+		uint32_t cur_cl = 2;
+		uint32_t value = 0;
+		uint32_t data_cls_val = vol->data_cls + 2;
 
-		  for (; cur_cl < data_cls_val; ++cur_cl)
+		for (; cur_cl < data_cls_val; ++cur_cl)
+		{
+			rc = fat_get_fat_cluster (&fs_info->fat, cur_cl, &value);
+			if (rc != RC_OK)
 			{
-				rc = fat_get_fat_cluster (&fs_info->fat, cur_cl, &value);
-				if (rc != RC_OK)
-				  {
-					  rtems_semaphore_release (fs_info->vol_sema);
-					  return rc;
-				  }
-
-				if (value == FAT_GENFAT_FREE)
-				  {
-					  sb->f_bfree++;
-					  sb->f_bavail++;
-				  }
+				rtems_semaphore_release (fs_info->vol_sema);
+				return rc;
 			}
-	  }
+
+			if (value == FAT_GENFAT_FREE)
+			{
+				sb->f_bfree++;
+				sb->f_bavail++;
+			}
+		}
+	}
 	else
-	  {
-		  sb->f_bfree = vol->free_cls;
-		  sb->f_bavail = vol->free_cls;
-	  }
+	{
+		sb->f_bfree = vol->free_cls;
+		sb->f_bavail = vol->free_cls;
+	}
 
 	rtems_semaphore_release (fs_info->vol_sema);
 	return RC_OK;

@@ -45,43 +45,43 @@ rtems_status_code rtems_semaphore_flush (rtems_id id)
 
 	the_semaphore = _Semaphore_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  attribute_set = the_semaphore->attribute_set;
+		case OBJECTS_LOCAL:
+			attribute_set = the_semaphore->attribute_set;
 #if defined(RTEMS_SMP)
-			  if (_Attributes_Is_multiprocessor_resource_sharing
-				  (attribute_set))
-				{
-					_Objects_Put (&the_semaphore->Object);
-					return RTEMS_NOT_DEFINED;
-				}
-			  else
+			if (_Attributes_Is_multiprocessor_resource_sharing
+				(attribute_set))
+			{
+				_Objects_Put (&the_semaphore->Object);
+				return RTEMS_NOT_DEFINED;
+			}
+			else
 #endif
-			  if (!_Attributes_Is_counting_semaphore (attribute_set))
-				{
-					_CORE_mutex_Flush (&the_semaphore->Core_control.mutex,
-									   SEND_OBJECT_WAS_DELETED,
-									   CORE_MUTEX_STATUS_UNSATISFIED_NOWAIT);
-				}
-			  else
-				{
-					_CORE_semaphore_Flush (&the_semaphore->Core_control.
-										   semaphore, SEND_OBJECT_WAS_DELETED,
-										   CORE_SEMAPHORE_STATUS_UNSATISFIED_NOWAIT);
-				}
-			  _Objects_Put (&the_semaphore->Object);
-			  return RTEMS_SUCCESSFUL;
+			if (!_Attributes_Is_counting_semaphore (attribute_set))
+			{
+				_CORE_mutex_Flush (&the_semaphore->Core_control.mutex,
+								 SEND_OBJECT_WAS_DELETED,
+								 CORE_MUTEX_STATUS_UNSATISFIED_NOWAIT);
+			}
+			else
+			{
+				_CORE_semaphore_Flush (&the_semaphore->Core_control.
+									 semaphore, SEND_OBJECT_WAS_DELETED,
+									 CORE_SEMAPHORE_STATUS_UNSATISFIED_NOWAIT);
+			}
+			_Objects_Put (&the_semaphore->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Dispatch ();
-			  return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+		case OBJECTS_REMOTE:
+			_Thread_Dispatch ();
+			return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

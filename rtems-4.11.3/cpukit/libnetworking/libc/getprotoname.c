@@ -49,13 +49,13 @@ struct protoent *getprotobyname (const char *name)
 
 	setprotoent (_proto_stayopen);
 	while ((p = getprotoent ()))
-	  {
-		  if (strcmp (p->p_name, name) == 0)
-			  break;
-		  for (cp = p->p_aliases; *cp != 0; cp++)
-			  if (strcmp (*cp, name) == 0)
-				  goto found;
-	  }
+	{
+		if (strcmp (p->p_name, name) == 0)
+			break;
+		for (cp = p->p_aliases; *cp != 0; cp++)
+			if (strcmp (*cp, name) == 0)
+				goto found;
+	}
   found:
 	if (!_proto_stayopen)
 		endprotoent ();

@@ -82,7 +82,7 @@ static int tcp_debx;
  */
 void
 tcp_trace (short act, short ostate, struct tcpcb *tp, struct tcpiphdr *ti,
-		   int req)
+		 int req)
 {
 #ifdef TCPDEBUG
 	tcp_seq seq, ack;
@@ -115,54 +115,54 @@ tcp_trace (short act, short ostate, struct tcpcb *tp, struct tcpiphdr *ti,
 		printf ("???????? ");
 	printf ("%s ", tanames[act]);
 	switch (act)
-	  {
-		  case TA_INPUT:
-		  case TA_OUTPUT:
-		  case TA_DROP:
-			  if (ti == 0)
-				  break;
-			  seq = ti->ti_seq;
-			  ack = ti->ti_ack;
-			  len = ti->ti_len;
-			  if (act == TA_OUTPUT)
-				{
-					seq = ntohl (seq);
-					ack = ntohl (ack);
-					len = ntohs ((u_short) len);
-				}
-			  if (act == TA_OUTPUT)
-				  len -= sizeof (struct tcphdr);
-			  if (len)
-				  printf ("[%x..%x)", seq, seq + len);
-			  else
-				  printf ("%x", seq);
-			  printf ("@%x, urp=%x", ack, ti->ti_urp);
-			  flags = ti->ti_flags;
-			  if (flags)
-				{
-					char *cp = "<";
+	{
+		case TA_INPUT:
+		case TA_OUTPUT:
+		case TA_DROP:
+			if (ti == 0)
+				break;
+			seq = ti->ti_seq;
+			ack = ti->ti_ack;
+			len = ti->ti_len;
+			if (act == TA_OUTPUT)
+			{
+				seq = ntohl (seq);
+				ack = ntohl (ack);
+				len = ntohs ((u_short) len);
+			}
+			if (act == TA_OUTPUT)
+				len -= sizeof (struct tcphdr);
+			if (len)
+				printf ("[%x..%x)", seq, seq + len);
+			else
+				printf ("%x", seq);
+			printf ("@%x, urp=%x", ack, ti->ti_urp);
+			flags = ti->ti_flags;
+			if (flags)
+			{
+				char *cp = "<";
 #define pf(f) {					\
-	if (ti->ti_flags & TH_##f) {		\
-		printf("%s%s", cp, #f);		\
-		cp = ",";			\
-	}					\
+if (ti->ti_flags & TH_##f) {		\
+	printf("%s%s", cp, #f);		\
+	cp = ",";			\
+}					\
 }
-					pf (SYN);
-					pf (ACK);
-					pf (FIN);
-					pf (RST);
-					pf (PUSH);
-					pf (URG);
-					printf (">");
-				}
-			  break;
+				pf (SYN);
+				pf (ACK);
+				pf (FIN);
+				pf (RST);
+				pf (PUSH);
+				pf (URG);
+				printf (">");
+			}
+			break;
 
-		  case TA_USER:
-			  printf ("%s", prurequests[req & 0xff]);
-			  if ((req & 0xff) == PRU_SLOWTIMO)
-				  printf ("<%s>", tcptimers[req >> 8]);
-			  break;
-	  }
+		case TA_USER:
+			printf ("%s", prurequests[req & 0xff]);
+			if ((req & 0xff) == PRU_SLOWTIMO)
+				printf ("<%s>", tcptimers[req >> 8]);
+			break;
+	}
 	if (tp != NULL)
 		printf (" -> %s", tcpstates[tp->t_state]);
 	/* print out internal state of tp !?! */

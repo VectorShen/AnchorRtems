@@ -125,11 +125,11 @@ static void MDblock (MD4_CTX * MDp, unsigned char *Xb)
 	int i;
 
 	for (i = 0; i < 16; ++i)
-	  {
-		  X[i] = Xb[0] + ((uint32_t) Xb[1] << 8) +
-			  ((uint32_t) Xb[2] << 16) + ((uint32_t) Xb[3] << 24);
-		  Xb += 4;
-	  }
+	{
+		X[i] = Xb[0] + ((uint32_t) Xb[1] << 8) +
+			((uint32_t) Xb[2] << 16) + ((uint32_t) Xb[3] << 24);
+		Xb += 4;
+	}
 
 	A = MDp->buffer[0];
 	B = MDp->buffer[1];
@@ -216,64 +216,64 @@ void MD4Update (MD4_CTX * MDp, unsigned char *X, unsigned int count)
 		return;
 	/* check to see if MD is already done and report error */
 	if (MDp->done)
-	  {
-		  printf ("\nError: MD4Update MD already done.");
-		  return;
-	  }
+	{
+		printf ("\nError: MD4Update MD already done.");
+		return;
+	}
 
 	/* Add count to MDp->count */
 	tmp = count;
 	p = MDp->count;
 	while (tmp)
-	  {
-		  tmp += *p;
-		  *p++ = tmp;
-		  tmp = tmp >> 8;
-	  }
+	{
+		tmp += *p;
+		*p++ = tmp;
+		tmp = tmp >> 8;
+	}
 
 	/* Process data */
 	if (count == 512)
-	  {							/* Full block of data to handle */
-		  MDblock (MDp, X);
-	  }
+	{							/* Full block of data to handle */
+		MDblock (MDp, X);
+	}
 	else if (count > 512)		/* Check for count too large */
-	  {
-		  printf ("\nError: MD4Update called with illegal count value %d.",
-				  count);
-		  return;
-	  }
+	{
+		printf ("\nError: MD4Update called with illegal count value %d.",
+				count);
+		return;
+	}
 	else						/* partial block -- must be last block so finish up */
-	  {
-		  /* Find out how many bytes and residual bits there are */
-		  byte = count >> 3;
-		  bit = count & 7;
-		  /* Copy X into XX since we need to modify it */
-		  for (i = 0; i <= byte; i++)
-			  XX[i] = X[i];
-		  for (i = byte + 1; i < 64; i++)
-			  XX[i] = 0;
-		  /* Add padding '1' bit and low-order zeros in last byte */
-		  mask = 1 << (7 - bit);
-		  XX[byte] = (XX[byte] | mask) & ~(mask - 1);
-		  /* If room for bit count, finish up with this block */
-		  if (byte <= 55)
-			{
-				for (i = 0; i < 8; i++)
-					XX[56 + i] = MDp->count[i];
-				MDblock (MDp, XX);
-			}
-		  else					/* need to do two blocks to finish up */
-			{
-				MDblock (MDp, XX);
-				for (i = 0; i < 56; i++)
-					XX[i] = 0;
-				for (i = 0; i < 8; i++)
-					XX[56 + i] = MDp->count[i];
-				MDblock (MDp, XX);
-			}
-		  /* Set flag saying we're done with MD computation */
-		  MDp->done = 1;
-	  }
+	{
+		/* Find out how many bytes and residual bits there are */
+		byte = count >> 3;
+		bit = count & 7;
+		/* Copy X into XX since we need to modify it */
+		for (i = 0; i <= byte; i++)
+			XX[i] = X[i];
+		for (i = byte + 1; i < 64; i++)
+			XX[i] = 0;
+		/* Add padding '1' bit and low-order zeros in last byte */
+		mask = 1 << (7 - bit);
+		XX[byte] = (XX[byte] | mask) & ~(mask - 1);
+		/* If room for bit count, finish up with this block */
+		if (byte <= 55)
+		{
+			for (i = 0; i < 8; i++)
+				XX[56 + i] = MDp->count[i];
+			MDblock (MDp, XX);
+		}
+		else					/* need to do two blocks to finish up */
+		{
+			MDblock (MDp, XX);
+			for (i = 0; i < 56; i++)
+				XX[i] = 0;
+			for (i = 0; i < 8; i++)
+				XX[56 + i] = MDp->count[i];
+			MDblock (MDp, XX);
+		}
+		/* Set flag saying we're done with MD computation */
+		MDp->done = 1;
+	}
 }
 
 /*
@@ -286,14 +286,14 @@ void MD4Final (unsigned char *buf, MD4_CTX * MD)
 
 	MD4Update (MD, NULL, 0);
 	for (i = 0; i < 4; ++i)
-	  {
-		  w = MD->buffer[i];
-		  for (j = 0; j < 4; ++j)
-			{
-				*buf++ = w;
-				w >>= 8;
-			}
-	  }
+	{
+		w = MD->buffer[i];
+		for (j = 0; j < 4; ++j)
+		{
+			*buf++ = w;
+			w >>= 8;
+		}
+	}
 }
 
 /*

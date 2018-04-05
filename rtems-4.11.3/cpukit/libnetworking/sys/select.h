@@ -44,25 +44,25 @@ extern "C"
 #endif
 
 /*
- * Used to maintain information about processes that wish to be
- * notified when I/O becomes possible.
- */
-	struct selinfo
-	{
-		pid_t si_pid;			/* process to be notified */
-		short si_flags;			/* see below */
-	};
+* Used to maintain information about processes that wish to be
+* notified when I/O becomes possible.
+*/
+struct selinfo
+{
+	pid_t si_pid;			/* process to be notified */
+	short si_flags;			/* see below */
+};
 #define	SI_COLL	0x0001			/* collision occurred */
 
 /* Check the first NFDS descriptors each in READFDS (if not NULL) for read
-   readiness, in WRITEFDS (if not NULL) for write readiness, and in EXCEPTFDS
-   (if not NULL) for exceptional conditions.  If TIMEOUT is not NULL, time out
-   after waiting the interval specified therein.  Returns the number of ready
-   descriptors, or -1 for errors.  */
-	extern int select (int __nfds, fd_set * __restrict __readfds,
-					   fd_set * __restrict __writefds,
-					   fd_set * __restrict __exceptfds,
-					   struct timeval *__restrict __timeout);
+readiness, in WRITEFDS (if not NULL) for write readiness, and in EXCEPTFDS
+(if not NULL) for exceptional conditions.  If TIMEOUT is not NULL, time out
+after waiting the interval specified therein.  Returns the number of ready
+descriptors, or -1 for errors.  */
+extern int select (int __nfds, fd_set * __restrict __readfds,
+				   fd_set * __restrict __writefds,
+				   fd_set * __restrict __exceptfds,
+				   struct timeval *__restrict __timeout);
 
 #ifdef __cplusplus
 }

@@ -50,7 +50,7 @@ static void pr_log (void *, char *, ...);
 static void logit (int, char *, va_list);
 static void vslp_printer (void *, char *, ...);
 static void format_packet (u_char *, int, void (*)(void *, char *, ...),
-						   void *);
+						 void *);
 
 struct buffer_info
 {
@@ -109,267 +109,267 @@ int vslprintf (char *buf, int buflen, char *fmt, va_list args)
 	buf0 = buf;
 	--buflen;
 	while (buflen > 0)
-	  {
-		  for (f = fmt; *f != '%' && *f != 0; ++f)
-			  ;
-		  if (f > fmt)
+	{
+		for (f = fmt; *f != '%' && *f != 0; ++f)
+			;
+		if (f > fmt)
+		{
+			len = f - fmt;
+			if (len > buflen)
+				len = buflen;
+			memcpy (buf, fmt, len);
+			buf += len;
+			buflen -= len;
+			fmt = f;
+		}
+		if (*fmt == 0)
+			break;
+		c = *++fmt;
+		width = 0;
+		prec = -1;
+		fillch = ' ';
+		if (c == '0')
+		{
+			fillch = '0';
+			c = *++fmt;
+		}
+		if (c == '*')
+		{
+			width = va_arg (args, int);
+			c = *++fmt;
+		}
+		else
+		{
+			while (isdigit (c))
 			{
-				len = f - fmt;
-				if (len > buflen)
-					len = buflen;
-				memcpy (buf, fmt, len);
-				buf += len;
-				buflen -= len;
-				fmt = f;
-			}
-		  if (*fmt == 0)
-			  break;
-		  c = *++fmt;
-		  width = 0;
-		  prec = -1;
-		  fillch = ' ';
-		  if (c == '0')
-			{
-				fillch = '0';
+				width = width * 10 + c - '0';
 				c = *++fmt;
 			}
-		  if (c == '*')
+		}
+		if (c == '.')
+		{
+			c = *++fmt;
+			if (c == '*')
 			{
-				width = va_arg (args, int);
+				prec = va_arg (args, int);
 				c = *++fmt;
 			}
-		  else
+			else
 			{
+				prec = 0;
 				while (isdigit (c))
-				  {
-					  width = width * 10 + c - '0';
-					  c = *++fmt;
-				  }
+				{
+					prec = prec * 10 + c - '0';
+					c = *++fmt;
+				}
 			}
-		  if (c == '.')
-			{
-				c = *++fmt;
-				if (c == '*')
-				  {
-					  prec = va_arg (args, int);
-					  c = *++fmt;
-				  }
+		}
+		str = 0;
+		base = 0;
+		neg = 0;
+		++fmt;
+		switch (c)
+		{
+			case 'd':
+				i = va_arg (args, int);
+				if (i < 0)
+				{
+					neg = 1;
+					val = -i;
+				}
 				else
-				  {
-					  prec = 0;
-					  while (isdigit (c))
-						{
-							prec = prec * 10 + c - '0';
-							c = *++fmt;
-						}
-				  }
-			}
-		  str = 0;
-		  base = 0;
-		  neg = 0;
-		  ++fmt;
-		  switch (c)
-			{
-				case 'd':
-					i = va_arg (args, int);
-					if (i < 0)
-					  {
-						  neg = 1;
-						  val = -i;
-					  }
-					else
-						val = i;
-					base = 10;
-					break;
-				case 'o':
-					val = va_arg (args, unsigned int);
-					base = 8;
-					break;
-				case 'x':
-				case 'X':
-					val = va_arg (args, unsigned int);
-					base = 16;
-					break;
-				case 'p':
-					val = (uintptr_t) va_arg (args, void *);
-					base = 16;
-					neg = 2;
-					break;
-				case 's':
-					str = va_arg (args, char *);
-					break;
-				case 'c':
-					num[0] = va_arg (args, int);
-					num[1] = 0;
-					str = num;
-					break;
-				case 'm':
-					str = strerror (errno);
-					break;
-				case 'I':
-					ip = va_arg (args, uint32_t);
-					ip = ntohl (ip);
-					slprintf (num, sizeof (num), "%d.%d.%d.%d",
-							  (ip >> 24) & 0xff, (ip >> 16) & 0xff,
-							  (ip >> 8) & 0xff, ip & 0xff);
-					str = num;
-					break;
-				case 'r':
-					f = va_arg (args, char *);
+					val = i;
+				base = 10;
+				break;
+			case 'o':
+				val = va_arg (args, unsigned int);
+				base = 8;
+				break;
+			case 'x':
+			case 'X':
+				val = va_arg (args, unsigned int);
+				base = 16;
+				break;
+			case 'p':
+				val = (uintptr_t) va_arg (args, void *);
+				base = 16;
+				neg = 2;
+				break;
+			case 's':
+				str = va_arg (args, char *);
+				break;
+			case 'c':
+				num[0] = va_arg (args, int);
+				num[1] = 0;
+				str = num;
+				break;
+			case 'm':
+				str = strerror (errno);
+				break;
+			case 'I':
+				ip = va_arg (args, uint32_t);
+				ip = ntohl (ip);
+				slprintf (num, sizeof (num), "%d.%d.%d.%d",
+						(ip >> 24) & 0xff, (ip >> 16) & 0xff,
+						(ip >> 8) & 0xff, ip & 0xff);
+				str = num;
+				break;
+			case 'r':
+				f = va_arg (args, char *);
 #if !defined(__PPC__)
-					n = vslprintf (buf, buflen + 1, f, va_arg (args, va_list));
+				n = vslprintf (buf, buflen + 1, f, va_arg (args, va_list));
 #else
-					/* HACK: On the powerpc, a va_list is an array of 1 structure */
-					n = vslprintf (buf, buflen + 1, f, va_arg (args, void *));
+				/* HACK: On the powerpc, a va_list is an array of 1 structure */
+				n = vslprintf (buf, buflen + 1, f, va_arg (args, void *));
 #endif
-					buf += n;
-					buflen -= n;
-					continue;
-				case 't':
-					time (&t);
-					str = ctime (&t);
-					str += 4;	/* chop off the day name */
-					str[15] = 0;	/* chop off year and newline */
-					break;
-				case 'v':		/* "visible" string */
-				case 'q':		/* quoted string */
-					quoted = c == 'q';
-					p = va_arg (args, unsigned char *);
-					if (fillch == '0' && prec >= 0)
-					  {
-						  n = prec;
-					  }
+				buf += n;
+				buflen -= n;
+				continue;
+			case 't':
+				time (&t);
+				str = ctime (&t);
+				str += 4;	/* chop off the day name */
+				str[15] = 0;	/* chop off year and newline */
+				break;
+			case 'v':		/* "visible" string */
+			case 'q':		/* quoted string */
+				quoted = c == 'q';
+				p = va_arg (args, unsigned char *);
+				if (fillch == '0' && prec >= 0)
+				{
+					n = prec;
+				}
+				else
+				{
+					n = strlen ((char *)p);
+					if (prec >= 0 && n > prec)
+						n = prec;
+				}
+				while (n > 0 && buflen > 0)
+				{
+					c = *p++;
+					--n;
+					if (!quoted && c >= 0x80)
+					{
+						OUTCHAR ('M');
+						OUTCHAR ('-');
+						c -= 0x80;
+					}
+					if (quoted && (c == '"' || c == '\\'))
+						OUTCHAR ('\\');
+					if (c < 0x20 || (0x7f <= c && c < 0xa0))
+					{
+						if (quoted)
+						{
+							OUTCHAR ('\\');
+							switch (c)
+							{
+								case '\t':
+									OUTCHAR ('t');
+									break;
+								case '\n':
+									OUTCHAR ('n');
+									break;
+								case '\b':
+									OUTCHAR ('b');
+									break;
+								case '\f':
+									OUTCHAR ('f');
+									break;
+								default:
+									OUTCHAR ('x');
+									OUTCHAR (hexchars[c >> 4]);
+									OUTCHAR (hexchars[c & 0xf]);
+							}
+						}
+						else
+						{
+							if (c == '\t')
+								OUTCHAR (c);
+							else
+							{
+								OUTCHAR ('^');
+								OUTCHAR (c ^ 0x40);
+							}
+						}
+					}
 					else
-					  {
-						  n = strlen ((char *)p);
-						  if (prec >= 0 && n > prec)
-							  n = prec;
-					  }
-					while (n > 0 && buflen > 0)
-					  {
-						  c = *p++;
-						  --n;
-						  if (!quoted && c >= 0x80)
-							{
-								OUTCHAR ('M');
-								OUTCHAR ('-');
-								c -= 0x80;
-							}
-						  if (quoted && (c == '"' || c == '\\'))
-							  OUTCHAR ('\\');
-						  if (c < 0x20 || (0x7f <= c && c < 0xa0))
-							{
-								if (quoted)
-								  {
-									  OUTCHAR ('\\');
-									  switch (c)
-										{
-											case '\t':
-												OUTCHAR ('t');
-												break;
-											case '\n':
-												OUTCHAR ('n');
-												break;
-											case '\b':
-												OUTCHAR ('b');
-												break;
-											case '\f':
-												OUTCHAR ('f');
-												break;
-											default:
-												OUTCHAR ('x');
-												OUTCHAR (hexchars[c >> 4]);
-												OUTCHAR (hexchars[c & 0xf]);
-										}
-								  }
-								else
-								  {
-									  if (c == '\t')
-										  OUTCHAR (c);
-									  else
-										{
-											OUTCHAR ('^');
-											OUTCHAR (c ^ 0x40);
-										}
-								  }
-							}
-						  else
-							  OUTCHAR (c);
-					  }
-					continue;
-				case 'P':		/* print PPP packet */
-					bufinfo.ptr = buf;
-					bufinfo.len = buflen + 1;
-					p = va_arg (args, unsigned char *);
-					n = va_arg (args, int);
-					format_packet (p, n, vslp_printer, &bufinfo);
-					buf = bufinfo.ptr;
-					buflen = bufinfo.len - 1;
-					continue;
-				case 'B':
-					p = va_arg (args, unsigned char *);
-					for (n = prec; n > 0; --n)
-					  {
-						  c = *p++;
-						  if (fillch == ' ')
-							  OUTCHAR (' ');
-						  OUTCHAR (hexchars[(c >> 4) & 0xf]);
-						  OUTCHAR (hexchars[c & 0xf]);
-					  }
-					continue;
-				default:
-					*buf++ = '%';
-					if (c != '%')
-						--fmt;	/* so %z outputs %z etc. */
-					--buflen;
-					continue;
-			}
-		  if (base != 0)
+						OUTCHAR (c);
+				}
+				continue;
+			case 'P':		/* print PPP packet */
+				bufinfo.ptr = buf;
+				bufinfo.len = buflen + 1;
+				p = va_arg (args, unsigned char *);
+				n = va_arg (args, int);
+				format_packet (p, n, vslp_printer, &bufinfo);
+				buf = bufinfo.ptr;
+				buflen = bufinfo.len - 1;
+				continue;
+			case 'B':
+				p = va_arg (args, unsigned char *);
+				for (n = prec; n > 0; --n)
+				{
+					c = *p++;
+					if (fillch == ' ')
+						OUTCHAR (' ');
+					OUTCHAR (hexchars[(c >> 4) & 0xf]);
+					OUTCHAR (hexchars[c & 0xf]);
+				}
+				continue;
+			default:
+				*buf++ = '%';
+				if (c != '%')
+					--fmt;	/* so %z outputs %z etc. */
+				--buflen;
+				continue;
+		}
+		if (base != 0)
+		{
+			str = num + sizeof (num);
+			*--str = 0;
+			while (str > num + neg)
 			{
-				str = num + sizeof (num);
-				*--str = 0;
-				while (str > num + neg)
-				  {
-					  *--str = hexchars[val % base];
-					  val = val / base;
-					  if (--prec <= 0 && val == 0)
-						  break;
-				  }
-				switch (neg)
-				  {
-					  case 1:
-						  *--str = '-';
-						  break;
-					  case 2:
-						  *--str = 'x';
-						  *--str = '0';
-						  break;
-				  }
-				len = num + sizeof (num) - 1 - str;
+				*--str = hexchars[val % base];
+				val = val / base;
+				if (--prec <= 0 && val == 0)
+					break;
 			}
-		  else
+			switch (neg)
 			{
-				len = strlen (str);
-				if (prec >= 0 && len > prec)
-					len = prec;
+				case 1:
+					*--str = '-';
+					break;
+				case 2:
+					*--str = 'x';
+					*--str = '0';
+					break;
 			}
-		  if (width > 0)
+			len = num + sizeof (num) - 1 - str;
+		}
+		else
+		{
+			len = strlen (str);
+			if (prec >= 0 && len > prec)
+				len = prec;
+		}
+		if (width > 0)
+		{
+			if (width > buflen)
+				width = buflen;
+			if ((n = width - len) > 0)
 			{
-				if (width > buflen)
-					width = buflen;
-				if ((n = width - len) > 0)
-				  {
-					  buflen -= n;
-					  for (; n > 0; --n)
-						  *buf++ = fillch;
-				  }
+				buflen -= n;
+				for (; n > 0; --n)
+					*buf++ = fillch;
 			}
-		  if (len > buflen)
-			  len = buflen;
-		  memcpy (buf, str, len);
-		  buf += len;
-		  buflen -= len;
-	  }
+		}
+		if (len > buflen)
+			len = buflen;
+		memcpy (buf, str, len);
+		buf += len;
+		buflen -= len;
+	}
 	*buf = 0;
 	return buf - buf0;
 }
@@ -421,46 +421,46 @@ void log_packet (u_char * p, int len, char *prefix, int level)
  */
 static void
 format_packet (u_char * p,
-			   int len, void (*printer) (void *, char *, ...), void *arg)
+			 int len, void (*printer) (void *, char *, ...), void *arg)
 {
 	int i, n;
 	u_short proto;
 	struct protent *protp;
 
 	if (len >= PPP_HDRLEN && p[0] == PPP_ALLSTATIONS && p[1] == PPP_UI)
-	  {
-		  p += 2;
-		  GETSHORT (proto, p);
-		  len -= PPP_HDRLEN;
-		  for (i = 0; (protp = protocols[i]) != NULL; ++i)
-			  if (proto == protp->protocol)
-				  break;
-		  if (protp != NULL)
+	{
+		p += 2;
+		GETSHORT (proto, p);
+		len -= PPP_HDRLEN;
+		for (i = 0; (protp = protocols[i]) != NULL; ++i)
+			if (proto == protp->protocol)
+				break;
+		if (protp != NULL)
+		{
+			printer (arg, "[%s", protp->name);
+			n = (*protp->printpkt) (p, len, printer, arg);
+			printer (arg, "]");
+			p += n;
+			len -= n;
+		}
+		else
+		{
+			for (i = 0; (protp = protocols[i]) != NULL; ++i)
+				if (proto == (protp->protocol & ~0x8000))
+					break;
+			if (protp != 0 && protp->data_name != 0)
 			{
-				printer (arg, "[%s", protp->name);
-				n = (*protp->printpkt) (p, len, printer, arg);
-				printer (arg, "]");
-				p += n;
-				len -= n;
-			}
-		  else
-			{
-				for (i = 0; (protp = protocols[i]) != NULL; ++i)
-					if (proto == (protp->protocol & ~0x8000))
-						break;
-				if (protp != 0 && protp->data_name != 0)
-				  {
-					  printer (arg, "[%s data]", protp->data_name);
-					  if (len > 8)
-						  printer (arg, "%.8B ...", p);
-					  else
-						  printer (arg, "%.*B", len, p);
-					  len = 0;
-				  }
+				printer (arg, "[%s data]", protp->data_name);
+				if (len > 8)
+					printer (arg, "%.8B ...", p);
 				else
-					printer (arg, "[proto=0x%x]", proto);
+					printer (arg, "%.*B", len, p);
+				len = 0;
 			}
-	  }
+			else
+				printer (arg, "[proto=0x%x]", proto);
+		}
+	}
 
 	if (len > 32)
 		printer (arg, "%.32B ...", p);
@@ -488,9 +488,9 @@ static void pr_log __V ((void *arg, char *fmt, ...))
 	va_end (pvar);
 
 	if (linep + n + 1 > line + sizeof (line))
-	  {
-		  linep = line;
-	  }
+	{
+		linep = line;
+	}
 	strlcpy (linep, buf, line + sizeof (line) - linep);
 	linep += n;
 }
@@ -501,39 +501,39 @@ static void pr_log __V ((void *arg, char *fmt, ...))
  */
 void
 print_string (void *p_arg,
-			  int len, void (*printer) (void *, char *, ...), void *arg)
+			int len, void (*printer) (void *, char *, ...), void *arg)
 {
 	int c;
 	unsigned char *p = (unsigned char *)p_arg;
 
 	printer (arg, "\"");
 	for (; len > 0; --len)
-	  {
-		  c = *p++;
-		  if (' ' <= c && c <= '~')
+	{
+		c = *p++;
+		if (' ' <= c && c <= '~')
+		{
+			if (c == '\\' || c == '"')
+				printer (arg, "\\");
+			printer (arg, "%c", c);
+		}
+		else
+		{
+			switch (c)
 			{
-				if (c == '\\' || c == '"')
-					printer (arg, "\\");
-				printer (arg, "%c", c);
+				case '\n':
+					printer (arg, "\\n");
+					break;
+				case '\r':
+					printer (arg, "\\r");
+					break;
+				case '\t':
+					printer (arg, "\\t");
+					break;
+				default:
+					printer (arg, "\\%.3o", c);
 			}
-		  else
-			{
-				switch (c)
-				  {
-					  case '\n':
-						  printer (arg, "\\n");
-						  break;
-					  case '\r':
-						  printer (arg, "\\r");
-						  break;
-					  case '\t':
-						  printer (arg, "\\t");
-						  break;
-					  default:
-						  printer (arg, "\\%.3o", c);
-				  }
-			}
-	  }
+		}
+	}
 	printer (arg, "\"");
 }
 
@@ -548,12 +548,12 @@ static void logit (int level, char *fmt, va_list args)
 	n = vslprintf (buf, sizeof (buf), fmt, args);
 /*    if (log_to_fd >= 0 && (level != LOG_DEBUG || debug)) { */
 	if (log_to_fd >= 0 && (debug))
-	  {
-		  if (buf[n - 1] != '\n')
-			  buf[n++] = '\n';
-		  if (write (log_to_fd, buf, n) != n)
-			  log_to_fd = -1;
-	  }
+	{
+		if (buf[n - 1] != '\n')
+			buf[n++] = '\n';
+		if (write (log_to_fd, buf, n) != n)
+			log_to_fd = -1;
+	}
 }
 
 /*
@@ -697,10 +697,10 @@ int lock (char *dev)
 
 	result = mklock (dev, (void *)0);
 	if (result == 0)
-	  {
-		  strlcpy (lock_file, sizeof (lock_file), dev);
-		  return 0;
-	  }
+	{
+		strlcpy (lock_file, sizeof (lock_file), dev);
+		return 0;
+	}
 
 	if (result > 0)
 		notice ("Device %s is locked by pid %d", dev, result);
@@ -717,18 +717,18 @@ int lock (char *dev)
 	struct stat sbuf;
 
 	if (stat (dev, &sbuf) < 0)
-	  {
-		  error ("Can't get device number for %s: %m", dev);
-		  return -1;
-	  }
+	{
+		error ("Can't get device number for %s: %m", dev);
+		return -1;
+	}
 	if ((sbuf.st_mode & S_IFMT) != S_IFCHR)
-	  {
-		  error ("Can't lock %s: not a character device", dev);
-		  return -1;
-	  }
+	{
+		error ("Can't lock %s: not a character device", dev);
+		return -1;
+	}
 	slprintf (lock_file, sizeof (lock_file), "%s/LK.%03d.%03d.%03d",
-			  LOCK_DIR, major (sbuf.st_dev),
-			  major (sbuf.st_rdev), minor (sbuf.st_rdev));
+			LOCK_DIR, major (sbuf.st_dev),
+			major (sbuf.st_rdev), minor (sbuf.st_rdev));
 #else
 	char *p;
 
@@ -738,61 +738,61 @@ int lock (char *dev)
 #endif
 
 	while ((fd = open (lock_file, O_EXCL | O_CREAT | O_RDWR, 0644)) < 0)
-	  {
-		  if (errno != EEXIST)
-			{
-				error ("Can't create lock file %s: %m", lock_file);
-				break;
-			}
+	{
+		if (errno != EEXIST)
+		{
+			error ("Can't create lock file %s: %m", lock_file);
+			break;
+		}
 
-		  /* Read the lock file to find out who has the device locked. */
-		  fd = open (lock_file, O_RDONLY, 0);
-		  if (fd < 0)
-			{
-				if (errno == ENOENT)	/* This is just a timing problem. */
-					continue;
-				error ("Can't open existing lock file %s: %m", lock_file);
-				break;
-			}
+		/* Read the lock file to find out who has the device locked. */
+		fd = open (lock_file, O_RDONLY, 0);
+		if (fd < 0)
+		{
+			if (errno == ENOENT)	/* This is just a timing problem. */
+				continue;
+			error ("Can't open existing lock file %s: %m", lock_file);
+			break;
+		}
 #ifndef LOCK_BINARY
-		  n = read (fd, lock_buffer, 11);
+		n = read (fd, lock_buffer, 11);
 #else
-		  n = read (fd, &pid, sizeof (pid));
+		n = read (fd, &pid, sizeof (pid));
 #endif /* LOCK_BINARY */
-		  close (fd);
-		  fd = -1;
-		  if (n <= 0)
-			{
-				error ("Can't read pid from lock file %s", lock_file);
-				break;
-			}
+		close (fd);
+		fd = -1;
+		if (n <= 0)
+		{
+			error ("Can't read pid from lock file %s", lock_file);
+			break;
+		}
 
-		  /* See if the process still exists. */
+		/* See if the process still exists. */
 #ifndef LOCK_BINARY
-		  lock_buffer[n] = 0;
-		  pid = atoi (lock_buffer);
+		lock_buffer[n] = 0;
+		pid = atoi (lock_buffer);
 #endif /* LOCK_BINARY */
-		  if (pid == getpid ())
-			  return 1;			/* somebody else locked it for us */
-		  if (pid == 0 || (kill (pid, 0) == -1 && errno == ESRCH))
+		if (pid == getpid ())
+			return 1;			/* somebody else locked it for us */
+		if (pid == 0 || (kill (pid, 0) == -1 && errno == ESRCH))
+		{
+			if (unlink (lock_file) == 0)
 			{
-				if (unlink (lock_file) == 0)
-				  {
-					  notice ("Removed stale lock on %s (pid %d)", dev, pid);
-					  continue;
-				  }
-				warn ("Couldn't remove stale lock on %s", dev);
+				notice ("Removed stale lock on %s (pid %d)", dev, pid);
+				continue;
 			}
-		  else
-			  notice ("Device %s is locked by pid %d", dev, pid);
-		  break;
-	  }
+			warn ("Couldn't remove stale lock on %s", dev);
+		}
+		else
+			notice ("Device %s is locked by pid %d", dev, pid);
+		break;
+	}
 
 	if (fd < 0)
-	  {
-		  lock_file[0] = 0;
-		  return -1;
-	  }
+	{
+		lock_file[0] = 0;
+		return -1;
+	}
 
 	pid = getpid ();
 #ifndef LOCK_BINARY
@@ -830,11 +830,11 @@ int relock (int pid)
 		return -1;
 	fd = open (lock_file, O_WRONLY, 0);
 	if (fd < 0)
-	  {
-		  error ("Couldn't reopen lock file %s: %m", lock_file);
-		  lock_file[0] = 0;
-		  return -1;
-	  }
+	{
+		error ("Couldn't reopen lock file %s: %m", lock_file);
+		lock_file[0] = 0;
+		return -1;
+	}
 
 #ifndef LOCK_BINARY
 	slprintf (lock_buffer, sizeof (lock_buffer), "%10d\n", pid);
@@ -854,12 +854,12 @@ int relock (int pid)
 void unlock (void)
 {
 	if (lock_file[0])
-	  {
+	{
 #ifdef LOCKLIB
-		  (void)rmlock (lock_file, (void *)0);
+		(void)rmlock (lock_file, (void *)0);
 #else
-		  unlink (lock_file);
+		unlink (lock_file);
 #endif
-		  lock_file[0] = 0;
-	  }
+		lock_file[0] = 0;
+	}
 }

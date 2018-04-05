@@ -33,7 +33,7 @@
  *  _POSIX_signals_Alarm_TSR
  */
 static void _POSIX_signals_Alarm_TSR (Objects_Id id __attribute__ ((unused)),
-									  void *argument __attribute__ ((unused)))
+									void *argument __attribute__ ((unused)))
 {
 #if defined(RTEMS_DEBUG)
 	int status;
@@ -55,8 +55,8 @@ static void _POSIX_signals_Alarm_TSR (Objects_Id id __attribute__ ((unused)),
 
 static Watchdog_Control _POSIX_signals_Alarm_timer =
 WATCHDOG_INITIALIZER (_POSIX_signals_Alarm_TSR,
-					  0,
-					  NULL);
+					0,
+					NULL);
 
 unsigned int alarm (unsigned int seconds)
 {
@@ -70,17 +70,17 @@ unsigned int alarm (unsigned int seconds)
 
 	state = _Watchdog_Remove_seconds (the_timer);
 	if (state == WATCHDOG_ACTIVE)
-	  {
-		  /*
-		   *  The stop_time and start_time fields are snapshots of ticks since
-		   *  boot.  Since alarm() is dealing in seconds, we must account for
-		   *  this.
-		   */
+	{
+		/*
+		 *  The stop_time and start_time fields are snapshots of ticks since
+		 *  boot.  Since alarm() is dealing in seconds, we must account for
+		 *  this.
+		 */
 
-		  remaining = the_timer->initial -
-			  ((the_timer->stop_time -
+		remaining = the_timer->initial -
+			((the_timer->stop_time -
 				the_timer->start_time) / TOD_TICKS_PER_SECOND);
-	  }
+	}
 
 	if (seconds)
 		_Watchdog_Insert_seconds (the_timer, seconds);

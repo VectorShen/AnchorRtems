@@ -54,10 +54,10 @@ typedef int32_t rpc_inline_t;
 #define __dontcare__	-1
 
 #ifndef FALSE
-#	define FALSE	(0)
+#define FALSE	(0)
 #endif
 #ifndef TRUE
-#	define TRUE	(1)
+#define TRUE	(1)
 #endif
 
 #define mem_alloc(bsize)	malloc(bsize)

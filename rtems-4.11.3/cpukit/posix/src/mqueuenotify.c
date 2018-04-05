@@ -58,46 +58,46 @@ int mq_notify (mqd_t mqdes, const struct sigevent *notification)
 
 	the_mq_fd = _POSIX_Message_queue_Get_fd (mqdes, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  the_mq = the_mq_fd->Queue;
+		case OBJECTS_LOCAL:
+			the_mq = the_mq_fd->Queue;
 
-			  if (notification)
+			if (notification)
+			{
+				if (_CORE_message_queue_Is_notify_enabled
+					(&the_mq->Message_queue))
 				{
-					if (_CORE_message_queue_Is_notify_enabled
-						(&the_mq->Message_queue))
-					  {
-						  _Objects_Put (&the_mq_fd->Object);
-						  rtems_set_errno_and_return_minus_one (EBUSY);
-					  }
-
-					_CORE_message_queue_Set_notify (&the_mq->Message_queue,
-													NULL, NULL);
-
-					the_mq->notification = *notification;
-
-					_CORE_message_queue_Set_notify (&the_mq->Message_queue,
-													_POSIX_Message_queue_Notify_handler,
-													the_mq);
-				}
-			  else
-				{
-
-					_CORE_message_queue_Set_notify (&the_mq->Message_queue,
-													NULL, NULL);
-
+					_Objects_Put (&the_mq_fd->Object);
+					rtems_set_errno_and_return_minus_one (EBUSY);
 				}
 
-			  _Objects_Put (&the_mq_fd->Object);
-			  return 0;
+				_CORE_message_queue_Set_notify (&the_mq->Message_queue,
+												NULL, NULL);
+
+				the_mq->notification = *notification;
+
+				_CORE_message_queue_Set_notify (&the_mq->Message_queue,
+												_POSIX_Message_queue_Notify_handler,
+												the_mq);
+			}
+			else
+			{
+
+				_CORE_message_queue_Set_notify (&the_mq->Message_queue,
+												NULL, NULL);
+
+			}
+
+			_Objects_Put (&the_mq_fd->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EBADF);
 }

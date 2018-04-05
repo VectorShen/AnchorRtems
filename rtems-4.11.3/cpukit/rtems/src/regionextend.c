@@ -27,7 +27,7 @@
 #include <rtems/score/apimutex.h>
 
 rtems_status_code rtems_region_extend (rtems_id id,
-									   void *starting_address, uintptr_t length)
+									 void *starting_address, uintptr_t length)
 {
 	uintptr_t amount_extended;
 	Objects_Locations location;
@@ -41,34 +41,34 @@ rtems_status_code rtems_region_extend (rtems_id id,
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  amount_extended = _Heap_Extend (&the_region->Memory,
-											  starting_address, length, 0);
+			amount_extended = _Heap_Extend (&the_region->Memory,
+											starting_address, length, 0);
 
-			  if (amount_extended > 0)
-				{
-					the_region->length += amount_extended;
-					the_region->maximum_segment_size += amount_extended;
-					return_status = RTEMS_SUCCESSFUL;
-				}
-			  else
-				{
-					return_status = RTEMS_INVALID_ADDRESS;
-				}
-			  break;
+			if (amount_extended > 0)
+			{
+				the_region->length += amount_extended;
+				the_region->maximum_segment_size += amount_extended;
+				return_status = RTEMS_SUCCESSFUL;
+			}
+			else
+			{
+				return_status = RTEMS_INVALID_ADDRESS;
+			}
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 

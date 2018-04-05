@@ -52,26 +52,26 @@ static int pci_read_addressable (struct pci_dev *dev, struct pci_res *res)
 
 	range1 = NULL;
 	switch (type)
-	  {
-		  case PCI_RES_IO:
-			  range0 = &bus->dev.resources[BRIDGE_RES_IO];
-			  break;
-		  case PCI_RES_MEM:
-			  range1 = &bus->dev.resources[BRIDGE_RES_MEM];
-		  default:
-		  case PCI_RES_MEMIO:
-			  range0 = &bus->dev.resources[BRIDGE_RES_MEMIO];
-			  break;
-	  }
+	{
+		case PCI_RES_IO:
+			range0 = &bus->dev.resources[BRIDGE_RES_IO];
+			break;
+		case PCI_RES_MEM:
+			range1 = &bus->dev.resources[BRIDGE_RES_MEM];
+		default:
+		case PCI_RES_MEMIO:
+			range0 = &bus->dev.resources[BRIDGE_RES_MEMIO];
+			break;
+	}
 	if ((res->start >= range0->start) && (res->end <= range0->end))
-	  {
-		  return pci_read_addressable (&bus->dev, range0);
-	  }
+	{
+		return pci_read_addressable (&bus->dev, range0);
+	}
 	else if (range1 && (res->start >= range1->start) &&
 			 (res->end <= range1->end))
-	  {
-		  return pci_read_addressable (&bus->dev, range1);
-	  }
+	{
+		return pci_read_addressable (&bus->dev, range1);
+	}
 
 	return 0;
 }
@@ -94,16 +94,16 @@ static void pci_read_bar (struct pci_dev *dev, int bar)
 
 	res->bar = bar;
 	if (bar == DEV_RES_ROM)
-	  {
-		  if (dev->flags & PCI_DEV_BRIDGE)
-			  ofs = PCIR_BIOS_1;
-		  else
-			  ofs = PCIR_BIOS;
-	  }
+	{
+		if (dev->flags & PCI_DEV_BRIDGE)
+			ofs = PCIR_BIOS_1;
+		else
+			ofs = PCIR_BIOS;
+	}
 	else
-	  {
-		  ofs = PCIR_BAR (0) + (bar << 2);
-	  }
+	{
+		ofs = PCIR_BAR (0) + (bar << 2);
+	}
 
 	PCI_CFG_R32 (pcidev, ofs, &orig);
 	PCI_CFG_W32 (pcidev, ofs, 0xffffffff);
@@ -113,54 +113,54 @@ static void pci_read_bar (struct pci_dev *dev, int bar)
 	if (size == 0 || size == 0xffffffff)
 		return;
 	if (bar == DEV_RES_ROM)
-	  {
-		  mask = PCIM_BIOS_ADDR_MASK;
-		  DBG_SET_STR (str, "ROM");
-		  if (dev->bus->flags & PCI_BUS_MEM)
-			  res->flags = PCI_RES_MEM;
-		  else
-			  res->flags = PCI_RES_MEMIO;
-	  }
+	{
+		mask = PCIM_BIOS_ADDR_MASK;
+		DBG_SET_STR (str, "ROM");
+		if (dev->bus->flags & PCI_BUS_MEM)
+			res->flags = PCI_RES_MEM;
+		else
+			res->flags = PCI_RES_MEMIO;
+	}
 	else if (((size & 0x1) == 0) && (size & 0x6))
-	  {
-		  /* unsupported Memory type */
-		  return;
-	  }
+	{
+		/* unsupported Memory type */
+		return;
+	}
 	else
-	  {
-		  mask = ~0xf;
-		  if (size & 0x1)
+	{
+		mask = ~0xf;
+		if (size & 0x1)
+		{
+			/* I/O */
+			mask = ~0x3;
+			res->flags = PCI_RES_IO;
+			DBG_SET_STR (str, "I/O");
+			if (size & 0xffff0000)
+				res->flags |= PCI_RES_IO32;
+			/* Limit size of I/O space to 256 byte */
+			size |= 0xffffff00;
+			if ((dev->bus->flags & PCI_BUS_IO) == 0)
 			{
-				/* I/O */
-				mask = ~0x3;
-				res->flags = PCI_RES_IO;
-				DBG_SET_STR (str, "I/O");
-				if (size & 0xffff0000)
-					res->flags |= PCI_RES_IO32;
-				/* Limit size of I/O space to 256 byte */
-				size |= 0xffffff00;
-				if ((dev->bus->flags & PCI_BUS_IO) == 0)
-				  {
-					  res->flags |= PCI_RES_FAIL;
-					  dev->flags |= PCI_DEV_RES_FAIL;
-				  }
+				res->flags |= PCI_RES_FAIL;
+				dev->flags |= PCI_DEV_RES_FAIL;
 			}
-		  else
+		}
+		else
+		{
+			/* Memory */
+			if (size & 0x8)
 			{
-				/* Memory */
-				if (size & 0x8)
-				  {
-					  /* Prefetchable */
-					  res->flags = PCI_RES_MEM;
-					  DBG_SET_STR (str, "MEM");
-				  }
-				else
-				  {
-					  res->flags = PCI_RES_MEMIO;
-					  DBG_SET_STR (str, "MEMIO");
-				  }
+				/* Prefetchable */
+				res->flags = PCI_RES_MEM;
+				DBG_SET_STR (str, "MEM");
 			}
-	  }
+			else
+			{
+				res->flags = PCI_RES_MEMIO;
+				DBG_SET_STR (str, "MEMIO");
+			}
+		}
+	}
 	res->start = orig & mask;
 	size &= mask;
 	res->size = ~size + 1;
@@ -172,11 +172,11 @@ static void pci_read_bar (struct pci_dev *dev, int bar)
 
 	/* Check if BAR is addressable by host */
 	if (pci_read_addressable (dev, res) == 0)
-	  {
-		  /* No matching bridge window contains this BAR */
-		  res->flags |= PCI_RES_FAIL;
-		  dev->flags |= PCI_DEV_RES_FAIL;
-	  }
+	{
+		/* No matching bridge window contains this BAR */
+		res->flags |= PCI_RES_FAIL;
+		dev->flags |= PCI_DEV_RES_FAIL;
+	}
 }
 
 static void pci_read_devs (struct pci_bus *bus)
@@ -195,156 +195,156 @@ static void pci_read_devs (struct pci_bus *bus)
 	max_sord = bus->num;
 	listptr = &bus->devs;
 	for (slot = 0; slot <= PCI_SLOTMAX; slot++)
-	  {
+	{
 
-		  /* Slot address */
-		  pcidev = PCI_DEV (bus->num, slot, 0);
+		/* Slot address */
+		pcidev = PCI_DEV (bus->num, slot, 0);
 
-		  for (func = 0; func <= PCI_FUNCMAX; func++, pcidev++)
+		for (func = 0; func <= PCI_FUNCMAX; func++, pcidev++)
+		{
+
+			fail = PCI_CFG_R32 (pcidev, PCIR_VENDOR, &id);
+			if (fail || id == 0xffffffff || id == 0)
 			{
+				/*
+				 * This slot is empty
+				 */
+				if (func == 0)
+					break;
+				else
+					continue;
+			}
 
-				fail = PCI_CFG_R32 (pcidev, PCIR_VENDOR, &id);
-				if (fail || id == 0xffffffff || id == 0)
-				  {
-					  /*
-					   * This slot is empty
-					   */
-					  if (func == 0)
-						  break;
-					  else
-						  continue;
-				  }
+			DBG ("Found PCIDEV 0x%x at (bus %x, slot %x, func %x)\n",
+				 id, bus, slot, func);
 
-				DBG ("Found PCIDEV 0x%x at (bus %x, slot %x, func %x)\n",
-					 id, bus, slot, func);
+			PCI_CFG_R32 (pcidev, PCIR_REVID, &tmp);
+			tmp >>= 16;
+			dev = pci_dev_create (tmp == PCID_PCI2PCI_BRIDGE);
+			*listptr = dev;
+			listptr = &dev->next;
 
-				PCI_CFG_R32 (pcidev, PCIR_REVID, &tmp);
-				tmp >>= 16;
-				dev = pci_dev_create (tmp == PCID_PCI2PCI_BRIDGE);
-				*listptr = dev;
-				listptr = &dev->next;
+			dev->busdevfun = pcidev;
+			dev->bus = bus;
+			PCI_CFG_R16 (pcidev, PCIR_VENDOR, &dev->vendor);
+			PCI_CFG_R16 (pcidev, PCIR_DEVICE, &dev->device);
+			PCI_CFG_R32 (pcidev, PCIR_REVID, &dev->classrev);
 
-				dev->busdevfun = pcidev;
-				dev->bus = bus;
-				PCI_CFG_R16 (pcidev, PCIR_VENDOR, &dev->vendor);
-				PCI_CFG_R16 (pcidev, PCIR_DEVICE, &dev->device);
-				PCI_CFG_R32 (pcidev, PCIR_REVID, &dev->classrev);
+			if (tmp == PCID_PCI2PCI_BRIDGE)
+			{
+				DBG ("Found PCI-PCI Bridge 0x%x at "
+					 "(bus %x, slot %x, func %x)\n", id, bus, slot, func);
+				dev->flags = PCI_DEV_BRIDGE;
+				bridge = (struct pci_bus *)dev;
 
-				if (tmp == PCID_PCI2PCI_BRIDGE)
-				  {
-					  DBG ("Found PCI-PCI Bridge 0x%x at "
-						   "(bus %x, slot %x, func %x)\n", id, bus, slot, func);
-					  dev->flags = PCI_DEV_BRIDGE;
-					  bridge = (struct pci_bus *)dev;
+				PCI_CFG_R32 (pcidev, PCIR_PRIBUS_1, &tmp);
+				bridge->pri = tmp & 0xff;
+				bridge->num = (tmp >> 8) & 0xff;
+				bridge->sord = (tmp >> 16) & 0xff;
+				if (bridge->sord > max_sord)
+					max_sord = bridge->sord;
 
-					  PCI_CFG_R32 (pcidev, PCIR_PRIBUS_1, &tmp);
-					  bridge->pri = tmp & 0xff;
-					  bridge->num = (tmp >> 8) & 0xff;
-					  bridge->sord = (tmp >> 16) & 0xff;
-					  if (bridge->sord > max_sord)
-						  max_sord = bridge->sord;
-
-					  DBG ("    Primary %x, Secondary %x, "
-						   "Subordinate %x\n",
-						   bridge->pri, bridge->num, bridge->sord);
+				DBG ("    Primary %x, Secondary %x, "
+					 "Subordinate %x\n",
+					 bridge->pri, bridge->num, bridge->sord);
 
 				/*** Probe Bridge Spaces ***/
 
-					  /* MEMIO Window - always implemented */
-					  bridge->flags = PCI_BUS_MEMIO;
-					  res = &bridge->dev.resources[BRIDGE_RES_MEMIO];
-					  res->flags = PCI_RES_MEMIO;
-					  res->bar = BRIDGE_RES_MEMIO;
-					  PCI_CFG_R32 (pcidev, 0x20, &tmp);
-					  res->start = (tmp & 0xfff0) << 16;
-					  res->end = 1 + ((tmp & 0xfff00000) | 0xfffff);
-					  if (res->end <= res->start)
-						{
-							/* Window disabled */
-							res->end = res->start = 0;
-						}
-					  res->size = res->end - res->start;
+				/* MEMIO Window - always implemented */
+				bridge->flags = PCI_BUS_MEMIO;
+				res = &bridge->dev.resources[BRIDGE_RES_MEMIO];
+				res->flags = PCI_RES_MEMIO;
+				res->bar = BRIDGE_RES_MEMIO;
+				PCI_CFG_R32 (pcidev, 0x20, &tmp);
+				res->start = (tmp & 0xfff0) << 16;
+				res->end = 1 + ((tmp & 0xfff00000) | 0xfffff);
+				if (res->end <= res->start)
+				{
+					/* Window disabled */
+					res->end = res->start = 0;
+				}
+				res->size = res->end - res->start;
 
-					  /* I/O Window - optional */
-					  res = &bridge->dev.resources[BRIDGE_RES_IO];
-					  res->bar = BRIDGE_RES_IO;
-					  PCI_CFG_R32 (pcidev, 0x30, &tmp);
-					  PCI_CFG_R16 (pcidev, 0x1c, &tmp16);
-					  if (tmp != 0 || tmp16 != 0)
-						{
-							bridge->flags |= PCI_BUS_IO;
-							res->flags = PCI_RES_IO;
-							if (tmp16 & 0x1)
-							  {
-								  bridge->flags |= PCI_BUS_IO32;
-								  res->flags |= PCI_RES_IO32;
-							  }
+				/* I/O Window - optional */
+				res = &bridge->dev.resources[BRIDGE_RES_IO];
+				res->bar = BRIDGE_RES_IO;
+				PCI_CFG_R32 (pcidev, 0x30, &tmp);
+				PCI_CFG_R16 (pcidev, 0x1c, &tmp16);
+				if (tmp != 0 || tmp16 != 0)
+				{
+					bridge->flags |= PCI_BUS_IO;
+					res->flags = PCI_RES_IO;
+					if (tmp16 & 0x1)
+					{
+						bridge->flags |= PCI_BUS_IO32;
+						res->flags |= PCI_RES_IO32;
+					}
 
-							res->start = (tmp & 0xffff) << 16 |
-								(tmp16 & 0xf0) << 8;
-							res->end = 1 + ((tmp & 0xffff0000) |
-											(tmp16 & 0xf000) | 0xfff);
-							if (res->end <= res->start)
-							  {
-								  /* Window disabled */
-								  res->end = res->start = 0;
-							  }
-							res->size = res->end - res->start;
-						}
+					res->start = (tmp & 0xffff) << 16 |
+						(tmp16 & 0xf0) << 8;
+					res->end = 1 + ((tmp & 0xffff0000) |
+									(tmp16 & 0xf000) | 0xfff);
+					if (res->end <= res->start)
+					{
+						/* Window disabled */
+						res->end = res->start = 0;
+					}
+					res->size = res->end - res->start;
+				}
 
-					  /* MEM Window - optional */
-					  res = &bridge->dev.resources[BRIDGE_RES_MEM];
-					  res->bar = BRIDGE_RES_MEM;
-					  PCI_CFG_R32 (pcidev, 0x24, &tmp);
-					  if (tmp != 0)
-						{
-							bridge->flags |= PCI_BUS_MEM;
-							res->flags = PCI_RES_MEM;
-							res->start = (tmp & 0xfff0) << 16;
-							res->end = 1 + ((tmp & 0xfff00000) | 0xfffff);
-							if (res->end <= res->start)
-							  {
-								  /* Window disabled */
-								  res->end = res->start = 0;
-							  }
-							res->size = res->end - res->start;
-						}
+				/* MEM Window - optional */
+				res = &bridge->dev.resources[BRIDGE_RES_MEM];
+				res->bar = BRIDGE_RES_MEM;
+				PCI_CFG_R32 (pcidev, 0x24, &tmp);
+				if (tmp != 0)
+				{
+					bridge->flags |= PCI_BUS_MEM;
+					res->flags = PCI_RES_MEM;
+					res->start = (tmp & 0xfff0) << 16;
+					res->end = 1 + ((tmp & 0xfff00000) | 0xfffff);
+					if (res->end <= res->start)
+					{
+						/* Window disabled */
+						res->end = res->start = 0;
+					}
+					res->size = res->end - res->start;
+				}
 
-					  /* Scan Secondary Bus */
-					  pci_read_devs (bridge);
+				/* Scan Secondary Bus */
+				pci_read_devs (bridge);
 
-					  /* Only 2 BARs for Bridges */
-					  maxbars = 2;
-				  }
-				else
-				  {
-					  /* Devices have subsytem device and vendor ID */
-					  PCI_CFG_R16 (pcidev, PCIR_SUBVEND_0, &dev->subvendor);
-					  PCI_CFG_R16 (pcidev, PCIR_SUBDEV_0, &dev->subdevice);
-
-					  /* Normal PCI Device has max 6 BARs */
-					  maxbars = 6;
-				  }
-
-				/* Probe BARs */
-				for (i = 0; i < maxbars; i++)
-					pci_read_bar (dev, i);
-				pci_read_bar (dev, DEV_RES_ROM);
-
-				/* Get System Interrupt/Vector for device.
-				 * 0 means no-IRQ
-				 */
-				PCI_CFG_R8 (pcidev, PCIR_INTLINE, &dev->sysirq);
-
-				/* Stop if not a multi-function device */
-				if (func == 0)
-				  {
-					  pci_cfg_r8 (pcidev, PCIR_HDRTYPE, &header);
-					  if ((header & PCIM_MFDEV) == 0)
-						  break;
-				  }
+				/* Only 2 BARs for Bridges */
+				maxbars = 2;
 			}
-	  }
+			else
+			{
+				/* Devices have subsytem device and vendor ID */
+				PCI_CFG_R16 (pcidev, PCIR_SUBVEND_0, &dev->subvendor);
+				PCI_CFG_R16 (pcidev, PCIR_SUBDEV_0, &dev->subdevice);
+
+				/* Normal PCI Device has max 6 BARs */
+				maxbars = 6;
+			}
+
+			/* Probe BARs */
+			for (i = 0; i < maxbars; i++)
+				pci_read_bar (dev, i);
+			pci_read_bar (dev, DEV_RES_ROM);
+
+			/* Get System Interrupt/Vector for device.
+			 * 0 means no-IRQ
+			 */
+			PCI_CFG_R8 (pcidev, PCIR_INTLINE, &dev->sysirq);
+
+			/* Stop if not a multi-function device */
+			if (func == 0)
+			{
+				pci_cfg_r8 (pcidev, PCIR_HDRTYPE, &header);
+				if ((header & PCIM_MFDEV) == 0)
+					break;
+			}
+		}
+	}
 
 	if (bus->num == 0)
 		bus->sord = max_sord;

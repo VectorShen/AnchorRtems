@@ -27,10 +27,10 @@ void _Thread_Load_environment (Thread_Control * the_thread)
 
 #if ( CPU_HARDWARE_FP == TRUE ) || ( CPU_SOFTWARE_FP == TRUE )
 	if (the_thread->Start.fp_context)
-	  {
-		  the_thread->fp_context = the_thread->Start.fp_context;
-		  _Context_Initialize_fp (&the_thread->fp_context);
-	  }
+	{
+		the_thread->fp_context = the_thread->Start.fp_context;
+		_Context_Initialize_fp (&the_thread->fp_context);
+	}
 #endif
 
 	the_thread->is_preemptible = the_thread->Start.is_preemptible;

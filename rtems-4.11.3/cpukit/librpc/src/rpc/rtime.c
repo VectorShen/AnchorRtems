@@ -74,7 +74,7 @@ static void do_close (int);
 
 int
 rtime (struct sockaddr_in *addrp,
-	   struct timeval *timep, struct timeval *timeout)
+	 struct timeval *timep, struct timeval *timeout)
 {
 	int s;
 	fd_set readfds;
@@ -86,82 +86,82 @@ rtime (struct sockaddr_in *addrp,
 	struct servent *serv;
 
 	if (timeout == NULL)
-	  {
-		  type = SOCK_STREAM;
-	  }
+	{
+		type = SOCK_STREAM;
+	}
 	else
-	  {
-		  type = SOCK_DGRAM;
-	  }
+	{
+		type = SOCK_DGRAM;
+	}
 	s = socket (AF_INET, type, 0);
 	if (s < 0)
-	  {
-		  return (-1);
-	  }
+	{
+		return (-1);
+	}
 	addrp->sin_family = AF_INET;
 
 	/* TCP and UDP port are the same in this case */
 	if ((serv = getservbyname ("time", "tcp")) == NULL)
-	  {
-		  return (-1);
-	  }
+	{
+		return (-1);
+	}
 
 	addrp->sin_port = serv->s_port;
 
 	if (type == SOCK_DGRAM)
-	  {
-		  res = sendto (s, (char *)&thetime, sizeof (thetime), 0,
+	{
+		res = sendto (s, (char *)&thetime, sizeof (thetime), 0,
 						(struct sockaddr *)addrp, sizeof (*addrp));
-		  if (res < 0)
+		if (res < 0)
+		{
+			do_close (s);
+			return (-1);
+		}
+		do
+		{
+			FD_ZERO (&readfds);
+			FD_SET (s, &readfds);
+			res = select (_rpc_dtablesize (), &readfds,
+						(fd_set *) NULL, (fd_set *) NULL, timeout);
+		}
+		while (res < 0 && errno == EINTR);
+		if (res <= 0)
+		{
+			if (res == 0)
 			{
-				do_close (s);
-				return (-1);
+				errno = ETIMEDOUT;
 			}
-		  do
-			{
-				FD_ZERO (&readfds);
-				FD_SET (s, &readfds);
-				res = select (_rpc_dtablesize (), &readfds,
-							  (fd_set *) NULL, (fd_set *) NULL, timeout);
-			}
-		  while (res < 0 && errno == EINTR);
-		  if (res <= 0)
-			{
-				if (res == 0)
-				  {
-					  errno = ETIMEDOUT;
-				  }
-				do_close (s);
-				return (-1);
-			}
-		  fromlen = sizeof (from);
-		  res = recvfrom (s, (char *)&thetime, sizeof (thetime), 0,
-						  (struct sockaddr *)&from, &fromlen);
-		  do_close (s);
-		  if (res < 0)
-			{
-				return (-1);
-			}
-	  }
+			do_close (s);
+			return (-1);
+		}
+		fromlen = sizeof (from);
+		res = recvfrom (s, (char *)&thetime, sizeof (thetime), 0,
+						(struct sockaddr *)&from, &fromlen);
+		do_close (s);
+		if (res < 0)
+		{
+			return (-1);
+		}
+	}
 	else
-	  {
-		  if (connect (s, (struct sockaddr *)addrp, sizeof (*addrp)) < 0)
-			{
-				do_close (s);
-				return (-1);
-			}
-		  res = _RPC_read (s, (char *)&thetime, sizeof (thetime));
-		  do_close (s);
-		  if (res < 0)
-			{
-				return (-1);
-			}
-	  }
+	{
+		if (connect (s, (struct sockaddr *)addrp, sizeof (*addrp)) < 0)
+		{
+			do_close (s);
+			return (-1);
+		}
+		res = _RPC_read (s, (char *)&thetime, sizeof (thetime));
+		do_close (s);
+		if (res < 0)
+		{
+			return (-1);
+		}
+	}
 	if (res != sizeof (thetime))
-	  {
-		  errno = EIO;
-		  return (-1);
-	  }
+	{
+		errno = EIO;
+		return (-1);
+	}
 	thetime = ntohl (thetime);
 	timep->tv_sec = thetime - TOFFSET;
 	timep->tv_usec = 0;

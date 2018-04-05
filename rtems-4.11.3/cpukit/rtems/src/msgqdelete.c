@@ -38,13 +38,13 @@ rtems_status_code rtems_message_queue_delete (rtems_id id)
 	_Objects_Allocator_lock ();
 	the_message_queue = _Message_queue_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Objects_Close (&_Message_queue_Information,
-							  &the_message_queue->Object);
+		case OBJECTS_LOCAL:
+			_Objects_Close (&_Message_queue_Information,
+							&the_message_queue->Object);
 
-			  _CORE_message_queue_Close (&the_message_queue->message_queue,
+			_CORE_message_queue_Close (&the_message_queue->message_queue,
 #if defined(RTEMS_MULTIPROCESSING)
 										 _Message_queue_MP_Send_object_was_deleted,
 #else
@@ -53,29 +53,29 @@ rtems_status_code rtems_message_queue_delete (rtems_id id)
 										 CORE_MESSAGE_QUEUE_STATUS_WAS_DELETED);
 
 #if defined(RTEMS_MULTIPROCESSING)
-			  if (_Attributes_Is_global (the_message_queue->attribute_set))
-				{
-					_Objects_MP_Close (&_Message_queue_Information,
-									   the_message_queue->Object.id);
+			if (_Attributes_Is_global (the_message_queue->attribute_set))
+			{
+				_Objects_MP_Close (&_Message_queue_Information,
+								 the_message_queue->Object.id);
 
-					_Message_queue_MP_Send_process_packet (MESSAGE_QUEUE_MP_ANNOUNCE_DELETE, the_message_queue->Object.id, 0,	/* Not used */
-														   0);
-				}
+				_Message_queue_MP_Send_process_packet (MESSAGE_QUEUE_MP_ANNOUNCE_DELETE, the_message_queue->Object.id, 0,	/* Not used */
+													 0);
+			}
 #endif
-			  _Objects_Put (&the_message_queue->Object);
-			  _Message_queue_Free (the_message_queue);
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Put (&the_message_queue->Object);
+			_Message_queue_Free (the_message_queue);
+			_Objects_Allocator_unlock ();
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+		case OBJECTS_REMOTE:
+			_Objects_Allocator_unlock ();
+			return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

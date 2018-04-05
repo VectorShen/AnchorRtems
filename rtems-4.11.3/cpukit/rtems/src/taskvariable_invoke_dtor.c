@@ -36,14 +36,14 @@ void _RTEMS_Tasks_Invoke_task_variable_dtor (Thread_Control * the_thread,
 
 	dtor = tvp->dtor;
 	if (_Thread_Get_executing () == the_thread)
-	  {
-		  value = *tvp->ptr;
-		  *tvp->ptr = tvp->gval;
-	  }
+	{
+		value = *tvp->ptr;
+		*tvp->ptr = tvp->gval;
+	}
 	else
-	  {
-		  value = tvp->tval;
-	  }
+	{
+		value = tvp->tval;
+	}
 
 	if (dtor)
 		(*dtor) (value);

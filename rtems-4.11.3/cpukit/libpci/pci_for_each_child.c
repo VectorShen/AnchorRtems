@@ -22,19 +22,19 @@ int pci_for_each_child (struct pci_bus *bus,
 	int ret;
 
 	while (dev)
-	  {
-		  ret = func (dev, arg);
-		  if (ret)
-			  return ret;
-		  if (search == SEARCH_DEPTH && (dev->flags & PCI_DEV_BRIDGE))
-			{
-				ret = pci_for_each_child ((struct pci_bus *)dev,
-										  func, arg, search);
-				if (ret)
-					return ret;
-			}
-		  dev = dev->next;
-	  }
+	{
+		ret = func (dev, arg);
+		if (ret)
+			return ret;
+		if (search == SEARCH_DEPTH && (dev->flags & PCI_DEV_BRIDGE))
+		{
+			ret = pci_for_each_child ((struct pci_bus *)dev,
+									func, arg, search);
+			if (ret)
+				return ret;
+		}
+		dev = dev->next;
+	}
 
 	return 0;
 }

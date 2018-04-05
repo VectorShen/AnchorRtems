@@ -29,36 +29,36 @@ void _Freechain_Initialize (Freechain_Control * freechain,
 	void *starting_address;
 
 	if (number_nodes > 0)
-	  {
-		  starting_address = (*allocator) (number_nodes * node_size);
-		  number_nodes *= (starting_address != NULL);
-	  }
+	{
+		starting_address = (*allocator) (number_nodes * node_size);
+		number_nodes *= (starting_address != NULL);
+	}
 	else
-	  {
-		  starting_address = NULL;
-	  }
+	{
+		starting_address = NULL;
+	}
 
 	_Chain_Initialize (&freechain->Free,
-					   starting_address, number_nodes, node_size);
+					 starting_address, number_nodes, node_size);
 }
 
 void *_Freechain_Get (Freechain_Control * freechain,
-					  Freechain_Allocator allocator,
-					  size_t number_nodes_to_extend, size_t node_size)
+					Freechain_Allocator allocator,
+					size_t number_nodes_to_extend, size_t node_size)
 {
 	_Assert (node_size >= sizeof (Chain_Node));
 
 	if (_Chain_Is_empty (&freechain->Free) && number_nodes_to_extend > 0)
-	  {
-		  void *starting_address;
+	{
+		void *starting_address;
 
-		  starting_address = (*allocator) (number_nodes_to_extend * node_size);
-		  number_nodes_to_extend *= (starting_address != NULL);
+		starting_address = (*allocator) (number_nodes_to_extend * node_size);
+		number_nodes_to_extend *= (starting_address != NULL);
 
-		  _Chain_Initialize (&freechain->Free,
+		_Chain_Initialize (&freechain->Free,
 							 starting_address,
 							 number_nodes_to_extend, node_size);
-	  }
+	}
 
 	return _Chain_Get_unprotected (&freechain->Free);
 }
@@ -66,7 +66,7 @@ void *_Freechain_Get (Freechain_Control * freechain,
 void _Freechain_Put (Freechain_Control * freechain, void *node)
 {
 	if (node != NULL)
-	  {
-		  _Chain_Prepend_unprotected (&freechain->Free, node);
-	  }
+	{
+		_Chain_Prepend_unprotected (&freechain->Free, node);
+	}
 }

@@ -79,10 +79,10 @@ void _endnethtent (void)
 {
 
 	if (netf)
-	  {
-		  fclose (netf);
-		  netf = NULL;
-	  }
+	{
+		fclose (netf);
+		netf = NULL;
+	}
 	_net_stayopen = 0;
 }
 
@@ -119,18 +119,18 @@ struct netent *getnetent (void)
 	if (p != NULL)
 		cp = p;
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &net_aliases[MAXALIASES - 1])
-			  *q++ = cp;
-		  cp = strpbrk (cp, " \t");
-		  if (cp != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &net_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = strpbrk (cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	return (&net);
 }
@@ -142,13 +142,13 @@ struct netent *_getnetbyhtname (const char *name)
 
 	setnetent (_net_stayopen);
 	while ((p = getnetent ()))
-	  {
-		  if (strcasecmp (p->n_name, name) == 0)
-			  break;
-		  for (cp = p->n_aliases; *cp != 0; cp++)
-			  if (strcasecmp (*cp, name) == 0)
-				  goto found;
-	  }
+	{
+		if (strcasecmp (p->n_name, name) == 0)
+			break;
+		for (cp = p->n_aliases; *cp != 0; cp++)
+			if (strcasecmp (*cp, name) == 0)
+				goto found;
+	}
   found:
 	if (!_net_stayopen)
 		endnetent ();

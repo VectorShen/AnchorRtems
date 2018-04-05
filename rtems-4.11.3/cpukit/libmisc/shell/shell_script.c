@@ -41,7 +41,7 @@ static void rtems_shell_joel_usage (void)
 }
 
 static int findOnPATH (const char *userScriptName,
-					   char *scriptFile, size_t scriptFileLength)
+					 char *scriptFile, size_t scriptFileLength)
 {
 	int sc;
 	char *cwd;
@@ -51,41 +51,41 @@ static int findOnPATH (const char *userScriptName,
 	 *  qualified path name and just use it.
 	 */
 	if (userScriptName[0] == '/')
-	  {
-		  strncpy (scriptFile, userScriptName, PATH_MAX);
-	  }
+	{
+		strncpy (scriptFile, userScriptName, PATH_MAX);
+	}
 	else
-	  {
-		  /*
-		   *  For now, the provided name is just turned into a fully
-		   *  qualified path name and used.  There is no attempt to
-		   *  search along a path for it.
-		   */
+	{
+		/*
+		 *  For now, the provided name is just turned into a fully
+		 *  qualified path name and used.  There is no attempt to
+		 *  search along a path for it.
+		 */
 
-		  /* XXX should use strncat but what is the limit? */
-		  cwd = getcwd (scriptFile, PATH_MAX);
-		  if (cwd != NULL)
-			{
-				int cwdlen = strnlen (scriptFile, PATH_MAX);
+		/* XXX should use strncat but what is the limit? */
+		cwd = getcwd (scriptFile, PATH_MAX);
+		if (cwd != NULL)
+		{
+			int cwdlen = strnlen (scriptFile, PATH_MAX);
 
-				strncat (scriptFile, "/", PATH_MAX - cwdlen);
-				strncat (scriptFile,
-						 ((userScriptName[0] == '.'
-						   && userScriptName[1] ==
-						   '/') ? &userScriptName[2] : userScriptName),
-						 PATH_MAX - cwdlen - 1);
-			}
-		  else
-			{
-				return -1;
-			}
-	  }
+			strncat (scriptFile, "/", PATH_MAX - cwdlen);
+			strncat (scriptFile,
+					 ((userScriptName[0] == '.'
+					 && userScriptName[1] ==
+					 '/') ? &userScriptName[2] : userScriptName),
+					 PATH_MAX - cwdlen - 1);
+		}
+		else
+		{
+			return -1;
+		}
+	}
 
 	sc = access (scriptFile, R_OK);
 	if (sc)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 
 	return 0;
 
@@ -96,14 +96,14 @@ static int findOnPATH (const char *userScriptName,
 	 */
 	/* TODO: Add concept of PATH */
 	if (!contains_path)
-	  {
-		  /* check PATH environment variable */
-		  for (path_part = PATH; path_part; skip to ':')
-			{
-			}
-		  if (not found)
-			  return -1;
-	  }
+	{
+		/* check PATH environment variable */
+		for (path_part = PATH; path_part; skip to ':')
+		{
+		}
+		if (not found)
+			return -1;
+	}
 #endif
 }
 
@@ -123,72 +123,72 @@ static int rtems_shell_main_joel (int argc, char **argv)
 
 	memset (&getopt_reent, 0, sizeof (getopt_data));
 	while ((option = getopt_r (argc, argv, "o:p:s:t:v", &getopt_reent)) != -1)
-	  {
-		  switch ((char)option)
-			{
-				case 'o':
-					outputFile = getopt_reent.optarg;
-					break;
-				case 'p':
-					{
-						const char *s = getopt_reent.optarg;
+	{
+		switch ((char)option)
+		{
+			case 'o':
+				outputFile = getopt_reent.optarg;
+				break;
+			case 'p':
+				{
+					const char *s = getopt_reent.optarg;
 
-						if (rtems_string_to_unsigned_long (s, &tmp, NULL, 0))
-						  {
-							  printf
-								  ("Task Priority argument (%s) is not a number\n",
-								   s);
-							  return -1;
-						  }
-						taskPriority = (rtems_task_priority) tmp;
-						break;
-					}
-				case 's':
+					if (rtems_string_to_unsigned_long (s, &tmp, NULL, 0))
 					{
-						const char *s = getopt_reent.optarg;
-
-						if (rtems_string_to_unsigned_long (s, &tmp, NULL, 0))
-						  {
-							  printf
-								  ("Stack size argument (%s) is not a number\n",
-								   s);
-							  return -1;
-						  }
-						stackSize = (uint32_t) tmp;
-						break;
+						printf
+							("Task Priority argument (%s) is not a number\n",
+							 s);
+						return -1;
 					}
-				case 't':
-					taskName = getopt_reent.optarg;
+					taskPriority = (rtems_task_priority) tmp;
 					break;
-				case 'v':
-					verbose = 1;
+				}
+			case 's':
+				{
+					const char *s = getopt_reent.optarg;
+
+					if (rtems_string_to_unsigned_long (s, &tmp, NULL, 0))
+					{
+						printf
+							("Stack size argument (%s) is not a number\n",
+							 s);
+						return -1;
+					}
+					stackSize = (uint32_t) tmp;
 					break;
-				case '?':
-				default:
-					rtems_shell_joel_usage ();
-					return -1;
-			}
-	  }
+				}
+			case 't':
+				taskName = getopt_reent.optarg;
+				break;
+			case 'v':
+				verbose = 1;
+				break;
+			case '?':
+			default:
+				rtems_shell_joel_usage ();
+				return -1;
+		}
+	}
 
 	if (verbose)
-	  {
-		  fprintf (stderr,
-				   "outputFile: %s\n"
-				   "taskPriority: %" PRId32 "\n"
-				   "stackSize: %" PRId32 "\n"
-				   "taskName: %s\n",
-				   outputFile, taskPriority, stackSize, taskName);
-	  }
+	{
+		fprintf (stderr,
+				 "outputFile: %s\n"
+				 "taskPriority: %" PRId32 "\n"
+				 "stackSize: %" PRId32 "\n"
+				 "taskName: %s\n",
+				 outputFile, taskPriority, stackSize, taskName);
+	}
 
 	/*
 	 *  Verify there is a script name past the end of the arguments.
 	 *  Preincrement to skip program name.
 	 */
 	if (getopt_reent.optind >= argc)
-	  {
-		  fprintf (stderr, "Shell: No script to execute\n");
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "Shell: No script to execute\n");
+		return -1;
+	}
 
 	/*
 	 *  Find script on the path.
@@ -198,10 +198,10 @@ static int rtems_shell_main_joel (int argc, char **argv)
 	 */
 	sc = findOnPATH (argv[getopt_reent.optind], scriptFile, PATH_MAX);
 	if (sc)
-	  {
-		  fprintf (stderr, "%s: command not found\n", argv[0]);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: command not found\n", argv[0]);
+		return -1;
+	}
 
 	/* fprintf( stderr, "SCRIPT: -%s-\n", scriptFile ); */
 
@@ -227,7 +227,8 @@ static int rtems_shell_main_joel (int argc, char **argv)
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_JOEL_Command = {
+rtems_shell_cmd_t rtems_shell_JOEL_Command =
+{
 	"joel",						/* name */
 	"joel [args] SCRIPT",		/* usage */
 	"misc",						/* topic */
@@ -266,20 +267,20 @@ int rtems_shell_script_file (int argc __attribute__ ((unused)), char *argv[])
 	 */
 	sc = findOnPATH (argv[0], scriptFile, PATH_MAX);
 	if (sc)
-	  {
-		  fprintf (stderr, "%s: command not found\n", argv[0]);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: command not found\n", argv[0]);
+		return -1;
+	}
 
 	/*
 	 *  Open the file so we can see if it looks like a script.
 	 */
 	script = fopen (scriptFile, "r");
 	if (!script)
-	  {
-		  fprintf (stderr, "%s: Unable to open %s\n", argv[0], scriptFile);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: Unable to open %s\n", argv[0], scriptFile);
+		return -1;
+	}
 
 	/*
 	 *  Is the script OK to run?
@@ -289,23 +290,23 @@ int rtems_shell_script_file (int argc __attribute__ ((unused)), char *argv[])
 	 */
 	sc = access (scriptFile, X_OK);
 	if (sc)
-	  {
-		  fprintf (stderr, "Unable to execute %s\n", scriptFile);
-		  fclose (script);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "Unable to execute %s\n", scriptFile);
+		fclose (script);
+		return -1;
+	}
 
 	/*
 	 *  Try to read the first line from the potential script file
 	 */
 	scriptHead = fgets (scriptHeadBuffer, FIRST_LINE_LENGTH, script);
 	if (!scriptHead)
-	  {
-		  fprintf (stderr, "%s: Unable to read first line of %s\n", argv[0],
-				   scriptFile);
-		  fclose (script);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: Unable to read first line of %s\n", argv[0],
+				 scriptFile);
+		fclose (script);
+		return -1;
+	}
 
 	fclose (script);
 
@@ -319,10 +320,10 @@ int rtems_shell_script_file (int argc __attribute__ ((unused)), char *argv[])
 	 *  the line starts with "#! joel".
 	 */
 	if (strncmp ("#! joel", scriptHead, 7) != 0)
-	  {
-		  fprintf (stderr, "%s: Not a joel script %s\n", argv[0], scriptFile);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: Not a joel script %s\n", argv[0], scriptFile);
+		return -1;
+	}
 
 	/*
 	 * Do not worry about search path further.  We have found the
@@ -338,11 +339,11 @@ int rtems_shell_script_file (int argc __attribute__ ((unused)), char *argv[])
 	sc = rtems_shell_make_args (&scriptHead[3],
 								&scriptArgc, scriptArgv, SCRIPT_ARGV_LIMIT - 1);
 	if (sc)
-	  {
-		  fprintf (stderr, "%s: Error parsing joel arguments %s\n", argv[0],
-				   scriptFile);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: Error parsing joel arguments %s\n", argv[0],
+				 scriptFile);
+		return -1;
+	}
 
 	scriptArgv[scriptArgc++] = scriptFile;
 

@@ -28,36 +28,36 @@
 size_t strnlen (const char *, size_t);
 
 int _POSIX_Name_to_id (Objects_Information * information,
-					   const char *name, Objects_Id * id, size_t * len)
+					 const char *name, Objects_Id * id, size_t * len)
 {
 	int eno = EINVAL;
 	size_t n = 0;
 
 	if (name != NULL && name[0] != '\0')
-	  {
-		  n = strnlen (name, NAME_MAX);
+	{
+		n = strnlen (name, NAME_MAX);
 
-		  if (n < NAME_MAX)
-			{
-				Objects_Name_or_id_lookup_errors status =
-					_Objects_Name_to_id_string (information,
-												name,
-												id);
+		if (n < NAME_MAX)
+		{
+			Objects_Name_or_id_lookup_errors status =
+				_Objects_Name_to_id_string (information,
+											name,
+											id);
 
-				if (status == OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL)
-				  {
-					  eno = 0;
-				  }
-				else
-				  {
-					  eno = ENOENT;
-				  }
-			}
-		  else
+			if (status == OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL)
 			{
-				eno = ENAMETOOLONG;
+				eno = 0;
 			}
-	  }
+			else
+			{
+				eno = ENOENT;
+			}
+		}
+		else
+		{
+			eno = ENAMETOOLONG;
+		}
+	}
 
 	*len = n;
 

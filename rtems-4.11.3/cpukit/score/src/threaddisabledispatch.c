@@ -37,13 +37,13 @@ void _Thread_Disable_dispatch (void)
 	 */
 #if defined(RTEMS_HEAVY_STACK_DEBUG)
 	if (_System_state_Is_up (_System_state_Get ()) && (_ISR_Nest_level == 0))
-	  {
-		  if (rtems_stack_checker_is_blown ())
-			{
-				printk ("Stack blown!!\n");
-				rtems_fatal_error_occurred (99);
-			}
-	  }
+	{
+		if (rtems_stack_checker_is_blown ())
+		{
+			printk ("Stack blown!!\n");
+			rtems_fatal_error_occurred (99);
+		}
+	}
 #endif
 
 	_Thread_Dispatch_increment_disable_level ();
@@ -55,9 +55,9 @@ void _Thread_Disable_dispatch (void)
 	 */
 #if defined(RTEMS_HEAVY_MALLOC_DEBUG)
 	if (_Thread_Dispatch_get_disable_level () == 1)
-	  {
-		  _Heap_Walk (RTEMS_Malloc_Heap, 99, false);
-	  }
+	{
+		_Heap_Walk (RTEMS_Malloc_Heap, 99, false);
+	}
 #endif
 }
 #endif

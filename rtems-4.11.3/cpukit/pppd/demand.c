@@ -132,10 +132,10 @@ void demand_discard (void)
 
 	/* discard all saved packets */
 	for (pkt = pend_q; pkt != NULL; pkt = nextpkt)
-	  {
-		  nextpkt = pkt->next;
-		  free (pkt);
-	  }
+	{
+		nextpkt = pkt->next;
+		free (pkt);
+	}
 	pend_q = NULL;
 	framelen = 0;
 	flush_flag = 0;
@@ -159,7 +159,8 @@ void demand_unblock (void)
 /*
  * FCS lookup table as calculated by genfcstab.
  */
-static u_short fcstab[256] = {
+static u_short fcstab[256] =
+{
 	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
 	0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
 	0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
@@ -205,43 +206,43 @@ int loop_chars (unsigned char *p, int n)
 
 	rv = 0;
 	for (; n > 0; --n)
-	  {
-		  c = *p++;
-		  if (c == PPP_FLAG)
+	{
+		c = *p++;
+		if (c == PPP_FLAG)
+		{
+			if (!escape_flag && !flush_flag
+				&& framelen > 2 && fcs == PPP_GOODFCS)
 			{
-				if (!escape_flag && !flush_flag
-					&& framelen > 2 && fcs == PPP_GOODFCS)
-				  {
-					  framelen -= 2;
-					  if (loop_frame (frame, framelen))
-						  rv = 1;
-				  }
-				framelen = 0;
-				flush_flag = 0;
-				escape_flag = 0;
-				fcs = PPP_INITFCS;
-				continue;
+				framelen -= 2;
+				if (loop_frame (frame, framelen))
+					rv = 1;
 			}
-		  if (flush_flag)
-			  continue;
-		  if (escape_flag)
-			{
-				c ^= PPP_TRANS;
-				escape_flag = 0;
-			}
-		  else if (c == PPP_ESCAPE)
-			{
-				escape_flag = 1;
-				continue;
-			}
-		  if (framelen >= framemax)
-			{
-				flush_flag = 1;
-				continue;
-			}
-		  frame[framelen++] = c;
-		  fcs = PPP_FCS (fcs, c);
-	  }
+			framelen = 0;
+			flush_flag = 0;
+			escape_flag = 0;
+			fcs = PPP_INITFCS;
+			continue;
+		}
+		if (flush_flag)
+			continue;
+		if (escape_flag)
+		{
+			c ^= PPP_TRANS;
+			escape_flag = 0;
+		}
+		else if (c == PPP_ESCAPE)
+		{
+			escape_flag = 1;
+			continue;
+		}
+		if (framelen >= framemax)
+		{
+			flush_flag = 1;
+			continue;
+		}
+		frame[framelen++] = c;
+		fcs = PPP_FCS (fcs, c);
+	}
 	return rv;
 }
 
@@ -269,16 +270,16 @@ int loop_frame (unsigned char *frame, int len)
 
 	pkt = (struct packet *)malloc (sizeof (struct packet) + len);
 	if (pkt != NULL)
-	  {
-		  pkt->length = len;
-		  pkt->next = NULL;
-		  memcpy (pkt->data, frame, len);
-		  if (pend_q == NULL)
-			  pend_q = pkt;
-		  else
-			  pend_qtail->next = pkt;
-		  pend_qtail = pkt;
-	  }
+	{
+		pkt->length = len;
+		pkt->next = NULL;
+		memcpy (pkt->data, frame, len);
+		if (pend_q == NULL)
+			pend_q = pkt;
+		else
+			pend_qtail->next = pkt;
+		pend_qtail = pkt;
+	}
 	return 1;
 }
 
@@ -294,22 +295,22 @@ void demand_rexmit (int proto)
 	pkt = pend_q;
 	pend_q = NULL;
 	for (; pkt != NULL; pkt = nextpkt)
-	  {
-		  nextpkt = pkt->next;
-		  if (PPP_PROTOCOL (pkt->data) == proto)
-			{
-				output (0, pkt->data, pkt->length);
-				free (pkt);
-			}
-		  else
-			{
-				if (prev == NULL)
-					pend_q = pkt;
-				else
-					prev->next = pkt;
-				prev = pkt;
-			}
-	  }
+	{
+		nextpkt = pkt->next;
+		if (PPP_PROTOCOL (pkt->data) == proto)
+		{
+			output (0, pkt->data, pkt->length);
+			free (pkt);
+		}
+		else
+		{
+			if (prev == NULL)
+				pend_q = pkt;
+			else
+				prev->next = pkt;
+			prev = pkt;
+		}
+	}
 	pend_qtail = prev;
 	if (prev != NULL)
 		prev->next = NULL;
@@ -333,15 +334,15 @@ static int active_packet (unsigned char *p, int len)
 		return 0;
 #endif
 	for (i = 0; (protp = protocols[i]) != NULL; ++i)
-	  {
-		  if (protp->protocol < 0xC000 && (protp->protocol & ~0x8000) == proto)
-			{
-				if (!protp->enabled_flag)
-					return 0;
-				if (protp->active_pkt == NULL)
-					return 1;
-				return (*protp->active_pkt) (p, len);
-			}
-	  }
+	{
+		if (protp->protocol < 0xC000 && (protp->protocol & ~0x8000) == proto)
+		{
+			if (!protp->enabled_flag)
+				return 0;
+			if (protp->active_pkt == NULL)
+				return 1;
+			return (*protp->active_pkt) (p, len);
+		}
+	}
 	return 0;					/* not a supported protocol !!?? */
 }

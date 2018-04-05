@@ -49,20 +49,20 @@ rtems_status_code rtems_barrier_release (rtems_id id, uint32_t * released)
 
 	the_barrier = _Barrier_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  *released =
-				  _CORE_barrier_Release (&the_barrier->Barrier, id, NULL);
-			  _Objects_Put (&the_barrier->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			*released =
+				_CORE_barrier_Release (&the_barrier->Barrier, id, NULL);
+			_Objects_Put (&the_barrier->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

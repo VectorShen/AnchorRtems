@@ -34,14 +34,14 @@ bool _Protected_heap_Walk (Heap_Control * the_heap, int source, bool do_dump)
 	 * NOTE: Dispatching is also disabled during initialization.
 	 */
 	if (_Thread_Dispatch_is_enabled ())
-	  {
-		  _RTEMS_Lock_allocator ();
-		  status = _Heap_Walk (the_heap, source, do_dump);
-		  _RTEMS_Unlock_allocator ();
-	  }
+	{
+		_RTEMS_Lock_allocator ();
+		status = _Heap_Walk (the_heap, source, do_dump);
+		_RTEMS_Unlock_allocator ();
+	}
 	else
-	  {
-		  status = _Heap_Walk (the_heap, source, do_dump);
-	  }
+	{
+		status = _Heap_Walk (the_heap, source, do_dump);
+	}
 	return status;
 }

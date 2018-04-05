@@ -29,11 +29,11 @@ int sigwait (const sigset_t * __restrict set, int *__restrict sig)
 	status = sigtimedwait (set, NULL, NULL);
 
 	if (status != -1)
-	  {
-		  if (sig)
-			  *sig = status;
-		  return 0;
-	  }
+	{
+		if (sig)
+			*sig = status;
+		return 0;
+	}
 
 	return errno;
 }

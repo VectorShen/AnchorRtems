@@ -32,25 +32,25 @@ rtems_status_code rtems_event_send (rtems_id id, rtems_event_set event_in)
 
 	thread = _Thread_Get_interrupt_disable (id, &location, &lock_context);
 	switch (location)
-	  {
-		  case OBJECTS_LOCAL:
-			  api = thread->API_Extensions[THREAD_API_RTEMS];
-			  _Event_Surrender (thread,
+	{
+		case OBJECTS_LOCAL:
+			api = thread->API_Extensions[THREAD_API_RTEMS];
+			_Event_Surrender (thread,
 								event_in,
 								&api->Event,
 								THREAD_WAIT_CLASS_EVENT, &lock_context);
-			  sc = RTEMS_SUCCESSFUL;
-			  break;
+			sc = RTEMS_SUCCESSFUL;
+			break;
 #ifdef RTEMS_MULTIPROCESSING
-		  case OBJECTS_REMOTE:
-			  sc = _Event_MP_Send_request_packet (EVENT_MP_SEND_REQUEST,
-												  id, event_in);
-			  break;
+		case OBJECTS_REMOTE:
+			sc = _Event_MP_Send_request_packet (EVENT_MP_SEND_REQUEST,
+												id, event_in);
+			break;
 #endif
-		  default:
-			  sc = RTEMS_INVALID_ID;
-			  break;
-	  }
+		default:
+			sc = RTEMS_INVALID_ID;
+			break;
+	}
 
 	return sc;
 }

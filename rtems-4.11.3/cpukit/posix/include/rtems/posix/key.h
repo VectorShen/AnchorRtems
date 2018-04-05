@@ -41,48 +41,48 @@ extern "C"
 /**@{**/
 
 /**
- * @brief Represents POSIX key and value pair.
- */
-	typedef struct
-	{
-  /**
-   * @brief The chain node for the per-thread value chain.
-   */
-		Chain_Node Key_values_per_thread_node;
-
-  /**
-   * @brief The tree node for the lookup tree.
-   */
-		RBTree_Node Key_value_lookup_node;
-
-  /**
-   * @brief The POSIX key identifier used in combination with the thread
-   * pointer as the tree key.
-   */
-		pthread_key_t key;
-
-  /**
-   * @brief The thread pointer used in combination with the POSIX key
-   * identifier as the tree key.
-   */
-		Thread_Control *thread;
-
-  /**
-   * @brief The thread specific POSIX key value.
-   */
-		void *value;
-	} POSIX_Keys_Key_value_pair;
+* @brief Represents POSIX key and value pair.
+*/
+typedef struct
+{
+/**
+* @brief The chain node for the per-thread value chain.
+*/
+	Chain_Node Key_values_per_thread_node;
 
 /**
- * @brief The data structure used to manage a POSIX key.
- */
-	typedef struct
-	{
-   /** This field is the Object control structure. */
-		Objects_Control Object;
-   /** This field is the data destructor. */
-		void (*destructor) (void *);
-	} POSIX_Keys_Control;
+* @brief The tree node for the lookup tree.
+*/
+	RBTree_Node Key_value_lookup_node;
+
+/**
+* @brief The POSIX key identifier used in combination with the thread
+* pointer as the tree key.
+*/
+	pthread_key_t key;
+
+/**
+* @brief The thread pointer used in combination with the POSIX key
+* identifier as the tree key.
+*/
+	Thread_Control *thread;
+
+/**
+* @brief The thread specific POSIX key value.
+*/
+	void *value;
+} POSIX_Keys_Key_value_pair;
+
+/**
+* @brief The data structure used to manage a POSIX key.
+*/
+typedef struct
+{
+/** This field is the Object control structure. */
+	Objects_Control Object;
+/** This field is the data destructor. */
+	void (*destructor) (void *);
+} POSIX_Keys_Control;
 
 /** @} */
 

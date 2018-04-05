@@ -73,81 +73,81 @@ void newsyntax (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 
 	argv = *argvp;
 	if ((p = rindex (argv[0], 'h')) != NULL && strcmp (p, "hd") == 0)
-	  {
-		  /* "Canonical" format, implies -C. */
-		  add (globals, "\"%08.8_Ax\n\"");
-		  add (globals, "\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ");
-		  add (globals, "\"  |\" 16/1 \"%_p\" \"|\\n\"");
-	  }
+	{
+		/* "Canonical" format, implies -C. */
+		add (globals, "\"%08.8_Ax\n\"");
+		add (globals, "\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ");
+		add (globals, "\"  |\" 16/1 \"%_p\" \"|\\n\"");
+	}
 	while ((ch = getopt_r (argc, argv, "bcCde:f:n:os:vx", &getopt_reent)) != -1)
 		switch (ch)
-		  {
-			  case 'b':
-				  add (globals, "\"%07.7_Ax\n\"");
-				  add (globals, "\"%07.7_ax \" 16/1 \"%03o \" \"\\n\"");
-				  break;
-			  case 'c':
-				  add (globals, "\"%07.7_Ax\n\"");
-				  add (globals, "\"%07.7_ax \" 16/1 \"%3_c \" \"\\n\"");
-				  break;
-			  case 'C':
-				  add (globals, "\"%08.8_Ax\n\"");
-				  add (globals,
-					   "\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ");
-				  add (globals, "\"  |\" 16/1 \"%_p\" \"|\\n\"");
-				  break;
-			  case 'd':
-				  add (globals, "\"%07.7_Ax\n\"");
-				  add (globals, "\"%07.7_ax \" 8/2 \"  %05u \" \"\\n\"");
-				  break;
-			  case 'e':
-				  add (globals, getopt_reent.optarg);
-				  break;
-			  case 'f':
-				  addfile (globals, getopt_reent.optarg);
-				  break;
-			  case 'n':
-				  if ((length = atoi (getopt_reent.optarg)) < 0)
-					  errx (exit_jump, 1, "%s: bad length value",
+		{
+			case 'b':
+				add (globals, "\"%07.7_Ax\n\"");
+				add (globals, "\"%07.7_ax \" 16/1 \"%03o \" \"\\n\"");
+				break;
+			case 'c':
+				add (globals, "\"%07.7_Ax\n\"");
+				add (globals, "\"%07.7_ax \" 16/1 \"%3_c \" \"\\n\"");
+				break;
+			case 'C':
+				add (globals, "\"%08.8_Ax\n\"");
+				add (globals,
+					 "\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ");
+				add (globals, "\"  |\" 16/1 \"%_p\" \"|\\n\"");
+				break;
+			case 'd':
+				add (globals, "\"%07.7_Ax\n\"");
+				add (globals, "\"%07.7_ax \" 8/2 \"  %05u \" \"\\n\"");
+				break;
+			case 'e':
+				add (globals, getopt_reent.optarg);
+				break;
+			case 'f':
+				addfile (globals, getopt_reent.optarg);
+				break;
+			case 'n':
+				if ((length = atoi (getopt_reent.optarg)) < 0)
+					errx (exit_jump, 1, "%s: bad length value",
 							getopt_reent.optarg);
-				  break;
-			  case 'o':
-				  add (globals, "\"%07.7_Ax\n\"");
-				  add (globals, "\"%07.7_ax \" 8/2 \" %06o \" \"\\n\"");
-				  break;
-			  case 's':
-				  if ((skip = strtoll (getopt_reent.optarg, &p, 0)) < 0)
-					  errx (exit_jump, 1, "%s: bad skip value",
+				break;
+			case 'o':
+				add (globals, "\"%07.7_Ax\n\"");
+				add (globals, "\"%07.7_ax \" 8/2 \" %06o \" \"\\n\"");
+				break;
+			case 's':
+				if ((skip = strtoll (getopt_reent.optarg, &p, 0)) < 0)
+					errx (exit_jump, 1, "%s: bad skip value",
 							getopt_reent.optarg);
-				  switch (*p)
-					{
-						case 'b':
-							skip *= 512;
-							break;
-						case 'k':
-							skip *= 1024;
-							break;
-						case 'm':
-							skip *= 1048576;
-							break;
-					}
-				  break;
-			  case 'v':
-				  vflag = ALL;
-				  break;
-			  case 'x':
-				  add (globals, "\"%07.7_Ax\n\"");
-				  add (globals, "\"%07.7_ax \" 8/2 \"   %04x \" \"\\n\"");
-				  break;
-			  case '?':
-				  usage (globals);
-		  }
+				switch (*p)
+				{
+					case 'b':
+						skip *= 512;
+						break;
+					case 'k':
+						skip *= 1024;
+						break;
+					case 'm':
+						skip *= 1048576;
+						break;
+				}
+				break;
+			case 'v':
+				vflag = ALL;
+				break;
+			case 'x':
+				add (globals, "\"%07.7_Ax\n\"");
+				add (globals, "\"%07.7_ax \" 8/2 \"   %04x \" \"\\n\"");
+				break;
+			case '?':
+				usage (globals);
+		}
 
 	if (!fshead)
-	  {
-		  add (globals, "\"%07.7_Ax\n\"");
-		  add (globals, "\"%07.7_ax \" 8/2 \"%04x \" \"\\n\"");
-	  }
+	{
+		add (globals, "\"%07.7_Ax\n\"");
+		add (globals, "\"%07.7_ax \" 8/2 \"%04x \" \"\\n\"");
+	}
 
 	*argvp += getopt_reent.optind;
 }
@@ -155,9 +155,9 @@ void newsyntax (rtems_shell_hexdump_globals * globals, int argc, char ***argvp)
 void usage (rtems_shell_hexdump_globals * globals)
 {
 	(void)fprintf (stderr, "%s\n%s\n%s\n%s\n",
-				   "usage: hexdump [-bcCdovx] [-e fmt] [-f fmt_file] [-n length]",
-				   "               [-s skip] [file ...]",
-				   "       hd      [-bcdovx]  [-e fmt] [-f fmt_file] [-n length]",
-				   "               [-s skip] [file ...]");
+				 "usage: hexdump [-bcCdovx] [-e fmt] [-f fmt_file] [-n length]",
+				 "               [-s skip] [file ...]",
+				 "       hd      [-bcdovx]  [-e fmt] [-f fmt_file] [-n length]",
+				 "               [-s skip] [file ...]");
 	exit (1);
 }

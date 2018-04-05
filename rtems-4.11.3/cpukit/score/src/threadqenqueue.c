@@ -40,9 +40,9 @@ static void _Thread_queue_Unblock (Thread_Control * the_thread)
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (!_Objects_Is_local_id (the_thread->Object.id))
-	  {
-		  _Thread_MP_Free_proxy (the_thread);
-	  }
+	{
+		_Thread_MP_Free_proxy (the_thread);
+	}
 #endif
 }
 
@@ -83,26 +83,26 @@ void _Thread_queue_Enqueue_critical (Thread_queue_Control * the_thread_queue,
 	 *  If the thread wants to timeout, then schedule its timer.
 	 */
 	if (timeout != WATCHDOG_NO_TIMEOUT)
-	  {
-		  _Thread_Wait_set_timeout_code (the_thread, timeout_code);
-		  _Watchdog_Initialize (&the_thread->Timer, _Thread_Timeout, 0,
+	{
+		_Thread_Wait_set_timeout_code (the_thread, timeout_code);
+		_Watchdog_Initialize (&the_thread->Timer, _Thread_Timeout, 0,
 								the_thread);
-		  _Watchdog_Insert_ticks (&the_thread->Timer, timeout);
-	  }
+		_Watchdog_Insert_ticks (&the_thread->Timer, timeout);
+	}
 
 	success = _Thread_Wait_flags_try_change (the_thread,
 											 THREAD_QUEUE_INTEND_TO_BLOCK,
 											 THREAD_QUEUE_BLOCKED);
 	if (!success)
-	  {
-		  _Thread_queue_Unblock (the_thread);
-	  }
+	{
+		_Thread_queue_Unblock (the_thread);
+	}
 
 	_Thread_Dispatch_enable (cpu_self);
 }
 
 void _Thread_queue_Extract_locked (Thread_queue_Control * the_thread_queue,
-								   Thread_Control * the_thread)
+								 Thread_Control * the_thread)
 {
 	(*the_thread_queue->operations->extract) (the_thread_queue, the_thread);
 
@@ -119,34 +119,34 @@ void _Thread_queue_Unblock_critical (Thread_queue_Control * the_thread_queue,
 	bool unblock;
 
 	success = _Thread_Wait_flags_try_change_critical (the_thread,
-													  THREAD_QUEUE_INTEND_TO_BLOCK,
-													  THREAD_QUEUE_READY_AGAIN);
+													THREAD_QUEUE_INTEND_TO_BLOCK,
+													THREAD_QUEUE_READY_AGAIN);
 	if (success)
-	  {
-		  unblock = false;
-	  }
+	{
+		unblock = false;
+	}
 	else
-	  {
-		  _Assert (_Thread_Wait_flags_get (the_thread) == THREAD_QUEUE_BLOCKED);
-		  _Thread_Wait_flags_set (the_thread, THREAD_QUEUE_READY_AGAIN);
-		  unblock = true;
-	  }
+	{
+		_Assert (_Thread_Wait_flags_get (the_thread) == THREAD_QUEUE_BLOCKED);
+		_Thread_Wait_flags_set (the_thread, THREAD_QUEUE_READY_AGAIN);
+		unblock = true;
+	}
 
 	if (unblock)
-	  {
-		  Per_CPU_Control *cpu_self;
+	{
+		Per_CPU_Control *cpu_self;
 
-		  cpu_self = _Thread_Dispatch_disable_critical (lock_context);
-		  _Thread_queue_Release (the_thread_queue, lock_context);
+		cpu_self = _Thread_Dispatch_disable_critical (lock_context);
+		_Thread_queue_Release (the_thread_queue, lock_context);
 
-		  _Thread_queue_Unblock (the_thread);
+		_Thread_queue_Unblock (the_thread);
 
-		  _Thread_Dispatch_enable (cpu_self);
-	  }
+		_Thread_Dispatch_enable (cpu_self);
+	}
 	else
-	  {
-		  _Thread_queue_Release (the_thread_queue, lock_context);
-	  }
+	{
+		_Thread_queue_Release (the_thread_queue, lock_context);
+	}
 }
 
 void _Thread_queue_Extract_critical (Thread_queue_Control * the_thread_queue,
@@ -168,16 +168,16 @@ void _Thread_queue_Extract (Thread_Control * the_thread)
 	the_thread_queue = the_thread->Wait.queue;
 
 	if (the_thread_queue != NULL)
-	  {
-		  _SMP_Assert (lock == &the_thread_queue->Lock);
+	{
+		_SMP_Assert (lock == &the_thread_queue->Lock);
 
-		  _Thread_queue_Extract_critical (the_thread_queue, the_thread,
-										  &lock_context);
-	  }
+		_Thread_queue_Extract_critical (the_thread_queue, the_thread,
+										&lock_context);
+	}
 	else
-	  {
-		  _Thread_Lock_release (lock, &lock_context);
-	  }
+	{
+		_Thread_Lock_release (lock, &lock_context);
+	}
 }
 
 Thread_Control *_Thread_queue_Dequeue (Thread_queue_Control * the_thread_queue)
@@ -190,16 +190,16 @@ Thread_Control *_Thread_queue_Dequeue (Thread_queue_Control * the_thread_queue)
 	the_thread = _Thread_queue_First_locked (the_thread_queue);
 
 	if (the_thread != NULL)
-	  {
-		  _SMP_Assert (the_thread->Lock.current == &the_thread_queue->Lock);
+	{
+		_SMP_Assert (the_thread->Lock.current == &the_thread_queue->Lock);
 
-		  _Thread_queue_Extract_critical (the_thread_queue, the_thread,
-										  &lock_context);
-	  }
+		_Thread_queue_Extract_critical (the_thread_queue, the_thread,
+										&lock_context);
+	}
 	else
-	  {
-		  _Thread_queue_Release (the_thread_queue, &lock_context);
-	  }
+	{
+		_Thread_queue_Release (the_thread_queue, &lock_context);
+	}
 
 	return the_thread;
 }

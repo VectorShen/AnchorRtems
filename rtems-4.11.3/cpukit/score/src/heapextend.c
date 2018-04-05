@@ -46,8 +46,8 @@ static void _Heap_Free_block (Heap_Control * heap, Heap_Block * block)
 }
 
 static void _Heap_Merge_below (Heap_Control * heap,
-							   uintptr_t extend_area_begin,
-							   Heap_Block * first_block)
+							 uintptr_t extend_area_begin,
+							 Heap_Block * first_block)
 {
 	uintptr_t const page_size = heap->page_size;
 	uintptr_t const new_first_block_alloc_begin =
@@ -67,15 +67,15 @@ static void _Heap_Merge_below (Heap_Control * heap,
 }
 
 static void _Heap_Merge_above (Heap_Control * heap,
-							   Heap_Block * last_block,
-							   uintptr_t extend_area_end)
+							 Heap_Block * last_block,
+							 uintptr_t extend_area_end)
 {
 	uintptr_t const page_size = heap->page_size;
 	uintptr_t const last_block_begin = (uintptr_t) last_block;
 	uintptr_t const last_block_new_size =
 		_Heap_Align_down (extend_area_end - last_block_begin -
-						  HEAP_BLOCK_HEADER_SIZE,
-						  page_size);
+						HEAP_BLOCK_HEADER_SIZE,
+						page_size);
 	Heap_Block *const new_last_block =
 		_Heap_Block_at (last_block, last_block_new_size);
 
@@ -98,7 +98,7 @@ static void _Heap_Link_below (Heap_Block * link, Heap_Block * last_block)
 }
 
 static void _Heap_Link_above (Heap_Block * link,
-							  Heap_Block * first_block, Heap_Block * last_block)
+							Heap_Block * first_block, Heap_Block * last_block)
 {
 	uintptr_t const link_begin = (uintptr_t) link;
 	uintptr_t const first_block_begin = (uintptr_t) first_block;
@@ -132,9 +132,9 @@ uintptr_t _Heap_Extend (Heap_Control * heap,
 	bool extend_area_ok = false;
 
 	if (extend_area_end < extend_area_begin)
-	  {
-		  return 0;
-	  }
+	{
+		return 0;
+	}
 
 	extend_area_ok = _Heap_Get_first_and_last_block (extend_area_begin,
 													 extend_area_size,
@@ -143,58 +143,58 @@ uintptr_t _Heap_Extend (Heap_Control * heap,
 													 &extend_first_block,
 													 &extend_last_block);
 	if (!extend_area_ok)
-	  {
-		  /* For simplicity we reject extend areas that are too small */
-		  return 0;
-	  }
+	{
+		/* For simplicity we reject extend areas that are too small */
+		return 0;
+	}
 
 	do
-	  {
-		  uintptr_t const sub_area_begin = (start_block != first_block) ?
-			  (uintptr_t) start_block : heap->area_begin;
-		  uintptr_t const sub_area_end = start_block->prev_size;
-		  Heap_Block *const end_block =
-			  _Heap_Block_of_alloc_area (sub_area_end, page_size);
+	{
+		uintptr_t const sub_area_begin = (start_block != first_block) ?
+			(uintptr_t) start_block : heap->area_begin;
+		uintptr_t const sub_area_end = start_block->prev_size;
+		Heap_Block *const end_block =
+			_Heap_Block_of_alloc_area (sub_area_end, page_size);
 
-		  if (sub_area_end > extend_area_begin
-			  && extend_area_end > sub_area_begin)
-			{
-				return 0;
-			}
+		if (sub_area_end > extend_area_begin
+			&& extend_area_end > sub_area_begin)
+		{
+			return 0;
+		}
 
-		  if (extend_area_end == sub_area_begin)
-			{
-				merge_below_block = start_block;
-			}
-		  else if (extend_area_end < sub_area_end)
-			{
-				link_below_block = start_block;
-			}
+		if (extend_area_end == sub_area_begin)
+		{
+			merge_below_block = start_block;
+		}
+		else if (extend_area_end < sub_area_end)
+		{
+			link_below_block = start_block;
+		}
 
-		  if (sub_area_end == extend_area_begin)
-			{
-				start_block->prev_size = extend_area_end;
+		if (sub_area_end == extend_area_begin)
+		{
+			start_block->prev_size = extend_area_end;
 
-				merge_above_block = end_block;
-			}
-		  else if (sub_area_end < extend_area_begin)
-			{
-				link_above_block = end_block;
-			}
+			merge_above_block = end_block;
+		}
+		else if (sub_area_end < extend_area_begin)
+		{
+			link_above_block = end_block;
+		}
 
-		  start_block =
-			  _Heap_Block_at (end_block, _Heap_Block_size (end_block));
-	  }
+		start_block =
+			_Heap_Block_at (end_block, _Heap_Block_size (end_block));
+	}
 	while (start_block != first_block);
 
 	if (extend_area_begin < heap->area_begin)
-	  {
-		  heap->area_begin = extend_area_begin;
-	  }
+	{
+		heap->area_begin = extend_area_begin;
+	}
 	else if (heap->area_end < extend_area_end)
-	  {
-		  heap->area_end = extend_area_end;
-	  }
+	{
+		heap->area_end = extend_area_end;
+	}
 
 	extend_first_block_size =
 		(uintptr_t) extend_last_block - (uintptr_t) extend_first_block;
@@ -209,37 +209,37 @@ uintptr_t _Heap_Extend (Heap_Control * heap,
 	_Heap_Protection_block_initialize (heap, extend_last_block);
 
 	if ((uintptr_t) extend_first_block < (uintptr_t) heap->first_block)
-	  {
-		  heap->first_block = extend_first_block;
-	  }
+	{
+		heap->first_block = extend_first_block;
+	}
 	else if ((uintptr_t) extend_last_block > (uintptr_t) heap->last_block)
-	  {
-		  heap->last_block = extend_last_block;
-	  }
+	{
+		heap->last_block = extend_last_block;
+	}
 
 	if (merge_below_block != NULL)
-	  {
-		  _Heap_Merge_below (heap, extend_area_begin, merge_below_block);
-	  }
+	{
+		_Heap_Merge_below (heap, extend_area_begin, merge_below_block);
+	}
 	else if (link_below_block != NULL)
-	  {
-		  _Heap_Link_below (link_below_block, extend_last_block);
-	  }
+	{
+		_Heap_Link_below (link_below_block, extend_last_block);
+	}
 
 	if (merge_above_block != NULL)
-	  {
-		  _Heap_Merge_above (heap, merge_above_block, extend_area_end);
-	  }
+	{
+		_Heap_Merge_above (heap, merge_above_block, extend_area_end);
+	}
 	else if (link_above_block != NULL)
-	  {
-		  _Heap_Link_above (link_above_block,
+	{
+		_Heap_Link_above (link_above_block,
 							extend_first_block, extend_last_block);
-	  }
+	}
 
 	if (merge_below_block == NULL && merge_above_block == NULL)
-	  {
-		  _Heap_Free_block (heap, extend_first_block);
-	  }
+	{
+		_Heap_Free_block (heap, extend_first_block);
+	}
 
 	_Heap_Set_last_block_size (heap);
 

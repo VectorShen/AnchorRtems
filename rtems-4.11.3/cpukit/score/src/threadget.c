@@ -29,15 +29,15 @@ static Objects_Information *_Thread_Get_objects_information (Objects_Id id)
 
 	the_api = _Objects_Get_API (id);
 	if (!_Objects_Is_api_valid (the_api))
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 
 	the_class = _Objects_Get_class (id);
 	if (the_class != 1)
-	  {							/* threads are always first class :) */
-		  return NULL;
-	  }
+	{							/* threads are always first class :) */
+		return NULL;
+	}
 
 	api_information = _Objects_Information_table[the_api];
 	/*
@@ -47,9 +47,9 @@ static Objects_Information *_Thread_Get_objects_information (Objects_Id id)
 	 *  on in all configurations.
 	 */
 	if (!api_information)
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 
 	return api_information[the_class];
 }
@@ -59,41 +59,41 @@ Thread_Control *_Thread_Get (Objects_Id id, Objects_Locations * location)
 	Objects_Information *information;
 
 	if (_Objects_Are_ids_equal (id, OBJECTS_ID_OF_SELF))
-	  {
-		  _Thread_Disable_dispatch ();
-		  *location = OBJECTS_LOCAL;
-		  return _Thread_Executing;
-	  }
+	{
+		_Thread_Disable_dispatch ();
+		*location = OBJECTS_LOCAL;
+		return _Thread_Executing;
+	}
 
 	information = _Thread_Get_objects_information (id);
 	if (information == NULL)
-	  {
-		  *location = OBJECTS_ERROR;
-		  return NULL;
-	  }
+	{
+		*location = OBJECTS_ERROR;
+		return NULL;
+	}
 
 	return (Thread_Control *) _Objects_Get (information, id, location);
 }
 
 Thread_Control *_Thread_Get_interrupt_disable (Objects_Id id,
-											   Objects_Locations * location,
-											   ISR_lock_Context * lock_context)
+											 Objects_Locations * location,
+											 ISR_lock_Context * lock_context)
 {
 	Objects_Information *information;
 
 	if (_Objects_Are_ids_equal (id, OBJECTS_ID_OF_SELF))
-	  {
-		  *location = OBJECTS_LOCAL;
-		  _ISR_lock_ISR_disable (lock_context);
-		  return _Thread_Executing;
-	  }
+	{
+		*location = OBJECTS_LOCAL;
+		_ISR_lock_ISR_disable (lock_context);
+		return _Thread_Executing;
+	}
 
 	information = _Thread_Get_objects_information (id);
 	if (information == NULL)
-	  {
-		  *location = OBJECTS_ERROR;
-		  return NULL;
-	  }
+	{
+		*location = OBJECTS_ERROR;
+		return NULL;
+	}
 
 	return (Thread_Control *)
 		_Objects_Get_isr_disable (information, id, location, lock_context);

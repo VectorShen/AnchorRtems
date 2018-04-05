@@ -145,37 +145,37 @@ int ether_ntohost (hostname, e)
 		return (1);
 
 	while (fgets (buf, BUFSIZ, fp))
-	  {
-		  if (buf[0] == '#')
-			  continue;
+	{
+		if (buf[0] == '#')
+			continue;
 #ifdef YP
-		  if (buf[0] == '+')
+		if (buf[0] == '+')
+		{
+			if (yp_get_default_domain (&yp_domain))
+				continue;
+			ether_a = ether_ntoa (e);
+			if (yp_match (yp_domain, "ethers.byaddr", ether_a,
+						strlen (ether_a), &result, &resultlen))
 			{
-				if (yp_get_default_domain (&yp_domain))
-					continue;
-				ether_a = ether_ntoa (e);
-				if (yp_match (yp_domain, "ethers.byaddr", ether_a,
-							  strlen (ether_a), &result, &resultlen))
-				  {
-					  continue;
-				  }
-				strncpy (buf, result, resultlen);
-				buf[resultlen] = '\0';
-				free (result);
+				continue;
 			}
+			strncpy (buf, result, resultlen);
+			buf[resultlen] = '\0';
+			free (result);
+		}
 #endif
-		  if (!ether_line (buf, &local_ether, local_host))
+		if (!ether_line (buf, &local_ether, local_host))
+		{
+			if (!bcmp ((char *)&local_ether.octet[0],
+					 (char *)&e->octet[0], 6))
 			{
-				if (!bcmp ((char *)&local_ether.octet[0],
-						   (char *)&e->octet[0], 6))
-				  {
-					  /* We have a match */
-					  strcpy (hostname, local_host);
-					  fclose (fp);
-					  return (0);
-				  }
+				/* We have a match */
+				strcpy (hostname, local_host);
+				fclose (fp);
+				return (0);
 			}
-	  }
+		}
+	}
 	fclose (fp);
 	return (1);
 }
@@ -201,36 +201,36 @@ int ether_hostton (hostname, e)
 		return (1);
 
 	while (fgets (buf, BUFSIZ, fp))
-	  {
-		  if (buf[0] == '#')
-			  continue;
+	{
+		if (buf[0] == '#')
+			continue;
 #ifdef YP
-		  if (buf[0] == '+')
+		if (buf[0] == '+')
+		{
+			if (yp_get_default_domain (&yp_domain))
+				continue;
+			if (yp_match (yp_domain, "ethers.byname", hostname,
+						strlen (hostname), &result, &resultlen))
 			{
-				if (yp_get_default_domain (&yp_domain))
-					continue;
-				if (yp_match (yp_domain, "ethers.byname", hostname,
-							  strlen (hostname), &result, &resultlen))
-				  {
-					  continue;
-				  }
-				strncpy (buf, result, resultlen);
-				buf[resultlen] = '\0';
-				free (result);
+				continue;
 			}
+			strncpy (buf, result, resultlen);
+			buf[resultlen] = '\0';
+			free (result);
+		}
 #endif
-		  if (!ether_line (buf, &local_ether, local_host))
+		if (!ether_line (buf, &local_ether, local_host))
+		{
+			if (!strcmp (hostname, local_host))
 			{
-				if (!strcmp (hostname, local_host))
-				  {
-					  /* We have a match */
-					  bcopy ((char *)&local_ether.octet[0],
-							 (char *)&e->octet[0], 6);
-					  fclose (fp);
-					  return (0);
-				  }
+				/* We have a match */
+				bcopy ((char *)&local_ether.octet[0],
+						 (char *)&e->octet[0], 6);
+				fclose (fp);
+				return (0);
 			}
-	  }
+		}
+	}
 	fclose (fp);
 	return (1);
 }

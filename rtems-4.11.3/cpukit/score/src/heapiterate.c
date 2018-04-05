@@ -34,13 +34,13 @@ void _Heap_Iterate (Heap_Control * heap,
 	bool stop = false;
 
 	while (!stop && current != end)
-	  {
-		  uintptr_t size = _Heap_Block_size (current);
-		  Heap_Block *next = _Heap_Block_at (current, size);
-		  bool used = _Heap_Is_prev_used (next);
+	{
+		uintptr_t size = _Heap_Block_size (current);
+		Heap_Block *next = _Heap_Block_at (current, size);
+		bool used = _Heap_Is_prev_used (next);
 
-		  stop = (*visitor) (current, size, used, visitor_arg);
+		stop = (*visitor) (current, size, used, visitor_arg);
 
-		  current = next;
-	  }
+		current = next;
+	}
 }

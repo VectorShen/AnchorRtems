@@ -74,17 +74,17 @@ void summary (rtems_shell_dd_globals * globals)
 					st.in_full, st.in_part, st.out_full, st.out_part);
 	(void)write (STDERR_FILENO, buf, strlen (buf));
 	if (st.swab)
-	  {
-		  (void)snprintf (buf, sizeof (buf), "%ju odd length swab %s\n",
-						  st.swab, (st.swab == 1) ? "block" : "blocks");
-		  (void)write (STDERR_FILENO, buf, strlen (buf));
-	  }
+	{
+		(void)snprintf (buf, sizeof (buf), "%ju odd length swab %s\n",
+						st.swab, (st.swab == 1) ? "block" : "blocks");
+		(void)write (STDERR_FILENO, buf, strlen (buf));
+	}
 	if (st.trunc)
-	  {
-		  (void)snprintf (buf, sizeof (buf), "%ju truncated %s\n",
-						  st.trunc, (st.trunc == 1) ? "block" : "blocks");
-		  (void)write (STDERR_FILENO, buf, strlen (buf));
-	  }
+	{
+		(void)snprintf (buf, sizeof (buf), "%ju truncated %s\n",
+						st.trunc, (st.trunc == 1) ? "block" : "blocks");
+		(void)write (STDERR_FILENO, buf, strlen (buf));
+	}
 	(void)snprintf (buf, sizeof (buf),
 					"%ju bytes transferred in %.6f secs (%.0f bytes/sec)\n",
 					st.bytes, secs, st.bytes / secs);

@@ -38,14 +38,14 @@ int pthread_mutexattr_setprotocol (pthread_mutexattr_t * attr, int protocol)
 		return EINVAL;
 
 	switch (protocol)
-	  {
-		  case PTHREAD_PRIO_NONE:
-		  case PTHREAD_PRIO_INHERIT:
-		  case PTHREAD_PRIO_PROTECT:
-			  attr->protocol = protocol;
-			  return 0;
+	{
+		case PTHREAD_PRIO_NONE:
+		case PTHREAD_PRIO_INHERIT:
+		case PTHREAD_PRIO_PROTECT:
+			attr->protocol = protocol;
+			return 0;
 
-		  default:
-			  return EINVAL;
-	  }
+		default:
+			return EINVAL;
+	}
 }

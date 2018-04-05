@@ -80,8 +80,8 @@ static int __icheckhost (const struct sockaddr *, socklen_t, const char *);
 
 int
 rcmd (char **ahost,
-	  int rport,
-	  const char *locuser, const char *remuser, const char *cmd, int *fd2p)
+	int rport,
+	const char *locuser, const char *remuser, const char *cmd, int *fd2p)
 {
 	struct hostent *hp;
 	struct sockaddr_in sin, from;
@@ -96,166 +96,166 @@ rcmd (char **ahost,
 	pid = getpid ();
 	hp = gethostbyname (*ahost);
 	if (hp == NULL)
-	  {
-		  herror (*ahost);
-		  return (-1);
-	  }
+	{
+		herror (*ahost);
+		return (-1);
+	}
 	*ahost = hp->h_name;
 #ifndef __rtems__
 	oldmask = sigblock (sigmask (SIGURG));
 #endif
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;)
-	  {
-		  s = rresvport (&lport);
-		  if (s < 0)
-			{
-				if (errno == EAGAIN)
-					(void)fprintf (stderr, "rcmd: socket: All ports in use\n");
-				else
-					(void)fprintf (stderr, "rcmd: socket: %s\n",
-								   strerror (errno));
+	{
+		s = rresvport (&lport);
+		if (s < 0)
+		{
+			if (errno == EAGAIN)
+				(void)fprintf (stderr, "rcmd: socket: All ports in use\n");
+			else
+				(void)fprintf (stderr, "rcmd: socket: %s\n",
+							 strerror (errno));
 #ifndef __rtems__
-				sigsetmask (oldmask);
+			sigsetmask (oldmask);
 #endif
-				return (-1);
-			}
-		  fcntl (s, F_SETOWN, pid);
-		  bzero (&sin, sizeof sin);
-		  sin.sin_len = sizeof (struct sockaddr_in);
-		  sin.sin_family = hp->h_addrtype;
-		  sin.sin_port = rport;
-		  bcopy (hp->h_addr_list[0], &sin.sin_addr,
+			return (-1);
+		}
+		fcntl (s, F_SETOWN, pid);
+		bzero (&sin, sizeof sin);
+		sin.sin_len = sizeof (struct sockaddr_in);
+		sin.sin_family = hp->h_addrtype;
+		sin.sin_port = rport;
+		bcopy (hp->h_addr_list[0], &sin.sin_addr,
 				 MIN (hp->h_length, sizeof sin.sin_addr));
-		  if (connect (s, (struct sockaddr *)&sin, sizeof (sin)) >= 0)
-			  break;
-		  (void)close (s);
-		  if (errno == EADDRINUSE)
-			{
-				lport--;
-				continue;
-			}
-		  if (errno == ECONNREFUSED && timo <= 16)
-			{
-				(void)sleep (timo);
-				timo *= 2;
-				continue;
-			}
-		  if (hp->h_addr_list[1] != NULL)
-			{
-				int oerrno = errno;
+		if (connect (s, (struct sockaddr *)&sin, sizeof (sin)) >= 0)
+			break;
+		(void)close (s);
+		if (errno == EADDRINUSE)
+		{
+			lport--;
+			continue;
+		}
+		if (errno == ECONNREFUSED && timo <= 16)
+		{
+			(void)sleep (timo);
+			timo *= 2;
+			continue;
+		}
+		if (hp->h_addr_list[1] != NULL)
+		{
+			int oerrno = errno;
 
-				(void)fprintf (stderr, "connect to address %s: ",
-							   inet_ntoa (sin.sin_addr));
-				errno = oerrno;
-				perror (0);
-				hp->h_addr_list++;
-				bcopy (hp->h_addr_list[0], &sin.sin_addr,
-					   MIN (hp->h_length, sizeof sin.sin_addr));
-				(void)fprintf (stderr, "Trying %s...\n",
-							   inet_ntoa (sin.sin_addr));
-				continue;
-			}
-		  (void)fprintf (stderr, "%s: %s\n", hp->h_name, strerror (errno));
+			(void)fprintf (stderr, "connect to address %s: ",
+						 inet_ntoa (sin.sin_addr));
+			errno = oerrno;
+			perror (0);
+			hp->h_addr_list++;
+			bcopy (hp->h_addr_list[0], &sin.sin_addr,
+				 MIN (hp->h_length, sizeof sin.sin_addr));
+			(void)fprintf (stderr, "Trying %s...\n",
+						 inet_ntoa (sin.sin_addr));
+			continue;
+		}
+		(void)fprintf (stderr, "%s: %s\n", hp->h_name, strerror (errno));
 #ifndef __rtems__
-		  sigsetmask (oldmask);
+		sigsetmask (oldmask);
 #endif
-		  return (-1);
-	  }
+		return (-1);
+	}
 	lport--;
 	if (fd2p == 0)
-	  {
-		  write (s, "", 1);
-		  lport = 0;
-	  }
+	{
+		write (s, "", 1);
+		lport = 0;
+	}
 	else
-	  {
-		  char num[8];
-		  int s2 = rresvport (&lport), s3;
-		  socklen_t len = sizeof (from);
-		  int nfds;
+	{
+		char num[8];
+		int s2 = rresvport (&lport), s3;
+		socklen_t len = sizeof (from);
+		int nfds;
 
-		  if (s2 < 0)
-			  goto bad;
-		  listen (s2, 1);
-		  (void)snprintf (num, sizeof (num), "%d", lport);
-		  if (write (s, num, strlen (num) + 1) != strlen (num) + 1)
-			{
-				(void)fprintf (stderr,
-							   "rcmd: write (setting up stderr): %s\n",
-							   strerror (errno));
-				(void)close (s2);
-				goto bad;
-			}
-		  nfds = max (s, s2) + 1;
-		  if (nfds > FD_SETSIZE)
-			{
-				fprintf (stderr, "rcmd: too many files\n");
-				(void)close (s2);
-				goto bad;
-			}
+		if (s2 < 0)
+			goto bad;
+		listen (s2, 1);
+		(void)snprintf (num, sizeof (num), "%d", lport);
+		if (write (s, num, strlen (num) + 1) != strlen (num) + 1)
+		{
+			(void)fprintf (stderr,
+						 "rcmd: write (setting up stderr): %s\n",
+						 strerror (errno));
+			(void)close (s2);
+			goto bad;
+		}
+		nfds = max (s, s2) + 1;
+		if (nfds > FD_SETSIZE)
+		{
+			fprintf (stderr, "rcmd: too many files\n");
+			(void)close (s2);
+			goto bad;
+		}
 		again:
-		  FD_ZERO (&reads);
-		  FD_SET (s, &reads);
-		  FD_SET (s2, &reads);
-		  errno = 0;
-		  if (select (nfds, &reads, 0, 0, 0) < 1 || !FD_ISSET (s2, &reads))
-			{
-				if (errno != 0)
-					(void)fprintf (stderr,
-								   "rcmd: select (setting up stderr): %s\n",
-								   strerror (errno));
-				else
-					(void)fprintf (stderr,
-								   "select: protocol failure in circuit setup\n");
-				(void)close (s2);
-				goto bad;
-			}
-		  s3 = accept (s2, (struct sockaddr *)&from, &len);
-		  /*
-		   * XXX careful for ftp bounce attacks. If discovered, shut them
-		   * down and check for the real auxiliary channel to connect.
-		   */
-		  if (from.sin_family == AF_INET && from.sin_port == htons (20))
-			{
-				close (s3);
-				goto again;
-			}
-		  (void)close (s2);
-		  if (s3 < 0)
-			{
-				(void)fprintf (stderr, "rcmd: accept: %s\n", strerror (errno));
-				lport = 0;
-				goto bad;
-			}
-		  *fd2p = s3;
-		  from.sin_port = ntohs ((u_short) from.sin_port);
-		  if (from.sin_family != AF_INET ||
-			  from.sin_port >= IPPORT_RESERVED ||
-			  from.sin_port < IPPORT_RESERVED / 2)
-			{
+		FD_ZERO (&reads);
+		FD_SET (s, &reads);
+		FD_SET (s2, &reads);
+		errno = 0;
+		if (select (nfds, &reads, 0, 0, 0) < 1 || !FD_ISSET (s2, &reads))
+		{
+			if (errno != 0)
 				(void)fprintf (stderr,
-							   "socket: protocol failure in circuit setup.\n");
-				goto bad2;
-			}
-	  }
+							 "rcmd: select (setting up stderr): %s\n",
+							 strerror (errno));
+			else
+				(void)fprintf (stderr,
+							 "select: protocol failure in circuit setup\n");
+			(void)close (s2);
+			goto bad;
+		}
+		s3 = accept (s2, (struct sockaddr *)&from, &len);
+		/*
+		 * XXX careful for ftp bounce attacks. If discovered, shut them
+		 * down and check for the real auxiliary channel to connect.
+		 */
+		if (from.sin_family == AF_INET && from.sin_port == htons (20))
+		{
+			close (s3);
+			goto again;
+		}
+		(void)close (s2);
+		if (s3 < 0)
+		{
+			(void)fprintf (stderr, "rcmd: accept: %s\n", strerror (errno));
+			lport = 0;
+			goto bad;
+		}
+		*fd2p = s3;
+		from.sin_port = ntohs ((u_short) from.sin_port);
+		if (from.sin_family != AF_INET ||
+			from.sin_port >= IPPORT_RESERVED ||
+			from.sin_port < IPPORT_RESERVED / 2)
+		{
+			(void)fprintf (stderr,
+						 "socket: protocol failure in circuit setup.\n");
+			goto bad2;
+		}
+	}
 	(void)write (s, locuser, strlen (locuser) + 1);
 	(void)write (s, remuser, strlen (remuser) + 1);
 	(void)write (s, cmd, strlen (cmd) + 1);
 	if (read (s, &c, 1) != 1)
-	  {
-		  (void)fprintf (stderr, "rcmd: %s: %s\n", *ahost, strerror (errno));
-		  goto bad2;
-	  }
+	{
+		(void)fprintf (stderr, "rcmd: %s: %s\n", *ahost, strerror (errno));
+		goto bad2;
+	}
 	if (c != 0)
-	  {
-		  while (read (s, &c, 1) == 1)
-			{
-				(void)write (STDERR_FILENO, &c, 1);
-				if (c == '\n')
-					break;
-			}
-		  goto bad2;
-	  }
+	{
+		while (read (s, &c, 1) == 1)
+		{
+			(void)write (STDERR_FILENO, &c, 1);
+			if (c == '\n')
+				break;
+		}
+		goto bad2;
+	}
 #ifndef __rtems__
 	sigsetmask (oldmask);
 #endif
@@ -288,17 +288,17 @@ int rresvport (int *alport)
 	if (bind (s, (struct sockaddr *)&sin, sizeof (sin)) >= 0)
 		return (s);
 	if (errno != EADDRINUSE)
-	  {
-		  (void)close (s);
-		  return (-1);
-	  }
+	{
+		(void)close (s);
+		return (-1);
+	}
 #endif
 	sin.sin_port = 0;
 	if (bindresvport (s, &sin) == -1)
-	  {
-		  (void)close (s);
-		  return (-1);
-	  }
+	{
+		(void)close (s);
+		return (-1);
+	}
 	*alport = (int)ntohs (sin.sin_port);
 	return (s);
 }
@@ -318,11 +318,11 @@ int ruserok (rhost, superuser, ruser, luser)
 	if ((hp = gethostbyname (rhost)) == NULL)
 		return (-1);
 	for (ap = hp->h_addr_list; *ap; ++ap)
-	  {
-		  bcopy (*ap, &addr, sizeof (addr));
-		  if (iruserok (addr, superuser, ruser, luser) == 0)
-			  return (0);
-	  }
+	{
+		bcopy (*ap, &addr, sizeof (addr));
+		if (iruserok (addr, superuser, ruser, luser) == 0)
+			return (0);
+	}
 	return (-1);
 }
 
@@ -352,58 +352,58 @@ int iruserok (raddr, superuser, ruser, luser)
 	hostf = superuser ? NULL : fopen (_PATH_HEQUIV, "r");
   again:
 	if (hostf)
-	  {
-		  if (__ivaliduser (hostf, raddr, luser, ruser) == 0)
-			{
-				(void)fclose (hostf);
-				return (0);
-			}
-		  (void)fclose (hostf);
-	  }
+	{
+		if (__ivaliduser (hostf, raddr, luser, ruser) == 0)
+		{
+			(void)fclose (hostf);
+			return (0);
+		}
+		(void)fclose (hostf);
+	}
 	if (first == 1 && (__check_rhosts_file || superuser))
-	  {
-		  first = 0;
-		  if ((pwd = getpwnam (luser)) == NULL)
-			  return (-1);
-		  (void)strcpy (pbuf, pwd->pw_dir);
-		  (void)strcat (pbuf, "/.rhosts");
+	{
+		first = 0;
+		if ((pwd = getpwnam (luser)) == NULL)
+			return (-1);
+		(void)strcpy (pbuf, pwd->pw_dir);
+		(void)strcat (pbuf, "/.rhosts");
 
-		  /*
-		   * Change effective uid while opening .rhosts.  If root and
-		   * reading an NFS mounted file system, can't read files that
-		   * are protected read/write owner only.
-		   */
-		  uid = geteuid ();
-		  (void)seteuid (pwd->pw_uid);
-		  hostf = fopen (pbuf, "r");
-		  (void)seteuid (uid);
+		/*
+		 * Change effective uid while opening .rhosts.  If root and
+		 * reading an NFS mounted file system, can't read files that
+		 * are protected read/write owner only.
+		 */
+		uid = geteuid ();
+		(void)seteuid (pwd->pw_uid);
+		hostf = fopen (pbuf, "r");
+		(void)seteuid (uid);
 
-		  if (hostf == NULL)
-			  return (-1);
-		  /*
-		   * If not a regular file, or is owned by someone other than
-		   * user or root or if writeable by anyone but the owner, quit.
-		   */
-		  cp = NULL;
-		  if (lstat (pbuf, &sbuf) < 0)
-			  cp = ".rhosts lstat failed";
-		  else if (!S_ISREG (sbuf.st_mode))
-			  cp = ".rhosts not regular file";
-		  else if (fstat (fileno (hostf), &sbuf) < 0)
-			  cp = ".rhosts fstat failed";
-		  else if (sbuf.st_uid && sbuf.st_uid != pwd->pw_uid)
-			  cp = "bad .rhosts owner";
-		  else if (sbuf.st_mode & (S_IWGRP | S_IWOTH))
-			  cp = ".rhosts writeable by other than owner";
-		  /* If there were any problems, quit. */
-		  if (cp)
-			{
-				__rcmd_errstr = cp;
-				(void)fclose (hostf);
-				return (-1);
-			}
-		  goto again;
-	  }
+		if (hostf == NULL)
+			return (-1);
+		/*
+		 * If not a regular file, or is owned by someone other than
+		 * user or root or if writeable by anyone but the owner, quit.
+		 */
+		cp = NULL;
+		if (lstat (pbuf, &sbuf) < 0)
+			cp = ".rhosts lstat failed";
+		else if (!S_ISREG (sbuf.st_mode))
+			cp = ".rhosts not regular file";
+		else if (fstat (fileno (hostf), &sbuf) < 0)
+			cp = ".rhosts fstat failed";
+		else if (sbuf.st_uid && sbuf.st_uid != pwd->pw_uid)
+			cp = "bad .rhosts owner";
+		else if (sbuf.st_mode & (S_IWGRP | S_IWOTH))
+			cp = ".rhosts writeable by other than owner";
+		/* If there were any problems, quit. */
+		if (cp)
+		{
+			__rcmd_errstr = cp;
+			(void)fclose (hostf);
+			return (-1);
+		}
+		goto again;
+	}
 	return (-1);
 }
 
@@ -440,109 +440,109 @@ int __ivaliduser (hostf, raddr, luser, ruser)
 	hname[sizeof (hname) - 1] = '\0';
 
 	while (fgets (buf, sizeof (buf), hostf))
-	  {
-		  p = buf;
-		  /* Skip lines that are too long. */
-		  if (strchr (p, '\n') == NULL)
-			{
-				while ((ch = getc (hostf)) != '\n' && ch != EOF) ;
-				continue;
-			}
-		  if (*p == '\n' || *p == '#')
-			{
-				/* comment... */
-				continue;
-			}
-		  while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0')
-			{
-				*p = isupper (*p) ? tolower (*p) : *p;
+	{
+		p = buf;
+		/* Skip lines that are too long. */
+		if (strchr (p, '\n') == NULL)
+		{
+			while ((ch = getc (hostf)) != '\n' && ch != EOF) ;
+			continue;
+		}
+		if (*p == '\n' || *p == '#')
+		{
+			/* comment... */
+			continue;
+		}
+		while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0')
+		{
+			*p = isupper (*p) ? tolower (*p) : *p;
+			p++;
+		}
+		if (*p == ' ' || *p == '\t')
+		{
+			*p++ = '\0';
+			while (*p == ' ' || *p == '\t')
 				p++;
-			}
-		  if (*p == ' ' || *p == '\t')
-			{
-				*p++ = '\0';
-				while (*p == ' ' || *p == '\t')
-					p++;
-				user = p;
-				while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0')
-					p++;
-			}
-		  else
-			  user = p;
-		  *p = '\0';
-		  /*
-		   * Do +/- and +@/-@ checking. This looks really nasty,
-		   * but it matches SunOS's behavior so far as I can tell.
-		   */
-		  switch (buf[0])
+			user = p;
+			while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0')
+				p++;
+		}
+		else
+			user = p;
+		*p = '\0';
+		/*
+		 * Do +/- and +@/-@ checking. This looks really nasty,
+		 * but it matches SunOS's behavior so far as I can tell.
+		 */
+		switch (buf[0])
 			{
 				case '+':
 					if (!buf[1])
-					  {			/* '+' matches all hosts */
-						  hostok = 1;
-						  break;
-					  }
+					{			/* '+' matches all hosts */
+						hostok = 1;
+						break;
+					}
 					if (buf[1] == '@')	/* match a host by netgroup */
 						hostok = innetgr ((char *)&buf[2],
-										  (char *)&hname, NULL, ypdomain);
+										(char *)&hname, NULL, ypdomain);
 					else		/* match a host by addr */
 						hostok = __icheckhost (raddr, (char *)&buf[1]);
 					break;
 				case '-':		/* reject '-' hosts and all their users */
 					if (buf[1] == '@')
-					  {
-						  if (innetgr ((char *)&buf[2],
-									   (char *)&hname, NULL, ypdomain))
-							  return (-1);
-					  }
+					{
+						if (innetgr ((char *)&buf[2],
+									 (char *)&hname, NULL, ypdomain))
+							return (-1);
+					}
 					else
-					  {
-						  if (__icheckhost (raddr, (char *)&buf[1]))
-							  return (-1);
-					  }
+					{
+						if (__icheckhost (raddr, (char *)&buf[1]))
+							return (-1);
+					}
 					break;
 				default:		/* if no '+' or '-', do a simple match */
 					hostok = __icheckhost (raddr, buf);
 					break;
 			}
-		  switch (*user)
-			{
-				case '+':
+		switch (*user)
+		{
+			case '+':
+				if (!*(user + 1))
+				{			/* '+' matches all users */
+					userok = 1;
+					break;
+				}
+				if (*(user + 1) == '@')	/* match a user by netgroup */
+					userok = innetgr (user + 2, NULL, ruser, ypdomain);
+				else		/* match a user by direct specification */
+					userok = !(strcmp (ruser, user + 1));
+				break;
+			case '-':		/* if we matched a hostname, */
+				if (hostok)
+				{			/* check for user field rejections */
 					if (!*(user + 1))
-					  {			/* '+' matches all users */
-						  userok = 1;
-						  break;
-					  }
-					if (*(user + 1) == '@')	/* match a user by netgroup */
-						userok = innetgr (user + 2, NULL, ruser, ypdomain);
-					else		/* match a user by direct specification */
-						userok = !(strcmp (ruser, user + 1));
-					break;
-				case '-':		/* if we matched a hostname, */
-					if (hostok)
-					  {			/* check for user field rejections */
-						  if (!*(user + 1))
-							  return (-1);
-						  if (*(user + 1) == '@')
-							{
-								if (innetgr (user + 2, NULL, ruser, ypdomain))
-									return (-1);
-							}
-						  else
-							{
-								if (!strcmp (ruser, user + 1))
-									return (-1);
-							}
-					  }
-					break;
-				default:		/* no rejections: try to match the user */
-					if (hostok)
-						userok = !(strcmp (ruser, *user ? user : luser));
-					break;
-			}
-		  if (hostok && userok)
-			  return (0);
-	  }
+						return (-1);
+					if (*(user + 1) == '@')
+					{
+						if (innetgr (user + 2, NULL, ruser, ypdomain))
+							return (-1);
+					}
+					else
+					{
+						if (!strcmp (ruser, user + 1))
+							return (-1);
+					}
+				}
+				break;
+			default:		/* no rejections: try to match the user */
+				if (hostok)
+					userok = !(strcmp (ruser, *user ? user : luser));
+				break;
+		}
+		if (hostok && userok)
+			return (0);
+	}
 	return (-1);
 }
 

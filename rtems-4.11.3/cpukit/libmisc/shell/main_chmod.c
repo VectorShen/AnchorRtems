@@ -33,19 +33,19 @@ static int rtems_shell_main_chmod (int argc, char *argv[])
 	unsigned long tmp;
 
 	if (argc < 2)
-	  {
-		  fprintf (stderr, "%s: too few arguments\n", argv[0]);
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "%s: too few arguments\n", argv[0]);
+		return -1;
+	}
 
 	/*
 	 *  Convert arguments into numbers
 	 */
 	if (rtems_string_to_unsigned_long (argv[1], &tmp, NULL, 0))
-	  {
-		  printf ("Mode argument (%s) is not a number\n", argv[1]);
-		  return -1;
-	  }
+	{
+		printf ("Mode argument (%s) is not a number\n", argv[1]);
+		return -1;
+	}
 	mode = (mode_t) (tmp & 0777);
 
 	/*
@@ -57,7 +57,8 @@ static int rtems_shell_main_chmod (int argc, char *argv[])
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CHMOD_Command = {
+rtems_shell_cmd_t rtems_shell_CHMOD_Command =
+{
 	"chmod",					/* name */
 	"chmod 0777 n1 n2... # change filemode",	/* usage */
 	"files",					/* topic */

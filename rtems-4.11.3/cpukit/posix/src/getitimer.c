@@ -29,13 +29,13 @@ int getitimer (int which, struct itimerval *value)
 		rtems_set_errno_and_return_minus_one (EFAULT);
 
 	switch (which)
-	  {
-		  case ITIMER_REAL:
-		  case ITIMER_VIRTUAL:
-		  case ITIMER_PROF:
-			  rtems_set_errno_and_return_minus_one (ENOSYS);
-		  default:
-			  break;
-	  }
+	{
+		case ITIMER_REAL:
+		case ITIMER_VIRTUAL:
+		case ITIMER_PROF:
+			rtems_set_errno_and_return_minus_one (ENOSYS);
+		default:
+			break;
+	}
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

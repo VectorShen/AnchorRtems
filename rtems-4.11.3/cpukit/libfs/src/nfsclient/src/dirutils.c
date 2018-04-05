@@ -12,13 +12,13 @@
  * ----------
  * This software (NFS-2 client implementation for RTEMS) was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2002-2007,
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * The NFS-2 client implementation for RTEMS was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -109,14 +109,14 @@ int pwd (void)
 	char buf[PATH_MAX];
 
 	if (!getcwd (buf, PATH_MAX))
-	  {
-		  perror ("getcwd");
-		  return -1;
-	  }
+	{
+		perror ("getcwd");
+		return -1;
+	}
 	else
-	  {
-		  printf ("%s\n", buf);
-	  }
+	{
+		printf ("%s\n", buf);
+	}
 	return 0;
 }
 
@@ -125,30 +125,30 @@ static int ls_r (char *path, char *chpt, char *name, struct stat *buf)
 	char *t;
 	sprintf (chpt, "/%s", name);
 	if (lstat (path, buf))
-	  {
-		  fprintf (stderr, "stat(%s): %s\n", path, strerror (errno));
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "stat(%s): %s\n", path, strerror (errno));
+		return -1;
+	}
 	switch (buf->st_mode & S_IFMT)
-	  {
-		  case S_IFSOCK:
-		  case S_IFIFO:
-			  t = "|";
-			  break;
+	{
+		case S_IFSOCK:
+		case S_IFIFO:
+			t = "|";
+			break;
 
-		  default:
-		  case S_IFREG:
-		  case S_IFBLK:
-		  case S_IFCHR:
-			  t = "";
-			  break;
-		  case S_IFDIR:
-			  t = "/";
-			  break;
-		  case S_IFLNK:
-			  t = "@";
-			  break;
-	  }
+		default:
+		case S_IFREG:
+		case S_IFBLK:
+		case S_IFCHR:
+			t = "";
+			break;
+		case S_IFDIR:
+			t = "/";
+			break;
+		case S_IFLNK:
+			t = "@";
+			break;
+	}
 
 	printf ("%10li, %10" PRIdoff_t "b, %5i.%-5i 0%04" PRIomode_t " %s%s\n",
 			buf->st_ino,
@@ -175,15 +175,15 @@ int ls (char *dir, char *opts)
 	chpt = path + strlen (path);
 
 	if (!(dp = opendir (dir)))
-	  {
-		  perror ("opendir");
-		  goto cleanup;
-	  }
+	{
+		perror ("opendir");
+		goto cleanup;
+	}
 
 	while ((de = readdir (dp)))
-	  {
-		  ls_r (path, chpt, de->d_name, &buf);
-	  }
+	{
+		ls_r (path, chpt, de->d_name, &buf);
+	}
 
 	rval = 0;
 
@@ -210,9 +210,9 @@ int cp (char *from, char *to, char *opts)
 	int flags = O_CREAT | O_WRONLY | O_TRUNC | O_EXCL;
 
 	if (from)
-	  {
+	{
 
-		  if ((fd = open (from, O_RDONLY, 0)) < 0)
+		if ((fd = open (from, O_RDONLY, 0)) < 0)
 			{
 				fprintf (stderr,
 						 "Opening %s for reading: %s\n",
@@ -220,65 +220,65 @@ int cp (char *from, char *to, char *opts)
 				goto cleanup;
 			}
 
-		  if (fstat (fd, &st))
+		if (fstat (fd, &st))
 			{
 				fprintf (stderr, "rstat(%s): %s\n", from, strerror (errno));
 				goto cleanup;
 			}
 
-		  if (!S_ISREG (st.st_mode))
+		if (!S_ISREG (st.st_mode))
 			{
 				fprintf (stderr, "Refuse to copy a non-regular file\n");
 				errno = EINVAL;
 				goto cleanup;
 			}
-		  /* Now create a stream -- I experienced occasional weirdness
-		   * when circumventing the streams attached to fildno(stdin)
-		   * by reading/writing to the underlying fd's directly ->
-		   * for now we always go through buffered I/O...
-		   */
-		  if (!(fst = fdopen (fd, "r")))
+		/* Now create a stream -- I experienced occasional weirdness
+		 * when circumventing the streams attached to fildno(stdin)
+		 * by reading/writing to the underlying fd's directly ->
+		 * for now we always go through buffered I/O...
+		 */
+		if (!(fst = fdopen (fd, "r")))
 			{
 				fprintf (stderr,
 						 "Opening input stream [fdopen()] failed: %s\n",
 						 strerror (errno));
 				goto cleanup;
 			}
-		  /* at this point, we have a stream and don't need 'fd' anymore */
-		  fd = -1;
+		/* at this point, we have a stream and don't need 'fd' anymore */
+		fd = -1;
 
-	  }
+	}
 	else
-	  {
-		  fst = stdin;
-		  st.st_mode = 0644;
-	  }
+	{
+		fst = stdin;
+		st.st_mode = 0644;
+	}
 
 	if (opts && strchr (opts, 'f'))
 		flags &= ~O_EXCL;
 
 	if (to)
-	  {
-		  if ((fd = open (to, flags, st.st_mode)) < 0)
+	{
+		if ((fd = open (to, flags, st.st_mode)) < 0)
 			{
 				fprintf (stderr,
 						 "Opening %s for writing: %s\n", to, strerror (errno));
 				goto cleanup;
 			}
-		  if (!(tst = fdopen (fd, "w")))
+		if (!(tst = fdopen (fd, "w")))
 			{
 				fprintf (stderr,
 						 "Opening output stream [fdopen()] failed: %s\n",
 						 strerror (errno));
 				goto cleanup;
 			}
-		  /* at this point we have a stream and don't need 'fd' anymore */
-		  fd = -1;
-	  }
+		/* at this point we have a stream and don't need 'fd' anymore */
+		fd = -1;
+	}
 	else
-	  {
-		  tst = stdout;
-	  }
+	{
+		tst = stdout;
+	}
 
 	/* clear old errors */
 	clearerr (fst);
@@ -297,15 +297,15 @@ int cp (char *from, char *to, char *opts)
 	}
 
 	if (ferror (fst))
-	  {
-		  fprintf (stderr, "Read error: %s\n", strerror (errno));
-		  goto cleanup;
-	  }
+	{
+		fprintf (stderr, "Read error: %s\n", strerror (errno));
+		goto cleanup;
+	}
 	if (ferror (tst))
-	  {
-		  fprintf (stderr, "Write error: %s\n", strerror (errno));
-		  goto cleanup;
-	  }
+	{
+		fprintf (stderr, "Write error: %s\n", strerror (errno));
+		goto cleanup;
+	}
 
 	rval = 0;
 
@@ -315,23 +315,23 @@ int cp (char *from, char *to, char *opts)
 		close (fd);
 
 	if (fst)
-	  {
-		  if (from)
-			  fclose (fst);
-		  else
-			  clearerr (fst);
-	  }
+	{
+		if (from)
+			fclose (fst);
+		else
+			clearerr (fst);
+	}
 	if (tst)
-	  {
-		  if (to)
-			  fclose (tst);
-		  else
+	{
+		if (to)
+			fclose (tst);
+		else
 			{
 				/* flush stdout */
 				fflush (tst);
 				clearerr (tst);
 			}
-	  }
+	}
 
 	return rval;
 }
@@ -339,35 +339,35 @@ int cp (char *from, char *to, char *opts)
 int ln (char *to, char *name, char *opts)
 {
 	if (!to)
-	  {
-		  fprintf (stderr, "ln: need 'to' argument\n");
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "ln: need 'to' argument\n");
+		return -1;
+	}
 	if (!name)
-	  {
-		  if (!(name = strrchr (to, '/')))
+	{
+		if (!(name = strrchr (to, '/')))
 			{
 				fprintf (stderr, "ln: 'unable to link %s to %s\n", to, to);
 				return -1;
 			}
-		  name++;
-	  }
+		name++;
+	}
 	if (opts && strchr (opts, 's'))
-	  {
-		  if (symlink (name, to))
+	{
+		if (symlink (name, to))
 			{
 				fprintf (stderr, "symlink: %s\n", strerror (errno));
 				return -1;
 			}
-	  }
+	}
 	else
-	  {
-		  if (link (name, to))
+	{
+		if (link (name, to))
 			{
 				fprintf (stderr, "hardlink: %s\n", strerror (errno));
 				return -1;
 			}
-	  }
+	}
 	return 0;
 }
 

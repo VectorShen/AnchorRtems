@@ -166,13 +166,13 @@ int main_ls (rtems_shell_ls_globals * globals, int argc, char *argv[])
 
 	/* Terminal defaults to -Cq, non-terminal defaults to -1. */
 	if (isatty (STDOUT_FILENO))
-	  {
+	{
 #if RTEMS_REMOVED
-		  if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &win) == 0 && win.ws_col > 0)
-			  termwidth = win.ws_col;
-		  f_column = f_nonprint = 1;
+		if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &win) == 0 && win.ws_col > 0)
+			termwidth = win.ws_col;
+		f_column = f_nonprint = 1;
 #endif
-	  }
+	}
 	else
 		f_singlecol = 1;
 
@@ -182,153 +182,153 @@ int main_ls (rtems_shell_ls_globals * globals, int argc, char *argv[])
 
 	fts_options = FTS_PHYSICAL;
 	while ((ch = getopt_r (argc, argv,
-						   "1ABCFLRSTWabcdfghiklmnopqrstuwx",
-						   &getopt_reent)) != -1)
-	  {
-		  switch (ch)
-			{
-					/*
-					 * The -1, -C, -l, -m and -x options all override each other so
-					 * shell aliasing works correctly.
-					 */
-				case '1':
-					f_singlecol = 1;
-					f_column = f_columnacross = f_longform = f_stream = 0;
-					break;
-				case 'C':
-					f_column = 1;
-					f_columnacross = f_longform = f_singlecol = f_stream = 0;
-					break;
-				case 'g':
-					if (f_grouponly != -1)
-						f_grouponly = 1;
-					f_longform = 1;
-					f_column = f_columnacross = f_singlecol = f_stream = 0;
-					break;
-				case 'l':
-					f_longform = 1;
-					f_column = f_columnacross = f_singlecol = f_stream = 0;
-					/* Never let -g take precedence over -l. */
-					f_grouponly = -1;
-					break;
-				case 'm':
-					f_stream = 1;
-					f_column = f_columnacross = f_longform = f_singlecol = 0;
-					break;
-				case 'x':
-					f_columnacross = 1;
-					f_column = f_longform = f_singlecol = f_stream = 0;
-					break;
-					/* The -c and -u options override each other. */
-				case 'c':
-					f_statustime = 1;
-					f_accesstime = 0;
-					break;
-				case 'u':
-					f_accesstime = 1;
-					f_statustime = 0;
-					break;
-				case 'F':
-					f_type = 1;
-					break;
-				case 'L':
-					fts_options &= ~FTS_PHYSICAL;
-					fts_options |= FTS_LOGICAL;
-					break;
-				case 'R':
-					f_recursive = 1;
-					break;
-				case 'a':
-					fts_options |= FTS_SEEDOT;
-					/* FALLTHROUGH */
-				case 'A':
-					f_listdot = 1;
-					break;
-					/* The -B option turns off the -b, -q and -w options. */
-				case 'B':
-					f_nonprint = 0;
-					f_octal = 1;
-					f_octal_escape = 0;
-					break;
-					/* The -b option turns off the -B, -q and -w options. */
-				case 'b':
-					f_nonprint = 0;
-					f_octal = 0;
-					f_octal_escape = 1;
-					break;
-					/* The -d option turns off the -R option. */
-				case 'd':
-					f_listdir = 1;
-					f_recursive = 0;
-					break;
-				case 'f':
-					f_nosort = 1;
-					break;
-				case 'i':
-					f_inode = 1;
-					break;
-				case 'k':
-					blocksize = 1024;
+						 "1ABCFLRSTWabcdfghiklmnopqrstuwx",
+						 &getopt_reent)) != -1)
+	{
+		switch (ch)
+		{
+				/*
+				 * The -1, -C, -l, -m and -x options all override each other so
+				 * shell aliasing works correctly.
+				 */
+			case '1':
+				f_singlecol = 1;
+				f_column = f_columnacross = f_longform = f_stream = 0;
+				break;
+			case 'C':
+				f_column = 1;
+				f_columnacross = f_longform = f_singlecol = f_stream = 0;
+				break;
+			case 'g':
+				if (f_grouponly != -1)
+					f_grouponly = 1;
+				f_longform = 1;
+				f_column = f_columnacross = f_singlecol = f_stream = 0;
+				break;
+			case 'l':
+				f_longform = 1;
+				f_column = f_columnacross = f_singlecol = f_stream = 0;
+				/* Never let -g take precedence over -l. */
+				f_grouponly = -1;
+				break;
+			case 'm':
+				f_stream = 1;
+				f_column = f_columnacross = f_longform = f_singlecol = 0;
+				break;
+			case 'x':
+				f_columnacross = 1;
+				f_column = f_longform = f_singlecol = f_stream = 0;
+				break;
+				/* The -c and -u options override each other. */
+			case 'c':
+				f_statustime = 1;
+				f_accesstime = 0;
+				break;
+			case 'u':
+				f_accesstime = 1;
+				f_statustime = 0;
+				break;
+			case 'F':
+				f_type = 1;
+				break;
+			case 'L':
+				fts_options &= ~FTS_PHYSICAL;
+				fts_options |= FTS_LOGICAL;
+				break;
+			case 'R':
+				f_recursive = 1;
+				break;
+			case 'a':
+				fts_options |= FTS_SEEDOT;
+				/* FALLTHROUGH */
+			case 'A':
+				f_listdot = 1;
+				break;
+				/* The -B option turns off the -b, -q and -w options. */
+			case 'B':
+				f_nonprint = 0;
+				f_octal = 1;
+				f_octal_escape = 0;
+				break;
+				/* The -b option turns off the -B, -q and -w options. */
+			case 'b':
+				f_nonprint = 0;
+				f_octal = 0;
+				f_octal_escape = 1;
+				break;
+				/* The -d option turns off the -R option. */
+			case 'd':
+				f_listdir = 1;
+				f_recursive = 0;
+				break;
+			case 'f':
+				f_nosort = 1;
+				break;
+			case 'i':
+				f_inode = 1;
+				break;
+			case 'k':
+				blocksize = 1024;
 #if RTEMS_REMOVED
-					kflag = 1;
+				kflag = 1;
 #endif
-					break;
-					/* The -h option forces all sizes to be measured in bytes. */
-				case 'h':
-					f_humanize = 1;
-					break;
-				case 'n':
-					f_numericonly = 1;
-					break;
-				case 'o':
-					f_flags = 1;
-					break;
-				case 'p':
-					f_typedir = 1;
-					break;
-					/* The -q option turns off the -B, -b and -w options. */
-				case 'q':
-					f_nonprint = 1;
-					f_octal = 0;
-					f_octal_escape = 0;
-					break;
-				case 'r':
-					f_reversesort = 1;
-					break;
-				case 'S':
-					sortkey = BY_SIZE;
-					break;
-				case 's':
-					f_size = 1;
-					break;
-				case 'T':
-					f_sectime = 1;
-					break;
-				case 't':
-					sortkey = BY_TIME;
-					break;
-				case 'W':
-					f_whiteout = 1;
-					break;
-					/* The -w option turns off the -B, -b and -q options. */
-				case 'w':
-					f_nonprint = 0;
-					f_octal = 0;
-					f_octal_escape = 0;
-					break;
-				default:
-				case '?':
-					usage (globals);
-			}
-	  }
+				break;
+				/* The -h option forces all sizes to be measured in bytes. */
+			case 'h':
+				f_humanize = 1;
+				break;
+			case 'n':
+				f_numericonly = 1;
+				break;
+			case 'o':
+				f_flags = 1;
+				break;
+			case 'p':
+				f_typedir = 1;
+				break;
+				/* The -q option turns off the -B, -b and -w options. */
+			case 'q':
+				f_nonprint = 1;
+				f_octal = 0;
+				f_octal_escape = 0;
+				break;
+			case 'r':
+				f_reversesort = 1;
+				break;
+			case 'S':
+				sortkey = BY_SIZE;
+				break;
+			case 's':
+				f_size = 1;
+				break;
+			case 'T':
+				f_sectime = 1;
+				break;
+			case 't':
+				sortkey = BY_TIME;
+				break;
+			case 'W':
+				f_whiteout = 1;
+				break;
+				/* The -w option turns off the -B, -b and -q options. */
+			case 'w':
+				f_nonprint = 0;
+				f_octal = 0;
+				f_octal_escape = 0;
+				break;
+			default:
+			case '?':
+				usage (globals);
+		}
+	}
 	argc -= getopt_reent.optind;
 	argv += getopt_reent.optind;
 
 	if (f_column || f_columnacross || f_stream)
-	  {
-		  if ((p = getenv ("COLUMNS")) != NULL)
-			  termwidth = atoi (p);
-	  }
+	{
+		if ((p = getenv ("COLUMNS")) != NULL)
+			termwidth = atoi (p);
+	}
 
 	/*
 	 * If both -g and -l options, let -l take precedence.
@@ -361,58 +361,58 @@ int main_ls (rtems_shell_ls_globals * globals, int argc, char *argv[])
 
 	/* If -l or -s, figure out block size. */
 	if (f_inode || f_longform || f_size)
-	  {
+	{
 #if RTEMS_REMOVED
-		  if (!kflag)
-			  (void)getbsize (NULL, &blocksize);
+		if (!kflag)
+			(void)getbsize (NULL, &blocksize);
 #else
-		  /* Make equal to 1 so ls -l shows the actual blcok count */
-		  blocksize = 512;
+		/* Make equal to 1 so ls -l shows the actual blcok count */
+		blocksize = 512;
 #endif
-		  blocksize /= 512;
-	  }
+		blocksize /= 512;
+	}
 
 	/* Select a sort function. */
 	if (f_reversesort)
-	  {
-		  switch (sortkey)
-			{
-				case BY_NAME:
-					sortfcn = revnamecmp;
-					break;
-				case BY_SIZE:
-					sortfcn = revsizecmp;
-					break;
-				case BY_TIME:
-					if (f_accesstime)
-						sortfcn = revacccmp;
-					else if (f_statustime)
-						sortfcn = revstatcmp;
-					else		/* Use modification time. */
-						sortfcn = revmodcmp;
-					break;
-			}
-	  }
+	{
+		switch (sortkey)
+		{
+			case BY_NAME:
+				sortfcn = revnamecmp;
+				break;
+			case BY_SIZE:
+				sortfcn = revsizecmp;
+				break;
+			case BY_TIME:
+				if (f_accesstime)
+					sortfcn = revacccmp;
+				else if (f_statustime)
+					sortfcn = revstatcmp;
+				else		/* Use modification time. */
+					sortfcn = revmodcmp;
+				break;
+		}
+	}
 	else
-	  {
-		  switch (sortkey)
-			{
-				case BY_NAME:
-					sortfcn = namecmp;
-					break;
-				case BY_SIZE:
-					sortfcn = sizecmp;
-					break;
-				case BY_TIME:
-					if (f_accesstime)
-						sortfcn = acccmp;
-					else if (f_statustime)
-						sortfcn = statcmp;
-					else		/* Use modification time. */
-						sortfcn = modcmp;
-					break;
-			}
-	  }
+	{
+		switch (sortkey)
+		{
+			case BY_NAME:
+				sortfcn = namecmp;
+				break;
+			case BY_SIZE:
+				sortfcn = sizecmp;
+				break;
+			case BY_TIME:
+				if (f_accesstime)
+					sortfcn = acccmp;
+				else if (f_statustime)
+					sortfcn = statcmp;
+				else		/* Use modification time. */
+					sortfcn = modcmp;
+				break;
+		}
+	}
 
 	/* Select a print function. */
 	if (f_singlecol)
@@ -454,16 +454,16 @@ traverse (rtems_shell_ls_globals * globals, int argc, char *argv[], int options)
 
 	if ((ftsp =
 		 fts_open (argv, options,
-				   f_nosort ? NULL : f_listdir ?
-				   mastercmp_listdir : mastercmp_no_listdir)) == NULL)
+				 f_nosort ? NULL : f_listdir ?
+				 mastercmp_listdir : mastercmp_no_listdir)) == NULL)
 		err (exit_jump, EXIT_FAILURE, NULL);
 
 	display (globals, NULL, fts_children (ftsp, 0));
 	if (f_listdir)
-	  {
-		  fts_close (ftsp);
-		  return;
-	  }
+	{
+		fts_close (ftsp);
+		return;
+	}
 
 	/*
 	 * If not recursing down this tree and don't need stat info, just get
@@ -473,40 +473,40 @@ traverse (rtems_shell_ls_globals * globals, int argc, char *argv[], int options)
 
 	while ((p = fts_read (ftsp)) != NULL)
 		switch (p->fts_info)
-		  {
-			  case FTS_DC:
-				  warnx ("%s: directory causes a cycle", p->fts_name);
-				  break;
-			  case FTS_DNR:
-			  case FTS_ERR:
-				  warnx ("%s: %s", p->fts_name, strerror (p->fts_errno));
-				  rval = EXIT_FAILURE;
-				  break;
-			  case FTS_D:
-				  if (p->fts_level != FTS_ROOTLEVEL &&
-					  p->fts_name[0] == '.' && !f_listdot)
-					  break;
+		{
+			case FTS_DC:
+				warnx ("%s: directory causes a cycle", p->fts_name);
+				break;
+			case FTS_DNR:
+			case FTS_ERR:
+				warnx ("%s: %s", p->fts_name, strerror (p->fts_errno));
+				rval = EXIT_FAILURE;
+				break;
+			case FTS_D:
+				if (p->fts_level != FTS_ROOTLEVEL &&
+					p->fts_name[0] == '.' && !f_listdot)
+					break;
 
-				  /*
-				   * If already output something, put out a newline as
-				   * a separator.  If multiple arguments, precede each
-				   * directory with its name.
-				   */
-				  if (output)
-					  (void)printf ("\n%s:\n", p->fts_path);
-				  else if (argc > 1)
-					{
-						(void)printf ("%s:\n", p->fts_path);
-						output = 1;
-					}
+				/*
+				 * If already output something, put out a newline as
+				 * a separator.  If multiple arguments, precede each
+				 * directory with its name.
+				 */
+				if (output)
+					(void)printf ("\n%s:\n", p->fts_path);
+				else if (argc > 1)
+				{
+					(void)printf ("%s:\n", p->fts_path);
+					output = 1;
+				}
 
-				  chp = fts_children (ftsp, ch_options);
-				  display (globals, p, chp);
+				chp = fts_children (ftsp, ch_options);
+				display (globals, p, chp);
 
-				  if (!f_recursive && chp != NULL)
-					  (void)fts_set (ftsp, p, FTS_SKIP);
-				  break;
-		  }
+				if (!f_recursive && chp != NULL)
+					(void)fts_set (ftsp, p, FTS_SKIP);
+				break;
+		}
 	fts_close (ftsp);
 	if (errno)
 		err (exit_jump, EXIT_FAILURE, "fts_read");
@@ -556,116 +556,116 @@ display (rtems_shell_ls_globals * globals, FTSENT * p, FTSENT * list)
 	btotal = stotal = maxblock = maxsize = 0;
 	maxmajor = maxminor = 0;
 	for (cur = list, entries = 0; cur; cur = cur->fts_link)
-	  {
-		  uint64_t size;
-		  if (cur->fts_info == FTS_ERR || cur->fts_info == FTS_NS)
+	{
+		uint64_t size;
+		if (cur->fts_info == FTS_ERR || cur->fts_info == FTS_NS)
+		{
+			warnx ("%s: %s", cur->fts_name, strerror (cur->fts_errno));
+			cur->fts_number = NO_PRINT;
+			rval = EXIT_FAILURE;
+			continue;
+		}
+
+		/*
+		 * P is NULL if list is the argv list, to which different rules
+		 * apply.
+		 */
+		if (p == NULL)
+		{
+			/* Directories will be displayed later. */
+			if (cur->fts_info == FTS_D && !f_listdir)
 			{
-				warnx ("%s: %s", cur->fts_name, strerror (cur->fts_errno));
 				cur->fts_number = NO_PRINT;
-				rval = EXIT_FAILURE;
 				continue;
 			}
-
-		  /*
-		   * P is NULL if list is the argv list, to which different rules
-		   * apply.
-		   */
-		  if (p == NULL)
+		}
+		else
+		{
+			/* Only display dot file if -a/-A set. */
+			if (cur->fts_name[0] == '.' && !f_listdot)
 			{
-				/* Directories will be displayed later. */
-				if (cur->fts_info == FTS_D && !f_listdir)
-				  {
-					  cur->fts_number = NO_PRINT;
-					  continue;
-				  }
+				cur->fts_number = NO_PRINT;
+				continue;
 			}
-		  else
+		}
+		if (cur->fts_namelen > maxlen)
+			maxlen = cur->fts_namelen;
+		if (needstats)
+		{
+			sp = cur->fts_statp;
+			if (sp->st_size < 0)
+				size = sp->st_size * -1;
+			else
+				size = sp->st_size;
+			if (sp->st_blocks > maxblock)
+				maxblock = sp->st_blocks;
+			if (sp->st_ino > maxinode)
+				maxinode = sp->st_ino;
+			if (sp->st_nlink > maxnlink)
+				maxnlink = sp->st_nlink;
+			if (size > maxsize)
+				maxsize = size;
+			if (S_ISCHR (sp->st_mode) || S_ISBLK (sp->st_mode))
 			{
-				/* Only display dot file if -a/-A set. */
-				if (cur->fts_name[0] == '.' && !f_listdot)
-				  {
-					  cur->fts_number = NO_PRINT;
-					  continue;
-				  }
+				bcfile = 1;
+				if (major (sp->st_rdev) > maxmajor)
+					maxmajor = major (sp->st_rdev);
+				if (minor (sp->st_rdev) > maxminor)
+					maxminor = minor (sp->st_rdev);
 			}
-		  if (cur->fts_namelen > maxlen)
-			  maxlen = cur->fts_namelen;
-		  if (needstats)
-			{
-				sp = cur->fts_statp;
-				if (sp->st_size < 0)
-					size = sp->st_size * -1;
-				else
-					size = sp->st_size;
-				if (sp->st_blocks > maxblock)
-					maxblock = sp->st_blocks;
-				if (sp->st_ino > maxinode)
-					maxinode = sp->st_ino;
-				if (sp->st_nlink > maxnlink)
-					maxnlink = sp->st_nlink;
-				if (size > maxsize)
-					maxsize = size;
-				if (S_ISCHR (sp->st_mode) || S_ISBLK (sp->st_mode))
-				  {
-					  bcfile = 1;
-					  if (major (sp->st_rdev) > maxmajor)
-						  maxmajor = major (sp->st_rdev);
-					  if (minor (sp->st_rdev) > maxminor)
-						  maxminor = minor (sp->st_rdev);
-				  }
 
-				btotal += sp->st_blocks;
-				stotal += size;
-				if (f_longform)
-				  {
-					  if (f_numericonly ||
-						  (user = user_from_uid (sp->st_uid, 0)) == NULL)
-						{
-							(void)snprintf (nuser, sizeof (nuser),
-											"%u", sp->st_uid);
-							user = nuser;
-						}
-					  if (f_numericonly ||
-						  (group = group_from_gid (sp->st_gid, 0)) == NULL)
-						{
-							(void)snprintf (ngroup, sizeof (ngroup),
-											"%u", sp->st_gid);
-							group = ngroup;
-						}
-					  if ((ulen = strlen (user)) > maxuser)
-						  maxuser = ulen;
-					  if ((glen = strlen (group)) > maxgroup)
-						  maxgroup = glen;
+			btotal += sp->st_blocks;
+			stotal += size;
+			if (f_longform)
+			{
+				if (f_numericonly ||
+					(user = user_from_uid (sp->st_uid, 0)) == NULL)
+				{
+					(void)snprintf (nuser, sizeof (nuser),
+									"%u", sp->st_uid);
+					user = nuser;
+				}
+				if (f_numericonly ||
+					(group = group_from_gid (sp->st_gid, 0)) == NULL)
+				{
+					(void)snprintf (ngroup, sizeof (ngroup),
+									"%u", sp->st_gid);
+					group = ngroup;
+				}
+				if ((ulen = strlen (user)) > maxuser)
+					maxuser = ulen;
+				if ((glen = strlen (group)) > maxgroup)
+					maxgroup = glen;
 #if RTEMS_REMOVED
-					  if (f_flags)
-						{
-							flags = flags_to_string (sp->st_flags, "-");
-							if ((flen = strlen (flags)) > maxflags)
-								maxflags = flen;
-						}
-					  else
+				if (f_flags)
+				{
+					flags = flags_to_string (sp->st_flags, "-");
+					if ((flen = strlen (flags)) > maxflags)
+						maxflags = flen;
+				}
+				else
 #endif
-						  flen = 0;
+					flen = 0;
 
-					  if ((np = malloc (sizeof (NAMES) +
-										ulen + glen + flen + 3)) == NULL)
-						  err (exit_jump, EXIT_FAILURE, NULL);
+				if ((np = malloc (sizeof (NAMES) +
+									ulen + glen + flen + 3)) == NULL)
+					err (exit_jump, EXIT_FAILURE, NULL);
 
-					  np->user = &np->data[0];
-					  (void)strcpy (np->user, user);
-					  np->group = &np->data[ulen + 1];
-					  (void)strcpy (np->group, group);
+				np->user = &np->data[0];
+				(void)strcpy (np->user, user);
+				np->group = &np->data[ulen + 1];
+				(void)strcpy (np->group, group);
 
-					  if (f_flags && flags)
-						{
-							np->flags = &np->data[ulen + glen + 2];
-							(void)strcpy (np->flags, flags);
-						}
-					  cur->fts_pointer = np;
-				  }
+				if (f_flags && flags)
+				{
+					np->flags = &np->data[ulen + glen + 2];
+					(void)strcpy (np->flags, flags);
+				}
+				cur->fts_pointer = np;
 			}
-		  ++entries;
-	  }
+		}
+		++entries;
+	}
 
 	if (!entries)
 		return;
@@ -674,52 +674,52 @@ display (rtems_shell_ls_globals * globals, FTSENT * p, FTSENT * list)
 	d.entries = entries;
 	d.maxlen = maxlen;
 	if (needstats)
-	  {
-		  d.btotal = btotal;
-		  d.stotal = stotal;
-		  if (f_humanize)
-			{
-				d.s_block = 4;	/* min buf length for humanize_number */
-			}
-		  else
-			{
-				(void)snprintf (buf, sizeof (buf), "%llu",
-								(long long)howmany (maxblock, blocksize));
-				d.s_block = strlen (buf);
-			}
-		  d.s_flags = maxflags;
-		  d.s_group = maxgroup;
-		  (void)snprintf (buf, sizeof (buf), "%u", maxinode);
-		  d.s_inode = strlen (buf);
-		  (void)snprintf (buf, sizeof (buf), "%u", maxnlink);
-		  d.s_nlink = strlen (buf);
-		  if (f_humanize)
-			{
-				d.s_size = 4;	/* min buf length for humanize_number */
-			}
-		  else
-			{
-				(void)snprintf (buf, sizeof (buf), "%llu", (long long)maxsize);
-				d.s_size = strlen (buf);
-			}
-		  d.s_user = maxuser;
-		  if (bcfile)
-			{
-				(void)snprintf (buf, sizeof (buf), "%u", maxmajor);
-				d.s_major = strlen (buf);
-				(void)snprintf (buf, sizeof (buf), "%u", maxminor);
-				d.s_minor = strlen (buf);
-				if (d.s_major + d.s_minor + 2 > d.s_size)
-					d.s_size = d.s_major + d.s_minor + 2;
-				else if (d.s_size - d.s_minor - 2 > d.s_major)
-					d.s_major = d.s_size - d.s_minor - 2;
-			}
-		  else
-			{
-				d.s_major = 0;
-				d.s_minor = 0;
-			}
-	  }
+	{
+		d.btotal = btotal;
+		d.stotal = stotal;
+		if (f_humanize)
+		{
+			d.s_block = 4;	/* min buf length for humanize_number */
+		}
+		else
+		{
+			(void)snprintf (buf, sizeof (buf), "%llu",
+							(long long)howmany (maxblock, blocksize));
+			d.s_block = strlen (buf);
+		}
+		d.s_flags = maxflags;
+		d.s_group = maxgroup;
+		(void)snprintf (buf, sizeof (buf), "%u", maxinode);
+		d.s_inode = strlen (buf);
+		(void)snprintf (buf, sizeof (buf), "%u", maxnlink);
+		d.s_nlink = strlen (buf);
+		if (f_humanize)
+		{
+			d.s_size = 4;	/* min buf length for humanize_number */
+		}
+		else
+		{
+			(void)snprintf (buf, sizeof (buf), "%llu", (long long)maxsize);
+			d.s_size = strlen (buf);
+		}
+		d.s_user = maxuser;
+		if (bcfile)
+		{
+			(void)snprintf (buf, sizeof (buf), "%u", maxmajor);
+			d.s_major = strlen (buf);
+			(void)snprintf (buf, sizeof (buf), "%u", maxminor);
+			d.s_minor = strlen (buf);
+			if (d.s_major + d.s_minor + 2 > d.s_size)
+				d.s_size = d.s_major + d.s_minor + 2;
+			else if (d.s_size - d.s_minor - 2 > d.s_major)
+				d.s_major = d.s_size - d.s_minor - 2;
+		}
+		else
+		{
+			d.s_major = 0;
+			d.s_minor = 0;
+		}
+	}
 
 	printfcn (globals, &d);
 	output = 1;
@@ -748,22 +748,22 @@ static int mastercmp_no_listdir (const FTSENT ** a, const FTSENT ** b)
 		return (0);
 
 	if (a_info == FTS_NS || b_info == FTS_NS)
-	  {
-		  if (b_info != FTS_NS)
-			  return (1);
-		  else if (a_info != FTS_NS)
-			  return (-1);
-		  else
-			  return (namecmp (*a, *b));
-	  }
+	{
+		if (b_info != FTS_NS)
+			return (1);
+		else if (a_info != FTS_NS)
+			return (-1);
+		else
+			return (namecmp (*a, *b));
+	}
 
 	if (a_info != b_info && !l_f_listdir && (*a)->fts_level == FTS_ROOTLEVEL)
-	  {
-		  if (a_info == FTS_D)
-			  return (1);
-		  else if (b_info == FTS_D)
-			  return (-1);
-	  }
+	{
+		if (a_info == FTS_D)
+			return (1);
+		else if (b_info == FTS_D)
+			return (-1);
+	}
 	return (sortfcn (*a, *b));
 }
 
@@ -780,26 +780,27 @@ static int mastercmp_listdir (const FTSENT ** a, const FTSENT ** b)
 		return (0);
 
 	if (a_info == FTS_NS || b_info == FTS_NS)
-	  {
-		  if (b_info != FTS_NS)
-			  return (1);
-		  else if (a_info != FTS_NS)
-			  return (-1);
-		  else
-			  return (namecmp (*a, *b));
-	  }
+	{
+		if (b_info != FTS_NS)
+			return (1);
+		else if (a_info != FTS_NS)
+			return (-1);
+		else
+			return (namecmp (*a, *b));
+	}
 
 	if (a_info != b_info && !l_f_listdir && (*a)->fts_level == FTS_ROOTLEVEL)
-	  {
-		  if (a_info == FTS_D)
-			  return (1);
-		  else if (b_info == FTS_D)
-			  return (-1);
-	  }
+	{
+		if (a_info == FTS_D)
+			return (1);
+		else if (b_info == FTS_D)
+			return (-1);
+	}
 	return (sortfcn (*a, *b));
 }
 
-rtems_shell_cmd_t rtems_shell_LS_Command = {
+rtems_shell_cmd_t rtems_shell_LS_Command =
+{
 	"ls",						/* name */
 	"ls [dir]     # list files in the directory",	/* usage */
 	"files",					/* topic */

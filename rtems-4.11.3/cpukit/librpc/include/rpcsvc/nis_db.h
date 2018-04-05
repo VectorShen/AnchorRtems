@@ -60,54 +60,54 @@ extern "C"
 {
 #endif
 
-	enum db_status
-	{
-		DB_SUCCESS = 0,
-		DB_NOTFOUND = 1,
-		DB_NOTUNIQUE = 2,
-		DB_BADTABLE = 3,
-		DB_BADQUERY = 4,
-		DB_BADOBJECT = 5,
-		DB_MEMORY_LIMIT = 6,
-		DB_STORAGE_LIMIT = 7,
-		DB_INTERNAL_ERROR = 8,
-		_DB_STATUS = 0xffffffff
-	};
-	typedef enum db_status db_status;
+enum db_status
+{
+	DB_SUCCESS = 0,
+	DB_NOTFOUND = 1,
+	DB_NOTUNIQUE = 2,
+	DB_BADTABLE = 3,
+	DB_BADQUERY = 4,
+	DB_BADOBJECT = 5,
+	DB_MEMORY_LIMIT = 6,
+	DB_STORAGE_LIMIT = 7,
+	DB_INTERNAL_ERROR = 8,
+	_DB_STATUS = 0xffffffff
+};
+typedef enum db_status db_status;
 
-	enum db_action
-	{
-		DB_LOOKUP = 0,
-		DB_REMOVE = 1,
-		DB_ADD = 2,
-		DB_FIRST = 3,
-		DB_NEXT = 4,
-		DB_ALL = 5,
-		DB_RESET_NEXT = 6,
-		_DB_ACTION = 0xffffffff
-	};
-	typedef enum db_action db_action;
+enum db_action
+{
+	DB_LOOKUP = 0,
+	DB_REMOVE = 1,
+	DB_ADD = 2,
+	DB_FIRST = 3,
+	DB_NEXT = 4,
+	DB_ALL = 5,
+	DB_RESET_NEXT = 6,
+	_DB_ACTION = 0xffffffff
+};
+typedef enum db_action db_action;
 
-	typedef entry_obj *entry_object_p;
+typedef entry_obj *entry_object_p;
 
-	typedef struct
-	{
-		u_int db_next_desc_len;
-		char *db_next_desc_val;
-	} db_next_desc;
+typedef struct
+{
+	u_int db_next_desc_len;
+	char *db_next_desc_val;
+} db_next_desc;
 
-	struct db_result
+struct db_result
+{
+	db_status status;
+	db_next_desc nextinfo;
+	struct
 	{
-		db_status status;
-		db_next_desc nextinfo;
-		struct
-		{
-			u_int objects_len;
-			entry_object_p *objects_val;
-		} objects;
-		long ticks;
-	};
-	typedef struct db_result db_result;
+		u_int objects_len;
+		entry_object_p *objects_val;
+	} objects;
+	long ticks;
+};
+typedef struct db_result db_result;
 
 /*
  * Prototypes for the database functions.
@@ -115,50 +115,50 @@ extern "C"
 
 #if (__STDC__)
 
-	extern bool_t db_initialize (char *);
+extern bool_t db_initialize (char *);
 #ifdef ORIGINAL_DECLS
-	extern bool_t db_create_table (char *, table_obj *);
-	extern bool_t db_destroy_table (char *);
+extern bool_t db_create_table (char *, table_obj *);
+extern bool_t db_destroy_table (char *);
 #else
-	extern db_status db_create_table (char *, table_obj *);
-	extern db_status db_destroy_table (char *);
+extern db_status db_create_table (char *, table_obj *);
+extern db_status db_destroy_table (char *);
 #endif
-	extern db_result *db_first_entry (char *, int, nis_attr *);
-	extern db_result *db_next_entry (char *, db_next_desc *);
-	extern db_result *db_reset_next_entry (char *, db_next_desc *);
-	extern db_result *db_list_entries (char *, int, nis_attr *);
-	extern db_result *db_add_entry (char *, int, nis_attr *, entry_obj *);
-	extern db_result *db_remove_entry (char *, int, nis_attr *);
-	extern db_status db_checkpoint (char *);
-	extern db_status db_standby (char *);
+extern db_result *db_first_entry (char *, int, nis_attr *);
+extern db_result *db_next_entry (char *, db_next_desc *);
+extern db_result *db_reset_next_entry (char *, db_next_desc *);
+extern db_result *db_list_entries (char *, int, nis_attr *);
+extern db_result *db_add_entry (char *, int, nis_attr *, entry_obj *);
+extern db_result *db_remove_entry (char *, int, nis_attr *);
+extern db_status db_checkpoint (char *);
+extern db_status db_standby (char *);
 #ifndef ORIGINAL_DECLS
-	extern db_status db_table_exists (char *);
-	extern db_status db_unload_table (char *);
-	extern void db_free_result (db_result *);
+extern db_status db_table_exists (char *);
+extern db_status db_unload_table (char *);
+extern void db_free_result (db_result *);
 #endif
 
 #else							/* Non-prototype definitions */
 
-	extern bool_t db_initialize ();
+extern bool_t db_initialize ();
 #ifdef ORIGINAL_DECLS
-	extern bool_t db_create_table ();
-	extern bool_t db_destroy_table ();
+extern bool_t db_create_table ();
+extern bool_t db_destroy_table ();
 #else
-	extern db_status db_create_table ();
-	extern db_status db_destroy_table ();
+extern db_status db_create_table ();
+extern db_status db_destroy_table ();
 #endif
-	extern db_result *db_first_entry ();
-	extern db_result *db_next_entry ();
-	extern db_result *db_reset_next_entry ();
-	extern db_result *db_list_entries ();
-	extern db_result *db_add_entry ();
-	extern db_result *db_remove_entry ();
-	extern db_status db_checkpoint ();
-	extern db_status db_standby ();
+extern db_result *db_first_entry ();
+extern db_result *db_next_entry ();
+extern db_result *db_reset_next_entry ();
+extern db_result *db_list_entries ();
+extern db_result *db_add_entry ();
+extern db_result *db_remove_entry ();
+extern db_status db_checkpoint ();
+extern db_status db_standby ();
 #ifndef ORIGINAL_DECLS
-	extern db_status db_table_exists ();
-	extern db_status db_unload_table ();
-	extern void db_free_result ();
+extern db_status db_table_exists ();
+extern db_status db_unload_table ();
+extern void db_free_result ();
 #endif
 #endif							/* __STDC__ */
 

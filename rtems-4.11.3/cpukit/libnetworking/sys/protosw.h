@@ -152,7 +152,8 @@ struct protosw
 #define PRU_NREQ		22
 
 #ifdef PRUREQUESTS
-const char *prurequests[] = {
+const char *prurequests[] =
+{
 	"ATTACH", "DETACH", "BIND", "LISTEN",
 	"CONNECT", "ACCEPT", "DISCONNECT", "SHUTDOWN",
 	"RCVD", "SEND", "ABORT", "CONTROL",
@@ -257,7 +258,8 @@ extern struct pr_usrreqs pru_oldstyle;
 	((cmd) >= PRC_REDIRECT_NET && (cmd) <= PRC_REDIRECT_TOSHOST)
 
 #ifdef PRCREQUESTS
-char *prcrequests[] = {
+char *prcrequests[] =
+{
 	"IFDOWN", "ROUTEDEAD", "IFUP", "DEC-BIT-QUENCH2",
 	"QUENCH", "MSGSIZE", "HOSTDEAD", "#7",
 	"NET-UNREACH", "HOST-UNREACH", "PROTO-UNREACH", "PORT-UNREACH",
@@ -286,7 +288,8 @@ char *prcrequests[] = {
 #define	PRCO_NCMDS	2
 
 #ifdef PRCOREQUESTS
-char *prcorequests[] = {
+char *prcorequests[] =
+{
 	"GETOPT", "SETOPT",
 };
 #endif

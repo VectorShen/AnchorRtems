@@ -88,10 +88,12 @@ domaininit(void *dummy)
 #endif
 */
 
-	for (dp = domains; dp; dp = dp->dom_next) {
+	for (dp = domains; dp; dp = dp->dom_next)
+	{
 		if (dp->dom_init)
 			(*dp->dom_init)();
-		for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++){
+		for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
+		{
 #ifdef PRU_OLDSTYLE
 			/* See comments in uipc_socket2.c. */
 			if (pr->pr_usrreqs == 0 && pr->pr_ousrreq)
@@ -168,7 +170,8 @@ pffindproto(int family, int protocol, int type)
 			goto found;
 	return (0);
 found:
-	for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++) {
+	for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
+	{
 		if ((pr->pr_protocol == protocol) && (pr->pr_type == type))
 			return (pr);
 

@@ -34,12 +34,12 @@ static int _POSIX_signals_Get_lowest (sigset_t set)
 	int signo;
 
 	for (signo = SIGRTMIN; signo <= SIGRTMAX; signo++)
-	  {
-		  if (set & signo_to_mask (signo))
-			{
-				goto found_it;
-			}
-	  }
+	{
+		if (set & signo_to_mask (signo))
+		{
+			goto found_it;
+		}
+	}
 
 	/*
 	 *  We assume SIGHUP == 1 and is the first non-real-time signal.
@@ -49,12 +49,12 @@ static int _POSIX_signals_Get_lowest (sigset_t set)
 #error "Assumption that SIGHUP==1 violated!!"
 #endif
 	for (signo = SIGHUP; signo <= __SIGLASTNOTRT; signo++)
-	  {
-		  if (set & signo_to_mask (signo))
-			{
-				goto found_it;
-			}
-	  }
+	{
+		if (set & signo_to_mask (signo))
+		{
+			goto found_it;
+		}
+	}
 
 	/*
 	 *  This is structured this way to eliminate the need to have
@@ -69,8 +69,8 @@ static int _POSIX_signals_Get_lowest (sigset_t set)
  *  3.3.8 Synchronously Accept a Signal, P1003.1b-1993, p. 76
  */
 int sigtimedwait (const sigset_t * __restrict set,
-				  siginfo_t * __restrict info,
-				  const struct timespec *__restrict timeout)
+				siginfo_t * __restrict info,
+				const struct timespec *__restrict timeout)
 {
 	Thread_Control *executing;
 	POSIX_API_Control *api;
@@ -92,16 +92,16 @@ int sigtimedwait (const sigset_t * __restrict set,
 
 	interval = 0;
 	if (timeout)
-	  {
+	{
 
-		  if (!_Timespec_Is_valid (timeout))
-			  rtems_set_errno_and_return_minus_one (EINVAL);
+		if (!_Timespec_Is_valid (timeout))
+			rtems_set_errno_and_return_minus_one (EINVAL);
 
-		  interval = _Timespec_To_ticks (timeout);
+		interval = _Timespec_To_ticks (timeout);
 
-		  if (!interval)
-			  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+		if (!interval)
+			rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	/*
 	 *  Initialize local variables.
@@ -120,33 +120,33 @@ int sigtimedwait (const sigset_t * __restrict set,
 
 	_POSIX_signals_Acquire (&lock_context);
 	if (*set & api->signals_pending)
-	  {
-		  /* XXX real info later */
-		  the_info->si_signo = _POSIX_signals_Get_lowest (api->signals_pending);
-		  _POSIX_signals_Clear_signals (api,
+	{
+		/* XXX real info later */
+		the_info->si_signo = _POSIX_signals_Get_lowest (api->signals_pending);
+		_POSIX_signals_Clear_signals (api,
 										the_info->si_signo,
 										the_info, false, false, false);
-		  _POSIX_signals_Release (&lock_context);
+		_POSIX_signals_Release (&lock_context);
 
-		  the_info->si_code = SI_USER;
-		  the_info->si_value.sival_int = 0;
-		  return the_info->si_signo;
-	  }
+		the_info->si_code = SI_USER;
+		the_info->si_value.sival_int = 0;
+		return the_info->si_signo;
+	}
 
 	/* Process pending signals? */
 
 	if (*set & _POSIX_signals_Pending)
-	  {
-		  signo = _POSIX_signals_Get_lowest (_POSIX_signals_Pending);
-		  _POSIX_signals_Clear_signals (api, signo, the_info, true, false,
+	{
+		signo = _POSIX_signals_Get_lowest (_POSIX_signals_Pending);
+		_POSIX_signals_Clear_signals (api, signo, the_info, true, false,
 										false);
-		  _POSIX_signals_Release (&lock_context);
+		_POSIX_signals_Release (&lock_context);
 
-		  the_info->si_signo = signo;
-		  the_info->si_code = SI_USER;
-		  the_info->si_value.sival_int = 0;
-		  return signo;
-	  }
+		the_info->si_signo = signo;
+		the_info->si_code = SI_USER;
+		the_info->si_value.sival_int = 0;
+		return signo;
+	}
 
 	the_info->si_signo = -1;
 
@@ -167,8 +167,8 @@ int sigtimedwait (const sigset_t * __restrict set,
 	 */
 
 	_POSIX_signals_Clear_signals (api,
-								  the_info->si_signo,
-								  the_info, false, false, true);
+								the_info->si_signo,
+								the_info, false, false, true);
 
 	/* Set errno only if return code is not EINTR or
 	 * if EINTR was caused by a signal being caught, which
@@ -177,10 +177,10 @@ int sigtimedwait (const sigset_t * __restrict set,
 
 	if ((executing->Wait.return_code != EINTR)
 		|| !(*set & signo_to_mask (the_info->si_signo)))
-	  {
-		  errno = executing->Wait.return_code;
-		  return -1;
-	  }
+	{
+		errno = executing->Wait.return_code;
+		return -1;
+	}
 
 	return the_info->si_signo;
 }

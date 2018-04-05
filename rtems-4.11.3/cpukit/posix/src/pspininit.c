@@ -50,21 +50,21 @@ int pthread_spin_init (pthread_spinlock_t * spinlock, int pshared)
 		return EINVAL;
 
 	switch (pshared)
-	  {
-		  case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
-			  break;
-		  case PTHREAD_PROCESS_SHARED:
-		  default:
-			  return EINVAL;
-	  }
+	{
+		case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
+			break;
+		case PTHREAD_PROCESS_SHARED:
+		default:
+			return EINVAL;
+	}
 
 	the_spinlock = _POSIX_Spinlock_Allocate ();
 
 	if (!the_spinlock)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	_CORE_spinlock_Initialize_attributes (&attributes);
 

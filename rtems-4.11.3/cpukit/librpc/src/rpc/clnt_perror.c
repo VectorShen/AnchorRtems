@@ -84,62 +84,62 @@ char *clnt_sperror (CLIENT * rpch, const char *s)
 	str += strlen (str);
 
 	switch (e.re_status)
-	  {
-		  case RPC_SUCCESS:
-		  case RPC_CANTENCODEARGS:
-		  case RPC_CANTDECODERES:
-		  case RPC_TIMEDOUT:
-		  case RPC_PROGUNAVAIL:
-		  case RPC_PROCUNAVAIL:
-		  case RPC_CANTDECODEARGS:
-		  case RPC_SYSTEMERROR:
-		  case RPC_UNKNOWNHOST:
-		  case RPC_UNKNOWNPROTO:
-		  case RPC_PMAPFAILURE:
-		  case RPC_PROGNOTREGISTERED:
-		  case RPC_FAILED:
-			  break;
+	{
+		case RPC_SUCCESS:
+		case RPC_CANTENCODEARGS:
+		case RPC_CANTDECODERES:
+		case RPC_TIMEDOUT:
+		case RPC_PROGUNAVAIL:
+		case RPC_PROCUNAVAIL:
+		case RPC_CANTDECODEARGS:
+		case RPC_SYSTEMERROR:
+		case RPC_UNKNOWNHOST:
+		case RPC_UNKNOWNPROTO:
+		case RPC_PMAPFAILURE:
+		case RPC_PROGNOTREGISTERED:
+		case RPC_FAILED:
+			break;
 
-		  case RPC_CANTSEND:
-		  case RPC_CANTRECV:
-			  (void)snprintf (str, CLNT_PERROR_BUFLEN - (str - strstart),
-							  "; errno = %s\n", strerror (e.re_errno));
-			  break;
+		case RPC_CANTSEND:
+		case RPC_CANTRECV:
+			(void)snprintf (str, CLNT_PERROR_BUFLEN - (str - strstart),
+							"; errno = %s\n", strerror (e.re_errno));
+			break;
 
-		  case RPC_VERSMISMATCH:
-			  (void)sprintf (str,
+		case RPC_VERSMISMATCH:
+			(void)sprintf (str,
 							 "; low version = %lu, high version = %lu\n",
 							 (u_long) e.re_vers.low, (u_long) e.re_vers.high);
-			  break;
+			break;
 
-		  case RPC_AUTHERROR:
-			  err = auth_errmsg (e.re_why);
-			  (void)sprintf (str, "; why = ");
-			  str += strlen (str);
-			  if (err != NULL)
-				{
-					(void)sprintf (str, "%s\n", err);
-				}
-			  else
-				{
-					(void)sprintf (str,
-								   "(unknown authentication error - %d)\n",
-								   (int)e.re_why);
-				}
-			  break;
+		case RPC_AUTHERROR:
+			err = auth_errmsg (e.re_why);
+			(void)sprintf (str, "; why = ");
+			str += strlen (str);
+			if (err != NULL)
+			{
+				(void)sprintf (str, "%s\n", err);
+			}
+			else
+			{
+				(void)sprintf (str,
+							 "(unknown authentication error - %d)\n",
+							 (int)e.re_why);
+			}
+			break;
 
-		  case RPC_PROGVERSMISMATCH:
-			  (void)sprintf (str,
+		case RPC_PROGVERSMISMATCH:
+			(void)sprintf (str,
 							 "; low version = %lu, high version = %lu\n",
 							 (u_long) e.re_vers.low, (u_long) e.re_vers.high);
-			  break;
+			break;
 
-		  default:				/* unknown */
-			  (void)sprintf (str,
+		default:				/* unknown */
+			(void)sprintf (str,
 							 "; s1 = %lu, s2 = %lu\n",
 							 (long)e.re_lb.s1, (long)e.re_lb.s2);
-			  break;
-	  }
+			break;
+	}
 	strstart[CLNT_PERROR_BUFLEN - 2] = '\n';
 	strstart[CLNT_PERROR_BUFLEN - 1] = '\0';
 	return (strstart);
@@ -150,7 +150,8 @@ void clnt_perror (CLIENT * rpch, const char *s)
 	(void)fprintf (stderr, "%s\n", clnt_sperror (rpch, s));
 }
 
-static const char *const rpc_errlist[] = {
+static const char *const rpc_errlist[] =
+{
 	"RPC: Success",				/*  0 - RPC_SUCCESS */
 	"RPC: Can't encode arguments",	/*  1 - RPC_CANTENCODEARGS */
 	"RPC: Can't decode result",	/*  2 - RPC_CANTDECODERES */
@@ -196,23 +197,23 @@ char *clnt_spcreateerror (const char *s)
 	if (str == 0)
 		return (0);
 	switch (rpc_createerr.cf_stat)
-	  {
-		  case RPC_PMAPFAILURE:
-			  (void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
-							  clnt_sperrno (rpc_createerr.cf_stat),
-							  clnt_sperrno (rpc_createerr.cf_error.re_status));
-			  break;
+	{
+		case RPC_PMAPFAILURE:
+			(void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
+							clnt_sperrno (rpc_createerr.cf_stat),
+							clnt_sperrno (rpc_createerr.cf_error.re_status));
+			break;
 
-		  case RPC_SYSTEMERROR:
-			  (void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
-							  clnt_sperrno (rpc_createerr.cf_stat),
-							  strerror (rpc_createerr.cf_error.re_errno));
-			  break;
-		  default:
-			  (void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s\n", s,
-							  clnt_sperrno (rpc_createerr.cf_stat));
-			  break;
-	  }
+		case RPC_SYSTEMERROR:
+			(void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
+							clnt_sperrno (rpc_createerr.cf_stat),
+							strerror (rpc_createerr.cf_error.re_errno));
+			break;
+		default:
+			(void)snprintf (str, CLNT_PERROR_BUFLEN, "%s: %s\n", s,
+							clnt_sperrno (rpc_createerr.cf_stat));
+			break;
+	}
 	str[CLNT_PERROR_BUFLEN - 2] = '\n';
 	str[CLNT_PERROR_BUFLEN - 1] = '\0';
 	return (str);
@@ -223,7 +224,8 @@ void clnt_pcreateerror (const char *s)
 	(void)fprintf (stderr, "%s\n", clnt_spcreateerror (s));
 }
 
-static const char *const auth_errlist[] = {
+static const char *const auth_errlist[] =
+{
 	"Authentication OK",		/* 0 - AUTH_OK */
 	"Invalid client credential",	/* 1 - AUTH_BADCRED */
 	"Server rejected credential",	/* 2 - AUTH_REJECTEDCRED */

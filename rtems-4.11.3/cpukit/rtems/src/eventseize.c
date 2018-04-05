@@ -31,13 +31,13 @@
  */
 
 void _Event_Seize (rtems_event_set event_in,
-				   rtems_option option_set,
-				   rtems_interval ticks,
-				   rtems_event_set * event_out,
-				   Thread_Control * executing,
-				   Event_Control * event,
-				   Thread_Wait_flags wait_class,
-				   States_Control block_state, ISR_lock_Context * lock_context)
+				 rtems_option option_set,
+				 rtems_interval ticks,
+				 rtems_event_set * event_out,
+				 Thread_Control * executing,
+				 Event_Control * event,
+				 Thread_Wait_flags wait_class,
+				 States_Control block_state, ISR_lock_Context * lock_context)
 {
 	rtems_event_set seized_events;
 	rtems_event_set pending_events;
@@ -52,21 +52,21 @@ void _Event_Seize (rtems_event_set event_in,
 
 	if (!_Event_sets_Is_empty (seized_events) &&
 		(seized_events == event_in || _Options_Is_any (option_set)))
-	  {
-		  event->pending_events =
-			  _Event_sets_Clear (pending_events, seized_events);
-		  _Thread_Lock_release_default (executing, lock_context);
-		  *event_out = seized_events;
-		  return;
-	  }
+	{
+		event->pending_events =
+			_Event_sets_Clear (pending_events, seized_events);
+		_Thread_Lock_release_default (executing, lock_context);
+		*event_out = seized_events;
+		return;
+	}
 
 	if (_Options_Is_no_wait (option_set))
-	  {
-		  _Thread_Lock_release_default (executing, lock_context);
-		  executing->Wait.return_code = RTEMS_UNSATISFIED;
-		  *event_out = seized_events;
-		  return;
-	  }
+	{
+		_Thread_Lock_release_default (executing, lock_context);
+		executing->Wait.return_code = RTEMS_UNSATISFIED;
+		*event_out = seized_events;
+		return;
+	}
 
 	intend_to_block = wait_class | THREAD_WAIT_STATE_INTEND_TO_BLOCK;
 
@@ -87,12 +87,12 @@ void _Event_Seize (rtems_event_set event_in,
 	_Thread_Lock_release_default (executing, lock_context);
 
 	if (ticks)
-	  {
-		  _Thread_Wait_set_timeout_code (executing, RTEMS_TIMEOUT);
-		  _Watchdog_Initialize (&executing->Timer,
+	{
+		_Thread_Wait_set_timeout_code (executing, RTEMS_TIMEOUT);
+		_Watchdog_Initialize (&executing->Timer,
 								_Thread_Timeout, 0, executing);
-		  _Watchdog_Insert_ticks (&executing->Timer, ticks);
-	  }
+		_Watchdog_Insert_ticks (&executing->Timer, ticks);
+	}
 
 	_Thread_Set_state (executing, block_state);
 
@@ -107,10 +107,10 @@ void _Event_Seize (rtems_event_set event_in,
 											 wait_class |
 											 THREAD_WAIT_STATE_BLOCKED);
 	if (!success)
-	  {
-		  _Watchdog_Remove_ticks (&executing->Timer);
-		  _Thread_Unblock (executing);
-	  }
+	{
+		_Watchdog_Remove_ticks (&executing->Timer);
+		_Thread_Unblock (executing);
+	}
 
 	_Thread_Dispatch_enable (cpu_self);
 }

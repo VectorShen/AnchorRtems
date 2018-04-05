@@ -39,21 +39,21 @@ int sem_close (sem_t * sem)
 	_Objects_Allocator_lock ();
 	the_semaphore = _POSIX_Semaphore_Get (sem, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  the_semaphore->open_count -= 1;
-			  _POSIX_Semaphore_Delete (the_semaphore);
-			  _Objects_Put (&the_semaphore->Object);
-			  _Objects_Allocator_unlock ();
-			  return 0;
+		case OBJECTS_LOCAL:
+			the_semaphore->open_count -= 1;
+			_POSIX_Semaphore_Delete (the_semaphore);
+			_Objects_Put (&the_semaphore->Object);
+			_Objects_Allocator_unlock ();
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

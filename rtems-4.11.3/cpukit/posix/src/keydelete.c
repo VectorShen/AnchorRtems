@@ -39,26 +39,26 @@ int pthread_key_delete (pthread_key_t key)
 	_Objects_Allocator_lock ();
 	the_key = _POSIX_Keys_Get (key, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _POSIX_Keys_Free_memory (the_key);
+		case OBJECTS_LOCAL:
+			_POSIX_Keys_Free_memory (the_key);
 
-			  /*
-			   *  NOTE:  The destructor is not called and it is the responsibility
-			   *         of the application to free the memory.
-			   */
-			  _POSIX_Keys_Free (the_key);
-			  _Objects_Put (&the_key->Object);
-			  _Objects_Allocator_unlock ();
-			  return 0;
+			/*
+			 *  NOTE:  The destructor is not called and it is the responsibility
+			 *         of the application to free the memory.
+			 */
+			_POSIX_Keys_Free (the_key);
+			_Objects_Put (&the_key->Object);
+			_Objects_Allocator_unlock ();
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never happen */
+		case OBJECTS_REMOTE:	/* should never happen */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

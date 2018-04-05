@@ -68,31 +68,31 @@ int _POSIX_Message_queue_Create_support (const char *name_arg,
 	 *  think will print out the defaults.  Report anything you find with it.
 	 */
 	if (attr_ptr == NULL)
-	  {
-		  attr.mq_maxmsg = 10;
-		  attr.mq_msgsize = 16;
-	  }
+	{
+		attr.mq_maxmsg = 10;
+		attr.mq_msgsize = 16;
+	}
 	else
-	  {
-		  if (attr_ptr->mq_maxmsg <= 0)
-			{
-				rtems_set_errno_and_return_minus_one (EINVAL);
-			}
+	{
+		if (attr_ptr->mq_maxmsg <= 0)
+		{
+			rtems_set_errno_and_return_minus_one (EINVAL);
+		}
 
-		  if (attr_ptr->mq_msgsize <= 0)
-			{
-				rtems_set_errno_and_return_minus_one (EINVAL);
-			}
+		if (attr_ptr->mq_msgsize <= 0)
+		{
+			rtems_set_errno_and_return_minus_one (EINVAL);
+		}
 
-		  attr = *attr_ptr;
-	  }
+		attr = *attr_ptr;
+	}
 
 	the_mq = _POSIX_Message_queue_Allocate ();
 	if (!the_mq)
-	  {
-		  _Objects_Allocator_unlock ();
-		  rtems_set_errno_and_return_minus_one (ENFILE);
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		rtems_set_errno_and_return_minus_one (ENFILE);
+	}
 
 	/*
 	 * Make a copy of the user's string for name just in case it was
@@ -100,11 +100,11 @@ int _POSIX_Message_queue_Create_support (const char *name_arg,
 	 */
 	name = _Workspace_String_duplicate (name_arg, name_len);
 	if (!name)
-	  {
-		  _POSIX_Message_queue_Free (the_mq);
-		  _Objects_Allocator_unlock ();
-		  rtems_set_errno_and_return_minus_one (ENOMEM);
-	  }
+	{
+		_POSIX_Message_queue_Free (the_mq);
+		_Objects_Allocator_unlock ();
+		rtems_set_errno_and_return_minus_one (ENOMEM);
+	}
 
 	the_mq->process_shared = pshared;
 	the_mq->named = true;
@@ -124,16 +124,16 @@ int _POSIX_Message_queue_Create_support (const char *name_arg,
 	if (!_CORE_message_queue_Initialize (&the_mq->Message_queue,
 										 the_mq_attr,
 										 attr.mq_maxmsg, attr.mq_msgsize))
-	  {
+	{
 
-		  _POSIX_Message_queue_Free (the_mq);
-		  _Workspace_Free (name);
-		  _Objects_Allocator_unlock ();
-		  rtems_set_errno_and_return_minus_one (ENOSPC);
-	  }
+		_POSIX_Message_queue_Free (the_mq);
+		_Workspace_Free (name);
+		_Objects_Allocator_unlock ();
+		rtems_set_errno_and_return_minus_one (ENOSPC);
+	}
 
 	_Objects_Open_string (&_POSIX_Message_queue_Information,
-						  &the_mq->Object, name);
+						&the_mq->Object, name);
 
 	*message_queue = the_mq;
 

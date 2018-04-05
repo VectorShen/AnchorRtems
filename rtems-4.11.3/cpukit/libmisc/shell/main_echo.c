@@ -78,78 +78,79 @@ static int rtems_shell_main_echo (int argc, char *argv[])
 		ap++;
 
 	if ((p = *ap) != NULL)
-	  {
-		  if (!strcmp (p, "-n"))
-			{
-				nflag = 1;
-				ap++;
-			}
-		  else if (!strcmp (p, "-e"))
-			{
-				eflag = 1;
-				ap++;
-			}
-	  }
+	{
+		if (!strcmp (p, "-n"))
+		{
+			nflag = 1;
+			ap++;
+		}
+		else if (!strcmp (p, "-e"))
+		{
+			eflag = 1;
+			ap++;
+		}
+	}
 
 	while ((p = *ap++) != NULL)
-	  {
-		  while ((c = *p++) != '\0')
+	{
+		while ((c = *p++) != '\0')
+		{
+			if (c == '\\' && eflag)
 			{
-				if (c == '\\' && eflag)
-				  {
-					  switch (*p++)
-						{
-							case 'a':
-								c = '\a';
-								break;	/* bell */
-							case 'b':
-								c = '\b';
-								break;
-							case 'c':
-								return 0;	/* exit */
-							case 'e':
-								c = 033;
-								break;	/* escape */
-							case 'f':
-								c = '\f';
-								break;
-							case 'n':
-								c = '\n';
-								break;
-							case 'r':
-								c = '\r';
-								break;
-							case 't':
-								c = '\t';
-								break;
-							case 'v':
-								c = '\v';
-								break;
-							case '\\':
-								break;	/* c = '\\' */
-							case '0':
-								c = 0;
-								count = 3;
-								while (--count >= 0 && (unsigned)(*p - '0') < 8)
-									c = (c << 3) + (*p++ - '0');
-								break;
-							default:
-								/* Output the '/' and char following */
-								p--;
-								break;
-						}
-				  }
-				putchar (c);
+				switch (*p++)
+				{
+					case 'a':
+						c = '\a';
+						break;	/* bell */
+					case 'b':
+						c = '\b';
+						break;
+					case 'c':
+						return 0;	/* exit */
+					case 'e':
+						c = 033;
+						break;	/* escape */
+					case 'f':
+						c = '\f';
+						break;
+					case 'n':
+						c = '\n';
+						break;
+					case 'r':
+						c = '\r';
+						break;
+					case 't':
+						c = '\t';
+						break;
+					case 'v':
+						c = '\v';
+						break;
+					case '\\':
+						break;	/* c = '\\' */
+					case '0':
+						c = 0;
+						count = 3;
+						while (--count >= 0 && (unsigned)(*p - '0') < 8)
+							c = (c << 3) + (*p++ - '0');
+						break;
+					default:
+						/* Output the '/' and char following */
+						p--;
+						break;
+				}
 			}
-		  if (*ap)
-			  putchar (' ');
-	  }
+			putchar (c);
+		}
+		if (*ap)
+			putchar (' ');
+	}
 	if (!nflag)
 		putchar ('\n');
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_ECHO_Command = {
+rtems_shell_cmd_t rtems_shell_ECHO_Command =
+{
 	"echo",						/* name */
 	"echo [args]",				/* usage */
 	"misc",						/* topic */

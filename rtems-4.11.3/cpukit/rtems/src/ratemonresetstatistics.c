@@ -47,19 +47,19 @@ rtems_status_code rtems_rate_monotonic_reset_statistics (rtems_id id)
 
 	the_period = _Rate_monotonic_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Rate_monotonic_Reset_statistics (the_period);
-			  _Objects_Put (&the_period->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			_Rate_monotonic_Reset_statistics (the_period);
+			_Objects_Put (&the_period->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

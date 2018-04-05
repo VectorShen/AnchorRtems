@@ -29,49 +29,49 @@ extern "C"
 #endif
 
 /**
- * @defgroup ClassicOptions Classic API Options
- *
- * @ingroup ClassicRTEMS
- *
- * This encapsulates functionality related to the options argument
- * to Classic API blocking operations. The primary option is whether
- * or not a task is willing to wait for the operation to complete.
- */
+* @defgroup ClassicOptions Classic API Options
+*
+* @ingroup ClassicRTEMS
+*
+* This encapsulates functionality related to the options argument
+* to Classic API blocking operations. The primary option is whether
+* or not a task is willing to wait for the operation to complete.
+*/
 /**@{*/
 
 /**
- *  The following type defines the control block used to manage
- *  option sets.
- */
-	typedef uint32_t rtems_option;
+*  The following type defines the control block used to manage
+*  option sets.
+*/
+typedef uint32_t rtems_option;
 
 /**
- *  The following constants define the individual options which may
- *  be used to compose an option set.
- */
+*  The following constants define the individual options which may
+*  be used to compose an option set.
+*/
 #define RTEMS_DEFAULT_OPTIONS   0x00000000
 
 /**
- *  This option constants indicates that the task is to wait on resource.
- */
+*  This option constants indicates that the task is to wait on resource.
+*/
 #define RTEMS_WAIT      0x00000000
 /**
- *  This option constants indicates that the task is to not wait on
- *  the resource.  If it is not available, return immediately with
- *  a status to indicate unsatisfied.
- */
+*  This option constants indicates that the task is to not wait on
+*  the resource.  If it is not available, return immediately with
+*  a status to indicate unsatisfied.
+*/
 #define RTEMS_NO_WAIT   0x00000001
 
 /**
- *  This option constants indicates that the task wishes to wait until
- *  all events of interest are available.
- */
+*  This option constants indicates that the task wishes to wait until
+*  all events of interest are available.
+*/
 #define RTEMS_EVENT_ALL 0x00000000
 
 /**
- *  This option constants indicates that the task wishes to wait until
- *  ANY events of interest are available.
- */
+*  This option constants indicates that the task wishes to wait until
+*  ANY events of interest are available.
+*/
 #define RTEMS_EVENT_ANY 0x00000002
 
 /**@}*/

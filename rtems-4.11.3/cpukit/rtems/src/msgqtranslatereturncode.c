@@ -30,7 +30,8 @@
 #include <rtems/rtems/options.h>
 #include <rtems/rtems/support.h>
 
-rtems_status_code _Message_queue_Translate_core_return_code_[] = {
+rtems_status_code _Message_queue_Translate_core_return_code_[] =
+{
 	RTEMS_SUCCESSFUL,			/* CORE_MESSAGE_QUEUE_STATUS_SUCCESSFUL */
 	RTEMS_INVALID_SIZE,			/* CORE_MESSAGE_QUEUE_STATUS_INVALID_SIZE */
 	RTEMS_TOO_MANY,				/* CORE_MESSAGE_QUEUE_STATUS_TOO_MANY */

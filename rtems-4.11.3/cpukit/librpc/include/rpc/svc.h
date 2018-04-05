@@ -167,7 +167,8 @@ struct svc_req
  * xprt_register(xprt)
  *	SVCXPRT *xprt;
  */
-__BEGIN_DECLS extern void xprt_register (SVCXPRT *);
+__BEGIN_DECLS
+extern void xprt_register (SVCXPRT *);
 __END_DECLS
 /*
  * Transport un-register
@@ -175,7 +176,8 @@ __END_DECLS
  * xprt_unregister(xprt)
  *	SVCXPRT *xprt;
  */
-__BEGIN_DECLS extern void xprt_unregister (SVCXPRT *);
+__BEGIN_DECLS
+extern void xprt_unregister (SVCXPRT *);
 __END_DECLS
 /*
  * When the service routine is called, it must first check to see if it
@@ -202,7 +204,8 @@ __END_DECLS
  * batched and which are not.  Warning: responding to batch calls may
  * deadlock the caller and server processes!
  */
-__BEGIN_DECLS extern bool_t svc_sendreply (SVCXPRT *, xdrproc_t, void *);
+__BEGIN_DECLS
+extern bool_t svc_sendreply (SVCXPRT *, xdrproc_t, void *);
 extern void svcerr_decode (SVCXPRT *);
 extern void svcerr_weakauth (SVCXPRT *);
 extern void svcerr_noproc (SVCXPRT *);
@@ -234,10 +237,12 @@ extern fd_set svc_fdset;
  * a small program implemented by the svc_rpc implementation itself;
  * also see clnt.h for protocol numbers.
  */
-__BEGIN_DECLS extern void rpctest_service (void);
+__BEGIN_DECLS
+extern void rpctest_service (void);
 __END_DECLS
 #endif
-__BEGIN_DECLS extern void svc_getreq (int);
+__BEGIN_DECLS
+extern void svc_getreq (int);
 extern void svc_getreqset (fd_set *);
 extern void svc_getreqset2 (fd_set *, int);	/* XXX: nonstd, undoc */
 extern void svc_run (void);

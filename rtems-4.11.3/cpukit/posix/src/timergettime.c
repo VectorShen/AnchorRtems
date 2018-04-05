@@ -50,28 +50,28 @@ int timer_gettime (timer_t timerid, struct itimerspec *value)
 
 	ptimer = _POSIX_Timer_Get (timerid, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  /* Calculates the time left before the timer finishes */
+			/* Calculates the time left before the timer finishes */
 
-			  left = (ptimer->Timer.start_time + ptimer->Timer.initial) -	/* expire */
-				  _Watchdog_Ticks_since_boot;	/* now */
+			left = (ptimer->Timer.start_time + ptimer->Timer.initial) -	/* expire */
+				_Watchdog_Ticks_since_boot;	/* now */
 
-			  _Timespec_From_ticks (left, &value->it_value);
+			_Timespec_From_ticks (left, &value->it_value);
 
-			  value->it_interval = ptimer->timer_data.it_interval;
+			value->it_interval = ptimer->timer_data.it_interval;
 
-			  _Objects_Put (&ptimer->Object);
-			  return 0;
+			_Objects_Put (&ptimer->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

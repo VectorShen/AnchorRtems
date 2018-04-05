@@ -54,111 +54,112 @@ static int rtems_shell_main_route (int argc, char *argv[])
 	netmask.sin_addr.s_addr = inet_addr ("255.255.255.0");
 
 	if (argc < 2)
-	  {
-		  rtems_bsdnet_show_inet_routes ();
-		  return 0;
-	  }
+	{
+		rtems_bsdnet_show_inet_routes ();
+		return 0;
+	}
 
 	if (strcmp (argv[1], "add") == 0)
-	  {
-		  cmd = RTM_ADD;
-	  }
+	{
+		cmd = RTM_ADD;
+	}
 	else if (strcmp (argv[1], "del") == 0)
-	  {
-		  cmd = RTM_DELETE;
-	  }
+	{
+		cmd = RTM_DELETE;
+	}
 	else
-	  {
-		  printf ("invalid command: %s\n", argv[1]);
-		  printf ("\tit should be 'add' or 'del'\n");
-		  return -1;
-	  }
+	{
+		printf ("invalid command: %s\n", argv[1]);
+		printf ("\tit should be 'add' or 'del'\n");
+		return -1;
+	}
 
 	if (argc < 3)
-	  {
-		  printf ("not enough arguments\n");
-		  return -1;
-	  }
+	{
+		printf ("not enough arguments\n");
+		return -1;
+	}
 
 	if (strcmp (argv[2], "-host") == 0)
-	  {
-		  f_host = 1;
-	  }
+	{
+		f_host = 1;
+	}
 	else if (strcmp (argv[2], "-net") == 0)
-	  {
-		  f_host = 0;
-	  }
+	{
+		f_host = 0;
+	}
 	else
-	  {
-		  printf ("Invalid type: %s\n", argv[1]);
-		  printf ("\tit should be '-host' or '-net'\n");
-		  return -1;
-	  }
+	{
+		printf ("Invalid type: %s\n", argv[1]);
+		printf ("\tit should be '-host' or '-net'\n");
+		return -1;
+	}
 
 	if (argc < 4)
-	  {
-		  printf ("not enough arguments\n");
-		  return -1;
-	  }
+	{
+		printf ("not enough arguments\n");
+		return -1;
+	}
 
 	inet_pton (AF_INET, argv[3], &dst.sin_addr);
 
 	cur_idx = 4;
 	while (cur_idx < argc)
-	  {
-		  if (strcmp (argv[cur_idx], "gw") == 0)
+	{
+		if (strcmp (argv[cur_idx], "gw") == 0)
+		{
+			if ((cur_idx + 1) >= argc)
 			{
-				if ((cur_idx + 1) >= argc)
-				  {
-					  printf ("no gateway address\n");
-					  return -1;
-				  }
-				f_gw = 1;
-				inet_pton (AF_INET, argv[cur_idx + 1], &gw.sin_addr);
-				cur_idx += 1;
-			}
-		  else if (strcmp (argv[cur_idx], "netmask") == 0)
-			{
-				if ((cur_idx + 1) >= argc)
-				  {
-					  printf ("no netmask address\n");
-					  return -1;
-				  }
-				f_gw = 1;
-				inet_pton (AF_INET, argv[cur_idx + 1], &netmask.sin_addr);
-				cur_idx += 1;
-			}
-		  else
-			{
-				printf ("Unknown argument\n");
+				printf ("no gateway address\n");
 				return -1;
 			}
-		  cur_idx += 1;
-	  }
+			f_gw = 1;
+			inet_pton (AF_INET, argv[cur_idx + 1], &gw.sin_addr);
+			cur_idx += 1;
+		}
+		else if (strcmp (argv[cur_idx], "netmask") == 0)
+		{
+			if ((cur_idx + 1) >= argc)
+			{
+				printf ("no netmask address\n");
+				return -1;
+			}
+			f_gw = 1;
+			inet_pton (AF_INET, argv[cur_idx + 1], &netmask.sin_addr);
+			cur_idx += 1;
+		}
+		else
+		{
+			printf ("Unknown argument\n");
+			return -1;
+		}
+		cur_idx += 1;
+	}
 
 	flags = RTF_STATIC;
 	if (f_gw != 0)
-	  {
-		  flags |= RTF_GATEWAY;
-	  }
+	{
+		flags |= RTF_GATEWAY;
+	}
 	if (f_host != 0)
-	  {
-		  flags |= RTF_HOST;
-	  }
+	{
+		flags |= RTF_HOST;
+	}
 
 	rc = rtems_bsdnet_rtrequest (cmd,
 								 (struct sockaddr *)&dst,
 								 (struct sockaddr *)&gw,
 								 (struct sockaddr *)&netmask, flags, NULL);
 	if (rc < 0)
-	  {
-		  printf ("Error adding route\n");
-	  }
+	{
+		printf ("Error adding route\n");
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_ROUTE_Command = {
+rtems_shell_cmd_t rtems_shell_ROUTE_Command =
+{
 	"route",					/* name */
 	"TBD",						/* usage */
 	"network",					/* topic */

@@ -40,11 +40,11 @@ void rtems_cpu_usage_reset (void)
 
 	cpu_count = rtems_get_processor_count ();
 	for (cpu_index = 0; cpu_index < cpu_count; ++cpu_index)
-	  {
-		  Per_CPU_Control *cpu = _Per_CPU_Get_by_index (cpu_index);
+	{
+		Per_CPU_Control *cpu = _Per_CPU_Get_by_index (cpu_index);
 
-		  cpu->time_of_last_context_switch = CPU_usage_Uptime_at_last_reset;
-	  }
+		cpu->time_of_last_context_switch = CPU_usage_Uptime_at_last_reset;
+	}
 
 	rtems_iterate_over_all_threads (CPU_usage_Per_thread_handler);
 }

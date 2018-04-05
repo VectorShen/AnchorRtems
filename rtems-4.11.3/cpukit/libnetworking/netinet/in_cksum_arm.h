@@ -152,84 +152,85 @@ in_cksum_internal (struct mbuf *m, int off, int len, u_int sum)
 	register u_int tmp1 = 0, tmp2, tmp3, tmp4;
 
 	for (; m && len; m = m->m_next)
-	  {
-		  if (m->m_len == 0)
-			  continue;
-		  w = mtod (m, u_char *) + off;
-		  mlen = m->m_len - off;
-		  off = 0;
-		  if (len < mlen)
-			  mlen = len;
-		  len -= mlen;
+	{
+		if (m->m_len == 0)
+			continue;
+		w = mtod (m, u_char *) + off;
+		mlen = m->m_len - off;
+		off = 0;
+		if (len < mlen)
+			mlen = len;
+		len -= mlen;
 
-		  /*
-		   * Ensure that we're aligned on a word boundary here so
-		   * that we can do 32 bit operations below.
-		   */
-		  if ((3 & (long)w) != 0)
+		/*
+		 * Ensure that we're aligned on a word boundary here so
+		 * that we can do 32 bit operations below.
+		 */
+		if ((3 & (long)w) != 0)
+		{
+			REDUCE;
+			if ((1 & (long)w) != 0 && mlen >= 1)
 			{
-				REDUCE;
-				if ((1 & (long)w) != 0 && mlen >= 1)
-				  {
-					  ADDBYTE;
-					  ADVANCE (1);
-				  }
-				if ((2 & (long)w) != 0 && mlen >= 2)
-				  {
-					  ADDSHORT;
-					  ADVANCE (2);
-				  }
+				ADDBYTE;
+				ADVANCE (1);
 			}
-
-		  /*
-		   * Do as many 32 bit operations as possible using the
-		   * 64/32/16/8/4 macro's above, using as many as possible of
-		   * these.
-		   */
-
-		  while (mlen >= 64)
-			{
-				ADD64;
-				ADVANCEML (64);
-			}
-		  if (mlen >= 32)
-			{
-				ADD32;
-				ADVANCEML (32);
-			}
-		  if (mlen >= 16)
-			{
-				ADD16;
-				ADVANCEML (16);
-			}
-		  if (mlen >= 8)
-			{
-				ADD8;
-				ADVANCEML (8);
-			}
-		  if (mlen >= 4)
-			{
-				ADD4;
-			ADVANCEML (4)}
-		  if (mlen == 0)
-			  continue;
-
-		  REDUCE;
-		  if (mlen >= 2)
+			if ((2 & (long)w) != 0 && mlen >= 2)
 			{
 				ADDSHORT;
 				ADVANCE (2);
 			}
-		  if (mlen == 1)
-			{
-				ADDBYTE;
-			}
-	  }
+		}
+
+		/*
+		 * Do as many 32 bit operations as possible using the
+		 * 64/32/16/8/4 macro's above, using as many as possible of
+		 * these.
+		 */
+
+		while (mlen >= 64)
+		{
+			ADD64;
+			ADVANCEML (64);
+		}
+		if (mlen >= 32)
+		{
+			ADD32;
+			ADVANCEML (32);
+		}
+		if (mlen >= 16)
+		{
+			ADD16;
+			ADVANCEML (16);
+		}
+		if (mlen >= 8)
+		{
+			ADD8;
+			ADVANCEML (8);
+		}
+		if (mlen >= 4)
+		{
+			ADD4;
+			ADVANCEML (4)
+		}
+		if (mlen == 0)
+			continue;
+
+		REDUCE;
+		if (mlen >= 2)
+		{
+			ADDSHORT;
+			ADVANCE (2);
+		}
+		if (mlen == 1)
+		{
+			ADDBYTE;
+		}
+	}
 	if (byte_swapped)
-	  {
-		  REDUCE;
-		  ROL;
-	  }
+	{
+		REDUCE;
+		ROL;
+	}
 	REDUCE;
 	ADDCARRY;
 
@@ -248,35 +249,35 @@ int in4_cksum (struct mbuf *m, u_int8_t nxt, int off, int len)
 	u_int sum = 0;
 
 	if (nxt != 0)
-	  {
-		  /* for ADD macros */
-		  register u_int tmp1, tmp2, tmp3, tmp4;
-		  u_char *w;
-		  struct ipovly ipov;
-		  /* pseudo header */
-		  if (off < sizeof (struct ipovly))
-			  panic ("in4_cksum: offset too short");
-		  if (m->m_len < sizeof (struct ip))
-			  panic ("in4_cksum: bad mbuf chain");
+	{
+		/* for ADD macros */
+		register u_int tmp1, tmp2, tmp3, tmp4;
+		u_char *w;
+		struct ipovly ipov;
+		/* pseudo header */
+		if (off < sizeof (struct ipovly))
+			panic ("in4_cksum: offset too short");
+		if (m->m_len < sizeof (struct ip))
+			panic ("in4_cksum: bad mbuf chain");
 
-		  bzero (&ipov, sizeof (ipov));
-		  ipov.ih_len = htons (len);
-		  ipov.ih_pr = nxt;
-		  ipov.ih_src = mtod (m, struct ip *)->ip_src;
-		  ipov.ih_dst = mtod (m, struct ip *)->ip_dst;
-		  w = (u_char *) & ipov;
+		bzero (&ipov, sizeof (ipov));
+		ipov.ih_len = htons (len);
+		ipov.ih_pr = nxt;
+		ipov.ih_src = mtod (m, struct ip *)->ip_src;
+		ipov.ih_dst = mtod (m, struct ip *)->ip_dst;
+		w = (u_char *) & ipov;
 
-		  /* assumes sizeof(ipov) == 20 */
-		  ADD16;
-		  ADD4;
-	  }
+		/* assumes sizeof(ipov) == 20 */
+		ADD16;
+		ADD4;
+	}
 	/* skip unnecessary part */
 	while (m && off > 0)
-	  {
-		  if (m->m_len > off)
-			  break;
-		  off -= m->m_len;
-		  m = m->m_next;
-	  }
+	{
+		if (m->m_len > off)
+			break;
+		off -= m->m_len;
+		m = m->m_next;
+	}
 	return (in_cksum_internal (m, off, len, sum));
 }

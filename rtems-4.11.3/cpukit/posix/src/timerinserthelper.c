@@ -47,10 +47,10 @@ bool _POSIX_Timer_Insert_helper (Watchdog_Control * timer,
 	 *  higher priority interrupt.  If so, abandon this insert.
 	 */
 	if (timer->state != WATCHDOG_INACTIVE)
-	  {
-		  _Watchdog_Release (header, &lock_context);
-		  return false;
-	  }
+	{
+		_Watchdog_Release (header, &lock_context);
+		return false;
+	}
 
 	/*
 	 *  OK.  Now we now the timer was not rescheduled by an interrupt

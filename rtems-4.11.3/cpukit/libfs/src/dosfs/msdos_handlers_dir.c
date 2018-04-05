@@ -21,7 +21,8 @@
 #include <rtems/libio.h>
 #include "msdos.h"
 
-const rtems_filesystem_file_handlers_r msdos_dir_handlers = {
+const rtems_filesystem_file_handlers_r msdos_dir_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = msdos_dir_read,

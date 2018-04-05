@@ -24,8 +24,8 @@ static bool report_done;
 
 RTEMS_INTERRUPT_LOCK_DEFINE (static, report_lock, "test report")
 #endif
-	 void rtems_test_fatal_extension (rtems_fatal_source source,
-									  bool is_internal, rtems_fatal_code code)
+void rtems_test_fatal_extension (rtems_fatal_source source,
+								bool is_internal, rtems_fatal_code code)
 {
 #if defined(RTEMS_PROFILING)
 	rtems_interrupt_lock_context lock_context;
@@ -37,16 +37,16 @@ RTEMS_INTERRUPT_LOCK_DEFINE (static, report_lock, "test report")
 	rtems_interrupt_lock_acquire (&report_lock, &lock_context);
 
 	if (!report_done)
-	  {
-		  report_done = true;
+	{
+		report_done = true;
 
-		  printk ("\n*** PROFILING REPORT BEGIN %s ***\n", rtems_test_name);
+		printk ("\n*** PROFILING REPORT BEGIN %s ***\n", rtems_test_name);
 
-		  rtems_profiling_report_xml (rtems_test_name,
-									  printk_plugin, NULL, 1, "  ");
+		rtems_profiling_report_xml (rtems_test_name,
+									printk_plugin, NULL, 1, "  ");
 
-		  printk ("*** PROFILING REPORT END %s ***\n", rtems_test_name);
-	  }
+		printk ("*** PROFILING REPORT END %s ***\n", rtems_test_name);
+	}
 
 	rtems_interrupt_lock_release (&report_lock, &lock_context);
 #endif

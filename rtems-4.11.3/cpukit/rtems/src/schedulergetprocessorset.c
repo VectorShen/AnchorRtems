@@ -29,19 +29,19 @@ rtems_status_code rtems_scheduler_get_processor_set (rtems_id scheduler_id,
 	const Scheduler_Control *scheduler;
 
 	if (cpuset == NULL)
-	  {
-		  return RTEMS_INVALID_ADDRESS;
-	  }
+	{
+		return RTEMS_INVALID_ADDRESS;
+	}
 
 	if (!_Scheduler_Get_by_id (scheduler_id, &scheduler))
-	  {
-		  return RTEMS_INVALID_ID;
-	  }
+	{
+		return RTEMS_INVALID_ID;
+	}
 
 	if (!_CPU_set_Is_large_enough (cpusetsize))
-	  {
-		  return RTEMS_INVALID_NUMBER;
-	  }
+	{
+		return RTEMS_INVALID_NUMBER;
+	}
 
 	_Scheduler_Get_processor_set (scheduler, cpusetsize, cpuset);
 

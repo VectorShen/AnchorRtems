@@ -37,44 +37,44 @@ extern "C"
 #include <rtems/posix/config.h>
 
 /**
- *  @brief POSIX Timer Manager Initialization
- *
- *  This routine performs the initialization necessary for this manager.
- */
-	void _POSIX_Timer_Manager_initialization (void);
+*  @brief POSIX Timer Manager Initialization
+*
+*  This routine performs the initialization necessary for this manager.
+*/
+void _POSIX_Timer_Manager_initialization (void);
 
 /**
- *  @brief Create a Per-Process Timer
- */
-	int timer_create (clockid_t clock_id,
-					  struct sigevent *evp, timer_t * timerid);
+*  @brief Create a Per-Process Timer
+*/
+int timer_create (clockid_t clock_id,
+				  struct sigevent *evp, timer_t * timerid);
 
 /**
- *  @brief Delete a Per-Process Timer
- */
-	int timer_delete (timer_t timerid);
+*  @brief Delete a Per-Process Timer
+*/
+int timer_delete (timer_t timerid);
 
 /**
- *  @brief Set a Per-Process Timer
- */
-	int timer_settime (timer_t timerid,
-					   int flags,
-					   const struct itimerspec *value,
-					   struct itimerspec *ovalue);
+*  @brief Set a Per-Process Timer
+*/
+int timer_settime (timer_t timerid,
+				   int flags,
+				   const struct itimerspec *value,
+				   struct itimerspec *ovalue);
 
 /**
- *  @brief Set a Per-Process Timer
- */
-	int timer_gettime (timer_t timerid, struct itimerspec *value);
+*  @brief Set a Per-Process Timer
+*/
+int timer_gettime (timer_t timerid, struct itimerspec *value);
 
 /**
- * @brief Get overrun count for a Per-Process Timer
- * 
- * The expiration of a timer must increase by one a counter.
- * After the signal handler associated to the timer finishes
- * its execution, _POSIX_Timer_TSR will have to set this counter to 0.
- */
-	int timer_getoverrun (timer_t timerid);
+* @brief Get overrun count for a Per-Process Timer
+*
+* The expiration of a timer must increase by one a counter.
+* After the signal handler associated to the timer finishes
+* its execution, _POSIX_Timer_TSR will have to set this counter to 0.
+*/
+int timer_getoverrun (timer_t timerid);
 
 #ifdef __cplusplus
 }

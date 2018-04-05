@@ -22,7 +22,8 @@
 
 #include <rtems/posix/semaphoreimpl.h>
 
-const int _POSIX_Semaphore_Return_codes[CORE_SEMAPHORE_STATUS_LAST + 1] = {
+const int _POSIX_Semaphore_Return_codes[CORE_SEMAPHORE_STATUS_LAST + 1] =
+{
 	0,							/* CORE_SEMAPHORE_STATUS_SUCCESSFUL */
 	EAGAIN,						/* CORE_SEMAPHORE_STATUS_UNSATISFIED_NOWAIT */
 	EAGAIN,						/* CORE_SEMAPHORE_WAS_DELETED */

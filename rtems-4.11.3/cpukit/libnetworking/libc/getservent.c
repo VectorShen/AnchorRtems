@@ -73,16 +73,16 @@ static int _getservbyport_yp (line)
 	int rv;
 
 	snprintf (buf, sizeof (buf), "%d/%s", ntohs (___getservbyport_yp),
-			  ___getservbyproto_yp);
+			___getservbyproto_yp);
 
 	___getservbyport_yp = 0;
 	___getservbyproto_yp = NULL;
 
 	if (!yp_domain)
-	  {
-		  if (yp_get_default_domain (&yp_domain))
-			  return (0);
-	  }
+	{
+		if (yp_get_default_domain (&yp_domain))
+			return (0);
+	}
 
 	/*
 	 * We have to be a little flexible here. Ideally you're supposed
@@ -95,16 +95,16 @@ static int _getservbyport_yp (line)
 	 */
 	if ((rv = yp_match (yp_domain, "services.byport", buf, strlen (buf),
 						&result, &resultlen)))
-	  {
-		  if (rv == YPERR_MAP)
-			{
-				if (yp_match (yp_domain, "services.byname", buf,
-							  strlen (buf), &result, &resultlen))
-					return (0);
-			}
-		  else
-			  return (0);
-	  }
+	{
+		if (rv == YPERR_MAP)
+		{
+			if (yp_match (yp_domain, "services.byname", buf,
+						strlen (buf), &result, &resultlen))
+				return (0);
+		}
+		else
+			return (0);
+	}
 
 	/* getservent() expects lines terminated with \n -- make it happy */
 	snprintf (line, BUFSIZ, "%.*s\n", resultlen, result);
@@ -121,22 +121,22 @@ static int _getservbyname_yp (line)
 	char buf[YPMAXRECORD + 2];
 
 	if (!yp_domain)
-	  {
-		  if (yp_get_default_domain (&yp_domain))
-			  return (0);
-	  }
+	{
+		if (yp_get_default_domain (&yp_domain))
+			return (0);
+	}
 
 	snprintf (buf, sizeof (buf), "%s/%s", ___getservbyname_yp,
-			  ___getservbyproto_yp);
+			___getservbyproto_yp);
 
 	___getservbyname_yp = 0;
 	___getservbyproto_yp = NULL;
 
 	if (yp_match (yp_domain, "services.byname", buf, strlen (buf),
-				  &result, &resultlen))
-	  {
-		  return (0);
-	  }
+				&result, &resultlen))
+	{
+		return (0);
+	}
 
 	/* getservent() expects lines terminated with \n -- make it happy */
 	snprintf (line, BUFSIZ, "%.*s\n", resultlen, result);
@@ -155,35 +155,35 @@ static int _getservent_yp (line)
 	int rv;
 
 	if (!yp_domain)
-	  {
-		  if (yp_get_default_domain (&yp_domain))
-			  return (0);
-	  }
+	{
+		if (yp_get_default_domain (&yp_domain))
+			return (0);
+	}
 
 	if (!serv_stepping_yp)
-	  {
-		  if (key)
-			  free (key);
-		  if ((rv = yp_first (yp_domain, "services.byname", &key, &keylen,
-							  &result, &resultlen)))
-			{
-				serv_stepping_yp = 0;
-				return (0);
-			}
-		  serv_stepping_yp = 1;
-	  }
+	{
+		if (key)
+			free (key);
+		if ((rv = yp_first (yp_domain, "services.byname", &key, &keylen,
+							&result, &resultlen)))
+		{
+			serv_stepping_yp = 0;
+			return (0);
+		}
+		serv_stepping_yp = 1;
+	}
 	else
-	  {
-		  lastkey = key;
-		  rv = yp_next (yp_domain, "services.byname", key, keylen, &key,
+	{
+		lastkey = key;
+		rv = yp_next (yp_domain, "services.byname", key, keylen, &key,
 						&keylen, &result, &resultlen);
-		  free (lastkey);
-		  if (rv)
-			{
-				serv_stepping_yp = 0;
-				return (0);
-			}
-	  }
+		free (lastkey);
+		if (rv)
+		{
+			serv_stepping_yp = 0;
+			return (0);
+		}
+	}
 
 	/* getservent() expects lines terminated with \n -- make it happy */
 	snprintf (line, BUFSIZ, "%.*s\n", resultlen, result);
@@ -206,10 +206,10 @@ void setservent (int f)
 void endservent (void)
 {
 	if (servf)
-	  {
-		  fclose (servf);
-		  servf = NULL;
-	  }
+	{
+		fclose (servf);
+		servf = NULL;
+	}
 	_serv_stayopen = 0;
 }
 
@@ -220,10 +220,10 @@ struct servent *getservent (void)
 
 #ifdef YP
 	if (serv_stepping_yp && _getservent_yp (line))
-	  {
-		  p = (char *)&line;
-		  goto unpack;
-	  }
+	{
+		p = (char *)&line;
+		goto unpack;
+	}
   tryagain:
 #endif
 	if (servf == NULL && (servf = fopen (_PATH_SERVICES, "r")) == NULL)
@@ -233,20 +233,20 @@ struct servent *getservent (void)
 		return (NULL);
 #ifdef YP
 	if (*p == '+' && _yp_check (NULL))
-	  {
-		  if (___getservbyname_yp != NULL)
-			{
-				if (!_getservbyname_yp (line))
-					goto tryagain;
-			}
-		  else if (___getservbyport_yp != 0)
-			{
-				if (!_getservbyport_yp (line))
-					goto tryagain;
-			}
-		  else if (!_getservent_yp (line))
-			  goto tryagain;
-	  }
+	{
+		if (___getservbyname_yp != NULL)
+		{
+			if (!_getservbyname_yp (line))
+				goto tryagain;
+		}
+		else if (___getservbyport_yp != 0)
+		{
+			if (!_getservbyport_yp (line))
+				goto tryagain;
+		}
+		else if (!_getservent_yp (line))
+			goto tryagain;
+	}
   unpack:
 #endif
 	if (*p == '#')
@@ -273,18 +273,18 @@ struct servent *getservent (void)
 	if (cp != NULL)
 		*cp++ = '\0';
 	while (cp && *cp)
-	  {
-		  if (*cp == ' ' || *cp == '\t')
-			{
-				cp++;
-				continue;
-			}
-		  if (q < &serv_aliases[MAXALIASES - 1])
-			  *q++ = cp;
-		  cp = strpbrk (cp, " \t");
-		  if (cp != NULL)
-			  *cp++ = '\0';
-	  }
+	{
+		if (*cp == ' ' || *cp == '\t')
+		{
+			cp++;
+			continue;
+		}
+		if (q < &serv_aliases[MAXALIASES - 1])
+			*q++ = cp;
+		cp = strpbrk (cp, " \t");
+		if (cp != NULL)
+			*cp++ = '\0';
+	}
 	*q = NULL;
 	return (&serv);
 }

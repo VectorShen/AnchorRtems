@@ -23,15 +23,15 @@ int rtems_shell_cat_file (FILE * out, const char *name)
 	int c;
 
 	if (out)
-	  {
-		  fd = fopen (name, "r");
-		  if (!fd)
-			{
-				return -1;
-			}
-		  while ((c = fgetc (fd)) != EOF)
-			  fputc (c, out);
-		  fclose (fd);
-	  }
+	{
+		fd = fopen (name, "r");
+		if (!fd)
+		{
+			return -1;
+		}
+		while ((c = fgetc (fd)) != EOF)
+			fputc (c, out);
+		fclose (fd);
+	}
 	return 0;
 }

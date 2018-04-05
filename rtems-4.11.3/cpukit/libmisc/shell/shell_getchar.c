@@ -43,22 +43,26 @@ struct translation_table
 	unsigned int key;
 };
 
-static const struct translation_table trans_one[] = {
+static const struct translation_table trans_one[] =
+{
 	{'\x7e', 0, RTEMS_SHELL_KEYS_HOME},
 	{0, 0, 0}
 };
 
-static const struct translation_table trans_two[] = {
+static const struct translation_table trans_two[] =
+{
 	{'~', 0, RTEMS_SHELL_KEYS_INS},
 	{0, 0, 0}
 };
 
-static const struct translation_table trans_three[] = {
+static const struct translation_table trans_three[] =
+{
 	{'~', 0, RTEMS_SHELL_KEYS_DEL},
 	{0, 0, 0}
 };
 
-static const struct translation_table trans_tab_csi[] = {
+static const struct translation_table trans_tab_csi[] =
+{
 	{'1', trans_one, 0},
 	{'2', trans_two, 0},
 	{'3', trans_three, 0},
@@ -71,7 +75,8 @@ static const struct translation_table trans_tab_csi[] = {
 	{0, 0, 0}
 };
 
-static const struct translation_table trans_tab_O[] = {
+static const struct translation_table trans_tab_O[] =
+{
 	{'1', 0, RTEMS_SHELL_KEYS_F1},
 	{'2', 0, RTEMS_SHELL_KEYS_F2},
 	{'3', 0, RTEMS_SHELL_KEYS_F3},
@@ -96,7 +101,8 @@ static const struct translation_table trans_tab_O[] = {
 	{0, 0, 0}
 };
 
-static const struct translation_table trans_tab[] = {
+static const struct translation_table trans_tab[] =
+{
 	{'[', trans_tab_csi, 0},	/* CSI command sequences */
 	{'O', trans_tab_O, 0},		/* O are the fuction keys */
 	{0, 0, 0}
@@ -113,55 +119,55 @@ unsigned int rtems_shell_getchar (FILE * in)
 {
 	const struct translation_table *translation = 0;
 	for (;;)
-	  {
-		  int c = fgetc (in);
-		  if (c == EOF)
-			  return EOF;
-		  if (c == 27)
-			  translation = trans_tab;
-		  else
+	{
+		int c = fgetc (in);
+		if (c == EOF)
+			return EOF;
+		if (c == 27)
+			translation = trans_tab;
+		else
+		{
+			/*
+			 * If no translation happing just pass through
+			 * and return the key.
+			 */
+			if (translation)
 			{
 				/*
-				 * If no translation happing just pass through
-				 * and return the key.
+				 * Scan the current table for the key, and if found
+				 * see if this key is a fork. If so follow it and
+				 * wait else return the extended key.
 				 */
-				if (translation)
-				  {
-					  /*
-					   * Scan the current table for the key, and if found
-					   * see if this key is a fork. If so follow it and
-					   * wait else return the extended key.
-					   */
-					  int index = 0;
-					  int branched = 0;
-					  while ((translation[index].expecting != '\0') ||
-							 (translation[index].key != '\0'))
+				int index = 0;
+				int branched = 0;
+				while ((translation[index].expecting != '\0') ||
+						 (translation[index].key != '\0'))
+				{
+					if (translation[index].expecting == c)
+					{
+						/*
+						 * A branch is take if more keys are to come.
+						 */
+						if (translation[index].branch == 0)
+							return RTEMS_SHELL_KEYS_EXTENDED |
+								translation[index].key;
+						else
 						{
-							if (translation[index].expecting == c)
-							  {
-								  /*
-								   * A branch is take if more keys are to come.
-								   */
-								  if (translation[index].branch == 0)
-									  return RTEMS_SHELL_KEYS_EXTENDED |
-										  translation[index].key;
-								  else
-									{
-										translation = translation[index].branch;
-										branched = 1;
-										break;
-									}
-							  }
-							index++;
+							translation = translation[index].branch;
+							branched = 1;
+							break;
 						}
-					  /*
-					   * Who knows what these keys are, just drop them.
-					   */
-					  if (!branched)
-						  translation = 0;
-				  }
-				else
-					return c;
+					}
+					index++;
+				}
+				/*
+				 * Who knows what these keys are, just drop them.
+				 */
+				if (!branched)
+					translation = 0;
 			}
-	  }
+			else
+				return c;
+		}
+	}
 }

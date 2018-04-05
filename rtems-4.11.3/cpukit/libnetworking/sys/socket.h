@@ -58,18 +58,18 @@ typedef __socklen_t socklen_t;
 /*
  * Types
  */
-#define	SOCK_STREAM	1			/* stream socket */
-#define	SOCK_DGRAM	2			/* datagram socket */
-#define	SOCK_RAW	3			/* raw-protocol interface */
+#define	SOCK_STREAM		1			/* stream socket */
+#define	SOCK_DGRAM		2			/* datagram socket */
+#define	SOCK_RAW		3			/* raw-protocol interface */
 #if __BSD_VISIBLE
-#define	SOCK_RDM	4			/* reliably-delivered message */
+#define	SOCK_RDM		4			/* reliably-delivered message */
 #endif
 #define	SOCK_SEQPACKET	5		/* sequenced packet stream */
 
 /*
  * Option flags per-socket.
  */
-#define	SO_DEBUG	0x0001		/* turn on debugging info recording */
+#define	SO_DEBUG		0x0001		/* turn on debugging info recording */
 #define	SO_ACCEPTCONN	0x0002	/* socket has had listen() */
 #define	SO_REUSEADDR	0x0004	/* allow local address reuse */
 #define	SO_KEEPALIVE	0x0008	/* keep connections alive */
@@ -78,27 +78,27 @@ typedef __socklen_t socklen_t;
 #if __BSD_VISIBLE
 #define	SO_USELOOPBACK	0x0040	/* bypass hardware when possible */
 #endif
-#define	SO_LINGER	0x0080		/* linger on close if data present */
+#define	SO_LINGER		0x0080		/* linger on close if data present */
 #define	SO_OOBINLINE	0x0100	/* leave received OOB data in line */
 #if __BSD_VISIBLE
 #define	SO_REUSEPORT	0x0200	/* allow local address & port reuse */
 #define	SO_TIMESTAMP	0x0400	/* timestamp received dgram traffic */
 #define	SO_NOSIGPIPE	0x0800	/* no SIGPIPE from EPIPE */
 #define	SO_ACCEPTFILTER	0x1000	/* there is an accept filter */
-#define	SO_BINTIME	0x2000		/* timestamp received dgram traffic */
+#define	SO_BINTIME		0x2000		/* timestamp received dgram traffic */
 #endif
 
 /*
  * Additional options, not kept in so_options.
  */
-#define SO_SNDBUF	0x1001		/* send buffer size */
-#define SO_RCVBUF	0x1002		/* receive buffer size */
-#define SO_SNDLOWAT	0x1003		/* send low-water mark */
-#define SO_RCVLOWAT	0x1004		/* receive low-water mark */
-#define SO_SNDTIMEO	0x1005		/* send timeout */
-#define SO_RCVTIMEO	0x1006		/* receive timeout */
-#define	SO_ERROR	0x1007		/* get error status and clear */
-#define	SO_TYPE		0x1008		/* get socket type */
+#define SO_SNDBUF		0x1001		/* send buffer size */
+#define SO_RCVBUF		0x1002		/* receive buffer size */
+#define SO_SNDLOWAT		0x1003		/* send low-water mark */
+#define SO_RCVLOWAT		0x1004		/* receive low-water mark */
+#define SO_SNDTIMEO		0x1005		/* send timeout */
+#define SO_RCVTIMEO		0x1006		/* receive timeout */
+#define	SO_ERROR		0x1007		/* get error status and clear */
+#define	SO_TYPE			0x1008		/* get socket type */
 #define	SO_PRIVSTATE	0x1009	/* get/deny privileged state */
 
 /*
@@ -134,44 +134,44 @@ struct sockwakeup
 /*
  * Address families.
  */
-#define	AF_UNSPEC	0			/* unspecified */
+#define	AF_UNSPEC		0			/* unspecified */
 #if __BSD_VISIBLE
-#define	AF_LOCAL	AF_UNIX		/* local to host (pipes, portals) */
+#define	AF_LOCAL		AF_UNIX		/* local to host (pipes, portals) */
 #endif
-#define	AF_UNIX		1			/* standardized name for AF_LOCAL */
-#define	AF_INET		2			/* internetwork: UDP, TCP, etc. */
+#define	AF_UNIX			1			/* standardized name for AF_LOCAL */
+#define	AF_INET			2			/* internetwork: UDP, TCP, etc. */
 #if __BSD_VISIBLE
-#define	AF_IMPLINK	3			/* arpanet imp addresses */
-#define	AF_PUP		4			/* pup protocols: e.g. BSP */
-#define	AF_CHAOS	5			/* mit CHAOS protocols */
-#define	AF_NETBIOS	6			/* SMB protocols */
-#define	AF_ISO		7			/* ISO protocols */
-#define	AF_OSI		AF_ISO
-#define	AF_ECMA		8			/* European computer manufacturers */
-#define	AF_DATAKIT	9			/* datakit protocols */
-#define	AF_CCITT	10			/* CCITT protocols, X.25 etc */
-#define	AF_SNA		11			/* IBM SNA */
-#define AF_DECnet	12			/* DECnet */
-#define AF_DLI		13			/* DEC Direct data link interface */
-#define AF_LAT		14			/* LAT */
-#define	AF_HYLINK	15			/* NSC Hyperchannel */
+#define	AF_IMPLINK		3			/* arpanet imp addresses */
+#define	AF_PUP			4			/* pup protocols: e.g. BSP */
+#define	AF_CHAOS		5			/* mit CHAOS protocols */
+#define	AF_NETBIOS		6			/* SMB protocols */
+#define	AF_ISO			7			/* ISO protocols */
+#define	AF_OSI			AF_ISO
+#define	AF_ECMA			8			/* European computer manufacturers */
+#define	AF_DATAKIT		9			/* datakit protocols */
+#define	AF_CCITT		10			/* CCITT protocols, X.25 etc */
+#define	AF_SNA			11			/* IBM SNA */
+#define AF_DECnet		12			/* DECnet */
+#define AF_DLI			13			/* DEC Direct data link interface */
+#define AF_LAT			14			/* LAT */
+#define	AF_HYLINK		15			/* NSC Hyperchannel */
 #define	AF_APPLETALK	16		/* Apple Talk */
-#define	AF_ROUTE	17			/* Internal Routing Protocol */
-#define	AF_LINK		18			/* Link layer interface */
+#define	AF_ROUTE		17			/* Internal Routing Protocol */
+#define	AF_LINK			18			/* Link layer interface */
 #define	pseudo_AF_XTP	19		/* eXpress Transfer Protocol (no AF) */
-#define	AF_COIP		20			/* connection-oriented IP, aka ST II */
-#define	AF_CNT		21			/* Computer Network Technology */
+#define	AF_COIP			20			/* connection-oriented IP, aka ST II */
+#define	AF_CNT			21			/* Computer Network Technology */
 #define pseudo_AF_RTIP	22		/* Help Identify RTIP packets */
-#define	AF_IPX		23			/* Novell Internet Protocol */
-#define	AF_SIP		24			/* Simple Internet Protocol */
+#define	AF_IPX			23			/* Novell Internet Protocol */
+#define	AF_SIP			24			/* Simple Internet Protocol */
 #define	pseudo_AF_PIP	25		/* Help Identify PIP packets */
-#define	AF_ISDN		26			/* Integrated Services Digital Network */
-#define	AF_E164		AF_ISDN		/* CCITT E.164 recommendation */
+#define	AF_ISDN			26			/* Integrated Services Digital Network */
+#define	AF_E164			AF_ISDN		/* CCITT E.164 recommendation */
 #define	pseudo_AF_KEY	27		/* Internal key-management function */
 #endif
-#define	AF_INET6	28			/* IPv6 */
+#define	AF_INET6		28			/* IPv6 */
 
-#define	AF_MAX		29
+#define	AF_MAX			29
 
 /*
  * Structure used by kernel to store most
@@ -197,39 +197,39 @@ struct sockproto
 /*
  * Protocol families, same as address families for now.
  */
-#define	PF_UNSPEC	AF_UNSPEC
-#define	PF_LOCAL	AF_LOCAL
-#define	PF_UNIX		PF_LOCAL	/* backward compatibility */
-#define	PF_INET		AF_INET
-#define	PF_IMPLINK	AF_IMPLINK
-#define	PF_PUP		AF_PUP
-#define	PF_CHAOS	AF_CHAOS
-#define	PF_NETBIOS	AF_NETBIOS
-#define	PF_ISO		AF_ISO
-#define	PF_OSI		AF_ISO
-#define	PF_ECMA		AF_ECMA
-#define	PF_DATAKIT	AF_DATAKIT
-#define	PF_CCITT	AF_CCITT
-#define	PF_SNA		AF_SNA
-#define PF_DECnet	AF_DECnet
-#define PF_DLI		AF_DLI
-#define PF_LAT		AF_LAT
-#define	PF_HYLINK	AF_HYLINK
+#define	PF_UNSPEC		AF_UNSPEC
+#define	PF_LOCAL		AF_LOCAL
+#define	PF_UNIX			PF_LOCAL	/* backward compatibility */
+#define	PF_INET			AF_INET
+#define	PF_IMPLINK		AF_IMPLINK
+#define	PF_PUP			AF_PUP
+#define	PF_CHAOS		AF_CHAOS
+#define	PF_NETBIOS		AF_NETBIOS
+#define	PF_ISO			AF_ISO
+#define	PF_OSI			AF_ISO
+#define	PF_ECMA			AF_ECMA
+#define	PF_DATAKIT		AF_DATAKIT
+#define	PF_CCITT		AF_CCITT
+#define	PF_SNA			AF_SNA
+#define PF_DECnet		AF_DECnet
+#define PF_DLI			AF_DLI
+#define PF_LAT			AF_LAT
+#define	PF_HYLINK		AF_HYLINK
 #define	PF_APPLETALK	AF_APPLETALK
-#define	PF_ROUTE	AF_ROUTE
-#define	PF_LINK		AF_LINK
-#define	PF_XTP		pseudo_AF_XTP	/* really just proto family, no AF */
-#define	PF_COIP		AF_COIP
-#define	PF_CNT		AF_CNT
-#define	PF_SIP		AF_SIP
-#define	PF_IPX		AF_IPX
-#define PF_RTIP		pseudo_AF_RTIP	/* same format as AF_INET */
-#define PF_PIP		pseudo_AF_PIP
-#define	PF_ISDN		AF_ISDN
-#define	PF_KEY		pseudo_AF_KEY
-#define	PF_INET6	AF_INET6
+#define	PF_ROUTE		AF_ROUTE
+#define	PF_LINK			AF_LINK
+#define	PF_XTP			pseudo_AF_XTP	/* really just proto family, no AF */
+#define	PF_COIP			AF_COIP
+#define	PF_CNT			AF_CNT
+#define	PF_SIP			AF_SIP
+#define	PF_IPX			AF_IPX
+#define PF_RTIP			pseudo_AF_RTIP	/* same format as AF_INET */
+#define PF_PIP			pseudo_AF_PIP
+#define	PF_ISDN			AF_ISDN
+#define	PF_KEY			pseudo_AF_KEY
+#define	PF_INET6		AF_INET6
 
-#define	PF_MAX		AF_MAX
+#define	PF_MAX			AF_MAX
 
 /*
  * Definitions for network related sysctl, CTL_NET.
@@ -280,10 +280,10 @@ struct sockproto
  *	Fifth: type of info, defined below
  *	Sixth: flag(s) to mask with for NET_RT_FLAGS
  */
-#define NET_RT_DUMP	1			/* dump; may limit to a.f. */
-#define NET_RT_FLAGS	2		/* by flags, e.g. RESOLVING */
-#define NET_RT_IFLIST	3		/* survey interface list */
-#define	NET_RT_MAXID	4
+#define NET_RT_DUMP			1			/* dump; may limit to a.f. */
+#define NET_RT_FLAGS		2		/* by flags, e.g. RESOLVING */
+#define NET_RT_IFLIST		3		/* survey interface list */
+#define	NET_RT_MAXID		4
 
 #define CTL_NET_RT_NAMES { \
 	{ 0, 0 }, \
@@ -312,16 +312,16 @@ struct msghdr
 	int msg_flags;				/* flags on received message */
 };
 
-#define	MSG_OOB		0x1			/* process out-of-band data */
-#define	MSG_PEEK	0x2			/* peek at incoming message */
+#define	MSG_OOB			0x1			/* process out-of-band data */
+#define	MSG_PEEK		0x2			/* peek at incoming message */
 #define	MSG_DONTROUTE	0x4		/* send without using routing tables */
-#define	MSG_EOR		0x8			/* data completes record */
-#define	MSG_TRUNC	0x10		/* data discarded before delivery */
-#define	MSG_CTRUNC	0x20		/* control data lost before delivery */
-#define	MSG_WAITALL	0x40		/* wait for full request or error */
+#define	MSG_EOR			0x8			/* data completes record */
+#define	MSG_TRUNC		0x10		/* data discarded before delivery */
+#define	MSG_CTRUNC		0x20		/* control data lost before delivery */
+#define	MSG_WAITALL		0x40		/* wait for full request or error */
 #if __BSD_VISIBLE
 #define	MSG_DONTWAIT	0x80	/* this message should be nonblocking */
-#define	MSG_EOF		0x100		/* data completes connection */
+#define	MSG_EOF			0x100		/* data completes connection */
 #define MSG_COMPAT      0x8000	/* used in sendit() */
 #endif
 

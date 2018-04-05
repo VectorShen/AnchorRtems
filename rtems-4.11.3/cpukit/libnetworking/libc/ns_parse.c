@@ -29,7 +29,8 @@
 #include <string.h>
 
 /* These need to be in the same order as the nres.h:ns_flag enum. */
-struct _ns_flagdata _ns_flagdata[16] = {
+struct _ns_flagdata _ns_flagdata[16] =
+{
 	{0x8000, 15},				/* qr. */
 	{0x7800, 11},				/* opcode. */
 	{0x0400, 10},				/* aa. */
@@ -54,24 +55,24 @@ skiprr (const u_char * ptr, const u_char * eom, ns_sect section, int count)
 	const u_char *optr = ptr;
 
 	for ((void)NULL; count > 0; count--)
-	  {
-		  int b, rdlength;
+	{
+		int b, rdlength;
 
-		  b = dn_skipname (ptr, eom);
-		  if (b < 0)
-			  goto emsgsize;
-		  ptr += b /*Name */  + NS_INT16SZ /*Type */  + NS_INT16SZ /*Class */ ;
-		  if (section != ns_s_qd)
-			{
-				if (ptr + NS_INT32SZ > eom)
-					goto emsgsize;
-				ptr += NS_INT32SZ /*TTL*/;
-				if (ptr + NS_INT16SZ > eom)
-					goto emsgsize;
-				NS_GET16 (rdlength, ptr);
-				ptr += rdlength /*RData */ ;
-			}
-	  }
+		b = dn_skipname (ptr, eom);
+		if (b < 0)
+			goto emsgsize;
+		ptr += b /*Name */  + NS_INT16SZ /*Type */  + NS_INT16SZ /*Class */ ;
+		if (section != ns_s_qd)
+		{
+			if (ptr + NS_INT32SZ > eom)
+				goto emsgsize;
+			ptr += NS_INT32SZ /*TTL*/;
+			if (ptr + NS_INT16SZ > eom)
+				goto emsgsize;
+			NS_GET16 (rdlength, ptr);
+			ptr += rdlength /*RData */ ;
+		}
+	}
 	if (ptr > eom)
 		goto emsgsize;
 	return (ptr - optr);
@@ -95,24 +96,24 @@ int ns_initparse (const u_char * msg, int msglen, ns_msg * handle)
 		goto emsgsize;
 	NS_GET16 (handle->_flags, msg);
 	for (i = 0; i < ns_s_max; i++)
-	  {
-		  if (msg + NS_INT16SZ > eom)
-			  goto emsgsize;
-		  NS_GET16 (handle->_counts[i], msg);
-	  }
+	{
+		if (msg + NS_INT16SZ > eom)
+			goto emsgsize;
+		NS_GET16 (handle->_counts[i], msg);
+	}
 	for (i = 0; i < ns_s_max; i++)
 		if (handle->_counts[i] == 0)
 			handle->_sections[i] = NULL;
 		else
-		  {
-			  int b = skiprr (msg, eom, (ns_sect) i,
-							  handle->_counts[i]);
+		{
+			int b = skiprr (msg, eom, (ns_sect) i,
+							handle->_counts[i]);
 
-			  if (b < 0)
-				  return (-1);
-			  handle->_sections[i] = msg;
-			  msg += b;
-		  }
+			if (b < 0)
+				return (-1);
+			handle->_sections[i] = msg;
+			msg += b;
+		}
 	if (msg != eom)
 		goto emsgsize;
 	handle->_sect = ns_s_max;
@@ -132,11 +133,11 @@ int ns_parserr (ns_msg * handle, ns_sect section, int rrnum, ns_rr * rr)
 	if ( /* section < 0 || */ section >= ns_s_max)
 		goto enodev;
 	if ((int)section != (int)handle->_sect)
-	  {
-		  handle->_sect = section;
-		  handle->_rrnum = 0;
-		  handle->_ptr = handle->_sections[(int)section];
-	  }
+	{
+		handle->_sect = section;
+		handle->_rrnum = 0;
+		handle->_ptr = handle->_sections[(int)section];
+	}
 
 	/* Make rrnum right. */
 	if (rrnum == -1)
@@ -144,10 +145,10 @@ int ns_parserr (ns_msg * handle, ns_sect section, int rrnum, ns_rr * rr)
 	if (rrnum < 0 || rrnum >= handle->_counts[(int)section])
 		goto enodev;
 	if (rrnum < handle->_rrnum)
-	  {
-		  handle->_rrnum = 0;
-		  handle->_ptr = handle->_sections[(int)section];
-	  }
+	{
+		handle->_rrnum = 0;
+		handle->_ptr = handle->_sections[(int)section];
+	}
 
 	b = skiprr (handle->_msg, handle->_eom, section, rrnum - handle->_rrnum);
 	if (b < 0)
@@ -157,7 +158,7 @@ int ns_parserr (ns_msg * handle, ns_sect section, int rrnum, ns_rr * rr)
 
 	/* Do the parse. */
 	b = dn_expand (handle->_msg, handle->_eom,
-				   handle->_ptr, rr->name, NS_MAXDNAME);
+				 handle->_ptr, rr->name, NS_MAXDNAME);
 	if (b < 0)
 		return (-1);
 	handle->_ptr += b;
@@ -168,24 +169,24 @@ int ns_parserr (ns_msg * handle, ns_sect section, int rrnum, ns_rr * rr)
 		goto emsgsize;
 	NS_GET16 (rr->rr_class, handle->_ptr);
 	if (section == ns_s_qd)
-	  {
-		  rr->ttl = 0;
-		  rr->rdlength = 0;
-		  rr->rdata = NULL;
-	  }
+	{
+		rr->ttl = 0;
+		rr->rdlength = 0;
+		rr->rdata = NULL;
+	}
 	else
-	  {
-		  if (handle->_ptr + NS_INT32SZ > handle->_eom)
-			  goto emsgsize;
-		  NS_GET32 (rr->ttl, handle->_ptr);
-		  if (handle->_ptr + NS_INT16SZ > handle->_eom)
-			  goto emsgsize;
-		  NS_GET16 (rr->rdlength, handle->_ptr);
-		  if (handle->_ptr + rr->rdlength > handle->_eom)
-			  goto emsgsize;
-		  rr->rdata = handle->_ptr;
-		  handle->_ptr += rr->rdlength;
-	  }
+	{
+		if (handle->_ptr + NS_INT32SZ > handle->_eom)
+			goto emsgsize;
+		NS_GET32 (rr->ttl, handle->_ptr);
+		if (handle->_ptr + NS_INT16SZ > handle->_eom)
+			goto emsgsize;
+		NS_GET16 (rr->rdlength, handle->_ptr);
+		if (handle->_ptr + rr->rdlength > handle->_eom)
+			goto emsgsize;
+		rr->rdata = handle->_ptr;
+		handle->_ptr += rr->rdlength;
+	}
 	handle->_rrnum++;
 
 	/* All done. */

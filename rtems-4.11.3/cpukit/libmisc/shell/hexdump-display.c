@@ -89,49 +89,49 @@ void display (rtems_shell_hexdump_globals * globals)
 		for (fs = fshead, savebp = bp, saveaddress = address; fs;
 			 fs = fs->nextfs, bp = savebp, address = saveaddress)
 			for (fu = fs->nextfu; fu; fu = fu->nextfu)
-			  {
-				  if (fu->flags & F_IGNORE)
-					  break;
-				  for (cnt = fu->reps; cnt; --cnt)
-					  for (pr = fu->nextpr; pr; address += pr->bcnt,
-						   bp += pr->bcnt, pr = pr->nextpr)
-						{
-							if (eaddress && address >= eaddress &&
-								!(pr->flags & (F_TEXT | F_BPAD)))
-								bpad (pr);
-							if (cnt == 1 && pr->nospace)
-							  {
-								  savech = *pr->nospace;
-								  *pr->nospace = '\0';
-							  }
-							print (globals, pr, bp);
-							if (cnt == 1 && pr->nospace)
-								*pr->nospace = savech;
-						}
-			  }
-	if (endfu)
-	  {
-		  /*
-		   * If eaddress not set, error or file size was multiple of
-		   * blocksize, and no partial block ever found.
-		   */
-		  if (!eaddress)
 			{
-				if (!address)
-					return;
-				eaddress = address;
+				if (fu->flags & F_IGNORE)
+					break;
+				for (cnt = fu->reps; cnt; --cnt)
+					for (pr = fu->nextpr; pr; address += pr->bcnt,
+						 bp += pr->bcnt, pr = pr->nextpr)
+					{
+						if (eaddress && address >= eaddress &&
+							!(pr->flags & (F_TEXT | F_BPAD)))
+							bpad (pr);
+						if (cnt == 1 && pr->nospace)
+						{
+							savech = *pr->nospace;
+							*pr->nospace = '\0';
+						}
+						print (globals, pr, bp);
+						if (cnt == 1 && pr->nospace)
+							*pr->nospace = savech;
+					}
 			}
-		  for (pr = endfu->nextpr; pr; pr = pr->nextpr)
-			  switch (pr->flags)
-				{
-					case F_ADDRESS:
-						(void)printf (pr->fmt, (quad_t) eaddress);
-						break;
-					case F_TEXT:
-						(void)printf ("%s", pr->fmt);
-						break;
-				}
-	  }
+	if (endfu)
+	{
+		/*
+		 * If eaddress not set, error or file size was multiple of
+		 * blocksize, and no partial block ever found.
+		 */
+		if (!eaddress)
+		{
+			if (!address)
+				return;
+			eaddress = address;
+		}
+		for (pr = endfu->nextpr; pr; pr = pr->nextpr)
+			switch (pr->flags)
+			{
+				case F_ADDRESS:
+					(void)printf (pr->fmt, (quad_t) eaddress);
+					break;
+				case F_TEXT:
+					(void)printf ("%s", pr->fmt);
+					break;
+			}
+	}
 }
 
 static void print (rtems_shell_hexdump_globals * globals, PR * pr, u_char * bp)
@@ -147,93 +147,93 @@ static void print (rtems_shell_hexdump_globals * globals, PR * pr, u_char * bp)
 	u_int64_t u8;
 
 	switch (pr->flags)
-	  {
-		  case F_ADDRESS:
-			  (void)printf (pr->fmt, (quad_t) address);
-			  break;
-		  case F_BPAD:
-			  (void)printf (pr->fmt, "");
-			  break;
-		  case F_C:
-			  conv_c (globals, pr, bp, eaddress ? eaddress - address :
-					  blocksize - address % blocksize);
-			  break;
-		  case F_CHAR:
-			  (void)printf (pr->fmt, *bp);
-			  break;
-		  case F_DBL:
-			  switch (pr->bcnt)
-				{
-					case 4:
-						bcopy (bp, &f4, sizeof (f4));
-						(void)printf (pr->fmt, f4);
-						break;
-					case 8:
-						bcopy (bp, &f8, sizeof (f8));
-						(void)printf (pr->fmt, f8);
-						break;
-					default:
-						if (pr->bcnt == sizeof (long double))
-						  {
-							  bcopy (bp, &ldbl, sizeof (ldbl));
-							  (void)printf (pr->fmt, ldbl);
-						  }
-						break;
-				}
-			  break;
-		  case F_INT:
-			  switch (pr->bcnt)
-				{
-					case 1:
-						(void)printf (pr->fmt, (quad_t) (signed char)*bp);
-						break;
-					case 2:
-						bcopy (bp, &s2, sizeof (s2));
-						(void)printf (pr->fmt, (quad_t) s2);
-						break;
-					case 4:
-						bcopy (bp, &s4, sizeof (s4));
-						(void)printf (pr->fmt, (quad_t) s4);
-						break;
-					case 8:
-						bcopy (bp, &s8, sizeof (s8));
-						(void)printf (pr->fmt, s8);
-						break;
-				}
-			  break;
-		  case F_P:
-			  (void)printf (pr->fmt, isprint (*bp) ? *bp : '.');
-			  break;
-		  case F_STR:
-			  (void)printf (pr->fmt, (char *)bp);
-			  break;
-		  case F_TEXT:
-			  (void)printf ("%s", pr->fmt);
-			  break;
-		  case F_U:
-			  conv_u (globals, pr, bp);
-			  break;
-		  case F_UINT:
-			  switch (pr->bcnt)
-				{
-					case 1:
-						(void)printf (pr->fmt, (u_quad_t) * bp);
-						break;
-					case 2:
-						bcopy (bp, &u2, sizeof (u2));
-						(void)printf (pr->fmt, (u_quad_t) u2);
-						break;
-					case 4:
-						bcopy (bp, &u4, sizeof (u4));
-						(void)printf (pr->fmt, (u_quad_t) u4);
-						break;
-					case 8:
-						bcopy (bp, &u8, sizeof (u8));
-						(void)printf (pr->fmt, u8);
-						break;
-				}
-			  break;
-	  }
+	{
+		case F_ADDRESS:
+			(void)printf (pr->fmt, (quad_t) address);
+			break;
+		case F_BPAD:
+			(void)printf (pr->fmt, "");
+			break;
+		case F_C:
+			conv_c (globals, pr, bp, eaddress ? eaddress - address :
+					blocksize - address % blocksize);
+			break;
+		case F_CHAR:
+			(void)printf (pr->fmt, *bp);
+			break;
+		case F_DBL:
+			switch (pr->bcnt)
+			{
+				case 4:
+					bcopy (bp, &f4, sizeof (f4));
+					(void)printf (pr->fmt, f4);
+					break;
+				case 8:
+					bcopy (bp, &f8, sizeof (f8));
+					(void)printf (pr->fmt, f8);
+					break;
+				default:
+					if (pr->bcnt == sizeof (long double))
+					{
+						bcopy (bp, &ldbl, sizeof (ldbl));
+						(void)printf (pr->fmt, ldbl);
+					}
+					break;
+			}
+			break;
+		case F_INT:
+			switch (pr->bcnt)
+			{
+				case 1:
+					(void)printf (pr->fmt, (quad_t) (signed char)*bp);
+					break;
+				case 2:
+					bcopy (bp, &s2, sizeof (s2));
+					(void)printf (pr->fmt, (quad_t) s2);
+					break;
+				case 4:
+					bcopy (bp, &s4, sizeof (s4));
+					(void)printf (pr->fmt, (quad_t) s4);
+					break;
+				case 8:
+					bcopy (bp, &s8, sizeof (s8));
+					(void)printf (pr->fmt, s8);
+					break;
+			}
+			break;
+		case F_P:
+			(void)printf (pr->fmt, isprint (*bp) ? *bp : '.');
+			break;
+		case F_STR:
+			(void)printf (pr->fmt, (char *)bp);
+			break;
+		case F_TEXT:
+			(void)printf ("%s", pr->fmt);
+			break;
+		case F_U:
+			conv_u (globals, pr, bp);
+			break;
+		case F_UINT:
+			switch (pr->bcnt)
+			{
+				case 1:
+					(void)printf (pr->fmt, (u_quad_t) * bp);
+					break;
+				case 2:
+					bcopy (bp, &u2, sizeof (u2));
+					(void)printf (pr->fmt, (u_quad_t) u2);
+					break;
+				case 4:
+					bcopy (bp, &u4, sizeof (u4));
+					(void)printf (pr->fmt, (u_quad_t) u4);
+					break;
+				case 8:
+					bcopy (bp, &u8, sizeof (u8));
+					(void)printf (pr->fmt, u8);
+					break;
+			}
+			break;
+	}
 }
 
 void bpad (PR * pr)
@@ -267,82 +267,82 @@ u_char *get (rtems_shell_hexdump_globals * globals)
 	u_char *tmpp;
 
 	if (!curp)
-	  {
-		  if ((curp = calloc (1, blocksize)) == NULL)
-			  err (exit_jump, 1, NULL);
-		  if ((savp = calloc (1, blocksize)) == NULL)
-			  err (exit_jump, 1, NULL);
-	  }
+	{
+		if ((curp = calloc (1, blocksize)) == NULL)
+			err (exit_jump, 1, NULL);
+		if ((savp = calloc (1, blocksize)) == NULL)
+			err (exit_jump, 1, NULL);
+	}
 	else
-	  {
-		  tmpp = curp;
-		  curp = savp;
-		  savp = tmpp;
-		  address += blocksize;
-		  valid_save = 1;
-	  }
+	{
+		tmpp = curp;
+		curp = savp;
+		savp = tmpp;
+		address += blocksize;
+		valid_save = 1;
+	}
 	for (need = blocksize, nread = 0;;)
-	  {
-		  /*
-		   * if read the right number of bytes, or at EOF for one file,
-		   * and no other files are available, zero-pad the rest of the
-		   * block and set the end flag.
-		   */
-		  if (!length || (ateof && !next (globals, (char **)NULL)))
+	{
+		/*
+		 * if read the right number of bytes, or at EOF for one file,
+		 * and no other files are available, zero-pad the rest of the
+		 * block and set the end flag.
+		 */
+		if (!length || (ateof && !next (globals, (char **)NULL)))
+		{
+			if (odmode && address < skip)
+				errx (exit_jump, 1, "cannot skip past end of input");
+			if (need == blocksize)
+				return ((u_char *) NULL);
+			/*
+			 * XXX bcmp() is not quite right in the presence
+			 * of multibyte characters.
+			 */
+			if (vflag != ALL && valid_save && bcmp (curp, savp, nread) == 0)
 			{
-				if (odmode && address < skip)
-					errx (exit_jump, 1, "cannot skip past end of input");
-				if (need == blocksize)
-					return ((u_char *) NULL);
-				/*
-				 * XXX bcmp() is not quite right in the presence
-				 * of multibyte characters.
-				 */
-				if (vflag != ALL && valid_save && bcmp (curp, savp, nread) == 0)
-				  {
-					  if (vflag != DUP)
-						  (void)printf ("*\n");
-					  return ((u_char *) NULL);
-				  }
-				bzero ((char *)curp + nread, need);
-				eaddress = address + nread;
+				if (vflag != DUP)
+					(void)printf ("*\n");
+				return ((u_char *) NULL);
+			}
+			bzero ((char *)curp + nread, need);
+			eaddress = address + nread;
+			return (curp);
+		}
+		n = fread ((char *)curp + nread, sizeof (u_char),
+					 length == -1 ? need : MIN (length, need), hdstdin);
+		if (!n)
+		{
+			if (ferror (hdstdin))
+				warn ("%s", _argv[-1]);
+			ateof = 1;
+			continue;
+		}
+		ateof = 0;
+		if (length != -1)
+			length -= n;
+		if (!(need -= n))
+		{
+			/*
+			 * XXX bcmp() is not quite right in the presence
+			 * of multibyte characters.
+			 */
+			if (vflag == ALL || vflag == FIRST ||
+				valid_save == 0 || bcmp (curp, savp, blocksize) != 0)
+			{
+				if (vflag == DUP || vflag == FIRST)
+					vflag = WAIT;
 				return (curp);
 			}
-		  n = fread ((char *)curp + nread, sizeof (u_char),
-					 length == -1 ? need : MIN (length, need), hdstdin);
-		  if (!n)
-			{
-				if (ferror (hdstdin))
-					warn ("%s", _argv[-1]);
-				ateof = 1;
-				continue;
-			}
-		  ateof = 0;
-		  if (length != -1)
-			  length -= n;
-		  if (!(need -= n))
-			{
-				/*
-				 * XXX bcmp() is not quite right in the presence
-				 * of multibyte characters.
-				 */
-				if (vflag == ALL || vflag == FIRST ||
-					valid_save == 0 || bcmp (curp, savp, blocksize) != 0)
-				  {
-					  if (vflag == DUP || vflag == FIRST)
-						  vflag = WAIT;
-					  return (curp);
-				  }
-				if (vflag == WAIT)
-					(void)printf ("*\n");
-				vflag = DUP;
-				address += blocksize;
-				need = blocksize;
-				nread = 0;
-			}
-		  else
-			  nread += n;
-	  }
+			if (vflag == WAIT)
+				(void)printf ("*\n");
+			vflag = DUP;
+			address += blocksize;
+			need = blocksize;
+			nread = 0;
+		}
+		else
+			nread += n;
+	}
 }
 
 size_t peek (rtems_shell_hexdump_globals * globals, u_char * buf, size_t nbytes)
@@ -354,16 +354,16 @@ size_t peek (rtems_shell_hexdump_globals * globals, u_char * buf, size_t nbytes)
 		nbytes = length;
 	nread = 0;
 	while (nread < nbytes && (c = getchar ()) != EOF)
-	  {
-		  *buf++ = c;
-		  nread++;
-	  }
+	{
+		*buf++ = c;
+		nread++;
+	}
 	n = nread;
 	while (n-- > 0)
-	  {
-		  c = *--buf;
-		  ungetc (c, hdstdin);
-	  }
+	{
+		c = *--buf;
+		ungetc (c, hdstdin);
+	}
 	return (nread);
 }
 
@@ -375,49 +375,49 @@ int next (rtems_shell_hexdump_globals * globals, char **argv)
 	int statok;
 
 	if (argv)
-	  {
-		  _argv = argv;
-		  return (1);
-	  }
+	{
+		_argv = argv;
+		return (1);
+	}
 	for (;;)
-	  {
-		  if (*_argv)
+	{
+		if (*_argv)
+		{
+			done = 1;
+			if (!hdstdin)
 			{
-				done = 1;
+				hdstdin = malloc (sizeof (FILE));
 				if (!hdstdin)
-				  {
-					  hdstdin = malloc (sizeof (FILE));
-					  if (!hdstdin)
-						{
-							errno = ENOMEM;
-							err (exit_jump, 1, "file name allocation");
-						}
-					  memset (hdstdin, 0, sizeof (FILE));
-				  }
-				if (!(hdstdin = freopen (*_argv, "r", hdstdin)))
-				  {
-					  warn ("%s", *_argv);
-					  exitval = 1;
-					  ++_argv;
-					  continue;
-				  }
-				statok = 1;
+				{
+					errno = ENOMEM;
+					err (exit_jump, 1, "file name allocation");
+				}
+				memset (hdstdin, 0, sizeof (FILE));
 			}
-		  else
+			if (!(hdstdin = freopen (*_argv, "r", hdstdin)))
 			{
-				errno = ECANCELED;
-				err (exit_jump, 1, "no file (stdin no supported)");
-				if (done++)
-					return (0);
-				statok = 0;
+				warn ("%s", *_argv);
+				exitval = 1;
+				++_argv;
+				continue;
 			}
-		  if (skip)
-			  doskip (globals, statok ? *_argv : "stdin", statok);
-		  if (*_argv)
-			  ++_argv;
-		  if (!skip)
-			  return (1);
-	  }
+			statok = 1;
+		}
+		else
+		{
+			errno = ECANCELED;
+			err (exit_jump, 1, "no file (stdin no supported)");
+			if (done++)
+				return (0);
+			statok = 0;
+		}
+		if (skip)
+			doskip (globals, statok ? *_argv : "stdin", statok);
+		if (*_argv)
+			++_argv;
+		if (!skip)
+			return (1);
+	}
 	/* NOTREACHED */
 }
 
@@ -428,30 +428,30 @@ doskip (rtems_shell_hexdump_globals * globals, const char *fname, int statok)
 	struct stat sb;
 
 	if (statok)
-	  {
-		  if (fstat (fileno (hdstdin), &sb))
-			  err (exit_jump, 1, "%s", fname);
-		  /* can seek block devices on RTEMS */
-		  if (0 && S_ISREG (sb.st_mode) && skip >= sb.st_size)
-			{
-				address += sb.st_size;
-				skip -= sb.st_size;
-				return;
-			}
-		  if (1 || S_ISREG (sb.st_mode))
-			{
-				if (fseeko (hdstdin, skip, SEEK_SET))
-					err (exit_jump, 1, "%s", fname);
-				address += skip;
-				skip = 0;
-			}
-		  else
-			{
-				for (cnt = 0; cnt < skip; ++cnt)
-					if (getchar () == EOF)
-						break;
-				address += cnt;
-				skip -= cnt;
-			}
-	  }
+	{
+		if (fstat (fileno (hdstdin), &sb))
+			err (exit_jump, 1, "%s", fname);
+		/* can seek block devices on RTEMS */
+		if (0 && S_ISREG (sb.st_mode) && skip >= sb.st_size)
+		{
+			address += sb.st_size;
+			skip -= sb.st_size;
+			return;
+		}
+		if (1 || S_ISREG (sb.st_mode))
+		{
+			if (fseeko (hdstdin, skip, SEEK_SET))
+				err (exit_jump, 1, "%s", fname);
+			address += skip;
+			skip = 0;
+		}
+		else
+		{
+			for (cnt = 0; cnt < skip; ++cnt)
+				if (getchar () == EOF)
+					break;
+			address += cnt;
+			skip -= cnt;
+		}
+	}
 }

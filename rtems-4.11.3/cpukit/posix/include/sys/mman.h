@@ -171,14 +171,14 @@ int msync (void *, size_t, int);
 int msync (void *, size_t, int) __RENAME (__msync13);
 #endif
 #endif
-	 int mlock (const void *, size_t);
-	 int munlock (const void *, size_t);
-	 int mlockall (int);
-	 int munlockall (void);
+int mlock (const void *, size_t);
+int munlock (const void *, size_t);
+int mlockall (int);
+int munlockall (void);
 #if defined(_NETBSD_SOURCE)
-	 int madvise (void *, size_t, int);
-	 int mincore (void *, size_t, char *);
-	 int minherit (void *, size_t, int);
+int madvise (void *, size_t, int);
+int mincore (void *, size_t, char *);
+int minherit (void *, size_t, int);
 #endif
 __END_DECLS
 #endif /* !_KERNEL */

@@ -26,7 +26,8 @@
 
 #include <rtems/fatal.h>
 
-static const char *const internal_error_text[] = {
+static const char *const internal_error_text[] =
+{
 	"INTERNAL_ERROR_NO_CONFIGURATION_TABLE",
 	"INTERNAL_ERROR_NO_CPU_TABLE",
 	"INTERNAL_ERROR_TOO_LITTLE_WORKSPACE",
@@ -61,9 +62,9 @@ const char *rtems_internal_error_text (rtems_fatal_code error)
 	const char *text = "?";
 
 	if (i < RTEMS_ARRAY_SIZE (internal_error_text))
-	  {
-		  text = internal_error_text[i];
-	  }
+	{
+		text = internal_error_text[i];
+	}
 
 	return text;
 }

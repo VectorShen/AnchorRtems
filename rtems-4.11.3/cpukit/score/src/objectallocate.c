@@ -30,7 +30,7 @@
 #endif
 
 static Objects_Control *_Objects_Get_inactive (Objects_Information *
-											   information)
+											 information)
 {
 	return (Objects_Control *) _Chain_Get_unprotected (&information->Inactive);
 }
@@ -59,37 +59,37 @@ Objects_Control *_Objects_Allocate_unprotected (Objects_Information *
 	the_object = _Objects_Get_inactive (information);
 
 	if (information->auto_extend)
-	  {
-		  /*
-		   *  If the list is empty then we are out of objects and need to
-		   *  extend information base.
-		   */
+	{
+		/*
+		 *  If the list is empty then we are out of objects and need to
+		 *  extend information base.
+		 */
 
-		  if (!the_object)
-			{
-				_Objects_Extend_information (information);
-				the_object = _Objects_Get_inactive (information);
-			}
+		if (!the_object)
+		{
+			_Objects_Extend_information (information);
+			the_object = _Objects_Get_inactive (information);
+		}
 
-		  if (the_object)
-			{
-				uint32_t block;
+		if (the_object)
+		{
+			uint32_t block;
 
-				block = (uint32_t) _Objects_Get_index (the_object->id) -
-					_Objects_Get_index (information->minimum_id);
-				block /= information->allocation_size;
+			block = (uint32_t) _Objects_Get_index (the_object->id) -
+				_Objects_Get_index (information->minimum_id);
+			block /= information->allocation_size;
 
-				information->inactive_per_block[block]--;
-				information->inactive--;
-			}
-	  }
+			information->inactive_per_block[block]--;
+			information->inactive--;
+		}
+	}
 
 #if defined(RTEMS_DEBUG_OBJECT_ALLOCATION)
 	if (!the_object)
-	  {
-		  printk ("OBJECT ALLOCATION FAILURE! API/Class %d/%d\n",
-				  information->the_api, information->the_class);
-	  }
+	{
+		printk ("OBJECT ALLOCATION FAILURE! API/Class %d/%d\n",
+				information->the_api, information->the_class);
+	}
 #endif
 
 	return the_object;

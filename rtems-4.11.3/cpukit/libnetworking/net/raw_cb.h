@@ -61,15 +61,15 @@ struct rawcb
 #ifdef _KERNEL
 extern LIST_HEAD (rawcb_list_head, rawcb) rawcb_list;
 
-	 int raw_attach (struct socket *, int);
-	 void raw_ctlinput (int, struct sockaddr *, void *);
-	 void raw_detach (struct rawcb *);
-	 void raw_disconnect (struct rawcb *);
-	 void raw_init (void);
-	 void raw_input (struct mbuf *,
-					 struct sockproto *, struct sockaddr *, struct sockaddr *);
-	 int raw_usrreq (struct socket *,
-					 int, struct mbuf *, struct mbuf *, struct mbuf *);
+int raw_attach (struct socket *, int);
+void raw_ctlinput (int, struct sockaddr *, void *);
+void raw_detach (struct rawcb *);
+void raw_disconnect (struct rawcb *);
+void raw_init (void);
+void raw_input (struct mbuf *,
+			 struct sockproto *, struct sockaddr *, struct sockaddr *);
+int raw_usrreq (struct socket *,
+			 int, struct mbuf *, struct mbuf *, struct mbuf *);
 #endif
 
 #endif

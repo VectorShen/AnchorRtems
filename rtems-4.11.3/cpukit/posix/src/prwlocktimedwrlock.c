@@ -69,34 +69,34 @@ int pthread_rwlock_timedwrlock (pthread_rwlock_t * rwlock,
 
 	the_rwlock = _POSIX_RWLock_Get (rwlock, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  executing = _Thread_Executing;
-			  _CORE_RWLock_Obtain_for_writing (&the_rwlock->RWLock,
-											   executing,
-											   *rwlock, do_wait, ticks, NULL);
+			executing = _Thread_Executing;
+			_CORE_RWLock_Obtain_for_writing (&the_rwlock->RWLock,
+											 executing,
+											 *rwlock, do_wait, ticks, NULL);
 
-			  _Objects_Put (&the_rwlock->Object);
-			  if (!do_wait &&
-				  (executing->Wait.return_code == CORE_RWLOCK_UNAVAILABLE))
-				{
-					if (status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
-						return EINVAL;
-					if (status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
-						status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
-						return ETIMEDOUT;
-				}
+			_Objects_Put (&the_rwlock->Object);
+			if (!do_wait &&
+				(executing->Wait.return_code == CORE_RWLOCK_UNAVAILABLE))
+			{
+				if (status == POSIX_ABSOLUTE_TIMEOUT_INVALID)
+					return EINVAL;
+				if (status == POSIX_ABSOLUTE_TIMEOUT_IS_IN_PAST ||
+					status == POSIX_ABSOLUTE_TIMEOUT_IS_NOW)
+					return ETIMEDOUT;
+			}
 
-			  return _POSIX_RWLock_Translate_core_RWLock_return_code ((CORE_RWLock_Status) executing->Wait.return_code);
+			return _POSIX_RWLock_Translate_core_RWLock_return_code ((CORE_RWLock_Status) executing->Wait.return_code);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

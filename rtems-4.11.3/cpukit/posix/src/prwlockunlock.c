@@ -47,20 +47,20 @@ int pthread_rwlock_unlock (pthread_rwlock_t * rwlock)
 
 	the_rwlock = _POSIX_RWLock_Get (rwlock, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  status =
-				  _CORE_RWLock_Release (&the_rwlock->RWLock, _Thread_Executing);
-			  _Objects_Put (&the_rwlock->Object);
-			  return _POSIX_RWLock_Translate_core_RWLock_return_code (status);
+		case OBJECTS_LOCAL:
+			status =
+				_CORE_RWLock_Release (&the_rwlock->RWLock, _Thread_Executing);
+			_Objects_Put (&the_rwlock->Object);
+			return _POSIX_RWLock_Translate_core_RWLock_return_code (status);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

@@ -31,16 +31,16 @@ void _Scheduler_EDF_Release_job (const Scheduler_Control * scheduler,
 	(void)scheduler;
 
 	if (deadline)
-	  {
-		  /* Initializing or shifting deadline. */
-		  new_priority = (_Watchdog_Ticks_since_boot + deadline)
-			  & ~SCHEDULER_EDF_PRIO_MSB;
-	  }
+	{
+		/* Initializing or shifting deadline. */
+		new_priority = (_Watchdog_Ticks_since_boot + deadline)
+			& ~SCHEDULER_EDF_PRIO_MSB;
+	}
 	else
-	  {
-		  /* Switch back to background priority. */
-		  new_priority = the_thread->Start.initial_priority;
-	  }
+	{
+		/* Switch back to background priority. */
+		new_priority = the_thread->Start.initial_priority;
+	}
 
 	_Thread_Set_priority (the_thread, new_priority, &unused, true);
 }

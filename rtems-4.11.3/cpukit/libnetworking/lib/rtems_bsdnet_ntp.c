@@ -81,16 +81,16 @@ getServerTimespec (struct ntpPacketSmall *p, int state, void *usr_data)
 	unsigned long long tmp;
 
 	if (0 == state)
-	  {
-		  ts->tv_sec = ntohl (p->transmit_timestamp.integer);
-		  ts->tv_sec -= rtems_bsdnet_timeoffset + UNIX_BASE_TO_NTP_BASE;
+	{
+		ts->tv_sec = ntohl (p->transmit_timestamp.integer);
+		ts->tv_sec -= rtems_bsdnet_timeoffset + UNIX_BASE_TO_NTP_BASE;
 
-		  tmp =
-			  1000000000 *
-			  (unsigned long long)ntohl (p->transmit_timestamp.fraction);
+		tmp =
+			1000000000 *
+			(unsigned long long)ntohl (p->transmit_timestamp.fraction);
 
-		  ts->tv_nsec = (unsigned long)(tmp >> 32);
-	  }
+		ts->tv_nsec = (unsigned long)(tmp >> 32);
+	}
 	return 0;
 }
 
@@ -113,49 +113,49 @@ tryServer (int i, int s, rtems_bsdnet_ntp_callback_t callback, void *usr_data)
 		tv.tv_sec = rtems_bsdnet_ntp_timeout_secs;
 	tv.tv_usec = 0;
 	if (setsockopt (s, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof tv) < 0)
-	  {
-		  fprintf (stderr,
-				   "rtems_bsdnet_get_ntp() Can't set socket receive timeout: %s\n",
-				   strerror (errno));
-		  close (s);
-		  return -1;
-	  }
+	{
+		fprintf (stderr,
+				 "rtems_bsdnet_get_ntp() Can't set socket receive timeout: %s\n",
+				 strerror (errno));
+		close (s);
+		return -1;
+	}
 	if (i >= 0)
-	  {
-		  memset (&farAddr, 0, sizeof farAddr);
-		  farAddr.sin_family = AF_INET;
-		  farAddr.sin_port = htons (123);
-		  farAddr.sin_addr = rtems_bsdnet_ntpserver[i];
-		  memset (&packet, 0, sizeof packet);
-		  packet.li_vn_mode = (3 << 3) | 3;	/* NTP version 3, client */
-		  if (callback (&packet, 1, usr_data))
-			  return -1;
-		  l = sendto (s, &packet, sizeof packet, 0, (struct sockaddr *)&farAddr,
-					  sizeof farAddr);
-		  if (l != sizeof packet)
-			{
-				fprintf (stderr, "rtems_bsdnet_get_ntp() Can't send: %s\n",
-						 strerror (errno));
-				return -1;
-			}
-	  }
+	{
+		memset (&farAddr, 0, sizeof farAddr);
+		farAddr.sin_family = AF_INET;
+		farAddr.sin_port = htons (123);
+		farAddr.sin_addr = rtems_bsdnet_ntpserver[i];
+		memset (&packet, 0, sizeof packet);
+		packet.li_vn_mode = (3 << 3) | 3;	/* NTP version 3, client */
+		if (callback (&packet, 1, usr_data))
+			return -1;
+		l = sendto (s, &packet, sizeof packet, 0, (struct sockaddr *)&farAddr,
+					sizeof farAddr);
+		if (l != sizeof packet)
+		{
+			fprintf (stderr, "rtems_bsdnet_get_ntp() Can't send: %s\n",
+					 strerror (errno));
+			return -1;
+		}
+	}
 	else
-	  {
-		  if (callback (&packet, -1, usr_data))
-			  return -1;
-	  }
+	{
+		if (callback (&packet, -1, usr_data))
+			return -1;
+	}
 	farlen = sizeof farAddr;
 	i = recvfrom (s, &packet, sizeof packet, 0, (struct sockaddr *)&farAddr,
-				  &farlen);
+				&farlen);
 	if (i == 0)
 		fprintf (stderr, "rtems_bsdnet_get_ntp() Unexpected EOF");
 	if (i < 0)
-	  {
-		  if ((errno == EWOULDBLOCK) || (errno == EAGAIN))
-			  return -1;
-		  fprintf (stderr, "rtems_bsdnet_get_ntp() Can't receive: %s\n",
-				   strerror (errno));
-	  }
+	{
+		if ((errno == EWOULDBLOCK) || (errno == EAGAIN))
+			return -1;
+		fprintf (stderr, "rtems_bsdnet_get_ntp() Can't receive: %s\n",
+				 strerror (errno));
+	}
 
 	if (i >= sizeof packet &&
 		(((packet.li_vn_mode & (0x7 << 3)) == (3 << 3)) ||
@@ -169,7 +169,7 @@ tryServer (int i, int s, rtems_bsdnet_ntp_callback_t callback, void *usr_data)
 }
 
 int rtems_bsdnet_get_ntp (int sock, rtems_bsdnet_ntp_callback_t callback,
-						  void *usr_data)
+						void *usr_data)
 {
 	int s = -1;
 	int i;
@@ -182,62 +182,62 @@ int rtems_bsdnet_get_ntp (int sock, rtems_bsdnet_ntp_callback_t callback,
 		callback = getServerTimespec;
 
 	if (sock < 0)
-	  {
-		  s = socket (AF_INET, SOCK_DGRAM, 0);
-		  if (s < 0)
-			{
-				fprintf (stderr,
-						 "rtems_bsdnet_get_ntp() Can't create socket: %s\n",
-						 strerror (errno));
-				return -1;
-			}
-		  reuseFlag = 1;
-		  if (setsockopt
-			  (s, SOL_SOCKET, SO_REUSEADDR, (char *)&reuseFlag,
-			   sizeof reuseFlag) < 0)
-			{
-				fprintf (stderr,
-						 "rtems_bsdnet_get_ntp() Can't set socket reuse: %s\n",
-						 strerror (errno));
-				close (s);
-				return -1;
-			}
-		  memset (&myAddr, 0, sizeof myAddr);
-		  myAddr.sin_family = AF_INET;
-		  myAddr.sin_port = htons (123);
-		  myAddr.sin_addr.s_addr = htonl (INADDR_ANY);
-		  if (bind (s, (struct sockaddr *)&myAddr, sizeof myAddr) < 0)
-			{
-				fprintf (stderr,
-						 "rtems_bsdnet_get_ntp() Can't bind socket: %s\n",
-						 strerror (errno));
-				close (s);
-				return -1;
-			}
-		  sock = s;
-	  }
+	{
+		s = socket (AF_INET, SOCK_DGRAM, 0);
+		if (s < 0)
+		{
+			fprintf (stderr,
+					 "rtems_bsdnet_get_ntp() Can't create socket: %s\n",
+					 strerror (errno));
+			return -1;
+		}
+		reuseFlag = 1;
+		if (setsockopt
+			(s, SOL_SOCKET, SO_REUSEADDR, (char *)&reuseFlag,
+			 sizeof reuseFlag) < 0)
+		{
+			fprintf (stderr,
+					 "rtems_bsdnet_get_ntp() Can't set socket reuse: %s\n",
+					 strerror (errno));
+			close (s);
+			return -1;
+		}
+		memset (&myAddr, 0, sizeof myAddr);
+		myAddr.sin_family = AF_INET;
+		myAddr.sin_port = htons (123);
+		myAddr.sin_addr.s_addr = htonl (INADDR_ANY);
+		if (bind (s, (struct sockaddr *)&myAddr, sizeof myAddr) < 0)
+		{
+			fprintf (stderr,
+					 "rtems_bsdnet_get_ntp() Can't bind socket: %s\n",
+					 strerror (errno));
+			close (s);
+			return -1;
+		}
+		sock = s;
+	}
 	ret = -1;
 	for (retry = 0; (ret == -1) && (retry < rtems_bsdnet_ntp_retry_count);
 		 retry++)
-	  {
-		  /*
-		   * If there's no server we just have to wait
-		   * and hope that there's an NTP broadcast
-		   * server out there somewhere.
-		   */
-		  if (rtems_bsdnet_ntpserver_count <= 0)
+	{
+		/*
+		 * If there's no server we just have to wait
+		 * and hope that there's an NTP broadcast
+		 * server out there somewhere.
+		 */
+		if (rtems_bsdnet_ntpserver_count <= 0)
+		{
+			ret = tryServer (-1, sock, callback, usr_data);
+		}
+		else
+		{
+			for (i = 0; (ret == -1) && (i < rtems_bsdnet_ntpserver_count);
+				 i++)
 			{
-				ret = tryServer (-1, sock, callback, usr_data);
+				ret = tryServer (i, sock, callback, usr_data);
 			}
-		  else
-			{
-				for (i = 0; (ret == -1) && (i < rtems_bsdnet_ntpserver_count);
-					 i++)
-				  {
-					  ret = tryServer (i, sock, callback, usr_data);
-				  }
-			}
-	  }
+		}
+	}
 	if (s >= 0)
 		close (s);
 	return ret;
@@ -246,10 +246,10 @@ int rtems_bsdnet_get_ntp (int sock, rtems_bsdnet_ntp_callback_t callback,
 int rtems_bsdnet_synchronize_ntp (int interval, rtems_task_priority priority)
 {
 	if (interval != 0)
-	  {
-		  fprintf (stderr, "Daemon-mode note yet supported.\n");
-		  errno = EINVAL;
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "Daemon-mode note yet supported.\n");
+		errno = EINVAL;
+		return -1;
+	}
 	return rtems_bsdnet_get_ntp (-1, processPacket, 0);
 }

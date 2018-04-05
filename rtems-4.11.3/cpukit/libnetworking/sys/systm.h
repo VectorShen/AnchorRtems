@@ -63,45 +63,45 @@ void *hashinit (int count, int type, u_long * hashmask);
 void *phashinit (int count, int type, u_long * nentries);
 
 void panic (const char *, ...) __dead2;
-	 void boot (int) __dead2;
-	 void cpu_boot (int);
-	 int kvprintf (char const *, void (*)(int, void *), void *, int,
-				   _BSD_VA_LIST_);
-	 void log (int, const char *, ...);
-	 int printf (const char *, ...);
-	 int sprintf (char *buf, const char *, ...);
-	 void uprintf (const char *, ...);
-	 void ttyprintf (struct tty *, const char *, ...);
+void boot (int) __dead2;
+void cpu_boot (int);
+int kvprintf (char const *, void (*)(int, void *), void *, int,
+		   _BSD_VA_LIST_);
+void log (int, const char *, ...);
+int printf (const char *, ...);
+int sprintf (char *buf, const char *, ...);
+void uprintf (const char *, ...);
+void ttyprintf (struct tty *, const char *, ...);
 
 #define bcopy(f,t,n) memcpy((t),(f),(n))
 #define bzero(p,n) memset((p),(0),(n))
 
-	 int copystr (const void *kfaddr, void *kdaddr, size_t len,
-				  size_t * lencopied);
-	 int copyinstr (const void *udaddr, void *kaddr, size_t len,
-					size_t * lencopied);
+int copystr (const void *kfaddr, void *kdaddr, size_t len,
+		  size_t * lencopied);
+int copyinstr (const void *udaddr, void *kaddr, size_t len,
+			size_t * lencopied);
 #ifndef __rtems__
 /* FIXME: these clash with defines in rtems_bsdnet_internal.h */
-	 int copyin (const void *udaddr, void *kaddr, size_t len);
-	 int copyout (const void *kaddr, void *udaddr, size_t len);
+int copyin (const void *udaddr, void *kaddr, size_t len);
+int copyout (const void *kaddr, void *udaddr, size_t len);
 #endif
 
-	 int hzto (struct timeval *tv);
+int hzto (struct timeval *tv);
 
 #include <sys/libkern.h>
 
 /* Timeouts */
-	 typedef void (timeout_t) (void *);	/* actual timeout function type */
-	 typedef timeout_t *timeout_func_t;	/* a pointer to this type */
+typedef void (timeout_t) (void *);	/* actual timeout function type */
+typedef timeout_t *timeout_func_t;	/* a pointer to this type */
 
-	 void timeout (timeout_func_t, void *, int);
-	 void untimeout (timeout_func_t, void *);
+void timeout (timeout_func_t, void *, int);
+void untimeout (timeout_func_t, void *);
 
 /* 
  * Common `proc' functions are declared here so that proc.h can be included
  * less often.
  */
-	 int tsleep (void *chan, int pri, char *wmesg, int timo);
-	 void wakeup (void *chan);
+int tsleep (void *chan, int pri, char *wmesg, int timo);
+void wakeup (void *chan);
 
 #endif /* !_SYS_SYSTM_H_ */

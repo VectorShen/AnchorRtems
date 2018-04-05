@@ -39,31 +39,31 @@ int sem_destroy (sem_t * sem)
 	_Objects_Allocator_lock ();
 	the_semaphore = _POSIX_Semaphore_Get (sem, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  /*
-			   *  Undefined operation on a named semaphore. Release the object
-			   *  and fall to the EINVAL return at the bottom.
-			   */
-			  if (the_semaphore->named == true)
-				{
-					_Objects_Put (&the_semaphore->Object);
-				}
-			  else
-				{
-					_POSIX_Semaphore_Delete (the_semaphore);
-					_Objects_Put (&the_semaphore->Object);
-					_Objects_Allocator_unlock ();
-					return 0;
-				}
+		case OBJECTS_LOCAL:
+			/*
+			 *  Undefined operation on a named semaphore. Release the object
+			 *  and fall to the EINVAL return at the bottom.
+			 */
+			if (the_semaphore->named == true)
+			{
+				_Objects_Put (&the_semaphore->Object);
+			}
+			else
+			{
+				_POSIX_Semaphore_Delete (the_semaphore);
+				_Objects_Put (&the_semaphore->Object);
+				_Objects_Allocator_unlock ();
+				return 0;
+			}
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

@@ -34,15 +34,15 @@ void _Heap_Get_free_information (Heap_Control * the_heap,
 
 	for (the_block = _Heap_Free_list_first (the_heap);
 		 the_block != tail; the_block = the_block->next)
-	  {
-		  uint32_t const the_size = _Heap_Block_size (the_block);
+	{
+		uint32_t const the_size = _Heap_Block_size (the_block);
 
-		  /* As we always coalesce free blocks, prev block must have been used. */
-		  _HAssert (_Heap_Is_prev_used (the_block));
+		/* As we always coalesce free blocks, prev block must have been used. */
+		_HAssert (_Heap_Is_prev_used (the_block));
 
-		  info->number++;
-		  info->total += the_size;
-		  if (info->largest < the_size)
-			  info->largest = the_size;
-	  }
+		info->number++;
+		info->total += the_size;
+		if (info->largest < the_size)
+			info->largest = the_size;
+	}
 }

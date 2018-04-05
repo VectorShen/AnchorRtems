@@ -57,13 +57,13 @@
  * ----------
  * This software (NFS-2 client implementation for RTEMS) was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2002-2007,
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * The NFS-2 client implementation for RTEMS was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -141,37 +141,37 @@ static rtems_task nfsTestReader (rtems_task_argument arg)
 	rtems_status_code sc;
 
 	if (fd < 0)
-	  {
-		  perror ("nfsReader: opening file");
-		  goto cleanup;
-	  }
+	{
+		perror ("nfsReader: opening file");
+		goto cleanup;
+	}
 	do
-	  {
-		  s = sizeof (r);
-		  sc = rtems_message_queue_receive (nfsTestRQ, &r, &s, RTEMS_WAIT,
+	{
+		s = sizeof (r);
+		sc = rtems_message_queue_receive (nfsTestRQ, &r, &s, RTEMS_WAIT,
 											RTEMS_NO_TIMEOUT);
-		  if (RTEMS_SUCCESSFUL != sc)
-			{
-				rtems_error (sc, "(Error) reading from message queue");
-				goto cleanup;
-			}
-		  if (!r.buf)
-			{
-				/* They send a NULL buffer as a shutdown request */
-				break;
-			}
+		if (RTEMS_SUCCESSFUL != sc)
+		{
+			rtems_error (sc, "(Error) reading from message queue");
+			goto cleanup;
+		}
+		if (!r.buf)
+		{
+			/* They send a NULL buffer as a shutdown request */
+			break;
+		}
 #ifdef DEBUG
-		  printf ("Reader: reading offset %u, size %i to %p ... ",
-				  r.offset, r.size, r.buf);
+		printf ("Reader: reading offset %u, size %i to %p ... ",
+				r.offset, r.size, r.buf);
 #endif
-		  /* seek to requested offset */
-		  lseek (fd, r.offset, SEEK_SET);
-		  r.size = read (fd, r.buf, r.size);
+		/* seek to requested offset */
+		lseek (fd, r.offset, SEEK_SET);
+		r.size = read (fd, r.buf, r.size);
 #ifdef DEBUG
-		  printf ("got %i\n", r.size);
+		printf ("got %i\n", r.size);
 #endif
-		  rtems_message_queue_send (nfsTestAQ, &r, sizeof (r));
-	  }
+		rtems_message_queue_send (nfsTestAQ, &r, sizeof (r));
+	}
 	while (1);
 
   cleanup:
@@ -192,18 +192,18 @@ static rtems_id taskSpawn (char *filenm, int inst)
 							RTEMS_DEFAULT_MODES,
 							RTEMS_DEFAULT_ATTRIBUTES, &tid);
 	if (RTEMS_SUCCESSFUL != sc)
-	  {
-		  rtems_error (sc, "(Error) Creating nfs reader task %i", inst);
-		  return 0;
-	  }
+	{
+		rtems_error (sc, "(Error) Creating nfs reader task %i", inst);
+		return 0;
+	}
 
 	sc = rtems_task_start (tid, nfsTestReader, (rtems_task_argument) filenm);
 	if (RTEMS_SUCCESSFUL != sc)
-	  {
-		  rtems_error (sc, "(Error) Staritng nfs reader task %i", inst);
-		  rtems_task_delete (tid);
-		  return 0;
-	  }
+	{
+		rtems_error (sc, "(Error) Staritng nfs reader task %i", inst);
+		rtems_task_delete (tid);
+		return 0;
+	}
 
 	return tid;
 }
@@ -232,33 +232,33 @@ static int nfsTestReadBigbuf (char *buf, int off, int sz, int nrd)
 	r.offset = off;
 	/* send out parallel requests */
 	for (i = 0; i < nrd; i++)
-	  {
-		  rtems_message_queue_send (nfsTestRQ, &r, sizeof (r));
-		  r.offset += sz;
-		  r.buf += sz;
-	  }
+	{
+		rtems_message_queue_send (nfsTestRQ, &r, sizeof (r));
+		r.offset += sz;
+		r.buf += sz;
+	}
 	/* wait for answers */
 	for (i = 0; i < nrd; i++)
-	  {
-		  unsigned long s = sizeof (r);
-		  rtems_message_queue_receive (nfsTestAQ, &r, &s, RTEMS_WAIT,
-									   RTEMS_NO_TIMEOUT);
-		  if (r.size < 0)
+	{
+		unsigned long s = sizeof (r);
+		rtems_message_queue_receive (nfsTestAQ, &r, &s, RTEMS_WAIT,
+									 RTEMS_NO_TIMEOUT);
+		if (r.size < 0)
+		{
+			fprintf (stderr, "A reader failed\n");
+			rval = -1;
+		}
+		else
+		{
+			/* FIXME sanity checks:
+			 *   - catch case where any-but-last read returns < sz
+			 */
+			if (rval >= 0)
 			{
-				fprintf (stderr, "A reader failed\n");
-				rval = -1;
+				rval += r.size;
 			}
-		  else
-			{
-				/* FIXME sanity checks:
-				 *   - catch case where any-but-last read returns < sz
-				 */
-				if (rval >= 0)
-				  {
-					  rval += r.size;
-				  }
-			}
-	  }
+		}
+	}
 	return rval;
 }
 
@@ -285,94 +285,94 @@ rtems_interval nfsTestRead (char *fnam, int sz, int nrd)
 		nrd = 0;
 
 	if (sz < 0 || sz > 8192)
-	  {
-		  fprintf (stderr, "\n");
-		  return -1;
-	  }
+	{
+		fprintf (stderr, "\n");
+		return -1;
+	}
 
 	nfsTestRQ = nfsTestAQ = 0;
 
 	/* Allocate buffer */
 	if (!(buf = malloc (sz * (nrd ? nrd : 1))))
-	  {
-		  perror ("allocating buffer");
-		  goto cleanup;
-	  }
+	{
+		perror ("allocating buffer");
+		goto cleanup;
+	}
 
 	/* Don't bother proceeding if we can't open the file for reading */
 	if ((fd = open (fnam, O_RDONLY)) < 0)
-	  {
-		  perror ("opening file");
-		  goto cleanup;
-	  }
+	{
+		perror ("opening file");
+		goto cleanup;
+	}
 	if (nrd)
-	  {
-		  close (fd);
-		  fd = -1;
-	  }
+	{
+		close (fd);
+		fd = -1;
+	}
 
 	/* Create request queue */
 	if (nrd)
-	  {
-		  sc = rtems_message_queue_create (rtems_build_name
-										   ('n', 't', 'r', 'q'), nrd,
-										   sizeof (struct nfsTestReq_),
-										   RTEMS_DEFAULT_ATTRIBUTES,
-										   &nfsTestRQ);
+	{
+		sc = rtems_message_queue_create (rtems_build_name
+										 ('n', 't', 'r', 'q'), nrd,
+										 sizeof (struct nfsTestReq_),
+										 RTEMS_DEFAULT_ATTRIBUTES,
+										 &nfsTestRQ);
 
-		  if (RTEMS_SUCCESSFUL != sc)
-			{
-				rtems_error (sc, "(Error) creating request queue");
-				nfsTestRQ = 0;
+		if (RTEMS_SUCCESSFUL != sc)
+		{
+			rtems_error (sc, "(Error) creating request queue");
+			nfsTestRQ = 0;
+			goto cleanup;
+		}
+
+		/* Spawn reader tasks */
+		for (i = 0; i < nrd; i++)
+		{
+			if (!taskSpawn (fnam, i))
 				goto cleanup;
-			}
+		}
 
-		  /* Spawn reader tasks */
-		  for (i = 0; i < nrd; i++)
-			{
-				if (!taskSpawn (fnam, i))
-					goto cleanup;
-			}
+		/* Create reply queue */
+		sc = rtems_message_queue_create (rtems_build_name
+										 ('n', 't', 'a', 'q'), nrd,
+										 sizeof (struct nfsTestReq_),
+										 RTEMS_DEFAULT_ATTRIBUTES,
+										 &nfsTestAQ);
 
-		  /* Create reply queue */
-		  sc = rtems_message_queue_create (rtems_build_name
-										   ('n', 't', 'a', 'q'), nrd,
-										   sizeof (struct nfsTestReq_),
-										   RTEMS_DEFAULT_ATTRIBUTES,
-										   &nfsTestAQ);
-
-		  if (RTEMS_SUCCESSFUL != sc)
-			{
-				rtems_error (sc, "(Error) creating reply queue");
-				nfsTestAQ = 0;
-				goto cleanup;
-			}
-	  }
+		if (RTEMS_SUCCESSFUL != sc)
+		{
+			rtems_error (sc, "(Error) creating reply queue");
+			nfsTestAQ = 0;
+			goto cleanup;
+		}
+	}
 
 	/* Timed main loop */
 	then = rtems_clock_get_ticks_since_boot ();
 
 	if (nrd)
-	  {
-		  off = 0;
-		  while ((i = nfsTestReadBigbuf (buf, off, sz, nrd)) > 0)
-			{
+	{
+		off = 0;
+		while ((i = nfsTestReadBigbuf (buf, off, sz, nrd)) > 0)
+		{
 #ifdef DEBUG
-				printf ("bigbuf got %i\n", i);
+			printf ("bigbuf got %i\n", i);
 #endif
-				off += i;
-			}
-	  }
+			off += i;
+		}
+	}
 	else
-	  {
-		  while ((i = read (fd, buf, sz)) > 0)
-			  /* nothing else to do */ ;
-		  if (i < 0)
-			{
-				perror ("reading");
-				goto cleanup;
-			}
-	  }
+	{
+		while ((i = read (fd, buf, sz)) > 0)
+			/* nothing else to do */ ;
+		if (i < 0)
+		{
+			perror ("reading");
+			goto cleanup;
+		}
+	}
 
 	now = rtems_clock_get_ticks_since_boot ();
 	now = (now - then) * 1000;
@@ -384,20 +384,20 @@ rtems_interval nfsTestRead (char *fnam, int sz, int nrd)
 		close (fd);
 
 	if (nfsTestRQ)
-	  {
-		  /* request tasks to shutdown by sending NULL buf request  */
-		  struct nfsTestReq_ r;
-		  r.buf = 0;
-		  for (i = 0; i < nrd; i++)
-			{
-				rtems_message_queue_send (nfsTestRQ, &r, sizeof (r));
-			}
-		  /* cheat: instead of proper synchronization with shutdown we simply
-		   * delay for a second...
-		   */
-		  rtems_task_wake_after (tickspsec);
-		  rtems_message_queue_delete (nfsTestRQ);
-	  }
+	{
+		/* request tasks to shutdown by sending NULL buf request  */
+		struct nfsTestReq_ r;
+		r.buf = 0;
+		for (i = 0; i < nrd; i++)
+		{
+			rtems_message_queue_send (nfsTestRQ, &r, sizeof (r));
+		}
+		/* cheat: instead of proper synchronization with shutdown we simply
+		 * delay for a second...
+		 */
+		rtems_task_wake_after (tickspsec);
+		rtems_message_queue_delete (nfsTestRQ);
+	}
 	if (nfsTestAQ)
 		rtems_message_queue_delete (nfsTestAQ);
 	free (buf);

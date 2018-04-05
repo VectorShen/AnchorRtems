@@ -56,10 +56,10 @@ rtems_status_code rtems_string_to_unsigned_char (const char *s,
 
 #if (UCHAR_MAX < ULONG_MAX)
 	if (result > UCHAR_MAX)
-	  {
-		  errno = ERANGE;
-		  return RTEMS_INVALID_NUMBER;
-	  }
+	{
+		errno = ERANGE;
+		return RTEMS_INVALID_NUMBER;
+	}
 #endif
 
 	*n = result;

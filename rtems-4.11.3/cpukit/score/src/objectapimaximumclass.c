@@ -23,16 +23,16 @@
 unsigned int _Objects_API_maximum_class (uint32_t api)
 {
 	switch (api)
-	  {
-		  case OBJECTS_INTERNAL_API:
-			  return OBJECTS_INTERNAL_CLASSES_LAST;
-		  case OBJECTS_CLASSIC_API:
-			  return OBJECTS_RTEMS_CLASSES_LAST;
-		  case OBJECTS_POSIX_API:
-			  return OBJECTS_POSIX_CLASSES_LAST;
-		  case OBJECTS_NO_API:
-		  default:
-			  break;
-	  }
+	{
+		case OBJECTS_INTERNAL_API:
+			return OBJECTS_INTERNAL_CLASSES_LAST;
+		case OBJECTS_CLASSIC_API:
+			return OBJECTS_RTEMS_CLASSES_LAST;
+		case OBJECTS_POSIX_API:
+			return OBJECTS_POSIX_CLASSES_LAST;
+		case OBJECTS_NO_API:
+		default:
+			break;
+	}
 	return 0;
 }

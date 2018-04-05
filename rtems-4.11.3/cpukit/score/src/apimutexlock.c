@@ -33,12 +33,12 @@ void _API_Mutex_Lock (API_Mutex_Control * the_mutex)
 	_ISR_lock_ISR_disable (&lock_context);
 
 	_CORE_mutex_Seize (&the_mutex->Mutex,
-					   _Thread_Executing,
-					   the_mutex->Object.id, true, 0, &lock_context);
+					 _Thread_Executing,
+					 the_mutex->Object.id, true, 0, &lock_context);
 
 	if (the_mutex->Mutex.nest_count == 1)
-	  {
-		  the_mutex->previous_thread_life_protection =
-			  previous_thread_life_protection;
-	  }
+	{
+		the_mutex->previous_thread_life_protection =
+			previous_thread_life_protection;
+	}
 }

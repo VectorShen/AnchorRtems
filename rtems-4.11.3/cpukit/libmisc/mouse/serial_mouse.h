@@ -59,10 +59,10 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_initialize (rtems_device_major_number
-												 major,
-												 rtems_device_minor_number
-												 minor, void *arg);
+rtems_device_driver serial_mouse_initialize (rtems_device_major_number
+											 major,
+											 rtems_device_minor_number
+											 minor, void *arg);
 
 /**
  * @brief Open device driver entry point for the serial mouse driver.
@@ -74,9 +74,9 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_open (rtems_device_major_number major,
-										   rtems_device_minor_number minor,
-										   void *arg);
+rtems_device_driver serial_mouse_open (rtems_device_major_number major,
+									   rtems_device_minor_number minor,
+									   void *arg);
 
 /**
  * @brief Close device driver entry point for the serial mouse driver.
@@ -88,9 +88,9 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_close (rtems_device_major_number major,
-											rtems_device_minor_number minor,
-											void *arg);
+rtems_device_driver serial_mouse_close (rtems_device_major_number major,
+										rtems_device_minor_number minor,
+										void *arg);
 
 /**
  * @brief Read device driver entry point for the serial mouse driver.
@@ -102,9 +102,9 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_read (rtems_device_major_number major,
-										   rtems_device_minor_number minor,
-										   void *arg);
+rtems_device_driver serial_mouse_read (rtems_device_major_number major,
+									   rtems_device_minor_number minor,
+									   void *arg);
 
 /**
  * @brief Write device driver entry point for the serial mouse driver.
@@ -116,9 +116,9 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_write (rtems_device_major_number major,
-											rtems_device_minor_number minor,
-											void *arg);
+rtems_device_driver serial_mouse_write (rtems_device_major_number major,
+										rtems_device_minor_number minor,
+										void *arg);
 
 /**
  * @brief IO Control device driver entry point for the serial mouse driver.
@@ -130,9 +130,9 @@ extern "C"
  * @param[in] minor is the mouse device minor number
  * @param[in] arg points to device driver arguments
  */
-	rtems_device_driver serial_mouse_control (rtems_device_major_number major,
-											  rtems_device_minor_number minor,
-											  void *arg);
+rtems_device_driver serial_mouse_control (rtems_device_major_number major,
+										  rtems_device_minor_number minor,
+										  void *arg);
 
 /**
  * @brief Obtain serial mouse configuration information.
@@ -147,7 +147,7 @@ extern "C"
  *
  * @retval This method returns true on success and false on error.
  */
-	bool bsp_get_serial_mouse_device (const char **name, const char **type);
+bool bsp_get_serial_mouse_device (const char **name, const char **type);
 
 #ifdef __cplusplus
 }

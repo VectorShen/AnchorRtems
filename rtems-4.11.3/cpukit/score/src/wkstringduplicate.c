@@ -33,10 +33,10 @@ char *_Workspace_String_duplicate (const char *string, size_t len)
 	char *dup = _Workspace_Allocate (len + 1);
 
 	if (dup != NULL)
-	  {
-		  dup[len] = '\0';
-		  memcpy (dup, string, len);
-	  }
+	{
+		dup[len] = '\0';
+		memcpy (dup, string, len);
+	}
 
 	return dup;
 }

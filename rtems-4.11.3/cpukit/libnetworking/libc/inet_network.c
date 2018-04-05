@@ -59,38 +59,38 @@ in_addr_t inet_network (const char *cp)
 	if (*cp == 'x' || *cp == 'X')
 		base = 16, cp++;
 	while ((c = *cp) != 0)
-	  {
-		  if (isdigit ((unsigned char)c))
-			{
-				val = (val * base) + (c - '0');
-				cp++;
-				continue;
-			}
-		  if (base == 16 && isxdigit ((unsigned char)c))
-			{
-				val =
-					(val << 4) + (c + 10 -
-								  (islower ((unsigned char)c) ? 'a' : 'A'));
-				cp++;
-				continue;
-			}
-		  break;
-	  }
+	{
+		if (isdigit ((unsigned char)c))
+		{
+			val = (val * base) + (c - '0');
+			cp++;
+			continue;
+		}
+		if (base == 16 && isxdigit ((unsigned char)c))
+		{
+			val =
+				(val << 4) + (c + 10 -
+							(islower ((unsigned char)c) ? 'a' : 'A'));
+			cp++;
+			continue;
+		}
+		break;
+	}
 	if (*cp == '.')
-	  {
-		  if (pp >= parts + 3)
-			  return (INADDR_NONE);
-		  *pp++ = val, cp++;
-		  goto again;
-	  }
+	{
+		if (pp >= parts + 3)
+			return (INADDR_NONE);
+		*pp++ = val, cp++;
+		goto again;
+	}
 	if (*cp && !isspace ((unsigned char)*cp))
 		return (INADDR_NONE);
 	*pp++ = val;
 	n = pp - parts;
 	for (val = 0, i = 0; i < n; i++)
-	  {
-		  val <<= 8;
-		  val |= parts[i] & 0xff;
-	  }
+	{
+		val <<= 8;
+		val |= parts[i] & 0xff;
+	}
 	return (val);
 }

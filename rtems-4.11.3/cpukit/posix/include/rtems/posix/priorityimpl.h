@@ -73,39 +73,39 @@ extern "C"
  * @retval TRUE The priority is valid.
  * @retval FALSE The priority is invalid.
  */
-	bool _POSIX_Priority_Is_valid (int priority);
+bool _POSIX_Priority_Is_valid (int priority);
 
 /**
- * @brief Convert POSIX priority to SuperCore priority.
- *
- * This method converts a POSIX API priority into onto the corresponding
- * SuperCore value.
- *
- * @param[in] priority is the POSIX API priority.
- *
- * @return This method returns the corresponding SuperCore priority.
- */
-	RTEMS_INLINE_ROUTINE Priority_Control _POSIX_Priority_To_core (int priority)
-	{
-		return (Priority_Control) (POSIX_SCHEDULER_MAXIMUM_PRIORITY - priority +
-								   1);
-	}
+* @brief Convert POSIX priority to SuperCore priority.
+*
+* This method converts a POSIX API priority into onto the corresponding
+* SuperCore value.
+*
+* @param[in] priority is the POSIX API priority.
+*
+* @return This method returns the corresponding SuperCore priority.
+*/
+RTEMS_INLINE_ROUTINE Priority_Control _POSIX_Priority_To_core (int priority)
+{
+	return (Priority_Control) (POSIX_SCHEDULER_MAXIMUM_PRIORITY - priority +
+							   1);
+}
 
 /**
- * @brief Convert SuperCore priority To POSIX priority.
- *
- * This method converts a SuperCore priority into onto the corresponding
- * POSIX API value.
- *
- * @param[in] priority is the POSIX API priority.
- *
- * @return This method returns the corresponding POSIX priority.
- */
-	RTEMS_INLINE_ROUTINE int _POSIX_Priority_From_core (Priority_Control
-														priority)
-	{
-		return (POSIX_SCHEDULER_MAXIMUM_PRIORITY - priority + 1);
-	}
+* @brief Convert SuperCore priority To POSIX priority.
+*
+* This method converts a SuperCore priority into onto the corresponding
+* POSIX API value.
+*
+* @param[in] priority is the POSIX API priority.
+*
+* @return This method returns the corresponding POSIX priority.
+*/
+RTEMS_INLINE_ROUTINE int _POSIX_Priority_From_core (Priority_Control
+													priority)
+{
+	return (POSIX_SCHEDULER_MAXIMUM_PRIORITY - priority + 1);
+}
 
 /** @} */
 

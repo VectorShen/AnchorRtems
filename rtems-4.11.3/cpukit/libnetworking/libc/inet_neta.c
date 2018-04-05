@@ -54,30 +54,30 @@ char *inet_neta (src, dst, size)
 	char *tp;
 
 	while (src & 0xffffffff)
-	  {
-		  u_char b = (src & 0xff000000) >> 24;
+	{
+		u_char b = (src & 0xff000000) >> 24;
 
-		  src <<= 8;
-		  if (b)
+		src <<= 8;
+		if (b)
+		{
+			if (size < sizeof "255.")
+				goto emsgsize;
+			tp = dst;
+			dst += SPRINTF ((dst, "%u", b));
+			if (src != 0L)
 			{
-				if (size < sizeof "255.")
-					goto emsgsize;
-				tp = dst;
-				dst += SPRINTF ((dst, "%u", b));
-				if (src != 0L)
-				  {
-					  *dst++ = '.';
-					  *dst = '\0';
-				  }
-				size -= (size_t) (dst - tp);
+				*dst++ = '.';
+				*dst = '\0';
 			}
-	  }
+			size -= (size_t) (dst - tp);
+		}
+	}
 	if (dst == odst)
-	  {
-		  if (size < sizeof "0.0.0.0")
-			  goto emsgsize;
-		  strcpy (dst, "0.0.0.0");
-	  }
+	{
+		if (size < sizeof "0.0.0.0")
+			goto emsgsize;
+		strcpy (dst, "0.0.0.0");
+	}
 	return (odst);
 
   emsgsize:

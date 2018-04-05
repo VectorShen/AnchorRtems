@@ -91,20 +91,21 @@ char *rtems_bsdnet_bootp_server_name = 0;
 char *rtems_bsdnet_domain_name = 0;
 char *rtems_bsdnet_bootp_cmdline = 0;
 static struct in_addr _rtems_bsdnet_nameserver[sizeof rtems_bsdnet_config.
-											   name_server /
-											   sizeof rtems_bsdnet_config.
-											   name_server[0]];
+											 name_server /
+											 sizeof rtems_bsdnet_config.
+											 name_server[0]];
 struct in_addr *rtems_bsdnet_nameserver = _rtems_bsdnet_nameserver;
 int rtems_bsdnet_nameserver_count = 0;
 static struct in_addr _rtems_bsdnet_ntpserver[sizeof rtems_bsdnet_config.
-											  ntp_server /
-											  sizeof rtems_bsdnet_config.
-											  ntp_server[0]];
+											ntp_server /
+											sizeof rtems_bsdnet_config.
+											ntp_server[0]];
 struct in_addr *rtems_bsdnet_ntpserver = _rtems_bsdnet_ntpserver;
 int rtems_bsdnet_ntpserver_count = 0;
 int32_t rtems_bsdnet_timeoffset = 0;
 
-static const struct sockaddr_in address_template = {
+static const struct sockaddr_in address_template =
+{
 	sizeof (address_template),
 	AF_INET,
 	0,
@@ -128,9 +129,9 @@ uint32_t rtems_bsdnet_semaphore_release_recursive (void)
 		the_networkSemaphore ?
 		the_networkSemaphore->Core_control.mutex.nest_count : 0;
 	for (i = 0; i < nest_count; ++i)
-	  {
-		  rtems_bsdnet_semaphore_release ();
-	  }
+	{
+		rtems_bsdnet_semaphore_release ();
+	}
 
 	return nest_count;
 #else
@@ -143,9 +144,9 @@ void rtems_bsdnet_semaphore_obtain_recursive (uint32_t nest_count)
 	uint32_t i;
 
 	for (i = 0; i < nest_count; ++i)
-	  {
-		  rtems_bsdnet_semaphore_obtain ();
-	  }
+	{
+		rtems_bsdnet_semaphore_obtain ();
+	}
 }
 
 /*
@@ -162,21 +163,21 @@ void *rtems_bsdnet_malloc (size_t size, int type, int flags)
 	int try = 0;
 
 	for (;;)
-	  {
-		  uint32_t nest_count;
+	{
+		uint32_t nest_count;
 
-		  p = malloc (size);
-		  if (p || (flags & M_NOWAIT))
-			  return p;
-		  nest_count = rtems_bsdnet_semaphore_release_recursive ();
-		  if (++try >= 30)
-			{
-				rtems_bsdnet_malloc_starvation ();
-				try = 0;
-			}
-		  rtems_task_wake_after (rtems_bsdnet_ticks_per_second);
-		  rtems_bsdnet_semaphore_obtain_recursive (nest_count);
-	  }
+		p = malloc (size);
+		if (p || (flags & M_NOWAIT))
+			return p;
+		nest_count = rtems_bsdnet_semaphore_release_recursive ();
+		if (++try >= 30)
+		{
+			rtems_bsdnet_malloc_starvation ();
+			try = 0;
+		}
+		rtems_task_wake_after (rtems_bsdnet_ticks_per_second);
+		rtems_bsdnet_semaphore_obtain_recursive (nest_count);
+	}
 }
 
 /*
@@ -206,28 +207,28 @@ static int bsd_init (void)
 	 * Set up mbuf cluster data strutures
 	 */
 	p = rtems_bsdnet_malloc_mbuf ((nmbclusters * MCLBYTES) + MCLBYTES - 1,
-								  MBUF_MALLOC_NMBCLUSTERS);
+								MBUF_MALLOC_NMBCLUSTERS);
 	if (p == NULL)
-	  {
-		  printf ("Can't get network cluster memory.\n");
-		  return -1;
-	  }
+	{
+		printf ("Can't get network cluster memory.\n");
+		return -1;
+	}
 	p = (char *)(((intptr_t) p + (MCLBYTES - 1)) & ~(MCLBYTES - 1));
 	mbutl = (struct mbuf *)p;
 	for (i = 0; i < nmbclusters; i++)
-	  {
-		  ((union mcluster *)p)->mcl_next = mclfree;
-		  mclfree = (union mcluster *)p;
-		  p += MCLBYTES;
-		  mbstat.m_clfree++;
-	  }
+	{
+		((union mcluster *)p)->mcl_next = mclfree;
+		mclfree = (union mcluster *)p;
+		p += MCLBYTES;
+		mbstat.m_clfree++;
+	}
 	mbstat.m_clusters = nmbclusters;
 	mclrefcnt = rtems_bsdnet_malloc_mbuf (nmbclusters, MBUF_MALLOC_MCLREFCNT);
 	if (mclrefcnt == NULL)
-	  {
-		  printf ("Can't get mbuf cluster reference counts memory.\n");
-		  return -1;
-	  }
+	{
+		printf ("Can't get mbuf cluster reference counts memory.\n");
+		return -1;
+	}
 	memset (mclrefcnt, '\0', nmbclusters);
 
 	/*
@@ -237,16 +238,16 @@ static int bsd_init (void)
 	p = rtems_bsdnet_malloc_mbuf (nmbuf * MSIZE + MSIZE - 1, MBUF_MALLOC_MBUF);
 	p = (char *)(((uintptr_t) p + MSIZE - 1) & ~(MSIZE - 1));
 	if (p == NULL)
-	  {
-		  printf ("Can't get network memory.\n");
-		  return -1;
-	  }
+	{
+		printf ("Can't get network memory.\n");
+		return -1;
+	}
 	for (i = 0; i < nmbuf; i++)
-	  {
-		  ((struct mbuf *)p)->m_next = mmbfree;
-		  mmbfree = (struct mbuf *)p;
-		  p += MSIZE;
-	  }
+	{
+		((struct mbuf *)p)->m_next = mmbfree;
+		mmbfree = (struct mbuf *)p;
+		p += MSIZE;
+	}
 	mbstat.m_mbufs = nmbuf;
 	mbstat.m_mtypes[MT_FREE] = nmbuf;
 
@@ -331,11 +332,11 @@ static int rtems_bsdnet_initialize (void)
 								 RTEMS_NO_PRIORITY_CEILING |
 								 RTEMS_LOCAL, 0, &networkSemaphore);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  printf ("Can't create network seamphore: `%s'\n",
-				  rtems_status_text (sc));
-		  return -1;
-	  }
+	{
+		printf ("Can't create network seamphore: `%s'\n",
+				rtems_status_text (sc));
+		return -1;
+	}
 #ifdef RTEMS_FAST_MUTEX
 	{
 		Objects_Locations location;
@@ -388,8 +389,8 @@ void rtems_bsdnet_semaphore_obtain (void)
 			("rtems-net: network sema obtain: network not initialised\n");
 	executing = _Thread_Executing;
 	_CORE_mutex_Seize (&the_networkSemaphore->Core_control.mutex, executing, networkSemaphore, 1,	/* wait */
-					   0,		/* forever */
-					   &lock_context);
+					 0,		/* forever */
+					 &lock_context);
 	if (executing->Wait.return_code)
 		rtems_panic ("rtems-net: can't obtain network sema: %d\n",
 					 executing->Wait.return_code);
@@ -499,13 +500,13 @@ int sbwait (struct sockbuf *sb)
 void sowakeup (struct socket *so, struct sockbuf *sb)
 {
 	if (sb->sb_flags & SB_WAIT)
-	  {
-		  rtems_event_system_send (sb->sb_sel.si_pid, SBWAIT_EVENT);
-	  }
+	{
+		rtems_event_system_send (sb->sb_sel.si_pid, SBWAIT_EVENT);
+	}
 	if (sb->sb_wakeup)
-	  {
-		  (*sb->sb_wakeup) (so, sb->sb_wakeuparg);
-	  }
+	{
+		(*sb->sb_wakeup) (so, sb->sb_wakeuparg);
+	}
 }
 
 /*
@@ -575,49 +576,49 @@ static void networkDaemon (void *task_argument)
 	struct callout *c;
 
 	for (;;)
-	  {
-		  c = calltodo.c_next;
-		  if (c)
-			  timeout = c->c_time;
-		  else
-			  timeout = RTEMS_NO_TIMEOUT;
+	{
+		c = calltodo.c_next;
+		if (c)
+			timeout = c->c_time;
+		else
+			timeout = RTEMS_NO_TIMEOUT;
 
-		  sc = rtems_bsdnet_event_receive (NETISR_EVENTS,
-										   RTEMS_EVENT_ANY | RTEMS_WAIT,
-										   timeout, &events);
-		  if (sc == RTEMS_SUCCESSFUL)
+		sc = rtems_bsdnet_event_receive (NETISR_EVENTS,
+										 RTEMS_EVENT_ANY | RTEMS_WAIT,
+										 timeout, &events);
+		if (sc == RTEMS_SUCCESSFUL)
+		{
+			if (events & NETISR_IP_EVENT)
+				ipintr ();
+			if (events & NETISR_ARP_EVENT)
+				arpintr ();
+		}
+
+		now = rtems_clock_get_ticks_since_boot ();
+		ticksPassed = now - ticksWhenCalloutsLastChecked;
+		if (ticksPassed != 0)
+		{
+			ticksWhenCalloutsLastChecked = now;
+
+			c = calltodo.c_next;
+			if (c)
 			{
-				if (events & NETISR_IP_EVENT)
-					ipintr ();
-				if (events & NETISR_ARP_EVENT)
-					arpintr ();
+				c->c_time -= ticksPassed;
+				while ((c = calltodo.c_next) != NULL && c->c_time <= 0)
+				{
+					void *arg;
+					void (*func) (void *);
+
+					func = c->c_func;
+					arg = c->c_arg;
+					calltodo.c_next = c->c_next;
+					c->c_next = callfree;
+					callfree = c;
+					(*func) (arg);
+				}
 			}
-
-		  now = rtems_clock_get_ticks_since_boot ();
-		  ticksPassed = now - ticksWhenCalloutsLastChecked;
-		  if (ticksPassed != 0)
-			{
-				ticksWhenCalloutsLastChecked = now;
-
-				c = calltodo.c_next;
-				if (c)
-				  {
-					  c->c_time -= ticksPassed;
-					  while ((c = calltodo.c_next) != NULL && c->c_time <= 0)
-						{
-							void *arg;
-							void (*func) (void *);
-
-							func = c->c_func;
-							arg = c->c_arg;
-							calltodo.c_next = c->c_next;
-							c->c_next = callfree;
-							callfree = c;
-							(*func) (arg);
-						}
-				  }
-			}
-	  }
+		}
+	}
 }
 
 /*
@@ -662,21 +663,21 @@ static void taskEntry (rtems_task_argument arg)
 #ifdef RTEMS_SMP
 rtems_id
 rtems_bsdnet_newproc (char *name, int stacksize, void (*entry) (void *),
-					  void *arg)
+					void *arg)
 {
 	return rtems_bsdnet_newproc_affinity (name, stacksize, entry, arg,
-										  networkDaemonCpuset,
-										  networkDaemonCpusetSize);
+										networkDaemonCpuset,
+										networkDaemonCpusetSize);
 }
 
 rtems_id
 rtems_bsdnet_newproc_affinity (char *name, int stacksize,
-							   void (*entry) (void *), void *arg,
-							   const cpu_set_t * set, const size_t setsize)
+							 void (*entry) (void *), void *arg,
+							 const cpu_set_t * set, const size_t setsize)
 #else
 rtems_id
 rtems_bsdnet_newproc (char *name, int stacksize, void (*entry) (void *),
-					  void *arg)
+					void *arg)
 #endif
 {
 	struct newtask *t;
@@ -725,9 +726,9 @@ rtems_bsdnet_newproc (char *name, int stacksize, void (*entry) (void *),
 }
 
 rtems_status_code rtems_bsdnet_event_receive (rtems_event_set event_in,
-											  rtems_option option_set,
-											  rtems_interval ticks,
-											  rtems_event_set * event_out)
+											rtems_option option_set,
+											rtems_interval ticks,
+											rtems_event_set * event_out)
 {
 	rtems_status_code sc;
 
@@ -760,12 +761,12 @@ void rtems_bsdnet_timeout (void (*ftn) (void *), void *arg, int ticks)
 
 	/* Fill in the next free callout structure. */
 	if (callfree == NULL)
-	  {
-		  callfree = malloc (sizeof *callfree);
-		  if (callfree == NULL)
-			  rtems_panic ("No memory for timeout table entry");
-		  callfree->c_next = NULL;
-	  }
+	{
+		callfree = malloc (sizeof *callfree);
+		if (callfree == NULL)
+			rtems_panic ("No memory for timeout table entry");
+		callfree->c_next = NULL;
+	}
 
 	new = callfree;
 	callfree = new->c_next;
@@ -815,11 +816,11 @@ void rtems_bsdnet_log (int priority, const char *fmt, ...)
 	va_list args;
 
 	if (priority & rtems_bsdnet_log_priority)
-	  {
-		  va_start (args, fmt);
-		  vprintf (fmt, args);
-		  va_end (args);
-	  }
+	{
+		va_start (args, fmt);
+		vprintf (fmt, args);
+		va_end (args);
+	}
 }
 
 /*
@@ -855,16 +856,16 @@ int rtems_bsdnet_rtrequest (int req,
 	error = rtrequest (req, dst, gateway, netmask, flags, net_nrt);
 	rtems_bsdnet_semaphore_release ();
 	if (error)
-	  {
-		  errno = error;
-		  return -1;
-	  }
+	{
+		errno = error;
+		return -1;
+	}
 	return 0;
 }
 
 static bool
 rtems_bsdnet_setup_interface (const char *name,
-							  const char *ip_address, const char *ip_netmask)
+							const char *ip_address, const char *ip_netmask)
 {
 	struct sockaddr_in address;
 	struct sockaddr_in netmask;
@@ -875,10 +876,10 @@ rtems_bsdnet_setup_interface (const char *name,
 	 */
 	flags = IFF_UP;
 	if (rtems_bsdnet_ifconfig (name, SIOCSIFFLAGS, &flags) < 0)
-	  {
-		  printf ("Can't bring %s up: %s\n", name, strerror (errno));
-		  return false;
-	  }
+	{
+		printf ("Can't bring %s up: %s\n", name, strerror (errno));
+		return false;
+	}
 
 	/*
 	 * Set interface netmask
@@ -886,10 +887,10 @@ rtems_bsdnet_setup_interface (const char *name,
 	rtems_bsdnet_initialize_sockaddr_in (&netmask);
 	netmask.sin_addr.s_addr = inet_addr (ip_netmask);
 	if (rtems_bsdnet_ifconfig (name, SIOCSIFNETMASK, &netmask) < 0)
-	  {
-		  printf ("Can't set %s netmask: %s\n", name, strerror (errno));
-		  return false;
-	  }
+	{
+		printf ("Can't set %s netmask: %s\n", name, strerror (errno));
+		return false;
+	}
 
 	/*
 	 * Set interface address
@@ -897,39 +898,39 @@ rtems_bsdnet_setup_interface (const char *name,
 	rtems_bsdnet_initialize_sockaddr_in (&address);
 	address.sin_addr.s_addr = inet_addr (ip_address);
 	if (rtems_bsdnet_ifconfig (name, SIOCSIFADDR, &address) < 0)
-	  {
-		  printf ("Can't set %s address: %s\n", name, strerror (errno));
-		  return false;
-	  }
+	{
+		printf ("Can't set %s address: %s\n", name, strerror (errno));
+		return false;
+	}
 
 	/*
 	 * Set interface broadcast address if the interface has the
 	 * broadcast flag set.
 	 */
 	if (rtems_bsdnet_ifconfig (name, SIOCGIFFLAGS, &flags) < 0)
-	  {
-		  printf ("Can't read %s flags: %s\n", name, strerror (errno));
-		  return false;
-	  }
+	{
+		printf ("Can't read %s flags: %s\n", name, strerror (errno));
+		return false;
+	}
 
 	if (flags & IFF_BROADCAST)
-	  {
-		  struct sockaddr_in broadcast;
+	{
+		struct sockaddr_in broadcast;
 
-		  rtems_bsdnet_initialize_sockaddr_in (&broadcast);
-		  broadcast.sin_addr.s_addr =
-			  address.sin_addr.s_addr | ~netmask.sin_addr.s_addr;
-		  if (rtems_bsdnet_ifconfig (name, SIOCSIFBRDADDR, &broadcast) < 0)
-			{
-				struct in_addr in_addr;
-				char buf[20];
-				in_addr.s_addr = broadcast.sin_addr.s_addr;
-				if (!inet_ntop (AF_INET, &in_addr, buf, sizeof (buf)))
-					strcpy (buf, "?.?.?.?");
-				printf ("Can't set %s broadcast address %s: %s\n",
-						name, buf, strerror (errno));
-			}
-	  }
+		rtems_bsdnet_initialize_sockaddr_in (&broadcast);
+		broadcast.sin_addr.s_addr =
+			address.sin_addr.s_addr | ~netmask.sin_addr.s_addr;
+		if (rtems_bsdnet_ifconfig (name, SIOCSIFBRDADDR, &broadcast) < 0)
+		{
+			struct in_addr in_addr;
+			char buf[20];
+			in_addr.s_addr = broadcast.sin_addr.s_addr;
+			if (!inet_ntop (AF_INET, &in_addr, buf, sizeof (buf)))
+				strcpy (buf, "?.?.?.?");
+			printf ("Can't set %s broadcast address %s: %s\n",
+					name, buf, strerror (errno));
+		}
+	}
 
 	return true;
 }
@@ -953,63 +954,63 @@ static int rtems_bsdnet_setup (void)
 			inet_addr (rtems_bsdnet_config.log_host);
 	for (i = 0; i < sizeof rtems_bsdnet_config.name_server /
 		 sizeof rtems_bsdnet_config.name_server[0]; i++)
-	  {
-		  if (!rtems_bsdnet_config.name_server[i])
-			  break;
-		  rtems_bsdnet_nameserver[rtems_bsdnet_nameserver_count++].s_addr
-			  = inet_addr (rtems_bsdnet_config.name_server[i]);
-	  }
+	{
+		if (!rtems_bsdnet_config.name_server[i])
+			break;
+		rtems_bsdnet_nameserver[rtems_bsdnet_nameserver_count++].s_addr
+			= inet_addr (rtems_bsdnet_config.name_server[i]);
+	}
 	for (i = 0; i < sizeof rtems_bsdnet_config.ntp_server /
 		 sizeof rtems_bsdnet_config.ntp_server[0]; i++)
-	  {
-		  if (!rtems_bsdnet_config.ntp_server[i])
-			  break;
-		  rtems_bsdnet_ntpserver[rtems_bsdnet_ntpserver_count++].s_addr
-			  = inet_addr (rtems_bsdnet_config.ntp_server[i]);
-	  }
+	{
+		if (!rtems_bsdnet_config.ntp_server[i])
+			break;
+		rtems_bsdnet_ntpserver[rtems_bsdnet_ntpserver_count++].s_addr
+			= inet_addr (rtems_bsdnet_config.ntp_server[i]);
+	}
 
 	/*
 	 * Configure interfaces
 	 */
 	any_if_configured |= rtems_bsdnet_setup_interface ("lo0",
-													   "127.0.0.1",
-													   "255.0.0.0");
+													 "127.0.0.1",
+													 "255.0.0.0");
 	for (ifp = rtems_bsdnet_config.ifconfig; ifp; ifp = ifp->next)
-	  {
-		  if (ifp->ip_address == NULL)
-			  continue;
+	{
+		if (ifp->ip_address == NULL)
+			continue;
 
-		  any_if_configured |= rtems_bsdnet_setup_interface (ifp->name,
+		any_if_configured |= rtems_bsdnet_setup_interface (ifp->name,
 															 ifp->ip_address,
 															 ifp->ip_netmask);
-	  }
+	}
 
 	/*
 	 * Set default route
 	 */
 	if (rtems_bsdnet_config.gateway && any_if_configured)
-	  {
-		  struct sockaddr_in address;
-		  struct sockaddr_in netmask;
-		  struct sockaddr_in gateway;
+	{
+		struct sockaddr_in address;
+		struct sockaddr_in netmask;
+		struct sockaddr_in gateway;
 
-		  rtems_bsdnet_initialize_sockaddr_in (&address);
-		  rtems_bsdnet_initialize_sockaddr_in (&netmask);
-		  rtems_bsdnet_initialize_sockaddr_in (&gateway);
+		rtems_bsdnet_initialize_sockaddr_in (&address);
+		rtems_bsdnet_initialize_sockaddr_in (&netmask);
+		rtems_bsdnet_initialize_sockaddr_in (&gateway);
 
-		  gateway.sin_addr.s_addr = inet_addr (rtems_bsdnet_config.gateway);
+		gateway.sin_addr.s_addr = inet_addr (rtems_bsdnet_config.gateway);
 
-		  if (rtems_bsdnet_rtrequest (RTM_ADD,
-									  (struct sockaddr *)&address,
-									  (struct sockaddr *)&gateway,
-									  (struct sockaddr *)&netmask,
-									  (RTF_UP | RTF_GATEWAY | RTF_STATIC),
-									  NULL) < 0)
-			{
-				printf ("Can't set default route: %s\n", strerror (errno));
-				return -1;
-			}
-	  }
+		if (rtems_bsdnet_rtrequest (RTM_ADD,
+									(struct sockaddr *)&address,
+									(struct sockaddr *)&gateway,
+									(struct sockaddr *)&netmask,
+									(RTF_UP | RTF_GATEWAY | RTF_STATIC),
+									NULL) < 0)
+		{
+			printf ("Can't set default route: %s\n", strerror (errno));
+			return -1;
+		}
+	}
 	return 0;
 }
 
@@ -1031,9 +1032,9 @@ int rtems_bsdnet_initialize_network (void)
 	 * Attach interfaces
 	 */
 	for (ifp = rtems_bsdnet_config.ifconfig; ifp; ifp = ifp->next)
-	  {
-		  rtems_bsdnet_attach (ifp);
-	  }
+	{
+		rtems_bsdnet_attach (ifp);
+	}
 
 	/*
 	 * Bring up the network
@@ -1051,11 +1052,11 @@ int rtems_bsdnet_initialize_network (void)
 void rtems_bsdnet_attach (struct rtems_bsdnet_ifconfig *ifp)
 {
 	if (ifp)
-	  {
-		  rtems_bsdnet_semaphore_obtain ();
-		  (ifp->attach) (ifp, 1);
-		  rtems_bsdnet_semaphore_release ();
-	  }
+	{
+		rtems_bsdnet_semaphore_obtain ();
+		(ifp->attach) (ifp, 1);
+		rtems_bsdnet_semaphore_release ();
+	}
 }
 
 /*
@@ -1064,11 +1065,11 @@ void rtems_bsdnet_attach (struct rtems_bsdnet_ifconfig *ifp)
 void rtems_bsdnet_detach (struct rtems_bsdnet_ifconfig *ifp)
 {
 	if (ifp)
-	  {
-		  rtems_bsdnet_semaphore_obtain ();
-		  (ifp->attach) (ifp, 0);
-		  rtems_bsdnet_semaphore_release ();
-	  }
+	{
+		rtems_bsdnet_semaphore_obtain ();
+		(ifp->attach) (ifp, 0);
+		rtems_bsdnet_semaphore_release ();
+	}
 }
 
 /*
@@ -1091,122 +1092,122 @@ int rtems_bsdnet_ifconfig (const char *ifname, uint32_t cmd, void *param)
 	rtems_bsdnet_semaphore_obtain ();
 
 	switch (cmd)
-	  {
-		  case SIOCSIFADDR:
-		  case SIOCSIFNETMASK:
-			  memcpy (&ifreq.ifr_addr, param, sizeof (struct sockaddr));
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+	{
+		case SIOCSIFADDR:
+		case SIOCSIFNETMASK:
+			memcpy (&ifreq.ifr_addr, param, sizeof (struct sockaddr));
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case OSIOCGIFADDR:
-		  case SIOCGIFADDR:
-		  case OSIOCGIFNETMASK:
-		  case SIOCGIFNETMASK:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  memcpy (param, &ifreq.ifr_addr, sizeof (struct sockaddr));
-			  break;
+		case OSIOCGIFADDR:
+		case SIOCGIFADDR:
+		case OSIOCGIFNETMASK:
+		case SIOCGIFNETMASK:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			memcpy (param, &ifreq.ifr_addr, sizeof (struct sockaddr));
+			break;
 
-		  case SIOCGIFFLAGS:
-		  case SIOCSIFFLAGS:
-			  if ((r = ioctl (s, SIOCGIFFLAGS, &ifreq)) < 0)
-				  break;
-			  if (cmd == SIOCGIFFLAGS)
-				{
-					*((short *)param) = ifreq.ifr_flags;
-					break;
-				}
-			  ifreq.ifr_flags |= *((short *)param);
-			  if ((*((short *)param) & IFF_UP) == 0)
-				{
-					/* set the interface down */
-					ifreq.ifr_flags &= ~(IFF_UP);
-				}
-			  r = ioctl (s, SIOCSIFFLAGS, &ifreq);
-			  break;
+		case SIOCGIFFLAGS:
+		case SIOCSIFFLAGS:
+			if ((r = ioctl (s, SIOCGIFFLAGS, &ifreq)) < 0)
+				break;
+			if (cmd == SIOCGIFFLAGS)
+			{
+				*((short *)param) = ifreq.ifr_flags;
+				break;
+			}
+			ifreq.ifr_flags |= *((short *)param);
+			if ((*((short *)param) & IFF_UP) == 0)
+			{
+				/* set the interface down */
+				ifreq.ifr_flags &= ~(IFF_UP);
+			}
+			r = ioctl (s, SIOCSIFFLAGS, &ifreq);
+			break;
 
-		  case SIOCSIFDSTADDR:
-			  memcpy (&ifreq.ifr_dstaddr, param, sizeof (struct sockaddr));
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFDSTADDR:
+			memcpy (&ifreq.ifr_dstaddr, param, sizeof (struct sockaddr));
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case OSIOCGIFDSTADDR:
-		  case SIOCGIFDSTADDR:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  memcpy (param, &ifreq.ifr_dstaddr, sizeof (struct sockaddr));
-			  break;
+		case OSIOCGIFDSTADDR:
+		case SIOCGIFDSTADDR:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			memcpy (param, &ifreq.ifr_dstaddr, sizeof (struct sockaddr));
+			break;
 
-		  case SIOCSIFBRDADDR:
-			  memcpy (&ifreq.ifr_broadaddr, param, sizeof (struct sockaddr));
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFBRDADDR:
+			memcpy (&ifreq.ifr_broadaddr, param, sizeof (struct sockaddr));
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case OSIOCGIFBRDADDR:
-		  case SIOCGIFBRDADDR:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  memcpy (param, &ifreq.ifr_broadaddr, sizeof (struct sockaddr));
-			  break;
+		case OSIOCGIFBRDADDR:
+		case SIOCGIFBRDADDR:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			memcpy (param, &ifreq.ifr_broadaddr, sizeof (struct sockaddr));
+			break;
 
-		  case SIOCSIFMETRIC:
-			  ifreq.ifr_metric = *((int *)param);
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFMETRIC:
+			ifreq.ifr_metric = *((int *)param);
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case SIOCGIFMETRIC:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  *((int *)param) = ifreq.ifr_metric;
-			  break;
+		case SIOCGIFMETRIC:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			*((int *)param) = ifreq.ifr_metric;
+			break;
 
-		  case SIOCSIFMTU:
-			  ifreq.ifr_mtu = *((int *)param);
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFMTU:
+			ifreq.ifr_mtu = *((int *)param);
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case SIOCGIFMTU:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  *((int *)param) = ifreq.ifr_mtu;
-			  break;
+		case SIOCGIFMTU:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			*((int *)param) = ifreq.ifr_mtu;
+			break;
 
-		  case SIOCSIFPHYS:
-			  ifreq.ifr_phys = *((int *)param);
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFPHYS:
+			ifreq.ifr_phys = *((int *)param);
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case SIOCGIFPHYS:
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  *((int *)param) = ifreq.ifr_phys;
-			  break;
+		case SIOCGIFPHYS:
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			*((int *)param) = ifreq.ifr_phys;
+			break;
 
-		  case SIOCSIFMEDIA:
-			  ifreq.ifr_media = *((int *)param);
-			  r = ioctl (s, cmd, &ifreq);
-			  break;
+		case SIOCSIFMEDIA:
+			ifreq.ifr_media = *((int *)param);
+			r = ioctl (s, cmd, &ifreq);
+			break;
 
-		  case SIOCGIFMEDIA:
-			  /* 'param' passes the phy index they want to
-			   * look at...
-			   */
-			  ifreq.ifr_media = *((int *)param);
-			  if ((r = ioctl (s, cmd, &ifreq)) < 0)
-				  break;
-			  *((int *)param) = ifreq.ifr_media;
-			  break;
+		case SIOCGIFMEDIA:
+			/* 'param' passes the phy index they want to
+			 * look at...
+			 */
+			ifreq.ifr_media = *((int *)param);
+			if ((r = ioctl (s, cmd, &ifreq)) < 0)
+				break;
+			*((int *)param) = ifreq.ifr_media;
+			break;
 
-		  case SIOCAIFADDR:
-		  case SIOCDIFADDR:
-			  r = ioctl (s, cmd, (struct ifreq *)param);
-			  break;
+		case SIOCAIFADDR:
+		case SIOCDIFADDR:
+			r = ioctl (s, cmd, (struct ifreq *)param);
+			break;
 
-		  default:
-			  errno = EOPNOTSUPP;
-			  r = -1;
-			  break;
-	  }
+		default:
+			errno = EOPNOTSUPP;
+			r = -1;
+			break;
+	}
 
 	rtems_bsdnet_semaphore_release ();
 
@@ -1232,43 +1233,43 @@ rtems_bsdnet_parse_driver_name (const struct rtems_bsdnet_ifconfig *config,
 	int unitNumber = 0;
 
 	if (cp == NULL)
-	  {
-		  printf ("No network driver name.\n");
-		  return -1;
-	  }
+	{
+		printf ("No network driver name.\n");
+		return -1;
+	}
 	while ((c = *cp++) != '\0')
-	  {
-		  if ((c >= '0') && (c <= '9'))
-			{
-				int len = cp - config->name;
-				if ((len < 2) || (len > 50))
-					break;
-				for (;;)
-				  {
-					  unitNumber = (unitNumber * 10) + (c - '0');
-					  c = *cp++;
-					  if (c == '\0')
-						{
-							if (namep != NULL)
-							  {
-								  char *unitName = malloc (len);
-								  if (unitName == NULL)
-									{
-										printf ("No memory.\n");
-										return -1;
-									}
-								  strncpy (unitName, config->name, len - 1);
-								  unitName[len - 1] = '\0';
-								  *namep = unitName;
-							  }
-							return unitNumber;
-						}
-					  if ((c < '0') || (c > '9'))
-						  break;
-				  }
+	{
+		if ((c >= '0') && (c <= '9'))
+		{
+			int len = cp - config->name;
+			if ((len < 2) || (len > 50))
 				break;
+			for (;;)
+			{
+				unitNumber = (unitNumber * 10) + (c - '0');
+				c = *cp++;
+				if (c == '\0')
+				{
+					if (namep != NULL)
+					{
+						char *unitName = malloc (len);
+						if (unitName == NULL)
+						{
+							printf ("No memory.\n");
+							return -1;
+						}
+						strncpy (unitName, config->name, len - 1);
+						unitName[len - 1] = '\0';
+						*namep = unitName;
+					}
+					return unitNumber;
+				}
+				if ((c < '0') || (c > '9'))
+					break;
 			}
-	  }
+			break;
+		}
+	}
 	printf ("Bad network driver name `%s'.\n", config->name);
 	return -1;
 }
@@ -1293,30 +1294,30 @@ int m_mballoc (int nmb, int nowait)
 		return 0;
 	m_reclaim ();
 	if (mmbfree == NULL)
-	  {
-		  int try = 0;
-		  int print_limit = 30 * rtems_bsdnet_ticks_per_second;
+	{
+		int try = 0;
+		int print_limit = 30 * rtems_bsdnet_ticks_per_second;
 
-		  mbstat.m_wait++;
-		  for (;;)
+		mbstat.m_wait++;
+		for (;;)
+		{
+			uint32_t nest_count =
+				rtems_bsdnet_semaphore_release_recursive ();
+			rtems_task_wake_after (1);
+			rtems_bsdnet_semaphore_obtain_recursive (nest_count);
+			if (mmbfree)
+				break;
+			if (++try >= print_limit)
 			{
-				uint32_t nest_count =
-					rtems_bsdnet_semaphore_release_recursive ();
-				rtems_task_wake_after (1);
-				rtems_bsdnet_semaphore_obtain_recursive (nest_count);
-				if (mmbfree)
-					break;
-				if (++try >= print_limit)
-				  {
-					  printf ("Still waiting for mbuf.\n");
-					  try = 0;
-				  }
+				printf ("Still waiting for mbuf.\n");
+				try = 0;
 			}
-	  }
+		}
+	}
 	else
-	  {
-		  mbstat.m_drops++;
-	  }
+	{
+		mbstat.m_drops++;
+	}
 	return 1;
 }
 
@@ -1326,29 +1327,29 @@ int m_clalloc (int ncl, int nowait)
 		return 0;
 	m_reclaim ();
 	if (mclfree == NULL)
-	  {
-		  int try = 0;
-		  int print_limit = 30 * rtems_bsdnet_ticks_per_second;
+	{
+		int try = 0;
+		int print_limit = 30 * rtems_bsdnet_ticks_per_second;
 
-		  mbstat.m_wait++;
-		  for (;;)
+		mbstat.m_wait++;
+		for (;;)
+		{
+			uint32_t nest_count =
+				rtems_bsdnet_semaphore_release_recursive ();
+			rtems_task_wake_after (1);
+			rtems_bsdnet_semaphore_obtain_recursive (nest_count);
+			if (mclfree)
+				break;
+			if (++try >= print_limit)
 			{
-				uint32_t nest_count =
-					rtems_bsdnet_semaphore_release_recursive ();
-				rtems_task_wake_after (1);
-				rtems_bsdnet_semaphore_obtain_recursive (nest_count);
-				if (mclfree)
-					break;
-				if (++try >= print_limit)
-				  {
-					  printf ("Still waiting for mbuf cluster.\n");
-					  try = 0;
-				  }
+				printf ("Still waiting for mbuf cluster.\n");
+				try = 0;
 			}
-	  }
+		}
+	}
 	else
-	  {
-		  mbstat.m_drops++;
-	  }
+	{
+		mbstat.m_drops++;
+	}
 	return 1;
 }

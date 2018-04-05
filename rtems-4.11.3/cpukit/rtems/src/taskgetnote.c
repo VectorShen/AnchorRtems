@@ -28,7 +28,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 rtems_status_code rtems_task_get_note (rtems_id id,
-									   uint32_t notepad, uint32_t * note)
+									 uint32_t notepad, uint32_t * note)
 {
 	Thread_Control *the_thread;
 	Objects_Locations location;
@@ -56,34 +56,34 @@ rtems_status_code rtems_task_get_note (rtems_id id,
 	executing = _Thread_Get_executing ();
 	if (_Objects_Are_ids_equal (id, OBJECTS_ID_OF_SELF) ||
 		_Objects_Are_ids_equal (id, executing->Object.id))
-	  {
-		  api = executing->API_Extensions[THREAD_API_RTEMS];
-		  *note = api->Notepads[notepad];
-		  return RTEMS_SUCCESSFUL;
-	  }
+	{
+		api = executing->API_Extensions[THREAD_API_RTEMS];
+		*note = api->Notepads[notepad];
+		return RTEMS_SUCCESSFUL;
+	}
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  api = the_thread->API_Extensions[THREAD_API_RTEMS];
-			  *note = api->Notepads[notepad];
-			  _Objects_Put (&the_thread->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			api = the_thread->API_Extensions[THREAD_API_RTEMS];
+			*note = api->Notepads[notepad];
+			_Objects_Put (&the_thread->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  executing->Wait.return_argument = note;
+		case OBJECTS_REMOTE:
+			executing->Wait.return_argument = note;
 
-			  return _RTEMS_tasks_MP_Send_request_packet (RTEMS_TASKS_MP_GET_NOTE_REQUEST, id, 0,	/* Not used */
-														  notepad, 0	/* Not used */
-				  );
+			return _RTEMS_tasks_MP_Send_request_packet (RTEMS_TASKS_MP_GET_NOTE_REQUEST, id, 0,	/* Not used */
+														notepad, 0	/* Not used */
+				);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

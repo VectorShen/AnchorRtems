@@ -146,78 +146,78 @@ static int main_ln (rtems_shell_ln_globals * globals, int argc, char *argv[])
 
 	while ((ch = getopt_r (argc, argv, "fhinsv", &getopt_reent)) != -1)
 		switch (ch)
-		  {
-			  case 'f':
-				  fflag = 1;
-				  iflag = 0;
-				  break;
-			  case 'h':
-			  case 'n':
-				  hflag = 1;
-				  break;
-			  case 'i':
-				  iflag = 1;
-				  fflag = 0;
-				  break;
-			  case 's':
-				  sflag = 1;
-				  break;
-			  case 'v':
-				  vflag = 1;
-				  break;
-			  case '?':
-			  default:
-				  usage (globals);
-				  /* NOTREACHED */
-		  }
+		{
+			case 'f':
+				fflag = 1;
+				iflag = 0;
+				break;
+			case 'h':
+			case 'n':
+				hflag = 1;
+				break;
+			case 'i':
+				iflag = 1;
+				fflag = 0;
+				break;
+			case 's':
+				sflag = 1;
+				break;
+			case 'v':
+				vflag = 1;
+				break;
+			case '?':
+			default:
+				usage (globals);
+				/* NOTREACHED */
+		}
 
 	argv += getopt_reent.optind;
 	argc -= getopt_reent.optind;
 
 	if (sflag)
-	  {
-		  linkf = symlink;
-		  linkch = '-';
-	  }
+	{
+		linkf = symlink;
+		linkch = '-';
+	}
 	else
-	  {
-		  linkf = link;
-		  linkch = '=';
-	  }
+	{
+		linkf = link;
+		linkch = '=';
+	}
 
 	switch (argc)
-	  {
-		  case 0:
-			  usage (globals);
-			  /* NOTREACHED */
-		  case 1:				/* ln target */
-			  exit (linkit (globals, argv[0], ".", 1));
-			  /* NOTREACHED */
-		  case 2:				/* ln target source */
-			  exit (linkit (globals, argv[0], argv[1], 0));
-			  /* NOTREACHED */
-	  }
+	{
+		case 0:
+			usage (globals);
+			/* NOTREACHED */
+		case 1:				/* ln target */
+			exit (linkit (globals, argv[0], ".", 1));
+			/* NOTREACHED */
+		case 2:				/* ln target source */
+			exit (linkit (globals, argv[0], argv[1], 0));
+			/* NOTREACHED */
+	}
 
 	/* ln target1 target2 directory */
 	sourcedir = argv[argc - 1];
 	if (hflag && lstat (sourcedir, &sb) == 0 && S_ISLNK (sb.st_mode))
-	  {
-		  /* we were asked not to follow symlinks, but found one at
-		     the target--simulate "not a directory" error */
-		  errno = ENOTDIR;
-		  err (exit_jump, EXIT_FAILURE, "%s", sourcedir);
-		  /* NOTREACHED */
-	  }
+	{
+		/* we were asked not to follow symlinks, but found one at
+		   the target--simulate "not a directory" error */
+		errno = ENOTDIR;
+		err (exit_jump, EXIT_FAILURE, "%s", sourcedir);
+		/* NOTREACHED */
+	}
 	if (stat (sourcedir, &sb))
-	  {
-		  err (exit_jump, EXIT_FAILURE, "%s", sourcedir);
-		  /* NOTREACHED */
-	  }
+	{
+		err (exit_jump, EXIT_FAILURE, "%s", sourcedir);
+		/* NOTREACHED */
+	}
 	if (!S_ISDIR (sb.st_mode))
-	  {
-		  usage (globals);
-		  /* NOTREACHED */
-	  }
+	{
+		usage (globals);
+		/* NOTREACHED */
+	}
 	for (exitval = 0; *argv != sourcedir; ++argv)
 		exitval |= linkit (globals, *argv, sourcedir, 1);
 	exit (exitval);
@@ -235,28 +235,28 @@ linkit (rtems_shell_ln_globals * globals, const char *source,
 	int ch, exists, first;
 
 	if (!sflag)
-	  {
-		  /* If target doesn't exist, quit now. */
-		  if (stat (target, &sb))
-			{
-				warn ("%s", target);
-				return (1);
-			}
-	  }
+	{
+		/* If target doesn't exist, quit now. */
+		if (stat (target, &sb))
+		{
+			warn ("%s", target);
+			return (1);
+		}
+	}
 
 	/* If the source is a directory (and not a symlink if hflag),
-	   append the target's name. */
+	 append the target's name. */
 	if (isdir ||
 		(!lstat (source, &sb) && S_ISDIR (sb.st_mode)) ||
 		(!hflag && !stat (source, &sb) && S_ISDIR (sb.st_mode)))
-	  {
-		  if ((p = strrchr (target, '/')) == NULL)
-			  p = target;
-		  else
-			  ++p;
-		  (void)snprintf (path, sizeof (path), "%s/%s", source, p);
-		  source = path;
-	  }
+	{
+		if ((p = strrchr (target, '/')) == NULL)
+			p = target;
+		else
+			++p;
+		(void)snprintf (path, sizeof (path), "%s/%s", source, p);
+		source = path;
+	}
 
 	exists = !lstat (source, &sb);
 
@@ -265,40 +265,40 @@ linkit (rtems_shell_ln_globals * globals, const char *source,
 	 * and interactively if -i was specified.
 	 */
 	if (fflag && exists)
-	  {
-		  if (unlink (source))
-			{
-				warn ("%s", source);
-				return (1);
-			}
-	  }
+	{
+		if (unlink (source))
+		{
+			warn ("%s", source);
+			return (1);
+		}
+	}
 	else if (iflag && exists)
-	  {
-		  fflush (stdout);
-		  (void)fprintf (stderr, "replace %s? ", source);
+	{
+		fflush (stdout);
+		(void)fprintf (stderr, "replace %s? ", source);
 
-		  first = ch = getchar ();
-		  while (ch != '\n' && ch != EOF)
-			  ch = getchar ();
-		  if (first != 'y' && first != 'Y')
-			{
-				(void)fprintf (stderr, "not replaced\n");
-				return (1);
-			}
+		first = ch = getchar ();
+		while (ch != '\n' && ch != EOF)
+			ch = getchar ();
+		if (first != 'y' && first != 'Y')
+		{
+			(void)fprintf (stderr, "not replaced\n");
+			return (1);
+		}
 
-		  if (unlink (source))
-			{
-				warn ("%s", source);
-				return (1);
-			}
-	  }
+		if (unlink (source))
+		{
+			warn ("%s", source);
+			return (1);
+		}
+	}
 
 	/* Attempt the link. */
 	if ((*linkf) (target, source))
-	  {
-		  warn ("%s", source);
-		  return (1);
-	  }
+	{
+		warn ("%s", source);
+		return (1);
+	}
 	if (vflag)
 		(void)printf ("%s %c> %s\n", source, linkch, target);
 
@@ -309,13 +309,14 @@ void usage (rtems_shell_ln_globals * globals)
 {
 #define getprogname() "ln"
 	(void)fprintf (stderr,
-				   "usage:\t%s [-fhinsv] file1 file2\n\t%s [-fhinsv] file ... directory\n",
-				   getprogname (), getprogname ());
+				 "usage:\t%s [-fhinsv] file1 file2\n\t%s [-fhinsv] file ... directory\n",
+				 getprogname (), getprogname ());
 	exit (1);
 	/* NOTREACHED */
 }
 
-rtems_shell_cmd_t rtems_shell_LN_Command = {
+rtems_shell_cmd_t rtems_shell_LN_Command =
+{
 	"ln",						/* name */
 	"ln ln [-fhinsv] source_file [target_file]",	/* usage */
 	"files",					/* topic */

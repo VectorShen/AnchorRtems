@@ -41,47 +41,47 @@ static void start_worker_stop_timer (rtems_test_parallel_context * ctx,
 }
 
 static void run_tests (rtems_test_parallel_context * ctx,
-					   const rtems_test_parallel_job * jobs,
-					   size_t job_count, size_t worker_index)
+					 const rtems_test_parallel_job * jobs,
+					 size_t job_count, size_t worker_index)
 {
 	SMP_barrier_State bs = SMP_BARRIER_STATE_INITIALIZER;
 	size_t i;
 
 	for (i = 0; i < job_count; ++i)
-	  {
-		  const rtems_test_parallel_job *job = &jobs[i];
-		  size_t n = rtems_get_processor_count ();
-		  size_t j = job->cascade ? 0 : rtems_get_processor_count () - 1;
+	{
+		const rtems_test_parallel_job *job = &jobs[i];
+		size_t n = rtems_get_processor_count ();
+		size_t j = job->cascade ? 0 : rtems_get_processor_count () - 1;
 
-		  while (j < n)
+		while (j < n)
+		{
+			size_t active_worker = j + 1;
+
+			if (rtems_test_parallel_is_master_worker (worker_index))
 			{
-				size_t active_worker = j + 1;
+				rtems_interval duration =
+					(*job->init) (ctx, job->arg, active_worker);
 
-				if (rtems_test_parallel_is_master_worker (worker_index))
-				  {
-					  rtems_interval duration =
-						  (*job->init) (ctx, job->arg, active_worker);
-
-					  start_worker_stop_timer (ctx, duration);
-				  }
-
-				_SMP_barrier_Wait (&ctx->barrier, &bs, ctx->worker_count);
-
-				if (worker_index <= j)
-				  {
-					  (*job->body) (ctx, job->arg, active_worker, worker_index);
-				  }
-
-				_SMP_barrier_Wait (&ctx->barrier, &bs, ctx->worker_count);
-
-				if (rtems_test_parallel_is_master_worker (worker_index))
-				  {
-					  (*job->fini) (ctx, job->arg, active_worker);
-				  }
-
-				++j;
+				start_worker_stop_timer (ctx, duration);
 			}
-	  }
+
+			_SMP_barrier_Wait (&ctx->barrier, &bs, ctx->worker_count);
+
+			if (worker_index <= j)
+			{
+				(*job->body) (ctx, job->arg, active_worker, worker_index);
+			}
+
+			_SMP_barrier_Wait (&ctx->barrier, &bs, ctx->worker_count);
+
+			if (rtems_test_parallel_is_master_worker (worker_index))
+			{
+				(*job->fini) (ctx, job->arg, active_worker);
+			}
+
+			++j;
+		}
+	}
 }
 
 typedef struct
@@ -104,9 +104,9 @@ static void worker_task (rtems_task_argument arg)
 	run_tests (warg.ctx, warg.jobs, warg.job_count, warg.worker_index);
 
 	while (true)
-	  {
-		  /* Wait for delete by master worker */
-	  }
+	{
+		/* Wait for delete by master worker */
+	}
 }
 
 static char digit (size_t i, size_t pos)
@@ -115,9 +115,9 @@ static char digit (size_t i, size_t pos)
 }
 
 void rtems_test_parallel (rtems_test_parallel_context * ctx,
-						  rtems_test_parallel_worker_setup worker_setup,
-						  const rtems_test_parallel_job * jobs,
-						  size_t job_count)
+						rtems_test_parallel_worker_setup worker_setup,
+						const rtems_test_parallel_job * jobs,
+						size_t job_count)
 {
 	rtems_status_code sc;
 	size_t worker_index;
@@ -129,69 +129,70 @@ void rtems_test_parallel (rtems_test_parallel_context * ctx,
 	ctx->worker_ids[0] = rtems_task_self ();
 
 	if (RTEMS_ARRAY_SIZE (ctx->worker_ids) < ctx->worker_count)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 
 	sc = rtems_task_set_priority (RTEMS_SELF,
-								  RTEMS_CURRENT_PRIORITY, &worker_priority);
+								RTEMS_CURRENT_PRIORITY, &worker_priority);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 
 	sc = rtems_timer_create (rtems_build_name ('S', 'T', 'O', 'P'),
 							 &ctx->stop_worker_timer_id);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 
 	for (worker_index = 1; worker_index < ctx->worker_count; ++worker_index)
-	  {
-		  worker_arg warg = {
-			  .ctx = ctx,
-			  .jobs = jobs,
-			  .job_count = job_count,
-			  .worker_index = worker_index
-		  };
-		  rtems_id worker_id;
+	{
+		worker_arg warg =
+		{
+			.ctx = ctx,
+			.jobs = jobs,
+			.job_count = job_count,
+			.worker_index = worker_index
+		};
+		rtems_id worker_id;
 
-		  sc = rtems_task_create (rtems_build_name ('W',
+		sc = rtems_task_create (rtems_build_name ('W',
 													digit (worker_index, 100),
 													digit (worker_index, 10),
 													digit (worker_index, 1)),
-								  worker_priority,
-								  RTEMS_MINIMUM_STACK_SIZE,
-								  RTEMS_DEFAULT_MODES,
-								  RTEMS_DEFAULT_ATTRIBUTES, &worker_id);
-		  if (sc != RTEMS_SUCCESSFUL)
-			{
-				rtems_fatal_error_occurred (0xdeadbeef);
-			}
+								worker_priority,
+								RTEMS_MINIMUM_STACK_SIZE,
+								RTEMS_DEFAULT_MODES,
+								RTEMS_DEFAULT_ATTRIBUTES, &worker_id);
+		if (sc != RTEMS_SUCCESSFUL)
+		{
+			rtems_fatal_error_occurred (0xdeadbeef);
+		}
 
-		  ctx->worker_ids[worker_index] = worker_id;
+		ctx->worker_ids[worker_index] = worker_id;
 
-		  if (worker_setup != NULL)
-			{
-				(*worker_setup) (ctx, worker_index, worker_id);
-			}
+		if (worker_setup != NULL)
+		{
+			(*worker_setup) (ctx, worker_index, worker_id);
+		}
 
-		  sc = rtems_task_start (worker_id, worker_task,
+		sc = rtems_task_start (worker_id, worker_task,
 								 (rtems_task_argument) & warg);
-		  _Assert (sc == RTEMS_SUCCESSFUL);
+		_Assert (sc == RTEMS_SUCCESSFUL);
 
-		  sc = rtems_event_transient_receive (RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		  _Assert (sc == RTEMS_SUCCESSFUL);
-	  }
+		sc = rtems_event_transient_receive (RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+		_Assert (sc == RTEMS_SUCCESSFUL);
+	}
 
 	run_tests (ctx, jobs, job_count, 0);
 
 	for (worker_index = 1; worker_index < ctx->worker_count; ++worker_index)
-	  {
-		  sc = rtems_task_delete (ctx->worker_ids[worker_index]);
-		  _Assert (sc == RTEMS_SUCCESSFUL);
-	  }
+	{
+		sc = rtems_task_delete (ctx->worker_ids[worker_index]);
+		_Assert (sc == RTEMS_SUCCESSFUL);
+	}
 
 	sc = rtems_timer_delete (ctx->stop_worker_timer_id);
 	_Assert (sc == RTEMS_SUCCESSFUL);

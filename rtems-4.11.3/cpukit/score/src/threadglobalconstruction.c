@@ -62,19 +62,19 @@ void *_Thread_Global_construction (void)
 
 #if defined(RTEMS_POSIX_API)
 	if (Configuration_RTEMS_API.number_of_initialization_tasks > 0)
-	  {
+	{
 #endif
-		  entry_point = (Thread_Entry)
-			  Configuration_RTEMS_API.User_initialization_tasks_table[0].
-			  entry_point;
+		entry_point = (Thread_Entry)
+			Configuration_RTEMS_API.User_initialization_tasks_table[0].
+			entry_point;
 #if defined(RTEMS_POSIX_API)
-	  }
+	}
 	else
-	  {
-		  entry_point = (Thread_Entry)
-			  Configuration_POSIX_API.User_initialization_threads_table[0].
-			  thread_entry;
-	  }
+	{
+		entry_point = (Thread_Entry)
+			Configuration_POSIX_API.User_initialization_threads_table[0].
+			thread_entry;
+	}
 #endif
 
 	_Thread_Disable_dispatch ();

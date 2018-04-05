@@ -57,20 +57,20 @@ rtems_rfs_rtems_device_open (rtems_libio_t * iop,
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc > 0)
-	  {
-		  rtems_rfs_rtems_unlock (fs);
-		  return rtems_rfs_rtems_error ("device_open: opening inode", rc);
-	  }
+	{
+		rtems_rfs_rtems_unlock (fs);
+		return rtems_rfs_rtems_error ("device_open: opening inode", rc);
+	}
 
 	major = rtems_rfs_inode_get_block (&inode, 0);
 	minor = rtems_rfs_inode_get_block (&inode, 1);
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc > 0)
-	  {
-		  rtems_rfs_rtems_unlock (fs);
-		  return rtems_rfs_rtems_error ("device_open: closing inode", rc);
-	  }
+	{
+		rtems_rfs_rtems_unlock (fs);
+		return rtems_rfs_rtems_error ("device_open: closing inode", rc);
+	}
 
 	rtems_rfs_rtems_unlock (fs);
 
@@ -128,7 +128,7 @@ rtems_rfs_rtems_device_read (rtems_libio_t * iop, void *buffer, size_t count)
 
 static ssize_t
 rtems_rfs_rtems_device_write (rtems_libio_t * iop,
-							  const void *buffer, size_t count)
+							const void *buffer, size_t count)
 {
 	rtems_device_major_number major;
 	rtems_device_minor_number minor;
@@ -149,7 +149,7 @@ rtems_rfs_rtems_device_write (rtems_libio_t * iop,
 
 static int
 rtems_rfs_rtems_device_ioctl (rtems_libio_t * iop,
-							  ioctl_command_t command, void *buffer)
+							ioctl_command_t command, void *buffer)
 {
 	rtems_device_major_number major;
 	rtems_device_minor_number minor;
@@ -176,7 +176,8 @@ static int rtems_rfs_rtems_device_ftruncate (rtems_libio_t * iop, off_t length)
  *  Handler table for RFS device nodes
  */
 
-const rtems_filesystem_file_handlers_r rtems_rfs_rtems_device_handlers = {
+const rtems_filesystem_file_handlers_r rtems_rfs_rtems_device_handlers =
+{
 	.open_h = rtems_rfs_rtems_device_open,
 	.close_h = rtems_rfs_rtems_device_close,
 	.read_h = rtems_rfs_rtems_device_read,

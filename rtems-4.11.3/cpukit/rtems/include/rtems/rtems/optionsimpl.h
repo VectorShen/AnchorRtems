@@ -25,34 +25,34 @@ extern "C"
 #endif
 
 /**
- * @defgroup ClassicOptionsImpl Classic Options Implementation
- *
- * @ingroup ClassicOptions
- *
- * @{
- */
+* @defgroup ClassicOptionsImpl Classic Options Implementation
+*
+* @ingroup ClassicOptions
+*
+* @{
+*/
 
 /**
- *  @brief Checks if the RTEMS_NO_WAIT option is enabled in option_set.
- *
- *  This function returns TRUE if the RTEMS_NO_WAIT option is enabled in
- *  option_set, and FALSE otherwise.
- */
-	RTEMS_INLINE_ROUTINE bool _Options_Is_no_wait (rtems_option option_set)
-	{
-		return (option_set & RTEMS_NO_WAIT) ? true : false;
-	}
+*  @brief Checks if the RTEMS_NO_WAIT option is enabled in option_set.
+*
+*  This function returns TRUE if the RTEMS_NO_WAIT option is enabled in
+*  option_set, and FALSE otherwise.
+*/
+RTEMS_INLINE_ROUTINE bool _Options_Is_no_wait (rtems_option option_set)
+{
+	return (option_set & RTEMS_NO_WAIT) ? true : false;
+}
 
 /**
- *  @brief Checks if the RTEMS_EVENT_ANY option is enabled in OPTION_SET.
- *
- *  This function returns TRUE if the RTEMS_EVENT_ANY option is enabled in
- *  OPTION_SET, and FALSE otherwise.
- */
-	RTEMS_INLINE_ROUTINE bool _Options_Is_any (rtems_option option_set)
-	{
-		return (option_set & RTEMS_EVENT_ANY) ? true : false;
-	}
+*  @brief Checks if the RTEMS_EVENT_ANY option is enabled in OPTION_SET.
+*
+*  This function returns TRUE if the RTEMS_EVENT_ANY option is enabled in
+*  OPTION_SET, and FALSE otherwise.
+*/
+RTEMS_INLINE_ROUTINE bool _Options_Is_any (rtems_option option_set)
+{
+	return (option_set & RTEMS_EVENT_ANY) ? true : false;
+}
 
 /**@}*/
 

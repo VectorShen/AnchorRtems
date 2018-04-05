@@ -48,7 +48,8 @@ static int msdos_utime (const rtems_filesystem_location_info_t * loc,
 	return RC_OK;
 }
 
-const rtems_filesystem_operations_table msdos_ops = {
+const rtems_filesystem_operations_table msdos_ops =
+{
 	.lock_h = msdos_lock,
 	.unlock_h = msdos_unlock,
 	.eval_path_h = msdos_eval_path,
@@ -74,12 +75,12 @@ void msdos_lock (const rtems_filesystem_mount_table_entry_t * mt_entry)
 {
 	msdos_fs_info_t *fs_info = mt_entry->fs_info;
 	rtems_status_code sc = rtems_semaphore_obtain (fs_info->vol_sema,
-												   RTEMS_WAIT,
-												   RTEMS_NO_TIMEOUT);
+												 RTEMS_WAIT,
+												 RTEMS_NO_TIMEOUT);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 }
 
 void msdos_unlock (const rtems_filesystem_mount_table_entry_t * mt_entry)
@@ -87,9 +88,9 @@ void msdos_unlock (const rtems_filesystem_mount_table_entry_t * mt_entry)
 	msdos_fs_info_t *fs_info = mt_entry->fs_info;
 	rtems_status_code sc = rtems_semaphore_release (fs_info->vol_sema);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 }
 
 /* msdos_initialize --
@@ -111,26 +112,26 @@ int rtems_dosfs_initialize (rtems_filesystem_mount_table_entry_t * mt_entry,
 	rtems_dosfs_convert_control *converter;
 
 	if (mount_options == NULL || mount_options->converter == NULL)
-	  {
-		  converter = rtems_dosfs_create_default_converter ();
-	  }
+	{
+		converter = rtems_dosfs_create_default_converter ();
+	}
 	else
-	  {
-		  converter = mount_options->converter;
-	  }
+	{
+		converter = mount_options->converter;
+	}
 
 	if (converter != NULL)
-	  {
-		  rc = msdos_initialize_support (mt_entry,
+	{
+		rc = msdos_initialize_support (mt_entry,
 										 &msdos_ops,
 										 &msdos_file_handlers,
 										 &msdos_dir_handlers, converter);
-	  }
+	}
 	else
-	  {
-		  errno = ENOMEM;
-		  rc = -1;
-	  }
+	{
+		errno = ENOMEM;
+		rc = -1;
+	}
 
 	return rc;
 }

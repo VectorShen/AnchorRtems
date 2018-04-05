@@ -82,12 +82,12 @@ static int pipe_alloc (pipe_control_t ** pipep)
 	err = -ENOMEM;
 
 	if (rtems_barrier_create (rtems_build_name ('P', 'I', 'r', c),
-							  RTEMS_BARRIER_MANUAL_RELEASE, 0,
-							  &pipe->readBarrier) != RTEMS_SUCCESSFUL)
+							RTEMS_BARRIER_MANUAL_RELEASE, 0,
+							&pipe->readBarrier) != RTEMS_SUCCESSFUL)
 		goto err_rbar;
 	if (rtems_barrier_create (rtems_build_name ('P', 'I', 'w', c),
-							  RTEMS_BARRIER_MANUAL_RELEASE, 0,
-							  &pipe->writeBarrier) != RTEMS_SUCCESSFUL)
+							RTEMS_BARRIER_MANUAL_RELEASE, 0,
+							&pipe->writeBarrier) != RTEMS_SUCCESSFUL)
 		goto err_wbar;
 	if (rtems_semaphore_create (rtems_build_name ('P', 'I', 's', c), 1,
 								RTEMS_BINARY_SEMAPHORE | RTEMS_FIFO,
@@ -126,36 +126,36 @@ static int pipe_lock (void)
 	rtems_status_code sc = RTEMS_SUCCESSFUL;
 
 	if (pipe_semaphore == RTEMS_ID_NONE)
-	  {
-		  rtems_libio_lock ();
+	{
+		rtems_libio_lock ();
 
-		  if (pipe_semaphore == RTEMS_ID_NONE)
-			{
-				sc = rtems_semaphore_create (rtems_build_name
-											 ('P', 'I', 'P', 'E'), 1,
-											 RTEMS_BINARY_SEMAPHORE |
-											 RTEMS_INHERIT_PRIORITY |
-											 RTEMS_PRIORITY, RTEMS_NO_PRIORITY,
-											 &pipe_semaphore);
-			}
+		if (pipe_semaphore == RTEMS_ID_NONE)
+		{
+			sc = rtems_semaphore_create (rtems_build_name
+										 ('P', 'I', 'P', 'E'), 1,
+										 RTEMS_BINARY_SEMAPHORE |
+										 RTEMS_INHERIT_PRIORITY |
+										 RTEMS_PRIORITY, RTEMS_NO_PRIORITY,
+										 &pipe_semaphore);
+		}
 
-		  rtems_libio_unlock ();
-	  }
-
-	if (sc == RTEMS_SUCCESSFUL)
-	  {
-		  sc = rtems_semaphore_obtain (pipe_semaphore, RTEMS_WAIT,
-									   RTEMS_NO_TIMEOUT);
-	  }
+		rtems_libio_unlock ();
+	}
 
 	if (sc == RTEMS_SUCCESSFUL)
-	  {
-		  return 0;
-	  }
+	{
+		sc = rtems_semaphore_obtain (pipe_semaphore, RTEMS_WAIT,
+									 RTEMS_NO_TIMEOUT);
+	}
+
+	if (sc == RTEMS_SUCCESSFUL)
+	{
+		return 0;
+	}
 	else
-	  {
-		  return -ENOMEM;
-	  }
+	{
+		return -ENOMEM;
+	}
 }
 
 static void pipe_unlock (void)
@@ -168,9 +168,9 @@ static void pipe_unlock (void)
 		rtems_semaphore_release (pipe_semaphore);
 #ifdef RTEMS_DEBUG
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  rtems_fatal_error_occurred (0xdeadbeef);
-	  }
+	{
+		rtems_fatal_error_occurred (0xdeadbeef);
+	}
 #endif
 }
 
@@ -191,22 +191,22 @@ static int pipe_new (pipe_control_t ** pipep)
 
 	pipe = *pipep;
 	if (pipe == NULL)
-	  {
-		  err = pipe_alloc (&pipe);
-		  if (err)
-			  goto out;
-	  }
+	{
+		err = pipe_alloc (&pipe);
+		if (err)
+			goto out;
+	}
 
 	if (!PIPE_LOCK (pipe))
 		err = -EINTR;
 
 	if (*pipep == NULL)
-	  {
-		  if (err)
-			  pipe_free (pipe);
-		  else
-			  *pipep = pipe;
-	  }
+	{
+		if (err)
+			pipe_free (pipe);
+		else
+			*pipep = pipe;
+	}
 
   out:
 	pipe_unlock ();
@@ -237,15 +237,15 @@ void pipe_release (pipe_control_t ** pipep, rtems_libio_t * iop)
 	PIPE_UNLOCK (pipe);
 
 	if (pipe->Readers == 0 && pipe->Writers == 0)
-	  {
+	{
 #if 0
-		  /* To delete an anonymous pipe file when all users closed it */
-		  if (pipe->Anonymous)
-			  delfile = TRUE;
+		/* To delete an anonymous pipe file when all users closed it */
+		if (pipe->Anonymous)
+			delfile = TRUE;
 #endif
-		  pipe_free (pipe);
-		  *pipep = NULL;
-	  }
+		pipe_free (pipe);
+		*pipep = NULL;
+	}
 	else if (pipe->Readers == 0 && mode != LIBIO_FLAGS_WRITE)
 		/* Notify waiting Writers that all their partners left */
 		PIPE_WAKEUPWRITERS (pipe);
@@ -280,71 +280,71 @@ int fifo_open (pipe_control_t ** pipep, rtems_libio_t * iop)
 	pipe = *pipep;
 
 	switch (LIBIO_ACCMODE (iop))
-	  {
-		  case LIBIO_FLAGS_READ:
-			  pipe->readerCounter++;
-			  if (pipe->Readers++ == 0)
-				  PIPE_WAKEUPWRITERS (pipe);
+	{
+		case LIBIO_FLAGS_READ:
+			pipe->readerCounter++;
+			if (pipe->Readers++ == 0)
+				PIPE_WAKEUPWRITERS (pipe);
 
-			  if (pipe->Writers == 0)
-				{
-					/* Not an error */
-					if (LIBIO_NODELAY (iop))
-						break;
+			if (pipe->Writers == 0)
+			{
+				/* Not an error */
+				if (LIBIO_NODELAY (iop))
+					break;
 
-					prevCounter = pipe->writerCounter;
-					err = -EINTR;
-					/* Wait until a writer opens the pipe */
-					do
-					  {
-						  PIPE_UNLOCK (pipe);
-						  if (!PIPE_READWAIT (pipe))
-							  goto out_error;
-						  if (!PIPE_LOCK (pipe))
-							  goto out_error;
-					  }
-					while (prevCounter == pipe->writerCounter);
-				}
-			  break;
-
-		  case LIBIO_FLAGS_WRITE:
-			  pipe->writerCounter++;
-
-			  if (pipe->Writers++ == 0)
-				  PIPE_WAKEUPREADERS (pipe);
-
-			  if (pipe->Readers == 0 && LIBIO_NODELAY (iop))
+				prevCounter = pipe->writerCounter;
+				err = -EINTR;
+				/* Wait until a writer opens the pipe */
+				do
 				{
 					PIPE_UNLOCK (pipe);
-					err = -ENXIO;
-					goto out_error;
+					if (!PIPE_READWAIT (pipe))
+						goto out_error;
+					if (!PIPE_LOCK (pipe))
+						goto out_error;
 				}
+				while (prevCounter == pipe->writerCounter);
+			}
+			break;
 
-			  if (pipe->Readers == 0)
+		case LIBIO_FLAGS_WRITE:
+			pipe->writerCounter++;
+
+			if (pipe->Writers++ == 0)
+				PIPE_WAKEUPREADERS (pipe);
+
+			if (pipe->Readers == 0 && LIBIO_NODELAY (iop))
+			{
+				PIPE_UNLOCK (pipe);
+				err = -ENXIO;
+				goto out_error;
+			}
+
+			if (pipe->Readers == 0)
+			{
+				prevCounter = pipe->readerCounter;
+				err = -EINTR;
+				do
 				{
-					prevCounter = pipe->readerCounter;
-					err = -EINTR;
-					do
-					  {
-						  PIPE_UNLOCK (pipe);
-						  if (!PIPE_WRITEWAIT (pipe))
-							  goto out_error;
-						  if (!PIPE_LOCK (pipe))
-							  goto out_error;
-					  }
-					while (prevCounter == pipe->readerCounter);
+					PIPE_UNLOCK (pipe);
+					if (!PIPE_WRITEWAIT (pipe))
+						goto out_error;
+					if (!PIPE_LOCK (pipe))
+						goto out_error;
 				}
-			  break;
+				while (prevCounter == pipe->readerCounter);
+			}
+			break;
 
-		  case LIBIO_FLAGS_READ_WRITE:
-			  pipe->readerCounter++;
-			  if (pipe->Readers++ == 0)
-				  PIPE_WAKEUPWRITERS (pipe);
-			  pipe->writerCounter++;
-			  if (pipe->Writers++ == 0)
-				  PIPE_WAKEUPREADERS (pipe);
-			  break;
-	  }
+		case LIBIO_FLAGS_READ_WRITE:
+			pipe->readerCounter++;
+			if (pipe->Readers++ == 0)
+				PIPE_WAKEUPWRITERS (pipe);
+			pipe->writerCounter++;
+			if (pipe->Writers++ == 0)
+				PIPE_WAKEUPREADERS (pipe);
+			break;
+	}
 
 	PIPE_UNLOCK (pipe);
 	return 0;
@@ -355,7 +355,7 @@ int fifo_open (pipe_control_t ** pipep, rtems_libio_t * iop)
 }
 
 ssize_t pipe_read (pipe_control_t * pipe,
-				   void *buffer, size_t count, rtems_libio_t * iop)
+				 void *buffer, size_t count, rtems_libio_t * iop)
 {
 	int chunk, chunk1, read = 0, ret = 0;
 
@@ -363,41 +363,41 @@ ssize_t pipe_read (pipe_control_t * pipe,
 		return -EINTR;
 
 	while (PIPE_EMPTY (pipe))
-	  {
-		  /* Not an error */
-		  if (pipe->Writers == 0)
-			  goto out_locked;
+	{
+		/* Not an error */
+		if (pipe->Writers == 0)
+			goto out_locked;
 
-		  if (LIBIO_NODELAY (iop))
-			{
-				ret = -EAGAIN;
-				goto out_locked;
-			}
+		if (LIBIO_NODELAY (iop))
+		{
+			ret = -EAGAIN;
+			goto out_locked;
+		}
 
-		  /* Wait until pipe is no more empty or no writer exists */
-		  pipe->waitingReaders++;
-		  PIPE_UNLOCK (pipe);
-		  if (!PIPE_READWAIT (pipe))
-			  ret = -EINTR;
-		  if (!PIPE_LOCK (pipe))
-			{
-				/* WARN waitingReaders not restored! */
-				ret = -EINTR;
-				goto out_nolock;
-			}
-		  pipe->waitingReaders--;
-		  if (ret != 0)
-			  goto out_locked;
-	  }
+		/* Wait until pipe is no more empty or no writer exists */
+		pipe->waitingReaders++;
+		PIPE_UNLOCK (pipe);
+		if (!PIPE_READWAIT (pipe))
+			ret = -EINTR;
+		if (!PIPE_LOCK (pipe))
+		{
+			/* WARN waitingReaders not restored! */
+			ret = -EINTR;
+			goto out_nolock;
+		}
+		pipe->waitingReaders--;
+		if (ret != 0)
+			goto out_locked;
+	}
 
 	/* Read chunk bytes */
 	chunk = MIN (count - read, pipe->Length);
 	chunk1 = pipe->Size - pipe->Start;
 	if (chunk > chunk1)
-	  {
-		  memcpy (buffer + read, pipe->Buffer + pipe->Start, chunk1);
-		  memcpy (buffer + read + chunk1, pipe->Buffer, chunk - chunk1);
-	  }
+	{
+		memcpy (buffer + read, pipe->Buffer + pipe->Start, chunk1);
+		memcpy (buffer + read + chunk1, pipe->Buffer, chunk - chunk1);
+	}
 	else
 		memcpy (buffer + read, pipe->Buffer + pipe->Start, chunk);
 
@@ -434,66 +434,66 @@ ssize_t pipe_write (pipe_control_t * pipe,
 		return -EINTR;
 
 	if (pipe->Readers == 0)
-	  {
-		  ret = -EPIPE;
-		  goto out_locked;
-	  }
+	{
+		ret = -EPIPE;
+		goto out_locked;
+	}
 
 	/* Write of PIPE_BUF bytes or less shall not be interleaved */
 	chunk = count <= pipe->Size ? count : 1;
 
 	while (written < count)
-	  {
-		  while (PIPE_SPACE (pipe) < chunk)
+	{
+		while (PIPE_SPACE (pipe) < chunk)
+		{
+			if (LIBIO_NODELAY (iop))
 			{
-				if (LIBIO_NODELAY (iop))
-				  {
-					  ret = -EAGAIN;
-					  goto out_locked;
-				  }
-
-				/* Wait until there is chunk bytes space or no reader exists */
-				pipe->waitingWriters++;
-				PIPE_UNLOCK (pipe);
-				if (!PIPE_WRITEWAIT (pipe))
-					ret = -EINTR;
-				if (!PIPE_LOCK (pipe))
-				  {
-					  /* WARN waitingWriters not restored! */
-					  ret = -EINTR;
-					  goto out_nolock;
-				  }
-				pipe->waitingWriters--;
-				if (ret != 0)
-					goto out_locked;
-
-				if (pipe->Readers == 0)
-				  {
-					  ret = -EPIPE;
-					  goto out_locked;
-				  }
+				ret = -EAGAIN;
+				goto out_locked;
 			}
 
-		  chunk = MIN (count - written, PIPE_SPACE (pipe));
-		  chunk1 = pipe->Size - PIPE_WSTART (pipe);
-		  if (chunk > chunk1)
+			/* Wait until there is chunk bytes space or no reader exists */
+			pipe->waitingWriters++;
+			PIPE_UNLOCK (pipe);
+			if (!PIPE_WRITEWAIT (pipe))
+				ret = -EINTR;
+			if (!PIPE_LOCK (pipe))
 			{
-				memcpy (pipe->Buffer + PIPE_WSTART (pipe), buffer + written,
-						chunk1);
-				memcpy (pipe->Buffer, buffer + written + chunk1,
-						chunk - chunk1);
+				/* WARN waitingWriters not restored! */
+				ret = -EINTR;
+				goto out_nolock;
 			}
-		  else
-			  memcpy (pipe->Buffer + PIPE_WSTART (pipe), buffer + written,
-					  chunk);
+			pipe->waitingWriters--;
+			if (ret != 0)
+				goto out_locked;
 
-		  pipe->Length += chunk;
-		  if (pipe->waitingReaders > 0)
-			  PIPE_WAKEUPREADERS (pipe);
-		  written += chunk;
-		  /* Write of more than PIPE_BUF bytes can be interleaved */
-		  chunk = 1;
-	  }
+			if (pipe->Readers == 0)
+			{
+				ret = -EPIPE;
+				goto out_locked;
+			}
+		}
+
+		chunk = MIN (count - written, PIPE_SPACE (pipe));
+		chunk1 = pipe->Size - PIPE_WSTART (pipe);
+		if (chunk > chunk1)
+		{
+			memcpy (pipe->Buffer + PIPE_WSTART (pipe), buffer + written,
+					chunk1);
+			memcpy (pipe->Buffer, buffer + written + chunk1,
+					chunk - chunk1);
+		}
+		else
+			memcpy (pipe->Buffer + PIPE_WSTART (pipe), buffer + written,
+					chunk);
+
+		pipe->Length += chunk;
+		if (pipe->waitingReaders > 0)
+			PIPE_WAKEUPREADERS (pipe);
+		written += chunk;
+		/* Write of more than PIPE_BUF bytes can be interleaved */
+		chunk = 1;
+	}
 
   out_locked:
 	PIPE_UNLOCK (pipe);
@@ -514,18 +514,18 @@ int pipe_ioctl (pipe_control_t * pipe,
 				ioctl_command_t cmd, void *buffer, rtems_libio_t * iop)
 {
 	if (cmd == FIONREAD)
-	  {
-		  if (buffer == NULL)
-			  return -EFAULT;
+	{
+		if (buffer == NULL)
+			return -EFAULT;
 
-		  if (!PIPE_LOCK (pipe))
-			  return -EINTR;
+		if (!PIPE_LOCK (pipe))
+			return -EINTR;
 
-		  /* Return length of pipe */
-		  *(unsigned int *)buffer = pipe->Length;
-		  PIPE_UNLOCK (pipe);
-		  return 0;
-	  }
+		/* Return length of pipe */
+		*(unsigned int *)buffer = pipe->Length;
+		PIPE_UNLOCK (pipe);
+		return 0;
+	}
 
 	return -EINVAL;
 }

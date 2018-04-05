@@ -23,9 +23,9 @@
 #include <rtems/score/schedulerpriorityimpl.h>
 
 Scheduler_Void_or_thread _Scheduler_priority_Unblock (const Scheduler_Control *
-													  scheduler,
-													  Thread_Control *
-													  the_thread)
+													scheduler,
+													Thread_Control *
+													the_thread)
 {
 	Scheduler_priority_Context *context =
 		_Scheduler_priority_Get_context (scheduler);
@@ -51,11 +51,11 @@ Scheduler_Void_or_thread _Scheduler_priority_Unblock (const Scheduler_Control *
 	 *    a pseudo-ISR system task, we need to do a context switch.
 	 */
 	if (the_thread->current_priority < _Thread_Heir->current_priority)
-	  {
-		  _Scheduler_Update_heir (the_thread,
-								  the_thread->current_priority ==
-								  PRIORITY_PSEUDO_ISR);
-	  }
+	{
+		_Scheduler_Update_heir (the_thread,
+								the_thread->current_priority ==
+								PRIORITY_PSEUDO_ISR);
+	}
 
 	SCHEDULER_RETURN_VOID_OR_NULL;
 }

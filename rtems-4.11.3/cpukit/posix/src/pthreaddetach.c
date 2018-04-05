@@ -35,22 +35,22 @@ int pthread_detach (pthread_t thread)
 
 	the_thread = _Thread_Get (thread, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  api = the_thread->API_Extensions[THREAD_API_POSIX];
-			  api->detachstate = PTHREAD_CREATE_DETACHED;
-			  api->Attributes.detachstate = PTHREAD_CREATE_DETACHED;
-			  _Objects_Put (&the_thread->Object);
-			  return 0;
+			api = the_thread->API_Extensions[THREAD_API_POSIX];
+			api->detachstate = PTHREAD_CREATE_DETACHED;
+			api->Attributes.detachstate = PTHREAD_CREATE_DETACHED;
+			_Objects_Put (&the_thread->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 }

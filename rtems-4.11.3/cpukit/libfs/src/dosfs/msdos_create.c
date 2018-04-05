@@ -57,9 +57,9 @@
  */
 int
 msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
-				  fat_file_type_t type,
-				  const char *name,
-				  int name_len, mode_t mode, const fat_file_fd_t * link_fd)
+				fat_file_type_t type,
+				const char *name,
+				int name_len, mode_t mode, const fat_file_fd_t * link_fd)
 {
 	int rc = RC_OK;
 	ssize_t ret = 0;
@@ -83,18 +83,18 @@ msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
 	memset (dot_dotdot, 0, MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE * 2);
 
 	if (name_len > MSDOS_NAME_MAX_LFN_WITH_DOT)
-	  {
-		  rtems_set_errno_and_return_minus_one (ENAMETOOLONG);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ENAMETOOLONG);
+	}
 
 	name_type = msdos_long_to_short (fs_info->converter,
 									 name, name_len,
 									 MSDOS_DIR_NAME (short_node),
 									 MSDOS_NAME_MAX);
 	if (name_type == MSDOS_NAME_INVALID)
-	  {
-		  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	/* fill reserved field */
 	*MSDOS_DIR_NT_RES (short_node) = MSDOS_RES_NT_VALUE;
@@ -114,65 +114,65 @@ msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
 	*MSDOS_DIR_FILE_SIZE (short_node) = MSDOS_INIT_DIR_SIZE;
 
 	if (type == FAT_DIRECTORY)
-	  {
-		  *MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_DIRECTORY;
-	  }
+	{
+		*MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_DIRECTORY;
+	}
 	else if (type == FAT_HARD_LINK)
-	  {
-		  /*
-		   * when we establish a (temporary) hard link,
-		   * we must copy some information from the original
-		   * node to the newly created
-		   */
-		  /*
-		   * read the original directory entry
-		   */
-		  sec = fat_cluster_num_to_sector_num (&fs_info->fat,
-											   link_fd->dir_pos.sname.cln);
-		  sec += (link_fd->dir_pos.sname.ofs >> fs_info->fat.vol.sec_log2);
-		  byte = (link_fd->dir_pos.sname.ofs & (fs_info->fat.vol.bps - 1));
+	{
+		/*
+		 * when we establish a (temporary) hard link,
+		 * we must copy some information from the original
+		 * node to the newly created
+		 */
+		/*
+		 * read the original directory entry
+		 */
+		sec = fat_cluster_num_to_sector_num (&fs_info->fat,
+											 link_fd->dir_pos.sname.cln);
+		sec += (link_fd->dir_pos.sname.ofs >> fs_info->fat.vol.sec_log2);
+		byte = (link_fd->dir_pos.sname.ofs & (fs_info->fat.vol.bps - 1));
 
-		  ret = _fat_block_read (&fs_info->fat,
+		ret = _fat_block_read (&fs_info->fat,
 								 sec, byte, MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE,
 								 link_node);
-		  if (ret < 0)
-			{
-				return -1;
-			}
-		  /*
-		   * copy various attributes
-		   */
-		  *MSDOS_DIR_ATTR (short_node) = *MSDOS_DIR_ATTR (link_node);
-		  *MSDOS_DIR_CRT_TIME_TENTH (short_node) =
-			  *MSDOS_DIR_CRT_TIME_TENTH (link_node);
-		  *MSDOS_DIR_CRT_TIME (short_node) = *MSDOS_DIR_CRT_TIME (link_node);
-		  *MSDOS_DIR_CRT_DATE (short_node) = *MSDOS_DIR_CRT_DATE (link_node);
+		if (ret < 0)
+		{
+			return -1;
+		}
+		/*
+		 * copy various attributes
+		 */
+		*MSDOS_DIR_ATTR (short_node) = *MSDOS_DIR_ATTR (link_node);
+		*MSDOS_DIR_CRT_TIME_TENTH (short_node) =
+			*MSDOS_DIR_CRT_TIME_TENTH (link_node);
+		*MSDOS_DIR_CRT_TIME (short_node) = *MSDOS_DIR_CRT_TIME (link_node);
+		*MSDOS_DIR_CRT_DATE (short_node) = *MSDOS_DIR_CRT_DATE (link_node);
 
-		  /*
-		   * copy/set "file size", "first cluster"
-		   */
-		  *MSDOS_DIR_FILE_SIZE (short_node) = *MSDOS_DIR_FILE_SIZE (link_node);
+		/*
+		 * copy/set "file size", "first cluster"
+		 */
+		*MSDOS_DIR_FILE_SIZE (short_node) = *MSDOS_DIR_FILE_SIZE (link_node);
 
-		  *MSDOS_DIR_FIRST_CLUSTER_LOW (short_node) =
-			  *MSDOS_DIR_FIRST_CLUSTER_LOW (link_node);
-		  *MSDOS_DIR_FIRST_CLUSTER_HI (short_node) =
-			  *MSDOS_DIR_FIRST_CLUSTER_HI (link_node);
-		  /*
-		   * set "archive bit" due to changes
-		   */
-		  *MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_ARCHIVE;
-	  }
+		*MSDOS_DIR_FIRST_CLUSTER_LOW (short_node) =
+			*MSDOS_DIR_FIRST_CLUSTER_LOW (link_node);
+		*MSDOS_DIR_FIRST_CLUSTER_HI (short_node) =
+			*MSDOS_DIR_FIRST_CLUSTER_HI (link_node);
+		/*
+		 * set "archive bit" due to changes
+		 */
+		*MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_ARCHIVE;
+	}
 	else
-	  {							/* regular file... */
-		  *MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_ARCHIVE;
-	  }
+	{							/* regular file... */
+		*MSDOS_DIR_ATTR (short_node) |= MSDOS_ATTR_ARCHIVE;
+	}
 
 	/*
 	 * find free space in the parent directory and write new initialized
 	 * FAT 32 Bytes Directory Entry Structure to the disk
 	 */
 	rc = msdos_get_name_node (parent_loc, true, name, name_len,
-							  name_type, &dir_pos, short_node);
+							name_type, &dir_pos, short_node);
 	if (rc != RC_OK)
 		return rc;
 
@@ -181,87 +181,87 @@ msdos_creat_node (const rtems_filesystem_location_info_t * parent_loc,
 	 * to do
 	 */
 	if (type == FAT_DIRECTORY)
-	  {
-		  uint32_t unused;
+	{
+		uint32_t unused;
 
-		  /* open new directory as fat-file */
-		  rc = fat_file_open (&fs_info->fat, &dir_pos, &fat_fd);
-		  if (rc != RC_OK)
-			  goto err;
+		/* open new directory as fat-file */
+		rc = fat_file_open (&fs_info->fat, &dir_pos, &fat_fd);
+		if (rc != RC_OK)
+			goto err;
 
-		  /*
-		   * we opened fat-file for node we just created, so initialize fat-file
-		   * descritor
-		   */
-		  fat_fd->fat_file_type = FAT_DIRECTORY;
-		  fat_fd->size_limit = MSDOS_MAX_DIR_LENGHT;
-		  fat_file_set_ctime_mtime (fat_fd, now);
+		/*
+		 * we opened fat-file for node we just created, so initialize fat-file
+		 * descritor
+		 */
+		fat_fd->fat_file_type = FAT_DIRECTORY;
+		fat_fd->size_limit = MSDOS_MAX_DIR_LENGHT;
+		fat_file_set_ctime_mtime (fat_fd, now);
 
-		  /* extend it to contain exactly one cluster */
-		  rc = fat_file_extend (&fs_info->fat,
+		/* extend it to contain exactly one cluster */
+		rc = fat_file_extend (&fs_info->fat,
 								fat_fd, true, fs_info->fat.vol.bpc, &unused);
-		  if (rc != RC_OK)
-			  goto err;
+		if (rc != RC_OK)
+			goto err;
 
-		  /*
-		   * dot and dotdot entries are identical to new node except the
-		   * names
-		   */
-		  memcpy (DOT_NODE_P (dot_dotdot), short_node,
-				  MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE);
-		  memcpy (DOTDOT_NODE_P (dot_dotdot), short_node,
-				  MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE);
-		  memcpy (MSDOS_DIR_NAME (DOT_NODE_P (dot_dotdot)), MSDOS_DOT_NAME,
-				  MSDOS_NAME_MAX);
-		  memcpy (MSDOS_DIR_NAME (DOTDOT_NODE_P (dot_dotdot)),
-				  MSDOS_DOTDOT_NAME, MSDOS_NAME_MAX);
+		/*
+		 * dot and dotdot entries are identical to new node except the
+		 * names
+		 */
+		memcpy (DOT_NODE_P (dot_dotdot), short_node,
+				MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE);
+		memcpy (DOTDOT_NODE_P (dot_dotdot), short_node,
+				MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE);
+		memcpy (MSDOS_DIR_NAME (DOT_NODE_P (dot_dotdot)), MSDOS_DOT_NAME,
+				MSDOS_NAME_MAX);
+		memcpy (MSDOS_DIR_NAME (DOTDOT_NODE_P (dot_dotdot)),
+				MSDOS_DOTDOT_NAME, MSDOS_NAME_MAX);
 
-		  /* set up cluster num for dotdot entry */
-		  /*
-		   * here we can ommit FAT32 condition because for all FAT types dirs
-		   * right under root dir should contain 0 in dotdot entry but for
-		   * FAT12/16 parent_fat_fd->cluster_num always contains such value
-		   */
-		  if ((FAT_FD_OF_ROOT_DIR (parent_fat_fd)) &&
-			  (fs_info->fat.vol.type & FAT_FAT32))
-			{
-				*MSDOS_DIR_FIRST_CLUSTER_LOW (DOTDOT_NODE_P (dot_dotdot)) =
-					0x0000;
-				*MSDOS_DIR_FIRST_CLUSTER_HI (DOTDOT_NODE_P (dot_dotdot)) =
-					0x0000;
-			}
-		  else
-			{
-				*MSDOS_DIR_FIRST_CLUSTER_LOW (DOTDOT_NODE_P (dot_dotdot)) =
-					CT_LE_W ((uint16_t) ((parent_fat_fd->cln) & 0x0000FFFF));
-				*MSDOS_DIR_FIRST_CLUSTER_HI (DOTDOT_NODE_P (dot_dotdot)) =
-					CT_LE_W ((uint16_t)
-							 (((parent_fat_fd->cln) & 0xFFFF0000) >> 16));
-			}
+		/* set up cluster num for dotdot entry */
+		/*
+		 * here we can ommit FAT32 condition because for all FAT types dirs
+		 * right under root dir should contain 0 in dotdot entry but for
+		 * FAT12/16 parent_fat_fd->cluster_num always contains such value
+		 */
+		if ((FAT_FD_OF_ROOT_DIR (parent_fat_fd)) &&
+			(fs_info->fat.vol.type & FAT_FAT32))
+		{
+			*MSDOS_DIR_FIRST_CLUSTER_LOW (DOTDOT_NODE_P (dot_dotdot)) =
+				0x0000;
+			*MSDOS_DIR_FIRST_CLUSTER_HI (DOTDOT_NODE_P (dot_dotdot)) =
+				0x0000;
+		}
+		else
+		{
+			*MSDOS_DIR_FIRST_CLUSTER_LOW (DOTDOT_NODE_P (dot_dotdot)) =
+				CT_LE_W ((uint16_t) ((parent_fat_fd->cln) & 0x0000FFFF));
+			*MSDOS_DIR_FIRST_CLUSTER_HI (DOTDOT_NODE_P (dot_dotdot)) =
+				CT_LE_W ((uint16_t)
+						 (((parent_fat_fd->cln) & 0xFFFF0000) >> 16));
+		}
 
-		  /* set up cluster num for dot entry */
-		  *MSDOS_DIR_FIRST_CLUSTER_LOW (DOT_NODE_P (dot_dotdot)) =
-			  CT_LE_W ((uint16_t) ((fat_fd->cln) & 0x0000FFFF));
-		  *MSDOS_DIR_FIRST_CLUSTER_HI (DOT_NODE_P (dot_dotdot)) =
-			  CT_LE_W ((uint16_t) (((fat_fd->cln) & 0xFFFF0000) >> 16));
+		/* set up cluster num for dot entry */
+		*MSDOS_DIR_FIRST_CLUSTER_LOW (DOT_NODE_P (dot_dotdot)) =
+			CT_LE_W ((uint16_t) ((fat_fd->cln) & 0x0000FFFF));
+		*MSDOS_DIR_FIRST_CLUSTER_HI (DOT_NODE_P (dot_dotdot)) =
+			CT_LE_W ((uint16_t) (((fat_fd->cln) & 0xFFFF0000) >> 16));
 
-		  /* write dot and dotdot entries */
-		  ret = fat_file_write (&fs_info->fat, fat_fd, 0,
+		/* write dot and dotdot entries */
+		ret = fat_file_write (&fs_info->fat, fat_fd, 0,
 								MSDOS_DIRECTORY_ENTRY_STRUCT_SIZE * 2,
 								(uint8_t *) dot_dotdot);
-		  if (ret < 0)
-			{
-				rc = -1;
-				goto error;
-			}
+		if (ret < 0)
+		{
+			rc = -1;
+			goto error;
+		}
 
-		  /* write first cluster num of a new directory to disk */
-		  rc = fat_file_write_first_cluster_num (&fs_info->fat, fat_fd);
-		  if (rc != RC_OK)
-			  goto error;
+		/* write first cluster num of a new directory to disk */
+		rc = fat_file_write_first_cluster_num (&fs_info->fat, fat_fd);
+		if (rc != RC_OK)
+			goto error;
 
-		  fat_file_close (&fs_info->fat, fat_fd);
-	  }
+		fat_file_close (&fs_info->fat, fat_fd);
+	}
 	return RC_OK;
 
   error:

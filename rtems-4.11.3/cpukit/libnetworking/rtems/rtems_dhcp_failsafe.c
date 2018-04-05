@@ -106,28 +106,28 @@ static int remove_address (const char *if_name)
 	if (rtems_bsdnet_rtrequest (RTM_DELETE, (struct sockaddr *)&address, NULL,
 								(struct sockaddr *)&address,
 								(RTF_UP | RTF_STATIC), NULL) < 0)
-	  {
-		  printf ("Failed to delete default route: %s (%d)\n", strerror (errno),
-				  errno);
-		  retval = -1;
-	  }
+	{
+		printf ("Failed to delete default route: %s (%d)\n", strerror (errno),
+				errno);
+		retval = -1;
+	}
 
 	/* Remove old ip-address */
 	if (rtems_bsdnet_ifconfig (if_name, SIOCGIFADDR, &address) < 0)
-	  {
-		  printf ("Failed to get if address: %s (%d)\n", strerror (errno),
-				  errno);
-		  return -1;
-	  }
+	{
+		printf ("Failed to get if address: %s (%d)\n", strerror (errno),
+				errno);
+		return -1;
+	}
 
 	strncpy (ifra.ifra_name, if_name, IFNAMSIZ);
 	memcpy (&ifra.ifra_addr, &address, sizeof (address));
 	if (rtems_bsdnet_ifconfig (if_name, SIOCDIFADDR, &ifra))
-	  {
-		  printf ("Can't delete if address: %s (%d)\n", strerror (errno),
-				  errno);
-		  return -1;
-	  }
+	{
+		printf ("Can't delete if address: %s (%d)\n", strerror (errno),
+				errno);
+		return -1;
+	}
 
 	return retval;
 }
@@ -136,19 +136,19 @@ static int dhcp_if_down (const char *ifname)
 {
 	int16_t flags;
 	if (rtems_bsdnet_ifconfig (ifname, SIOCGIFFLAGS, &flags) < 0)
-	  {
-		  printf ("Can't get flags for %s: %s\n", ifname, strerror (errno));
-		  return -1;
-	  }
+	{
+		printf ("Can't get flags for %s: %s\n", ifname, strerror (errno));
+		return -1;
+	}
 	if (flags & IFF_UP)
-	  {
-		  flags &= ~IFF_UP;
-		  if (rtems_bsdnet_ifconfig (ifname, SIOCSIFFLAGS, &flags) < 0)
-			{
-				printf ("Can't bring %s down: %s\n", ifname, strerror (errno));
-				return -1;
-			}
-	  }
+	{
+		flags &= ~IFF_UP;
+		if (rtems_bsdnet_ifconfig (ifname, SIOCSIFFLAGS, &flags) < 0)
+		{
+			printf ("Can't bring %s down: %s\n", ifname, strerror (errno));
+			return -1;
+		}
+	}
 
 	return 0;
 }
@@ -157,19 +157,19 @@ static int dhcp_if_up (const char *ifname)
 {
 	int16_t flags;
 	if (rtems_bsdnet_ifconfig (ifname, SIOCGIFFLAGS, &flags) < 0)
-	  {
-		  printf ("Can't get flags for %s: %s\n", ifname, strerror (errno));
-		  return -1;
-	  }
+	{
+		printf ("Can't get flags for %s: %s\n", ifname, strerror (errno));
+		return -1;
+	}
 	if (!(flags & IFF_UP))
-	  {
-		  flags |= IFF_UP;
-		  if (rtems_bsdnet_ifconfig (ifname, SIOCSIFFLAGS, &flags) < 0)
-			{
-				printf ("Can't bring %s up: %s\n", ifname, strerror (errno));
-				return -1;
-			}
-	  }
+	{
+		flags |= IFF_UP;
+		if (rtems_bsdnet_ifconfig (ifname, SIOCSIFFLAGS, &flags) < 0)
+		{
+			printf ("Can't bring %s up: %s\n", ifname, strerror (errno));
+			return -1;
+		}
+	}
 
 	return 0;
 }
@@ -183,99 +183,99 @@ static int set_static_address (struct rtems_bsdnet_ifconfig *ifp)
 	struct sockaddr_in gateway;
 
 	if (ifp->ip_address != NULL)
-	  {
-		  printf ("Setting static address for interface %s.\n", ifp->name);
+	{
+		printf ("Setting static address for interface %s.\n", ifp->name);
 
-		  /*
-		   * Bring interface up
-		   */
-		  if (dhcp_if_up (ifp->name) < 0)
-			  return -1;
+		/*
+		 * Bring interface up
+		 */
+		if (dhcp_if_up (ifp->name) < 0)
+			return -1;
 
-		  /*
-		   * Set interface netmask
-		   */
-		  memset (&netmask, '\0', sizeof netmask);
-		  netmask.sin_len = sizeof netmask;
-		  netmask.sin_family = AF_INET;
-		  netmask.sin_addr.s_addr = inet_addr (ifp->ip_netmask);
-		  if (rtems_bsdnet_ifconfig (ifp->name, SIOCSIFNETMASK, &netmask) < 0)
+		/*
+		 * Set interface netmask
+		 */
+		memset (&netmask, '\0', sizeof netmask);
+		netmask.sin_len = sizeof netmask;
+		netmask.sin_family = AF_INET;
+		netmask.sin_addr.s_addr = inet_addr (ifp->ip_netmask);
+		if (rtems_bsdnet_ifconfig (ifp->name, SIOCSIFNETMASK, &netmask) < 0)
+		{
+			printf ("Can't set %s netmask: %s\n", ifp->name,
+					strerror (errno));
+			return -1;
+		}
+
+		/*
+		 * Set interface address
+		 */
+		memset (&address, '\0', sizeof address);
+		address.sin_len = sizeof address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = inet_addr (ifp->ip_address);
+		if (rtems_bsdnet_ifconfig (ifp->name, SIOCSIFADDR, &address) < 0)
+		{
+			printf ("Can't set %s address: %s\n", ifp->name,
+					strerror (errno));
+			return -1;
+		}
+
+		/*
+		 * Set interface broadcast address if the interface has the
+		 * broadcast flag set.
+		 */
+		if (rtems_bsdnet_ifconfig (ifp->name, SIOCGIFFLAGS, &flags) < 0)
+		{
+			printf ("Can't read %s flags: %s\n", ifp->name,
+					strerror (errno));
+			return -1;
+		}
+		if (flags & IFF_BROADCAST)
+		{
+			memset (&broadcast, '\0', sizeof broadcast);
+			broadcast.sin_len = sizeof broadcast;
+			broadcast.sin_family = AF_INET;
+			broadcast.sin_addr.s_addr =
+				address.sin_addr.s_addr | ~netmask.sin_addr.s_addr;
+
+			if (rtems_bsdnet_ifconfig
+				(ifp->name, SIOCSIFBRDADDR, &broadcast) < 0)
 			{
-				printf ("Can't set %s netmask: %s\n", ifp->name,
-						strerror (errno));
-				return -1;
-			}
+				struct in_addr in_addr;
+				char buf[20];
 
-		  /*
-		   * Set interface address
-		   */
-		  memset (&address, '\0', sizeof address);
-		  address.sin_len = sizeof address;
-		  address.sin_family = AF_INET;
-		  address.sin_addr.s_addr = inet_addr (ifp->ip_address);
-		  if (rtems_bsdnet_ifconfig (ifp->name, SIOCSIFADDR, &address) < 0)
-			{
-				printf ("Can't set %s address: %s\n", ifp->name,
-						strerror (errno));
-				return -1;
+				in_addr.s_addr = broadcast.sin_addr.s_addr;
+				if (!inet_ntop (AF_INET, &in_addr, buf, sizeof (buf)))
+					strcpy (buf, "?.?.?.?");
+				printf ("Can't set %s broadcast address %s: %s\n",
+						ifp->name, buf, strerror (errno));
 			}
-
-		  /*
-		   * Set interface broadcast address if the interface has the
-		   * broadcast flag set.
-		   */
-		  if (rtems_bsdnet_ifconfig (ifp->name, SIOCGIFFLAGS, &flags) < 0)
-			{
-				printf ("Can't read %s flags: %s\n", ifp->name,
-						strerror (errno));
-				return -1;
-			}
-		  if (flags & IFF_BROADCAST)
-			{
-				memset (&broadcast, '\0', sizeof broadcast);
-				broadcast.sin_len = sizeof broadcast;
-				broadcast.sin_family = AF_INET;
-				broadcast.sin_addr.s_addr =
-					address.sin_addr.s_addr | ~netmask.sin_addr.s_addr;
-
-				if (rtems_bsdnet_ifconfig
-					(ifp->name, SIOCSIFBRDADDR, &broadcast) < 0)
-				  {
-					  struct in_addr in_addr;
-					  char buf[20];
-
-					  in_addr.s_addr = broadcast.sin_addr.s_addr;
-					  if (!inet_ntop (AF_INET, &in_addr, buf, sizeof (buf)))
-						  strcpy (buf, "?.?.?.?");
-					  printf ("Can't set %s broadcast address %s: %s\n",
-							  ifp->name, buf, strerror (errno));
-				  }
-			}
-	  }
+		}
+	}
 
 	/*
 	 * Set default route
 	 */
 	if (rtems_bsdnet_config.gateway)
-	  {
-		  address.sin_addr.s_addr = INADDR_ANY;
-		  netmask.sin_addr.s_addr = INADDR_ANY;
-		  memset (&gateway, '\0', sizeof gateway);
-		  gateway.sin_len = sizeof gateway;
-		  gateway.sin_family = AF_INET;
-		  gateway.sin_addr.s_addr = inet_addr (rtems_bsdnet_config.gateway);
+	{
+		address.sin_addr.s_addr = INADDR_ANY;
+		netmask.sin_addr.s_addr = INADDR_ANY;
+		memset (&gateway, '\0', sizeof gateway);
+		gateway.sin_len = sizeof gateway;
+		gateway.sin_family = AF_INET;
+		gateway.sin_addr.s_addr = inet_addr (rtems_bsdnet_config.gateway);
 
-		  if (rtems_bsdnet_rtrequest (RTM_ADD,
-									  (struct sockaddr *)&address,
-									  (struct sockaddr *)&gateway,
-									  (struct sockaddr *)&netmask,
-									  (RTF_UP | RTF_GATEWAY | RTF_STATIC),
-									  NULL) < 0)
-			{
-				printf ("Can't set default route: %s\n", strerror (errno));
-				return -1;
-			}
-	  }
+		if (rtems_bsdnet_rtrequest (RTM_ADD,
+									(struct sockaddr *)&address,
+									(struct sockaddr *)&gateway,
+									(struct sockaddr *)&netmask,
+									(RTF_UP | RTF_GATEWAY | RTF_STATIC),
+									NULL) < 0)
+		{
+			printf ("Can't set default route: %s\n", strerror (errno));
+			return -1;
+		}
+	}
 
 	return 0;
 }
@@ -283,20 +283,20 @@ static int set_static_address (struct rtems_bsdnet_ifconfig *ifp)
 static void do_dhcp_init (struct rtems_bsdnet_ifconfig *ifp)
 {
 	if (broadcast_delay)
-	  {
-		  /* Wait before sending broadcast. */
-		  rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS
+	{
+		/* Wait before sending broadcast. */
+		rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS
 								 (broadcast_delay * 1000));
-	  }
+	}
 
 	printf ("starting dhcp client...\n");
 
 	remove_address (ifp->name);
 	if (rtems_bsdnet_do_dhcp_timeout () != 0)
-	  {
-		  remove_address (ifp->name);
-		  set_static_address (ifp);	/* use static ip-address if dhcp failed */
-	  }
+	{
+		remove_address (ifp->name);
+		set_static_address (ifp);	/* use static ip-address if dhcp failed */
+	}
 
 }
 
@@ -312,45 +312,45 @@ static void dhcp_monitor_task (rtems_task_argument ifp_arg)
 	int must_renew = FALSE;
 
 	while (TRUE)
-	  {
-		  if (rtems_bsdnet_ifconfig (ifname, SIOCGIFFLAGS, &ifflags) < 0)
-			{
-				printf ("Failed to get if flags: %s (%d)\n", strerror (errno),
-						errno);
-				goto error_out;
-			}
+	{
+		if (rtems_bsdnet_ifconfig (ifname, SIOCGIFFLAGS, &ifflags) < 0)
+		{
+			printf ("Failed to get if flags: %s (%d)\n", strerror (errno),
+					errno);
+			goto error_out;
+		}
 
-		  if ((ifflags & IFF_RUNNING) != 0)
+		if ((ifflags & IFF_RUNNING) != 0)
+		{
+			if (must_renew)
 			{
-				if (must_renew)
-				  {
-					  must_renew = FALSE;
-					  do_dhcp_init (ifp);
-				  }
-				downcount = 0;
+				must_renew = FALSE;
+				do_dhcp_init (ifp);
 			}
-		  else
+			downcount = 0;
+		}
+		else
+		{
+			if (downcount < network_fail_timeout)
 			{
-				if (downcount < network_fail_timeout)
-				  {
-					  downcount++;
+				downcount++;
 
-					  if (downcount == network_fail_timeout)
-						{
-							printf ("lost network connection...\n");
-							rtems_bsdnet_dhcp_down ();
-							must_renew = TRUE;
-							dhcp_if_down (ifname);
-							rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS
-												   (network_down_time * 1000));
-							dhcp_if_up (ifname);
-							downcount = 0;
-						}
-				  }
+				if (downcount == network_fail_timeout)
+				{
+					printf ("lost network connection...\n");
+					rtems_bsdnet_dhcp_down ();
+					must_renew = TRUE;
+					dhcp_if_down (ifname);
+					rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS
+										 (network_down_time * 1000));
+					dhcp_if_up (ifname);
+					downcount = 0;
+				}
 			}
+		}
 
-		  rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (1000));
-	  }
+		rtems_task_wake_after (RTEMS_MILLISECONDS_TO_TICKS (1000));
+	}
 
   error_out:
 	printf ("Stopping dhcp monitoring application.\n");
@@ -370,42 +370,42 @@ void rtems_bsdnet_do_dhcp_failsafe (void)
 
 	/* Find a suitable interface */
 	for (ifp = rtems_bsdnet_config.ifconfig; ifp; ifp = ifp->next)
-	  {
-		  if (rtems_bsdnet_ifconfig (ifp->name, SIOCGIFFLAGS, &ifflags) < 0)
-			  continue;
-		  if ((ifflags & (IFF_LOOPBACK | IFF_POINTOPOINT)) == 0)
-			  break;
-	  }
+	{
+		if (rtems_bsdnet_ifconfig (ifp->name, SIOCGIFFLAGS, &ifflags) < 0)
+			continue;
+		if ((ifflags & (IFF_LOOPBACK | IFF_POINTOPOINT)) == 0)
+			break;
+	}
 	if (ifp == NULL)
-	  {
-		  printf ("dhcpc_failsafe: no suitable interface\n");
-		  return;
-	  }
+	{
+		printf ("dhcpc_failsafe: no suitable interface\n");
+		return;
+	}
 	printf ("starting dhcp on interface %s\n", ifp->name);
 	do_dhcp_init (ifp);
 
 	if (network_fail_timeout)
-	  {
-		  sc = rtems_task_create (rtems_build_name ('d', 'h', 'c', 'm'),
-								  dhcp_monitor_priority,
-								  2048,
-								  RTEMS_PREEMPT |
-								  RTEMS_NO_TIMESLICE |
-								  RTEMS_NO_ASR |
-								  RTEMS_INTERRUPT_LEVEL (0), RTEMS_LOCAL, &id);
+	{
+		sc = rtems_task_create (rtems_build_name ('d', 'h', 'c', 'm'),
+								dhcp_monitor_priority,
+								2048,
+								RTEMS_PREEMPT |
+								RTEMS_NO_TIMESLICE |
+								RTEMS_NO_ASR |
+								RTEMS_INTERRUPT_LEVEL (0), RTEMS_LOCAL, &id);
 
-		  if (sc != RTEMS_SUCCESSFUL)
-			{
-				printf ("Failed to create dhcp monitor task, code %d\n", sc);
-				return;
-			}
+		if (sc != RTEMS_SUCCESSFUL)
+		{
+			printf ("Failed to create dhcp monitor task, code %d\n", sc);
+			return;
+		}
 
-		  sc = rtems_task_start (id, dhcp_monitor_task,
+		sc = rtems_task_start (id, dhcp_monitor_task,
 								 (rtems_task_argument) ifp);
 
-		  if (sc != RTEMS_SUCCESSFUL)
-			{
-				printf ("Failed to start dhcp monitor task, code %d\n", sc);
-			}
-	  }
+		if (sc != RTEMS_SUCCESSFUL)
+		{
+			printf ("Failed to start dhcp monitor task, code %d\n", sc);
+		}
+	}
 }

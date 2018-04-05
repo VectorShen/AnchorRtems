@@ -67,10 +67,10 @@ int adjtime (const struct timeval *delta, struct timeval *olddelta)
 	 * adjustment.
 	 */
 	if (olddelta)
-	  {
-		  olddelta->tv_sec = 0;
-		  olddelta->tv_usec = 0;
-	  }
+	{
+		olddelta->tv_sec = 0;
+		olddelta->tv_usec = 0;
+	}
 
 	/*
 	 * convert delta timeval to internal timestamp

@@ -32,21 +32,21 @@ void _Scheduler_CBS_Release_job (const Scheduler_Control * scheduler,
 	Priority_Control unused;
 
 	if (deadline)
-	  {
-		  /* Initializing or shifting deadline. */
-		  if (serv_info)
-			  new_priority =
-				  (_Watchdog_Ticks_since_boot +
-				   serv_info->parameters.deadline) & ~SCHEDULER_EDF_PRIO_MSB;
-		  else
-			  new_priority = (_Watchdog_Ticks_since_boot + deadline)
-				  & ~SCHEDULER_EDF_PRIO_MSB;
-	  }
+	{
+		/* Initializing or shifting deadline. */
+		if (serv_info)
+			new_priority =
+				(_Watchdog_Ticks_since_boot +
+				 serv_info->parameters.deadline) & ~SCHEDULER_EDF_PRIO_MSB;
+		else
+			new_priority = (_Watchdog_Ticks_since_boot + deadline)
+				& ~SCHEDULER_EDF_PRIO_MSB;
+	}
 	else
-	  {
-		  /* Switch back to background priority. */
-		  new_priority = the_thread->Start.initial_priority;
-	  }
+	{
+		/* Switch back to background priority. */
+		new_priority = the_thread->Start.initial_priority;
+	}
 
 	/* Budget replenishment for the next job. */
 	if (serv_info)

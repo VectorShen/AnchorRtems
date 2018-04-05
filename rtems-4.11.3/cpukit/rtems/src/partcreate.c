@@ -45,11 +45,11 @@
  */
 
 rtems_status_code rtems_partition_create (rtems_name name,
-										  void *starting_address,
-										  uint32_t length,
-										  uint32_t buffer_size,
-										  rtems_attribute attribute_set,
-										  rtems_id * id)
+										void *starting_address,
+										uint32_t length,
+										uint32_t buffer_size,
+										rtems_attribute attribute_set,
+										rtems_id * id)
 {
 	Partition_Control *the_partition;
 
@@ -78,20 +78,20 @@ rtems_status_code rtems_partition_create (rtems_name name,
 	the_partition = _Partition_Allocate ();
 
 	if (!the_partition)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_Attributes_Is_global (attribute_set) &&
 		!(_Objects_MP_Allocate_and_open (&_Partition_Information, name,
 										 the_partition->Object.id, false)))
-	  {
-		  _Partition_Free (the_partition);
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Partition_Free (the_partition);
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 #endif
 
 	the_partition->starting_address = starting_address;
@@ -101,10 +101,10 @@ rtems_status_code rtems_partition_create (rtems_name name,
 	the_partition->number_of_used_blocks = 0;
 
 	_Chain_Initialize (&the_partition->Memory, starting_address,
-					   length / buffer_size, buffer_size);
+					 length / buffer_size, buffer_size);
 
 	_Objects_Open (&_Partition_Information,
-				   &the_partition->Object, (Objects_Name) name);
+				 &the_partition->Object, (Objects_Name) name);
 
 	*id = the_partition->Object.id;
 #if defined(RTEMS_MULTIPROCESSING)

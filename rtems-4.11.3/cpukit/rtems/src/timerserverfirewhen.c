@@ -68,25 +68,25 @@ rtems_status_code rtems_timer_server_fire_when (rtems_id id,
 
 	the_timer = _Timer_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Timer_Cancel (the_timer);
-			  the_timer->the_class = TIMER_TIME_OF_DAY_ON_TASK;
-			  _Watchdog_Initialize (&the_timer->Ticker, routine, id, user_data);
-			  the_timer->Ticker.initial = seconds - _TOD_Seconds_since_epoch ();
+		case OBJECTS_LOCAL:
+			_Timer_Cancel (the_timer);
+			the_timer->the_class = TIMER_TIME_OF_DAY_ON_TASK;
+			_Watchdog_Initialize (&the_timer->Ticker, routine, id, user_data);
+			the_timer->Ticker.initial = seconds - _TOD_Seconds_since_epoch ();
 
-			  (*timer_server->schedule_operation) (timer_server, the_timer);
+			(*timer_server->schedule_operation) (timer_server, the_timer);
 
-			  _Objects_Put (&the_timer->Object);
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Put (&the_timer->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

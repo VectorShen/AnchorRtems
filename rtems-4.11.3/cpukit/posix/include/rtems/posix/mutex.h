@@ -38,15 +38,15 @@ extern "C"
 /**@{**/
 
 /*
- *  Data Structure used to manage a POSIX mutex
- */
+*  Data Structure used to manage a POSIX mutex
+*/
 
-	typedef struct
-	{
-		Objects_Control Object;
-		int process_shared;
-		CORE_mutex_Control Mutex;
-	} POSIX_Mutex_Control;
+typedef struct
+{
+	Objects_Control Object;
+	int process_shared;
+	CORE_mutex_Control Mutex;
+} POSIX_Mutex_Control;
 
 /** @} */
 

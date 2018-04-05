@@ -60,13 +60,13 @@ int inet_net_pton (af, src, dst, size)
 	 size_t size;
 {
 	switch (af)
-	  {
-		  case AF_INET:
-			  return (inet_net_pton_ipv4 (src, dst, size));
-		  default:
-			  errno = EAFNOSUPPORT;
-			  return (-1);
-	  }
+	{
+		case AF_INET:
+			return (inet_net_pton_ipv4 (src, dst, size));
+		default:
+			errno = EAFNOSUPPORT;
+			return (-1);
+	}
 }
 
 /*
@@ -97,79 +97,79 @@ static int inet_net_pton_ipv4 (src, dst, size)
 	ch = *src++;
 	if (ch == '0' && (src[0] == 'x' || src[0] == 'X')
 		&& isascii (src[1]) && isxdigit (src[1]))
-	  {
-		  /* Hexadecimal: Eat nybble string. */
-		  if (size <= 0)
-			  goto emsgsize;
-		  *dst = 0, dirty = 0;
-		  src++;				/* skip x or X. */
-		  while ((ch = *src++) != '\0' && isascii (ch) && isxdigit (ch))
-			{
-				if (isupper (ch))
-					ch = tolower (ch);
-				n = strchr (xdigits, ch) - xdigits;
-				assert (n >= 0 && n <= 15);
-				*dst |= n;
-				if (!dirty++)
-					*dst <<= 4;
-				else if (size-- > 0)
-					*++dst = 0, dirty = 0;
-				else
-					goto emsgsize;
-			}
-		  if (dirty)
-			  size--;
-	  }
+	{
+		/* Hexadecimal: Eat nybble string. */
+		if (size <= 0)
+			goto emsgsize;
+		*dst = 0, dirty = 0;
+		src++;				/* skip x or X. */
+		while ((ch = *src++) != '\0' && isascii (ch) && isxdigit (ch))
+		{
+			if (isupper (ch))
+				ch = tolower (ch);
+			n = strchr (xdigits, ch) - xdigits;
+			assert (n >= 0 && n <= 15);
+			*dst |= n;
+			if (!dirty++)
+				*dst <<= 4;
+			else if (size-- > 0)
+				*++dst = 0, dirty = 0;
+			else
+				goto emsgsize;
+		}
+		if (dirty)
+			size--;
+	}
 	else if (isascii (ch) && isdigit (ch))
-	  {
-		  /* Decimal: eat dotted digit string. */
-		  for (;;)
+	{
+		/* Decimal: eat dotted digit string. */
+		for (;;)
+		{
+			tmp = 0;
+			do
 			{
-				tmp = 0;
-				do
-				  {
-					  n = strchr (digits, ch) - digits;
-					  assert (n >= 0 && n <= 9);
-					  tmp *= 10;
-					  tmp += n;
-					  if (tmp > 255)
-						  goto enoent;
-				  }
-				while ((ch = *src++) != '\0' && isascii (ch) && isdigit (ch));
-				if (size-- <= 0)
-					goto emsgsize;
-				*dst++ = (u_char) tmp;
-				if (ch == '\0' || ch == '/')
-					break;
-				if (ch != '.')
-					goto enoent;
-				ch = *src++;
-				if (!isascii (ch) || !isdigit (ch))
+				n = strchr (digits, ch) - digits;
+				assert (n >= 0 && n <= 9);
+				tmp *= 10;
+				tmp += n;
+				if (tmp > 255)
 					goto enoent;
 			}
-	  }
+			while ((ch = *src++) != '\0' && isascii (ch) && isdigit (ch));
+			if (size-- <= 0)
+				goto emsgsize;
+			*dst++ = (u_char) tmp;
+			if (ch == '\0' || ch == '/')
+				break;
+			if (ch != '.')
+				goto enoent;
+			ch = *src++;
+			if (!isascii (ch) || !isdigit (ch))
+				goto enoent;
+		}
+	}
 	else
 		goto enoent;
 
 	bits = -1;
 	if (ch == '/' && isascii (src[0]) && isdigit (src[0]) && dst > odst)
-	  {
-		  /* CIDR width specifier.  Nothing can follow it. */
-		  ch = *src++;			/* Skip over the /. */
-		  bits = 0;
-		  do
-			{
-				n = strchr (digits, ch) - digits;
-				assert (n >= 0 && n <= 9);
-				bits *= 10;
-				bits += n;
-			}
-		  while ((ch = *src++) != '\0' && isascii (ch) && isdigit (ch));
-		  if (ch != '\0')
-			  goto enoent;
-		  if (bits > 32)
-			  goto emsgsize;
-	  }
+	{
+		/* CIDR width specifier.  Nothing can follow it. */
+		ch = *src++;			/* Skip over the /. */
+		bits = 0;
+		do
+		{
+			n = strchr (digits, ch) - digits;
+			assert (n >= 0 && n <= 9);
+			bits *= 10;
+			bits += n;
+		}
+		while ((ch = *src++) != '\0' && isascii (ch) && isdigit (ch));
+		if (ch != '\0')
+			goto enoent;
+		if (bits > 32)
+			goto emsgsize;
+	}
 
 	/* Firey death and destruction unless we prefetched EOS. */
 	if (ch != '\0')
@@ -180,28 +180,28 @@ static int inet_net_pton_ipv4 (src, dst, size)
 		goto enoent;
 	/* If no CIDR spec was given, infer width from net class. */
 	if (bits == -1)
-	  {
-		  if (*odst >= 240)		/* Class E */
-			  bits = 32;
-		  else if (*odst >= 224)	/* Class D */
-			  bits = 4;
-		  else if (*odst >= 192)	/* Class C */
-			  bits = 24;
-		  else if (*odst >= 128)	/* Class B */
-			  bits = 16;
-		  else					/* Class A */
-			  bits = 8;
-		  /* If imputed mask is narrower than specified octets, widen. */
-		  if (bits >= 8 && bits < ((dst - odst) * 8))
-			  bits = (dst - odst) * 8;
-	  }
+	{
+		if (*odst >= 240)		/* Class E */
+			bits = 32;
+		else if (*odst >= 224)	/* Class D */
+			bits = 4;
+		else if (*odst >= 192)	/* Class C */
+			bits = 24;
+		else if (*odst >= 128)	/* Class B */
+			bits = 16;
+		else					/* Class A */
+			bits = 8;
+		/* If imputed mask is narrower than specified octets, widen. */
+		if (bits >= 8 && bits < ((dst - odst) * 8))
+			bits = (dst - odst) * 8;
+	}
 	/* Extend network to cover the actual mask. */
 	while (bits > ((dst - odst) * 8))
-	  {
-		  if (size-- <= 0)
-			  goto emsgsize;
-		  *dst++ = '\0';
-	  }
+	{
+		if (size-- <= 0)
+			goto emsgsize;
+		*dst++ = '\0';
+	}
 	return (bits);
 
   enoent:

@@ -35,12 +35,12 @@
 #if defined(ARM_MULTILIB_ARCH_V4)
 
 /**
- * @defgroup ScoreCPUARM ARM Specific Support
- *
- * @ingroup ScoreCPU
- *
- * @brief ARM specific support.
- */
+* @defgroup ScoreCPUARM ARM Specific Support
+*
+* @ingroup ScoreCPU
+*
+* @brief ARM specific support.
+*/
 /**@{**/
 
 #if defined(__thumb__) && !defined(__thumb2__)
@@ -58,8 +58,8 @@
 #endif
 
 /**
- * @name Program Status Register
- */
+* @name Program Status Register
+*/
 /**@{**/
 
 #define ARM_PSR_N (1 << 31)
@@ -93,8 +93,8 @@
 #endif /* defined(ARM_MULTILIB_ARCH_V4) */
 
 /**
- * @addtogroup ScoreCPU
- */
+* @addtogroup ScoreCPU
+*/
 /**@{**/
 
 /* If someone uses THUMB we assume she wants minimal code size */
@@ -115,8 +115,8 @@
 #endif
 
 /*
- *  The ARM uses the PIC interrupt model.
- */
+*  The ARM uses the PIC interrupt model.
+*/
 #define CPU_SIMPLE_VECTORED_INTERRUPTS FALSE
 
 #define CPU_HAS_SOFTWARE_INTERRUPT_STACK FALSE
@@ -154,19 +154,19 @@
 #define CPU_TIMESTAMP_USE_STRUCT_TIMESPEC TRUE
 
 /*
- * The interrupt mask disables only normal interrupts (IRQ).
- *
- * In order to support fast interrupts (FIQ) such that they can do something
- * useful, we have to disable the operating system support for FIQs.  Having
- * operating system support for them would require that FIQs are disabled
- * during critical sections of the operating system and application.  At this
- * level IRQs and FIQs would be equal.  It is true that FIQs could interrupt
- * the non critical sections of IRQs, so here they would have a small
- * advantage.  Without operating system support, the FIQs can execute at any
- * time (of course not during the service of another FIQ). If someone needs
- * operating system support for a FIQ, she can trigger a software interrupt and
- * service the request in a two-step process.
- */
+* The interrupt mask disables only normal interrupts (IRQ).
+*
+* In order to support fast interrupts (FIQ) such that they can do something
+* useful, we have to disable the operating system support for FIQs.  Having
+* operating system support for them would require that FIQs are disabled
+* during critical sections of the operating system and application.  At this
+* level IRQs and FIQs would be equal.  It is true that FIQs could interrupt
+* the non critical sections of IRQs, so here they would have a small
+* advantage.  Without operating system support, the FIQs can execute at any
+* time (of course not during the service of another FIQ). If someone needs
+* operating system support for a FIQ, she can trigger a software interrupt and
+* service the request in a two-step process.
+*/
 #define CPU_MODES_INTERRUPT_MASK 0x1
 
 #define CPU_CONTEXT_FP_SIZE sizeof( Context_Control_fp )
@@ -192,15 +192,15 @@
 #define CPU_STACK_ALIGNMENT 8
 
 /*
- * Bitfield handler macros.
- *
- * If we had a particularly fast function for finding the first
- * bit set in a word, it would go here. Since we don't (*), we'll
- * just use the universal macros.
- *
- * (*) On ARM V5 and later, there's a CLZ function which could be
- *     used to implement much quicker than the default macro.
- */
+* Bitfield handler macros.
+*
+* If we had a particularly fast function for finding the first
+* bit set in a word, it would go here. Since we don't (*), we'll
+* just use the universal macros.
+*
+* (*) On ARM V5 and later, there's a CLZ function which could be
+*     used to implement much quicker than the default macro.
+*/
 
 #define CPU_USE_GENERIC_BITFIELD_CODE TRUE
 
@@ -242,436 +242,436 @@ extern "C"
 #endif
 
 /**
- * @addtogroup ScoreCPU
- */
+* @addtogroup ScoreCPU
+*/
 /**@{**/
 
-	typedef struct
-	{
+typedef struct
+{
 #if defined(ARM_MULTILIB_ARCH_V4)
-		uint32_t register_cpsr;
-		uint32_t register_r4;
-		uint32_t register_r5;
-		uint32_t register_r6;
-		uint32_t register_r7;
-		uint32_t register_r8;
-		uint32_t register_r9;
-		uint32_t register_r10;
-		uint32_t register_fp;
-		uint32_t register_sp;
-		uint32_t register_lr;
+	uint32_t register_cpsr;
+	uint32_t register_r4;
+	uint32_t register_r5;
+	uint32_t register_r6;
+	uint32_t register_r7;
+	uint32_t register_r8;
+	uint32_t register_r9;
+	uint32_t register_r10;
+	uint32_t register_fp;
+	uint32_t register_sp;
+	uint32_t register_lr;
 #elif defined(ARM_MULTILIB_ARCH_V6M) || defined(ARM_MULTILIB_ARCH_V7M)
-		uint32_t register_r4;
-		uint32_t register_r5;
-		uint32_t register_r6;
-		uint32_t register_r7;
-		uint32_t register_r8;
-		uint32_t register_r9;
-		uint32_t register_r10;
-		uint32_t register_r11;
-		void *register_lr;
-		void *register_sp;
-		uint32_t isr_nest_level;
+	uint32_t register_r4;
+	uint32_t register_r5;
+	uint32_t register_r6;
+	uint32_t register_r7;
+	uint32_t register_r8;
+	uint32_t register_r9;
+	uint32_t register_r10;
+	uint32_t register_r11;
+	void *register_lr;
+	void *register_sp;
+	uint32_t isr_nest_level;
 #else
-		void *register_sp;
+	void *register_sp;
 #endif
 #ifdef ARM_MULTILIB_HAS_THREAD_ID_REGISTER
-		uint32_t thread_id;
+	uint32_t thread_id;
 #endif
 #ifdef ARM_MULTILIB_VFP
-		uint64_t register_d8;
-		uint64_t register_d9;
-		uint64_t register_d10;
-		uint64_t register_d11;
-		uint64_t register_d12;
-		uint64_t register_d13;
-		uint64_t register_d14;
-		uint64_t register_d15;
+	uint64_t register_d8;
+	uint64_t register_d9;
+	uint64_t register_d10;
+	uint64_t register_d11;
+	uint64_t register_d12;
+	uint64_t register_d13;
+	uint64_t register_d14;
+	uint64_t register_d15;
 #endif
 #ifdef RTEMS_SMP
-		volatile bool is_executing;
+	volatile bool is_executing;
 #endif
-	} Context_Control;
+} Context_Control;
 
-	typedef struct
-	{
-		/* Not supported */
-	} Context_Control_fp;
+typedef struct
+{
+	/* Not supported */
+} Context_Control_fp;
 
-	extern uint32_t arm_cpu_mode;
+extern uint32_t arm_cpu_mode;
 
-	static inline void _ARM_Data_memory_barrier (void)
-	{
+static inline void _ARM_Data_memory_barrier (void)
+{
 #ifdef ARM_MULTILIB_HAS_BARRIER_INSTRUCTIONS
-		__asm__ volatile ("dmb":::"memory");
+	__asm__ volatile ("dmb":::"memory");
 #else
-		RTEMS_COMPILER_MEMORY_BARRIER ();
+	RTEMS_COMPILER_MEMORY_BARRIER ();
 #endif
-	}
+}
 
-	static inline void _ARM_Data_synchronization_barrier (void)
-	{
+static inline void _ARM_Data_synchronization_barrier (void)
+{
 #ifdef ARM_MULTILIB_HAS_BARRIER_INSTRUCTIONS
-		__asm__ volatile ("dsb":::"memory");
+	__asm__ volatile ("dsb":::"memory");
 #else
-		RTEMS_COMPILER_MEMORY_BARRIER ();
+	RTEMS_COMPILER_MEMORY_BARRIER ();
 #endif
-	}
+}
 
-	static inline void _ARM_Instruction_synchronization_barrier (void)
-	{
+static inline void _ARM_Instruction_synchronization_barrier (void)
+{
 #ifdef ARM_MULTILIB_HAS_BARRIER_INSTRUCTIONS
-		__asm__ volatile ("isb":::"memory");
+	__asm__ volatile ("isb":::"memory");
 #else
-		RTEMS_COMPILER_MEMORY_BARRIER ();
+	RTEMS_COMPILER_MEMORY_BARRIER ();
 #endif
-	}
+}
 
-	static inline uint32_t arm_interrupt_disable (void)
-	{
-		uint32_t level;
+static inline uint32_t arm_interrupt_disable (void)
+{
+	uint32_t level;
 
 #if defined(ARM_MULTILIB_ARCH_V4)
-		uint32_t arm_switch_reg;
+	uint32_t arm_switch_reg;
 
-		__asm__ volatile (ARM_SWITCH_TO_ARM
-						  "mrs %[level], cpsr\n"
-						  "orr %[arm_switch_reg], %[level], #0x80\n"
-						  "msr cpsr, %[arm_switch_reg]\n"
-						  ARM_SWITCH_BACK:[arm_switch_reg]
-						  "=&r" (arm_switch_reg),[level] "=&r" (level));
+	__asm__ volatile (ARM_SWITCH_TO_ARM
+					  "mrs %[level], cpsr\n"
+					  "orr %[arm_switch_reg], %[level], #0x80\n"
+					  "msr cpsr, %[arm_switch_reg]\n"
+					  ARM_SWITCH_BACK:[arm_switch_reg]
+					  "=&r" (arm_switch_reg),[level] "=&r" (level));
 #elif defined(ARM_MULTILIB_ARCH_V7M)
-		uint32_t basepri = 0x80;
+	uint32_t basepri = 0x80;
 
-		__asm__ volatile ("mrs %[level], basepri\n"
-						  "msr basepri_max, %[basepri]\n":[level]
-						  "=&r" (level):[basepri] "r" (basepri));
+	__asm__ volatile ("mrs %[level], basepri\n"
+					  "msr basepri_max, %[basepri]\n":[level]
+					  "=&r" (level):[basepri] "r" (basepri));
 #else
-		level = 0;
+	level = 0;
 #endif
 
-		return level;
-	}
+	return level;
+}
 
-	static inline void arm_interrupt_enable (uint32_t level)
-	{
+static inline void arm_interrupt_enable (uint32_t level)
+{
 #if defined(ARM_MULTILIB_ARCH_V4)
-		ARM_SWITCH_REGISTERS;
+	ARM_SWITCH_REGISTERS;
 
-		__asm__ volatile (ARM_SWITCH_TO_ARM
-						  "msr cpsr, %[level]\n"
-						  ARM_SWITCH_BACK:ARM_SWITCH_OUTPUT:[level]
-						  "r" (level));
+	__asm__ volatile (ARM_SWITCH_TO_ARM
+					  "msr cpsr, %[level]\n"
+					  ARM_SWITCH_BACK:ARM_SWITCH_OUTPUT:[level]
+					  "r" (level));
 #elif defined(ARM_MULTILIB_ARCH_V7M)
-		__asm__ volatile ("msr basepri, %[level]\n"::[level] "r" (level));
+	__asm__ volatile ("msr basepri, %[level]\n"::[level] "r" (level));
 #endif
-	}
+}
 
-	static inline void arm_interrupt_flash (uint32_t level)
-	{
+static inline void arm_interrupt_flash (uint32_t level)
+{
 #if defined(ARM_MULTILIB_ARCH_V4)
-		uint32_t arm_switch_reg;
+	uint32_t arm_switch_reg;
 
-		__asm__ volatile (ARM_SWITCH_TO_ARM
-						  "mrs %[arm_switch_reg], cpsr\n"
-						  "msr cpsr, %[level]\n"
-						  "msr cpsr, %[arm_switch_reg]\n"
-						  ARM_SWITCH_BACK:[arm_switch_reg]
-						  "=&r" (arm_switch_reg):[level] "r" (level));
+	__asm__ volatile (ARM_SWITCH_TO_ARM
+					  "mrs %[arm_switch_reg], cpsr\n"
+					  "msr cpsr, %[level]\n"
+					  "msr cpsr, %[arm_switch_reg]\n"
+					  ARM_SWITCH_BACK:[arm_switch_reg]
+					  "=&r" (arm_switch_reg):[level] "r" (level));
 #elif defined(ARM_MULTILIB_ARCH_V7M)
-		uint32_t basepri;
+	uint32_t basepri;
 
-		__asm__ volatile ("mrs %[basepri], basepri\n"
-						  "msr basepri, %[level]\n"
-						  "msr basepri, %[basepri]\n":[basepri]
-						  "=&r" (basepri):[level] "r" (level));
+	__asm__ volatile ("mrs %[basepri], basepri\n"
+					  "msr basepri, %[level]\n"
+					  "msr basepri, %[basepri]\n":[basepri]
+					  "=&r" (basepri):[level] "r" (level));
 #endif
-	}
+}
 
 #define _CPU_ISR_Disable( _isr_cookie ) \
-  do { \
-    _isr_cookie = arm_interrupt_disable(); \
-  } while (0)
+do { \
+_isr_cookie = arm_interrupt_disable(); \
+} while (0)
 
 #define _CPU_ISR_Enable( _isr_cookie )  \
-  arm_interrupt_enable( _isr_cookie )
+arm_interrupt_enable( _isr_cookie )
 
 #define _CPU_ISR_Flash( _isr_cookie ) \
-  arm_interrupt_flash( _isr_cookie )
+arm_interrupt_flash( _isr_cookie )
 
-	void _CPU_ISR_Set_level (uint32_t level);
+void _CPU_ISR_Set_level (uint32_t level);
 
-	uint32_t _CPU_ISR_Get_level (void);
+uint32_t _CPU_ISR_Get_level (void);
 
-	void _CPU_Context_Initialize (Context_Control * the_context,
-								  void *stack_area_begin,
-								  size_t stack_area_size,
-								  uint32_t new_level,
-								  void (*entry_point) (void),
-								  bool is_fp, void *tls_area);
+void _CPU_Context_Initialize (Context_Control * the_context,
+							  void *stack_area_begin,
+							  size_t stack_area_size,
+							  uint32_t new_level,
+							  void (*entry_point) (void),
+							  bool is_fp, void *tls_area);
 
 #define _CPU_Context_Get_SP( _context ) \
-  (_context)->register_sp
+(_context)->register_sp
 
 #ifdef RTEMS_SMP
-	static inline bool _CPU_Context_Get_is_executing (const Context_Control *
-													  context)
-	{
-		return context->is_executing;
-	}
+static inline bool _CPU_Context_Get_is_executing (const Context_Control *
+												  context)
+{
+	return context->is_executing;
+}
 
-	static inline void _CPU_Context_Set_is_executing (Context_Control * context,
-													  bool is_executing)
-	{
-		context->is_executing = is_executing;
-	}
+static inline void _CPU_Context_Set_is_executing (Context_Control * context,
+												  bool is_executing)
+{
+	context->is_executing = is_executing;
+}
 #endif
 
 #define _CPU_Context_Restart_self( _the_context ) \
-   _CPU_Context_restore( (_the_context) );
+_CPU_Context_restore( (_the_context) );
 
 #define _CPU_Context_Fp_start( _base, _offset ) \
-   ( (void *) _Addresses_Add_offset( (_base), (_offset) ) )
+( (void *) _Addresses_Add_offset( (_base), (_offset) ) )
 
 #define _CPU_Context_Initialize_fp( _destination ) \
-  do { \
-    *(*(_destination)) = _CPU_Null_fp_context; \
-  } while (0)
+do { \
+*(*(_destination)) = _CPU_Null_fp_context; \
+} while (0)
 
 #define _CPU_Fatal_halt( _source, _err )    \
-   do {                                     \
-     uint32_t _level;                       \
-     uint32_t _error = _err;                \
-     _CPU_ISR_Disable( _level );            \
-     (void) _level;                         \
-     __asm__ volatile ("mov r0, %0\n"       \
-                   : "=r" (_error)          \
-                   : "0" (_error)           \
-                   : "r0" );                \
-     while (1);                             \
-   } while (0);
+do {                                     \
+ uint32_t _level;                       \
+ uint32_t _error = _err;                \
+ _CPU_ISR_Disable( _level );            \
+ (void) _level;                         \
+ __asm__ volatile ("mov r0, %0\n"       \
+			   : "=r" (_error)          \
+			   : "0" (_error)           \
+			   : "r0" );                \
+ while (1);                             \
+} while (0);
 
 /**
- * @brief CPU initialization.
- */
-	void _CPU_Initialize (void);
+* @brief CPU initialization.
+*/
+void _CPU_Initialize (void);
 
-	void _CPU_ISR_install_vector (uint32_t vector,
-								  proc_ptr new_handler, proc_ptr * old_handler);
+void _CPU_ISR_install_vector (uint32_t vector,
+							  proc_ptr new_handler, proc_ptr * old_handler);
 
 /**
- * @brief CPU switch context.
- */
-	void _CPU_Context_switch (Context_Control * run, Context_Control * heir);
+* @brief CPU switch context.
+*/
+void _CPU_Context_switch (Context_Control * run, Context_Control * heir);
 
-	void _CPU_Context_restore (Context_Control * new_context)
-		RTEMS_COMPILER_NO_RETURN_ATTRIBUTE;
+void _CPU_Context_restore (Context_Control * new_context)
+	RTEMS_COMPILER_NO_RETURN_ATTRIBUTE;
 
 #if defined(ARM_MULTILIB_ARCH_V7M)
-	void _ARMV7M_Start_multitasking (Context_Control * heir)
-		RTEMS_COMPILER_NO_RETURN_ATTRIBUTE;
+void _ARMV7M_Start_multitasking (Context_Control * heir)
+	RTEMS_COMPILER_NO_RETURN_ATTRIBUTE;
 #define _CPU_Start_multitasking _ARMV7M_Start_multitasking
 #endif
 
-	void _CPU_Context_volatile_clobber (uintptr_t pattern);
+void _CPU_Context_volatile_clobber (uintptr_t pattern);
 
-	void _CPU_Context_validate (uintptr_t pattern);
+void _CPU_Context_validate (uintptr_t pattern);
 
 #ifdef RTEMS_SMP
-	uint32_t _CPU_SMP_Initialize (void);
+uint32_t _CPU_SMP_Initialize (void);
 
-	bool _CPU_SMP_Start_processor (uint32_t cpu_index);
+bool _CPU_SMP_Start_processor (uint32_t cpu_index);
 
-	void _CPU_SMP_Finalize_initialization (uint32_t cpu_count);
+void _CPU_SMP_Finalize_initialization (uint32_t cpu_count);
 
-	void _CPU_SMP_Prepare_start_multitasking (void);
+void _CPU_SMP_Prepare_start_multitasking (void);
 
-	static inline uint32_t _CPU_SMP_Get_current_processor (void)
-	{
-		uint32_t mpidr;
+static inline uint32_t _CPU_SMP_Get_current_processor (void)
+{
+	uint32_t mpidr;
 
-		/* Use ARMv7 Multiprocessor Affinity Register (MPIDR) */
-		__asm__ volatile ("mrc p15, 0, %[mpidr], c0, c0, 5\n":[mpidr]
-						  "=&r" (mpidr));
+	/* Use ARMv7 Multiprocessor Affinity Register (MPIDR) */
+	__asm__ volatile ("mrc p15, 0, %[mpidr], c0, c0, 5\n":[mpidr]
+					  "=&r" (mpidr));
 
-		return mpidr & 0xffU;
-	}
+	return mpidr & 0xffU;
+}
 
-	void _CPU_SMP_Send_interrupt (uint32_t target_processor_index);
+void _CPU_SMP_Send_interrupt (uint32_t target_processor_index);
 
-	static inline void _ARM_Send_event (void)
-	{
-		__asm__ volatile ("sev":::"memory");
-	}
+static inline void _ARM_Send_event (void)
+{
+	__asm__ volatile ("sev":::"memory");
+}
 
-	static inline void _ARM_Wait_for_event (void)
-	{
-		__asm__ volatile ("wfe":::"memory");
-	}
+static inline void _ARM_Wait_for_event (void)
+{
+	__asm__ volatile ("wfe":::"memory");
+}
 
-	static inline void _CPU_SMP_Processor_event_broadcast (void)
-	{
-		_ARM_Data_synchronization_barrier ();
-		_ARM_Send_event ();
-	}
+static inline void _CPU_SMP_Processor_event_broadcast (void)
+{
+	_ARM_Data_synchronization_barrier ();
+	_ARM_Send_event ();
+}
 
-	static inline void _CPU_SMP_Processor_event_receive (void)
-	{
-		_ARM_Wait_for_event ();
-		_ARM_Data_memory_barrier ();
-	}
+static inline void _CPU_SMP_Processor_event_receive (void)
+{
+	_ARM_Wait_for_event ();
+	_ARM_Data_memory_barrier ();
+}
 #endif
 
-	static inline uint32_t CPU_swap_u32 (uint32_t value)
-	{
+static inline uint32_t CPU_swap_u32 (uint32_t value)
+{
 #if defined(__thumb2__)
-		__asm__ volatile ("rev %0, %0":"=r" (value):"0" (value));
-		return value;
+	__asm__ volatile ("rev %0, %0":"=r" (value):"0" (value));
+	return value;
 #elif defined(__thumb__)
-		uint32_t byte1, byte2, byte3, byte4, swapped;
+	uint32_t byte1, byte2, byte3, byte4, swapped;
 
-		byte4 = (value >> 24) & 0xff;
-		byte3 = (value >> 16) & 0xff;
-		byte2 = (value >> 8) & 0xff;
-		byte1 = value & 0xff;
+	byte4 = (value >> 24) & 0xff;
+	byte3 = (value >> 16) & 0xff;
+	byte2 = (value >> 8) & 0xff;
+	byte1 = value & 0xff;
 
-		swapped = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-		return swapped;
+	swapped = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+	return swapped;
 #else
-		uint32_t tmp = value;	/* make compiler warnings go away */
-		__asm__ volatile ("EOR %1, %0, %0, ROR #16\n"
-						  "BIC %1, %1, #0xff0000\n"
-						  "MOV %0, %0, ROR #8\n"
-						  "EOR %0, %0, %1, LSR #8\n":"=r" (value),
-						  "=r" (tmp):"0" (value), "1" (tmp));
-		return value;
+	uint32_t tmp = value;	/* make compiler warnings go away */
+	__asm__ volatile ("EOR %1, %0, %0, ROR #16\n"
+					  "BIC %1, %1, #0xff0000\n"
+					  "MOV %0, %0, ROR #8\n"
+					  "EOR %0, %0, %1, LSR #8\n":"=r" (value),
+					  "=r" (tmp):"0" (value), "1" (tmp));
+	return value;
 #endif
-	}
+}
 
-	static inline uint16_t CPU_swap_u16 (uint16_t value)
-	{
+static inline uint16_t CPU_swap_u16 (uint16_t value)
+{
 #if defined(__thumb2__)
-		__asm__ volatile ("rev16 %0, %0":"=r" (value):"0" (value));
-		return value;
+	__asm__ volatile ("rev16 %0, %0":"=r" (value):"0" (value));
+	return value;
 #else
-		return (uint16_t) (((value & 0xffU) << 8) | ((value >> 8) & 0xffU));
+	return (uint16_t) (((value & 0xffU) << 8) | ((value >> 8) & 0xffU));
 #endif
-	}
+}
 
-	typedef uint32_t CPU_Counter_ticks;
+typedef uint32_t CPU_Counter_ticks;
 
-	CPU_Counter_ticks _CPU_Counter_read (void);
+CPU_Counter_ticks _CPU_Counter_read (void);
 
-	CPU_Counter_ticks _CPU_Counter_difference (CPU_Counter_ticks second,
-											   CPU_Counter_ticks first);
+CPU_Counter_ticks _CPU_Counter_difference (CPU_Counter_ticks second,
+										   CPU_Counter_ticks first);
 
 #if CPU_PROVIDES_IDLE_THREAD_BODY == TRUE
-	void *_CPU_Thread_Idle_body (uintptr_t ignored);
+void *_CPU_Thread_Idle_body (uintptr_t ignored);
 #endif
 
 /** @} */
 
 /**
- * @addtogroup ScoreCPUARM
- */
+* @addtogroup ScoreCPUARM
+*/
 /**@{**/
 
 #if defined(ARM_MULTILIB_ARCH_V4)
 
-	typedef enum
-	{
-		ARM_EXCEPTION_RESET = 0,
-		ARM_EXCEPTION_UNDEF = 1,
-		ARM_EXCEPTION_SWI = 2,
-		ARM_EXCEPTION_PREF_ABORT = 3,
-		ARM_EXCEPTION_DATA_ABORT = 4,
-		ARM_EXCEPTION_RESERVED = 5,
-		ARM_EXCEPTION_IRQ = 6,
-		ARM_EXCEPTION_FIQ = 7,
-		MAX_EXCEPTIONS = 8,
-		ARM_EXCEPTION_MAKE_ENUM_32_BIT = 0xffffffff
-	} Arm_symbolic_exception_name;
+typedef enum
+{
+	ARM_EXCEPTION_RESET = 0,
+	ARM_EXCEPTION_UNDEF = 1,
+	ARM_EXCEPTION_SWI = 2,
+	ARM_EXCEPTION_PREF_ABORT = 3,
+	ARM_EXCEPTION_DATA_ABORT = 4,
+	ARM_EXCEPTION_RESERVED = 5,
+	ARM_EXCEPTION_IRQ = 6,
+	ARM_EXCEPTION_FIQ = 7,
+	MAX_EXCEPTIONS = 8,
+	ARM_EXCEPTION_MAKE_ENUM_32_BIT = 0xffffffff
+} Arm_symbolic_exception_name;
 
 #endif /* defined(ARM_MULTILIB_ARCH_V4) */
 
-	typedef struct
-	{
-		uint32_t register_fpexc;
-		uint32_t register_fpscr;
-		uint64_t register_d0;
-		uint64_t register_d1;
-		uint64_t register_d2;
-		uint64_t register_d3;
-		uint64_t register_d4;
-		uint64_t register_d5;
-		uint64_t register_d6;
-		uint64_t register_d7;
-		uint64_t register_d8;
-		uint64_t register_d9;
-		uint64_t register_d10;
-		uint64_t register_d11;
-		uint64_t register_d12;
-		uint64_t register_d13;
-		uint64_t register_d14;
-		uint64_t register_d15;
-		uint64_t register_d16;
-		uint64_t register_d17;
-		uint64_t register_d18;
-		uint64_t register_d19;
-		uint64_t register_d20;
-		uint64_t register_d21;
-		uint64_t register_d22;
-		uint64_t register_d23;
-		uint64_t register_d24;
-		uint64_t register_d25;
-		uint64_t register_d26;
-		uint64_t register_d27;
-		uint64_t register_d28;
-		uint64_t register_d29;
-		uint64_t register_d30;
-		uint64_t register_d31;
-	} ARM_VFP_context;
+typedef struct
+{
+	uint32_t register_fpexc;
+	uint32_t register_fpscr;
+	uint64_t register_d0;
+	uint64_t register_d1;
+	uint64_t register_d2;
+	uint64_t register_d3;
+	uint64_t register_d4;
+	uint64_t register_d5;
+	uint64_t register_d6;
+	uint64_t register_d7;
+	uint64_t register_d8;
+	uint64_t register_d9;
+	uint64_t register_d10;
+	uint64_t register_d11;
+	uint64_t register_d12;
+	uint64_t register_d13;
+	uint64_t register_d14;
+	uint64_t register_d15;
+	uint64_t register_d16;
+	uint64_t register_d17;
+	uint64_t register_d18;
+	uint64_t register_d19;
+	uint64_t register_d20;
+	uint64_t register_d21;
+	uint64_t register_d22;
+	uint64_t register_d23;
+	uint64_t register_d24;
+	uint64_t register_d25;
+	uint64_t register_d26;
+	uint64_t register_d27;
+	uint64_t register_d28;
+	uint64_t register_d29;
+	uint64_t register_d30;
+	uint64_t register_d31;
+} ARM_VFP_context;
 
-	typedef struct
-	{
-		uint32_t register_r0;
-		uint32_t register_r1;
-		uint32_t register_r2;
-		uint32_t register_r3;
-		uint32_t register_r4;
-		uint32_t register_r5;
-		uint32_t register_r6;
-		uint32_t register_r7;
-		uint32_t register_r8;
-		uint32_t register_r9;
-		uint32_t register_r10;
-		uint32_t register_r11;
-		uint32_t register_r12;
-		uint32_t register_sp;
-		void *register_lr;
-		void *register_pc;
+typedef struct
+{
+	uint32_t register_r0;
+	uint32_t register_r1;
+	uint32_t register_r2;
+	uint32_t register_r3;
+	uint32_t register_r4;
+	uint32_t register_r5;
+	uint32_t register_r6;
+	uint32_t register_r7;
+	uint32_t register_r8;
+	uint32_t register_r9;
+	uint32_t register_r10;
+	uint32_t register_r11;
+	uint32_t register_r12;
+	uint32_t register_sp;
+	void *register_lr;
+	void *register_pc;
 #if defined(ARM_MULTILIB_ARCH_V4)
-		uint32_t register_cpsr;
-		Arm_symbolic_exception_name vector;
+	uint32_t register_cpsr;
+	Arm_symbolic_exception_name vector;
 #elif defined(ARM_MULTILIB_ARCH_V6M) || defined(ARM_MULTILIB_ARCH_V7M)
-		uint32_t register_xpsr;
-		uint32_t vector;
+	uint32_t register_xpsr;
+	uint32_t vector;
 #endif
-		const ARM_VFP_context *vfp_context;
-		uint32_t reserved_for_stack_alignment;
-	} CPU_Exception_frame;
+	const ARM_VFP_context *vfp_context;
+	uint32_t reserved_for_stack_alignment;
+} CPU_Exception_frame;
 
-	typedef CPU_Exception_frame CPU_Interrupt_frame;
+typedef CPU_Exception_frame CPU_Interrupt_frame;
 
-	void _CPU_Exception_frame_print (const CPU_Exception_frame * frame);
+void _CPU_Exception_frame_print (const CPU_Exception_frame * frame);
 
-	void _ARM_Exception_default (CPU_Exception_frame * frame);
+void _ARM_Exception_default (CPU_Exception_frame * frame);
 
 /*
- * FIXME: In case your BSP uses this function, then convert it to use
- * the shared start.S file for ARM.
- */
-	void rtems_exception_init_mngt (void);
+* FIXME: In case your BSP uses this function, then convert it to use
+* the shared start.S file for ARM.
+*/
+void rtems_exception_init_mngt (void);
 
 /** @} */
 

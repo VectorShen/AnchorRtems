@@ -30,9 +30,9 @@
 #include "msdos.h"
 
 static int msdos_default_utf8_to_codepage (rtems_dosfs_convert_control * super,
-										   const uint8_t * src,
-										   const size_t src_size,
-										   char *dst, size_t * dst_size)
+										 const uint8_t * src,
+										 const size_t src_size,
+										 char *dst, size_t * dst_size)
 {
 	int eno = 0;
 	size_t bytes_to_copy = MIN (src_size, *dst_size);
@@ -47,9 +47,9 @@ static int msdos_default_utf8_to_codepage (rtems_dosfs_convert_control * super,
 }
 
 static int msdos_default_codepage_to_utf8 (rtems_dosfs_convert_control * super,
-										   const char *src,
-										   const size_t src_size,
-										   uint8_t * dst, size_t * dst_size)
+										 const char *src,
+										 const size_t src_size,
+										 uint8_t * dst, size_t * dst_size)
 {
 	int eno = 0;
 	size_t bytes_to_copy = MIN (src_size, *dst_size);
@@ -77,18 +77,18 @@ static int msdos_default_utf8_to_utf16 (rtems_dosfs_convert_control * super,
 	*dst_size = 2 * bytes_to_copy;
 
 	for (i = 0; eno == 0 && i < bytes_to_copy; ++i)
-	  {
-		  uint16_t utf16_native = src[i];
+	{
+		uint16_t utf16_native = src[i];
 
-		  if (utf16_native <= 127)
-			{
-				dst[i] = CT_LE_W (utf16_native);
-			}
-		  else
-			{
-				eno = EINVAL;
-			}
-	  }
+		if (utf16_native <= 127)
+		{
+			dst[i] = CT_LE_W (utf16_native);
+		}
+		else
+		{
+			eno = EINVAL;
+		}
+	}
 
 	return eno;
 }
@@ -107,19 +107,19 @@ static int msdos_default_utf16_to_utf8 (rtems_dosfs_convert_control * super,
 	*dst_size = bytes_to_copy;
 
 	for (i = 0; eno == 0 && i < bytes_to_copy; ++i)
-	  {
-		  uint16_t utf16_le = src[i];
-		  uint16_t utf16_native = CF_LE_W (utf16_le);
+	{
+		uint16_t utf16_le = src[i];
+		uint16_t utf16_native = CF_LE_W (utf16_le);
 
-		  if (utf16_native <= 127)
-			{
-				dst[i] = (uint8_t) utf16_native;
-			}
-		  else
-			{
-				eno = EINVAL;
-			}
-	  }
+		if (utf16_native <= 127)
+		{
+			dst[i] = (uint8_t) utf16_native;
+		}
+		else
+		{
+			eno = EINVAL;
+		}
+	}
 
 	return eno;
 }
@@ -138,9 +138,9 @@ static int msdos_default_normalize_and_fold (rtems_dosfs_convert_control *
 	*dst_size = bytes_to_copy;
 
 	for (i = 0; i < bytes_to_copy; ++i)
-	  {
-		  dst[i] = tolower (src[i]);
-	  }
+	{
+		dst[i] = tolower (src[i]);
+	}
 
 	return eno;
 }
@@ -150,7 +150,8 @@ static void msdos_default_destroy (rtems_dosfs_convert_control * super)
 	free (super);
 }
 
-static const rtems_dosfs_convert_handler msdos_default_convert_handler = {
+static const rtems_dosfs_convert_handler msdos_default_convert_handler =
+{
 	.utf8_to_codepage = msdos_default_utf8_to_codepage,
 	.codepage_to_utf8 = msdos_default_codepage_to_utf8,
 	.utf8_to_utf16 = msdos_default_utf8_to_utf16,
@@ -170,13 +171,13 @@ rtems_dosfs_convert_control *rtems_dosfs_create_default_converter (void)
 	msdos_default_convert_control *self = malloc (sizeof (*self));
 
 	if (self != NULL)
-	  {
-		  rtems_dosfs_convert_control *super = &self->super;
+	{
+		rtems_dosfs_convert_control *super = &self->super;
 
-		  super->handler = &msdos_default_convert_handler;
-		  super->buffer.data = &self->buffer;
-		  super->buffer.size = sizeof (self->buffer);
-	  }
+		super->handler = &msdos_default_convert_handler;
+		super->buffer.data = &self->buffer;
+		super->buffer.size = sizeof (self->buffer);
+	}
 
 	return &self->super;
 }

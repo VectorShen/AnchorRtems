@@ -29,24 +29,24 @@ rtems_status_code rtems_barrier_delete (rtems_id id)
 	_Objects_Allocator_lock ();
 	the_barrier = _Barrier_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _CORE_barrier_Flush (&the_barrier->Barrier,
-								   NULL, CORE_BARRIER_WAS_DELETED);
+		case OBJECTS_LOCAL:
+			_CORE_barrier_Flush (&the_barrier->Barrier,
+								 NULL, CORE_BARRIER_WAS_DELETED);
 
-			  _Objects_Close (&_Barrier_Information, &the_barrier->Object);
-			  _Objects_Put (&the_barrier->Object);
-			  _Barrier_Free (the_barrier);
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Close (&_Barrier_Information, &the_barrier->Object);
+			_Objects_Put (&the_barrier->Object);
+			_Barrier_Free (the_barrier);
+			_Objects_Allocator_unlock ();
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

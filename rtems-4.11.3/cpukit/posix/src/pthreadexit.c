@@ -45,24 +45,24 @@ void _POSIX_Thread_Exit (Thread_Control * the_thread, void *value_ptr)
 	 * Process join
 	 */
 	if (api->detachstate == PTHREAD_CREATE_JOINABLE)
-	  {
-		  unblocked = _Thread_queue_Dequeue (&api->Join_List);
-		  if (unblocked)
+	{
+		unblocked = _Thread_queue_Dequeue (&api->Join_List);
+		if (unblocked)
+		{
+			do
 			{
-				do
-				  {
-					  *(void **)unblocked->Wait.return_argument = value_ptr;
-				  }
-				while ((unblocked = _Thread_queue_Dequeue (&api->Join_List)));
+				*(void **)unblocked->Wait.return_argument = value_ptr;
 			}
-		  else
-			{
-				_Thread_Set_state (the_thread, STATES_WAITING_FOR_JOIN_AT_EXIT);
-				_Thread_Enable_dispatch ();
-				/* now waiting for thread to arrive */
-				_Thread_Disable_dispatch ();
-			}
-	  }
+			while ((unblocked = _Thread_queue_Dequeue (&api->Join_List)));
+		}
+		else
+		{
+			_Thread_Set_state (the_thread, STATES_WAITING_FOR_JOIN_AT_EXIT);
+			_Thread_Enable_dispatch ();
+			/* now waiting for thread to arrive */
+			_Thread_Disable_dispatch ();
+		}
+	}
 
 	/*
 	 *  Now shut down the thread

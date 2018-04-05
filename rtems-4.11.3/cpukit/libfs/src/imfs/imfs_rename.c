@@ -38,27 +38,27 @@ int IMFS_rename (const rtems_filesystem_location_info_t * oldparentloc,
 	 */
 
 	if (node->Parent == NULL)
-	  {
-		  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	if (namelen >= IMFS_NAME_MAX)
-	  {
-		  rtems_set_errno_and_return_minus_one (ENAMETOOLONG);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ENAMETOOLONG);
+	}
 
 	allocated_name = malloc (namelen);
 	if (allocated_name == NULL)
-	  {
-		  rtems_set_errno_and_return_minus_one (ENOMEM);
-	  }
+	{
+		rtems_set_errno_and_return_minus_one (ENOMEM);
+	}
 
 	memcpy (allocated_name, name, namelen);
 
 	if ((node->flags & IMFS_NODE_FLAG_NAME_ALLOCATED) != 0)
-	  {
-		  free (RTEMS_DECONST (char *, node->name));
-	  }
+	{
+		free (RTEMS_DECONST (char *, node->name));
+	}
 
 	node->name = allocated_name;
 	node->namelen = namelen;

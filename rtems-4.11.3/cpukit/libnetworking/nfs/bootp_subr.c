@@ -116,8 +116,8 @@ static int md_mount (struct sockaddr_in *mdsin, char *path,
 					 u_char * fhp, int *fhsizep, struct nfs_args *args,
 					 struct proc *procp);
 static int md_lookup_swap (struct sockaddr_in *mdsin, char *path, u_char * fhp,
-						   int *fhsizep, struct nfs_args *args,
-						   struct proc *procp);
+						 int *fhsizep, struct nfs_args *args,
+						 struct proc *procp);
 static int setfs (struct sockaddr_in *addr, char *path, char *p);
 static int getdec (char **ptr);
 #endif
@@ -143,51 +143,51 @@ void bootpboot_p_sa (struct sockaddr *sa, struct sockaddr *ma)
 {
 
 	if (sa == NULL)
-	  {
-		  printf ("(sockaddr *) <null>");
-		  return;
-	  }
+	{
+		printf ("(sockaddr *) <null>");
+		return;
+	}
 	switch (sa->sa_family)
-	  {
-		  case AF_INET:
-			  {
-				  struct sockaddr_in *sin = (struct sockaddr_in *)sa;
-				  printf ("inet %x", ntohl (sin->sin_addr.s_addr));
-				  if (ma)
-					{
-						struct sockaddr_in *sin = (struct sockaddr_in *)ma;
-						printf (" mask %x", ntohl (sin->sin_addr.s_addr));
-					}
-			  }
-			  break;
-		  case AF_LINK:
-			  {
-				  struct sockaddr_dl *sli = (struct sockaddr_dl *)sa;
-				  int i;
-				  printf ("link %.*s ", sli->sdl_nlen, sli->sdl_data);
-				  for (i = 0; i < sli->sdl_alen; i++)
-					{
-						if (i > 0)
-							printf (":");
-						printf ("%x",
-								(unsigned char)sli->sdl_data[i +
-															 sli->sdl_nlen]);
-					}
-			  }
-			  break;
-		  default:
-			  printf ("af%d", sa->sa_family);
-	  }
+	{
+		case AF_INET:
+			{
+				struct sockaddr_in *sin = (struct sockaddr_in *)sa;
+				printf ("inet %x", ntohl (sin->sin_addr.s_addr));
+				if (ma)
+				{
+					struct sockaddr_in *sin = (struct sockaddr_in *)ma;
+					printf (" mask %x", ntohl (sin->sin_addr.s_addr));
+				}
+			}
+			break;
+		case AF_LINK:
+			{
+				struct sockaddr_dl *sli = (struct sockaddr_dl *)sa;
+				int i;
+				printf ("link %.*s ", sli->sdl_nlen, sli->sdl_data);
+				for (i = 0; i < sli->sdl_alen; i++)
+				{
+					if (i > 0)
+						printf (":");
+					printf ("%x",
+							(unsigned char)sli->sdl_data[i +
+														 sli->sdl_nlen]);
+				}
+			}
+			break;
+		default:
+			printf ("af%d", sa->sa_family);
+	}
 }
 
 void bootpboot_p_ma (struct sockaddr *ma)
 {
 
 	if (ma == NULL)
-	  {
-		  printf ("<null>");
-		  return;
-	  }
+	{
+		printf ("<null>");
+		return;
+	}
 	printf ("%x", *(int *)ma);
 }
 
@@ -209,26 +209,26 @@ void bootpboot_p_tree (struct radix_node *rn)
 {
 
 	while (rn != NULL)
-	  {
-		  if (rn->rn_b < 0)
+	{
+		if (rn->rn_b < 0)
+		{
+			if (rn->rn_flags & RNF_ROOT)
 			{
-				if (rn->rn_flags & RNF_ROOT)
-				  {
-				  }
-				else
-				  {
-					  bootpboot_p_rtentry ((struct rtentry *)rn);
-				  }
-				rn = rn->rn_dupedkey;
 			}
-		  else
+			else
 			{
-				bootpboot_p_tree (rn->rn_l);
-				bootpboot_p_tree (rn->rn_r);
-				return;
+				bootpboot_p_rtentry ((struct rtentry *)rn);
 			}
+			rn = rn->rn_dupedkey;
+		}
+		else
+		{
+			bootpboot_p_tree (rn->rn_l);
+			bootpboot_p_tree (rn->rn_r);
+			return;
+		}
 
-	  }
+	}
 }
 
 void bootpboot_p_rtlist (void)
@@ -244,22 +244,22 @@ void bootpboot_p_iflist (void)
 	struct ifaddr *ifa;
 	printf ("Interface list:\n");
 	for (ifp = TAILQ_FIRST (&ifnet); ifp != 0; ifp = TAILQ_NEXT (ifp, if_link))
-	  {
-		  for (ifa = TAILQ_FIRST (&ifp->if_addrhead); ifa;
-			   ifa = TAILQ_NEXT (ifa, ifa_link))
-			  if (ifa->ifa_addr->sa_family == AF_INET)
-				{
-					printf ("%s%d flags %x, addr %x, bcast %x, net %x\n",
-							ifp->if_name, ifp->if_unit,
-							(unsigned short)ifp->if_flags,
-							ntohl (((struct sockaddr_in *)ifa->ifa_addr)->
-								   sin_addr.s_addr),
-							ntohl (((struct sockaddr_in *)ifa->ifa_dstaddr)->
-								   sin_addr.s_addr),
-							ntohl (((struct sockaddr_in *)ifa->ifa_netmask)->
-								   sin_addr.s_addr));
-				}
-	  }
+	{
+		for (ifa = TAILQ_FIRST (&ifp->if_addrhead); ifa;
+			 ifa = TAILQ_NEXT (ifa, ifa_link))
+			if (ifa->ifa_addr->sa_family == AF_INET)
+			{
+				printf ("%s%d flags %x, addr %x, bcast %x, net %x\n",
+						ifp->if_name, ifp->if_unit,
+						(unsigned short)ifp->if_flags,
+						ntohl (((struct sockaddr_in *)ifa->ifa_addr)->
+							 sin_addr.s_addr),
+						ntohl (((struct sockaddr_in *)ifa->ifa_dstaddr)->
+							 sin_addr.s_addr),
+						ntohl (((struct sockaddr_in *)ifa->ifa_netmask)->
+							 sin_addr.s_addr));
+			}
+	}
 }
 #endif
 
@@ -273,22 +273,22 @@ void *bootp_strdup_realloc (char *dst, const char *src)
 	size_t len;
 
 	if (dst == NULL)
-	  {
-		  /* first allocation, simply use strdup */
-		  if (src)
-			  dst = strdup (src);
-	  }
+	{
+		/* first allocation, simply use strdup */
+		if (src)
+			dst = strdup (src);
+	}
 	else
-	  {
-		  /* already allocated, so use realloc/strcpy */
-		  len = src ? strlen (src) + 1 : 0;
-		  /* src == NULL tells us to effectively free dst */
-		  dst = realloc (dst, len);
-		  if (dst != NULL)
-			{
-				strcpy (dst, src);
-			}
-	  }
+	{
+		/* already allocated, so use realloc/strcpy */
+		len = src ? strlen (src) + 1 : 0;
+		/* src == NULL tells us to effectively free dst */
+		dst = realloc (dst, len);
+		if (dst != NULL)
+		{
+			strcpy (dst, src);
+		}
+	}
 	return dst;
 }
 
@@ -313,20 +313,20 @@ int bootpc_call (struct bootp_packet *call, struct bootp_packet *reply,	/* outpu
 
 	m = m_get (M_WAIT, MT_SOOPTS);
 	if (m == NULL)
-	  {
-		  error = ENOBUFS;
-		  goto out;
-	  }
+	{
+		error = ENOBUFS;
+		goto out;
+	}
 	else
-	  {
-		  struct timeval *tv;
-		  tv = mtod (m, struct timeval *);
-		  m->m_len = sizeof (*tv);
-		  tv->tv_sec = 1;
-		  tv->tv_usec = 0;
-		  if ((error = sosetopt (so, SOL_SOCKET, SO_RCVTIMEO, m)))
-			  goto out;
-	  }
+	{
+		struct timeval *tv;
+		tv = mtod (m, struct timeval *);
+		m->m_len = sizeof (*tv);
+		tv->tv_sec = 1;
+		tv->tv_usec = 0;
+		if ((error = sosetopt (so, SOL_SOCKET, SO_RCVTIMEO, m)))
+			goto out;
+	}
 
 	/*
 	 * Enable broadcast.
@@ -335,10 +335,10 @@ int bootpc_call (struct bootp_packet *call, struct bootp_packet *reply,	/* outpu
 		int *on;
 		m = m_get (M_WAIT, MT_SOOPTS);
 		if (m == NULL)
-		  {
-			  error = ENOBUFS;
-			  goto out;
-		  }
+		{
+			error = ENOBUFS;
+			goto out;
+		}
 		on = mtod (m, int *);
 		m->m_len = sizeof (*on);
 		*on = 1;
@@ -358,20 +358,20 @@ int bootpc_call (struct bootp_packet *call, struct bootp_packet *reply,	/* outpu
 	error = sobind (so, m);
 	m_freem (m);
 	if (error)
-	  {
-		  printf ("bind failed\n");
-		  goto out;
-	  }
+	{
+		printf ("bind failed\n");
+		goto out;
+	}
 
 	/*
 	 * Setup socket address for the server.
 	 */
 	nam = m_get (M_WAIT, MT_SONAME);
 	if (nam == NULL)
-	  {
-		  error = ENOBUFS;
-		  goto out;
-	  }
+	{
+		error = ENOBUFS;
+		goto out;
+	}
 	sin = mtod (nam, struct sockaddr_in *);
 	sin->sin_len = sizeof (*sin);
 	sin->sin_family = AF_INET;
@@ -386,94 +386,94 @@ int bootpc_call (struct bootp_packet *call, struct bootp_packet *reply,	/* outpu
 	 * If the delay hits the maximum, start complaining.
 	 */
 	for (timo = 1; timo <= MAX_RESEND_DELAY; timo++)
-	  {
-		  /* Send BOOTP request (or re-send). */
+	{
+		/* Send BOOTP request (or re-send). */
 
-		  aio.iov_base = (caddr_t) call;
-		  aio.iov_len = sizeof (*call);
+		aio.iov_base = (caddr_t) call;
+		aio.iov_len = sizeof (*call);
 
-		  auio.uio_iov = &aio;
-		  auio.uio_iovcnt = 1;
-		  auio.uio_segflg = UIO_SYSSPACE;
-		  auio.uio_rw = UIO_WRITE;
-		  auio.uio_offset = 0;
-		  auio.uio_resid = sizeof (*call);
+		auio.uio_iov = &aio;
+		auio.uio_iovcnt = 1;
+		auio.uio_segflg = UIO_SYSSPACE;
+		auio.uio_rw = UIO_WRITE;
+		auio.uio_offset = 0;
+		auio.uio_resid = sizeof (*call);
 #ifndef __rtems__
-		  auio.uio_procp = procp;
+		auio.uio_procp = procp;
 #endif
-		  error = sosend (so, nam, &auio, NULL, NULL, 0);
-		  if (error)
+		error = sosend (so, nam, &auio, NULL, NULL, 0);
+		if (error)
+		{
+			printf ("bootpc_call: sosend: %d\n", error);
+			switch (error)
 			{
-				printf ("bootpc_call: sosend: %d\n", error);
-				switch (error)
-				  {
-					  case ENOBUFS:	/* No buffer space available */
-					  case ENETUNREACH:	/* Network is unreachable */
-					  case ENETDOWN:	/* Network interface is not configured */
-					  case EHOSTDOWN:	/* Host is down */
-					  case EHOSTUNREACH:	/* Host is unreachable */
-					  case EMSGSIZE:	/* Message too long */
-						  /* This is a possibly transient error.
-						     We can still receive replies from previous attempts. */
-						  break;
-					  default:
-						  goto out;
-				  }
-			}
-
-		  /*
-		   * Wait for up to timo seconds for a reply.
-		   * The socket receive timeout was set to 1 second.
-		   */
-		  secs = timo;
-		  while (secs > 0)
-			{
-				aio.iov_base = (caddr_t) reply;
-				aio.iov_len = sizeof (*reply);
-
-				auio.uio_iov = &aio;
-				auio.uio_iovcnt = 1;
-				auio.uio_segflg = UIO_SYSSPACE;
-				auio.uio_rw = UIO_READ;
-				auio.uio_offset = 0;
-				auio.uio_resid = sizeof (*reply);
-#ifndef __rtems__
-				auio.uio_procp = procp;
-#endif
-
-				rcvflg = 0;
-				error = soreceive (so, NULL, &auio, NULL, NULL, &rcvflg);
-				if (error == EWOULDBLOCK)
-				  {
-					  secs--;
-					  call->secs = htons (ntohs (call->secs) + 1);
-					  continue;
-				  }
-				if (error)
+				case ENOBUFS:	/* No buffer space available */
+				case ENETUNREACH:	/* Network is unreachable */
+				case ENETDOWN:	/* Network interface is not configured */
+				case EHOSTDOWN:	/* Host is down */
+				case EHOSTUNREACH:	/* Host is unreachable */
+				case EMSGSIZE:	/* Message too long */
+					/* This is a possibly transient error.
+					   We can still receive replies from previous attempts. */
+					break;
+				default:
 					goto out;
-				len = sizeof (*reply) - auio.uio_resid;
+			}
+		}
 
-				/* Do we have the required number of bytes ? */
-				if (len < BOOTP_MIN_LEN)
-					continue;
+		/*
+		 * Wait for up to timo seconds for a reply.
+		 * The socket receive timeout was set to 1 second.
+		 */
+		secs = timo;
+		while (secs > 0)
+		{
+			aio.iov_base = (caddr_t) reply;
+			aio.iov_len = sizeof (*reply);
 
-				/* Is it the right reply? */
-				if (reply->op != 2)
-					continue;
+			auio.uio_iov = &aio;
+			auio.uio_iovcnt = 1;
+			auio.uio_segflg = UIO_SYSSPACE;
+			auio.uio_rw = UIO_READ;
+			auio.uio_offset = 0;
+			auio.uio_resid = sizeof (*reply);
+#ifndef __rtems__
+			auio.uio_procp = procp;
+#endif
 
-				if (reply->xid != call->xid)
-					continue;
+			rcvflg = 0;
+			error = soreceive (so, NULL, &auio, NULL, NULL, &rcvflg);
+			if (error == EWOULDBLOCK)
+			{
+				secs--;
+				call->secs = htons (ntohs (call->secs) + 1);
+				continue;
+			}
+			if (error)
+				goto out;
+			len = sizeof (*reply) - auio.uio_resid;
 
-				if (reply->hlen != call->hlen)
-					continue;
+			/* Do we have the required number of bytes ? */
+			if (len < BOOTP_MIN_LEN)
+				continue;
 
-				if (bcmp (reply->chaddr, call->chaddr, call->hlen))
-					continue;
+			/* Is it the right reply? */
+			if (reply->op != 2)
+				continue;
 
-				goto gotreply;	/* break two levels */
+			if (reply->xid != call->xid)
+				continue;
 
-			}					/* while secs */
-	  }							/* send/receive a number of times then return an error */
+			if (reply->hlen != call->hlen)
+				continue;
+
+			if (bcmp (reply->chaddr, call->chaddr, call->hlen))
+				continue;
+
+			goto gotreply;	/* break two levels */
+
+		}					/* while secs */
+	}							/* send/receive a number of times then return an error */
 	{
 		uint32_t addr = ntohl (sin->sin_addr.s_addr);
 		printf ("BOOTP timeout for server %" PRIu32 ".%" PRIu32 ".%" PRIu32 ".%"
@@ -509,19 +509,19 @@ bootpc_fakeup_interface (struct ifreq *ireq, struct socket *so,
 	 */
 	error = ifioctl (so, SIOCGIFFLAGS, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_fakeup_interface: GIFFLAGS, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_fakeup_interface: GIFFLAGS, error=%s\n",
+				strerror (error));
+		return error;
+	}
 	ireq->ifr_flags |= IFF_UP;
 	error = ifioctl (so, SIOCSIFFLAGS, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_fakeup_interface: SIFFLAGS, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_fakeup_interface: SIFFLAGS, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/*
 	 * Do enough of ifconfig(8) so that the chosen interface
@@ -541,11 +541,11 @@ bootpc_fakeup_interface (struct ifreq *ireq, struct socket *so,
 	 * a second pass to here.
 	 */
 	if (error && (error != EEXIST))
-	  {
-		  printf ("bootpc_fakeup_interface: set if addr, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_fakeup_interface: set if addr, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/* netmask is 0.0.0.0 */
 
@@ -556,11 +556,11 @@ bootpc_fakeup_interface (struct ifreq *ireq, struct socket *so,
 	sin->sin_addr.s_addr = INADDR_ANY;
 	error = ifioctl (so, SIOCSIFNETMASK, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_fakeup_interface: set if netmask, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_fakeup_interface: set if netmask, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/* Broadcast is 255.255.255.255 */
 
@@ -571,11 +571,11 @@ bootpc_fakeup_interface (struct ifreq *ireq, struct socket *so,
 	sin->sin_addr.s_addr = INADDR_BROADCAST;
 	error = ifioctl (so, SIOCSIFBRDADDR, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_fakeup_interface: set broadcast addr, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_fakeup_interface: set broadcast addr, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/* Add default route to 0.0.0.0 so we can send data */
 
@@ -595,9 +595,9 @@ bootpc_fakeup_interface (struct ifreq *ireq, struct socket *so,
 	mask.sin_addr.s_addr = htonl (0);
 
 	error = rtrequest (RTM_ADD,
-					   (struct sockaddr *)&dst,
-					   (struct sockaddr *)&gw,
-					   (struct sockaddr *)&mask, RTF_UP | RTF_STATIC, NULL);
+					 (struct sockaddr *)&dst,
+					 (struct sockaddr *)&gw,
+					 (struct sockaddr *)&mask, RTF_UP | RTF_STATIC, NULL);
 	if (error && error != EEXIST)
 		printf ("bootpc_fakeup_interface: add default route, error=%s\n",
 				strerror (error));
@@ -635,15 +635,15 @@ bootpc_adjust_interface (struct ifreq *ireq, struct socket *so,
 	oldmask.sin_addr.s_addr = INADDR_ANY;
 
 	error = rtrequest (RTM_DELETE,
-					   (struct sockaddr *)&olddst,
-					   (struct sockaddr *)&oldgw,
-					   (struct sockaddr *)&oldmask,
-					   (RTF_UP | RTF_STATIC), NULL);
+					 (struct sockaddr *)&olddst,
+					 (struct sockaddr *)&oldgw,
+					 (struct sockaddr *)&oldmask,
+					 (RTF_UP | RTF_STATIC), NULL);
 	if (error)
-	  {
-		  printf ("nfs_boot: del default route, error=%d\n", error);
-		  return error;
-	  }
+	{
+		printf ("nfs_boot: del default route, error=%d\n", error);
+		return error;
+	}
 
 	/*
 	 * Do enough of ifconfig(8) so that the chosen interface
@@ -652,11 +652,11 @@ bootpc_adjust_interface (struct ifreq *ireq, struct socket *so,
 	bcopy (netmask, &ireq->ifr_addr, sizeof (*netmask));
 	error = ifioctl (so, SIOCSIFNETMASK, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_adjust_interface: set netmask, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_adjust_interface: set netmask, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/* Broadcast is with host part of IP address all 1's */
 
@@ -667,32 +667,32 @@ bootpc_adjust_interface (struct ifreq *ireq, struct socket *so,
 	sin->sin_addr.s_addr = myaddr->sin_addr.s_addr | ~netmask->sin_addr.s_addr;
 	error = ifioctl (so, SIOCSIFBRDADDR, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_adjust_interface: set broadcast addr, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_adjust_interface: set broadcast addr, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	bcopy (myaddr, &ireq->ifr_addr, sizeof (*myaddr));
 	error = ifioctl (so, SIOCSIFADDR, (caddr_t) ireq, procp);
 	if (error)
-	  {
-		  printf ("bootpc_adjust_interface: set if addr, error=%s\n",
-				  strerror (error));
-		  return error;
-	  }
+	{
+		printf ("bootpc_adjust_interface: set if addr, error=%s\n",
+				strerror (error));
+		return error;
+	}
 
 	/* Add new default route */
 
 	error = rtrequest (RTM_ADD,
-					   (struct sockaddr *)&olddst,
-					   (struct sockaddr *)gw,
-					   (struct sockaddr *)&oldmask,
-					   (RTF_UP | RTF_GATEWAY | RTF_STATIC), NULL);
+					 (struct sockaddr *)&olddst,
+					 (struct sockaddr *)gw,
+					 (struct sockaddr *)&oldmask,
+					 (RTF_UP | RTF_GATEWAY | RTF_STATIC), NULL);
 	if (error)
-	  {
-		  printf ("bootpc_adjust_interface: add net route, error=%d\n", error);
-	  }
+	{
+		printf ("bootpc_adjust_interface: add net route, error=%d\n", error);
+	}
 
 	return error;
 }
@@ -745,10 +745,10 @@ static int getdec (char **ptr)
 	if ((*p < '0') || (*p > '9'))
 		return (-1);
 	while ((*p >= '0') && (*p <= '9'))
-	  {
-		  ret = ret * 10 + (*p - '0');
-		  p++;
-	  }
+	{
+		ret = ret * 10 + (*p - '0');
+		p++;
+	}
 	*ptr = p;
 	return (ret);
 }
@@ -782,226 +782,226 @@ static void processOptions (unsigned char *optbuf, int optbufSize)
 
 	ncode = optbuf[0];
 	while (j < optbufSize)
-	  {
-		  code = optbuf[j] = ncode;
-		  if (code == 255)
-			  return;
-		  if (code == 0)
-			{
-				j++;
-				continue;
-			}
-		  len = optbuf[j + 1];
-		  j += 2;
-		  if ((len + j) >= optbufSize)
-			{
-				printf ("Truncated field for code %d", code);
-				return;
-			}
-		  ncode = optbuf[j + len];
-		  optbuf[j + len] = '\0';
-		  p = &optbuf[j];
-		  j += len;
+	{
+		code = optbuf[j] = ncode;
+		if (code == 255)
+			return;
+		if (code == 0)
+		{
+			j++;
+			continue;
+		}
+		len = optbuf[j + 1];
+		j += 2;
+		if ((len + j) >= optbufSize)
+		{
+			printf ("Truncated field for code %d", code);
+			return;
+		}
+		ncode = optbuf[j + len];
+		optbuf[j + len] = '\0';
+		p = &optbuf[j];
+		j += len;
 
-		  /*
-		   * Process the option
-		   */
-		  switch (code)
-			{
-				case 1:
-					/* Subnet mask */
-					if (len != 4)
-					  {
-						  printf ("bootpc: subnet mask len is %d\n", len);
-						  continue;
-					  }
-					bcopy (p, &dhcp_netmask.sin_addr, 4);
-					dhcp_gotnetmask = 1;
-					break;
+		/*
+		 * Process the option
+		 */
+		switch (code)
+		{
+			case 1:
+				/* Subnet mask */
+				if (len != 4)
+				{
+					printf ("bootpc: subnet mask len is %d\n", len);
+					continue;
+				}
+				bcopy (p, &dhcp_netmask.sin_addr, 4);
+				dhcp_gotnetmask = 1;
+				break;
 
-				case 2:
-					/* Time offset */
-					if (len != 4)
-					  {
-						  printf ("bootpc: time offset len is %d\n", len);
-						  continue;
-					  }
-					bcopy (p, &rtems_bsdnet_timeoffset, 4);
-					rtems_bsdnet_timeoffset = ntohl (rtems_bsdnet_timeoffset);
-					break;
+			case 2:
+				/* Time offset */
+				if (len != 4)
+				{
+					printf ("bootpc: time offset len is %d\n", len);
+					continue;
+				}
+				bcopy (p, &rtems_bsdnet_timeoffset, 4);
+				rtems_bsdnet_timeoffset = ntohl (rtems_bsdnet_timeoffset);
+				break;
 
-				case 3:
-					/* Routers */
-					if (len % 4)
-					  {
-						  printf ("bootpc: Router Len is %d\n", len);
-						  continue;
-					  }
-					if (len > 0)
-					  {
-						  bcopy (p, &dhcp_gw.sin_addr, 4);
-						  dhcp_gotgw = 1;
-					  }
-					break;
+			case 3:
+				/* Routers */
+				if (len % 4)
+				{
+					printf ("bootpc: Router Len is %d\n", len);
+					continue;
+				}
+				if (len > 0)
+				{
+					bcopy (p, &dhcp_gw.sin_addr, 4);
+					dhcp_gotgw = 1;
+				}
+				break;
 
-				case 42:
-					/* NTP servers */
-					if (len % 4)
-					  {
-						  printf ("bootpc: time server Len is %d\n", len);
-						  continue;
-					  }
+			case 42:
+				/* NTP servers */
+				if (len % 4)
+				{
+					printf ("bootpc: time server Len is %d\n", len);
+					continue;
+				}
+				{
+					int tlen = 0;
+					while ((tlen < len) &&
+						 (rtems_bsdnet_ntpserver_count <
+							sizeof rtems_bsdnet_config.ntp_server /
+							sizeof rtems_bsdnet_config.ntp_server[0]))
 					{
-						int tlen = 0;
-						while ((tlen < len) &&
-							   (rtems_bsdnet_ntpserver_count <
-								sizeof rtems_bsdnet_config.ntp_server /
-								sizeof rtems_bsdnet_config.ntp_server[0]))
-						  {
-							  bcopy (p + tlen,
-									 &rtems_bsdnet_ntpserver
-									 [rtems_bsdnet_ntpserver_count], 4);
-							  printip ("Time Server",
-									   rtems_bsdnet_ntpserver
-									   [rtems_bsdnet_ntpserver_count]);
-							  rtems_bsdnet_ntpserver_count++;
-							  tlen += 4;
-						  }
+						bcopy (p + tlen,
+								 &rtems_bsdnet_ntpserver
+								 [rtems_bsdnet_ntpserver_count], 4);
+						printip ("Time Server",
+								 rtems_bsdnet_ntpserver
+								 [rtems_bsdnet_ntpserver_count]);
+						rtems_bsdnet_ntpserver_count++;
+						tlen += 4;
 					}
-					break;
+				}
+				break;
 
-				case 6:
-					/* Domain Name servers */
-					if (len % 4)
-					  {
-						  printf ("bootpc: DNS Len is %d", len);
-						  continue;
-					  }
+			case 6:
+				/* Domain Name servers */
+				if (len % 4)
+				{
+					printf ("bootpc: DNS Len is %d", len);
+					continue;
+				}
+				{
+					int dlen = 0;
+					while ((dlen < len) &&
+						 (rtems_bsdnet_nameserver_count <
+							sizeof rtems_bsdnet_config.name_server /
+							sizeof rtems_bsdnet_config.name_server[0]))
 					{
-						int dlen = 0;
-						while ((dlen < len) &&
-							   (rtems_bsdnet_nameserver_count <
-								sizeof rtems_bsdnet_config.name_server /
-								sizeof rtems_bsdnet_config.name_server[0]))
-						  {
-							  bcopy (p + dlen,
-									 &rtems_bsdnet_nameserver
-									 [rtems_bsdnet_nameserver_count], 4);
-							  printip ("Domain Name Server",
-									   rtems_bsdnet_nameserver
-									   [rtems_bsdnet_nameserver_count]);
-							  rtems_bsdnet_nameserver_count++;
-							  dlen += 4;
-						  }
+						bcopy (p + dlen,
+								 &rtems_bsdnet_nameserver
+								 [rtems_bsdnet_nameserver_count], 4);
+						printip ("Domain Name Server",
+								 rtems_bsdnet_nameserver
+								 [rtems_bsdnet_nameserver_count]);
+						rtems_bsdnet_nameserver_count++;
+						dlen += 4;
 					}
-					break;
+				}
+				break;
 
-				case 12:
-					/* Host name */
-					if (len >= MAXHOSTNAMELEN)
-					  {
-						  printf ("bootpc: hostname >=%d bytes",
-								  MAXHOSTNAMELEN);
-						  continue;
-					  }
-					if (sethostname ((char *)p, len) < 0)
-					  {
-						  printf ("bootpc: Can't set host name");
-					  }
-					printf ("Hostname is %s\n", p);
-					dhcp_hostname =
-						bootp_strdup_realloc (dhcp_hostname, (char *)p);
-					break;
+			case 12:
+				/* Host name */
+				if (len >= MAXHOSTNAMELEN)
+				{
+					printf ("bootpc: hostname >=%d bytes",
+							MAXHOSTNAMELEN);
+					continue;
+				}
+				if (sethostname ((char *)p, len) < 0)
+				{
+					printf ("bootpc: Can't set host name");
+				}
+				printf ("Hostname is %s\n", p);
+				dhcp_hostname =
+					bootp_strdup_realloc (dhcp_hostname, (char *)p);
+				break;
 
-				case 7:
-					/* Log servers */
-					if (len % 4)
-					  {
-						  printf ("bootpc: Log server Len is %d", len);
-						  continue;
-					  }
-					if (len > 0)
-					  {
-						  bcopy (p, &rtems_bsdnet_log_host_address, 4);
-						  dhcp_gotlogserver = 1;
-					  }
-					break;
+			case 7:
+				/* Log servers */
+				if (len % 4)
+				{
+					printf ("bootpc: Log server Len is %d", len);
+					continue;
+				}
+				if (len > 0)
+				{
+					bcopy (p, &rtems_bsdnet_log_host_address, 4);
+					dhcp_gotlogserver = 1;
+				}
+				break;
 
-				case 15:
-					/* Domain name */
-					if (p[0])
-					  {
-						  rtems_bsdnet_domain_name =
-							  bootp_strdup_realloc (rtems_bsdnet_domain_name,
-													(char *)p);
-						  printf ("Domain name is %s\n",
-								  rtems_bsdnet_domain_name);
-					  }
-					break;
+			case 15:
+				/* Domain name */
+				if (p[0])
+				{
+					rtems_bsdnet_domain_name =
+						bootp_strdup_realloc (rtems_bsdnet_domain_name,
+												(char *)p);
+					printf ("Domain name is %s\n",
+							rtems_bsdnet_domain_name);
+				}
+				break;
 
-				case 16:		/* Swap server IP address. unused */
-					break;
+			case 16:		/* Swap server IP address. unused */
+				break;
 
-				case 52:
-					/* DHCP option override */
-					if (len != 1)
-					  {
-						  printf ("bootpc: DHCP option overload len is %d",
-								  len);
-						  continue;
-					  }
-					dhcpOptionOverload = p[0];
-					break;
+			case 52:
+				/* DHCP option override */
+				if (len != 1)
+				{
+					printf ("bootpc: DHCP option overload len is %d",
+							len);
+					continue;
+				}
+				dhcpOptionOverload = p[0];
+				break;
 
-				case 128:		/* Site-specific option for DHCP servers that 
-								 *   a) don't supply tag 54
-								 * and
-								 *   b) don't supply the server address in siaddr
-								 * For example, on Solaris 2.6 in.dhcpd, include in the dhcptab:
-								 *    Bootsrv s Site,128,IP,1,1
-								 * and use that symbol in the macro that defines the client:
-								 *    Bootsrv=<tftp-server-ip-address>
-								 */
-				case 54:
-					/* DHCP server */
-					if (len != 4)
-					  {
-						  printf ("bootpc: DHCP server len is %d", len);
-						  continue;
-					  }
-					bcopy (p, &rtems_bsdnet_bootp_server_address, 4);
-					dhcp_gotserver = 1;
-					break;
+			case 128:		/* Site-specific option for DHCP servers that
+							 *   a) don't supply tag 54
+							 * and
+							 *   b) don't supply the server address in siaddr
+							 * For example, on Solaris 2.6 in.dhcpd, include in the dhcptab:
+							 *    Bootsrv s Site,128,IP,1,1
+							 * and use that symbol in the macro that defines the client:
+							 *    Bootsrv=<tftp-server-ip-address>
+							 */
+			case 54:
+				/* DHCP server */
+				if (len != 4)
+				{
+					printf ("bootpc: DHCP server len is %d", len);
+					continue;
+				}
+				bcopy (p, &rtems_bsdnet_bootp_server_address, 4);
+				dhcp_gotserver = 1;
+				break;
 
-				case 66:
-					/* DHCP server name option */
-					if (p[0])
-						rtems_bsdnet_bootp_server_name =
-							bootp_strdup_realloc
-							(rtems_bsdnet_bootp_server_name, (char *)p);
-					break;
+			case 66:
+				/* DHCP server name option */
+				if (p[0])
+					rtems_bsdnet_bootp_server_name =
+						bootp_strdup_realloc
+						(rtems_bsdnet_bootp_server_name, (char *)p);
+				break;
 
-				case 67:
-					/* DHCP bootfile option */
-					if (p[0])
-						rtems_bsdnet_bootp_boot_file_name =
-							bootp_strdup_realloc
-							(rtems_bsdnet_bootp_boot_file_name, (char *)p);
-					break;
+			case 67:
+				/* DHCP bootfile option */
+				if (p[0])
+					rtems_bsdnet_bootp_boot_file_name =
+						bootp_strdup_realloc
+						(rtems_bsdnet_bootp_boot_file_name, (char *)p);
+				break;
 
-				case 129:
-					/* Site specific option; we use this to get 
-					 * a 'command line string'
-					 */
-					if (p[0])
-						rtems_bsdnet_bootp_cmdline = strdup ((char *)p);
-					break;
+			case 129:
+				/* Site specific option; we use this to get
+				 * a 'command line string'
+				 */
+				if (p[0])
+					rtems_bsdnet_bootp_cmdline = strdup ((char *)p);
+				break;
 
-				default:
-					printf ("Ignoring BOOTP/DHCP option code %d\n", code);
-					break;
-			}
-	  }
+			default:
+				printf ("Ignoring BOOTP/DHCP option code %d\n", code);
+				break;
+		}
+	}
 }
 
 #define EALEN 6
@@ -1035,17 +1035,17 @@ bool bootpc_init (bool update_files, bool forever)
 	 */
 	if (update_files)
 		if (rtems_create_root_fs () < 0)
-		  {
-			  printf
-				  ("Error creating the root filesystem.\nFile not created.\n");
-			  update_files = 0;
-		  }
+		{
+			printf
+				("Error creating the root filesystem.\nFile not created.\n");
+			update_files = 0;
+		}
 
 	if (dhcp_hostname != NULL)
-	  {
-		  /* free it */
-		  dhcp_hostname = bootp_strdup_realloc (dhcp_hostname, 0);
-	  }
+	{
+		/* free it */
+		dhcp_hostname = bootp_strdup_realloc (dhcp_hostname, 0);
+	}
 
 	/*
 	 * Find a network interface.
@@ -1054,24 +1054,24 @@ bool bootpc_init (bool update_files, bool forever)
 		if ((ifp->if_flags & (IFF_LOOPBACK | IFF_POINTOPOINT)) == 0)
 			break;
 	if (ifp == NULL)
-	  {
-		  printf ("bootpc_init: no suitable interface\n");
-		  return false;
-	  }
+	{
+		printf ("bootpc_init: no suitable interface\n");
+		return false;
+	}
 	bzero (&ireq, sizeof (ireq));
 	sprintf (ireq.ifr_name, "%s%d", ifp->if_name, ifp->if_unit);
 	printf ("bootpc_init: using network interface '%s'\n", ireq.ifr_name);
 
 	if ((error = socreate (AF_INET, &so, SOCK_DGRAM, 0, procp)) != 0)
-	  {
-		  printf ("bootpc_init: socreate, error=%d", error);
-		  return false;
-	  }
+	{
+		printf ("bootpc_init: socreate, error=%d", error);
+		return false;
+	}
 	if (bootpc_fakeup_interface (&ireq, so, procp) != 0)
-	  {
-		  soclose (so);
-		  return false;
-	  }
+	{
+		soclose (so);
+		return false;
+	}
 
 	/* Get HW address */
 
@@ -1082,26 +1082,26 @@ bool bootpc_init (bool update_files, bool forever)
 			break;
 
 	if (!sdl)
-	  {
-		  printf ("bootpc: Unable to find HW address\n");
-		  soclose (so);
-		  return false;
-	  }
+	{
+		printf ("bootpc: Unable to find HW address\n");
+		soclose (so);
+		return false;
+	}
 	if (sdl->sdl_alen != EALEN)
-	  {
-		  printf ("bootpc: HW address len is %d, expected value is %d\n",
-				  sdl->sdl_alen, EALEN);
-		  soclose (so);
-		  return false;
-	  }
+	{
+		printf ("bootpc: HW address len is %d, expected value is %d\n",
+				sdl->sdl_alen, EALEN);
+		soclose (so);
+		return false;
+	}
 
 	printf ("bootpc hw address is ");
 	delim = "";
 	for (j = 0; j < sdl->sdl_alen; j++)
-	  {
-		  printf ("%s%x", delim, ((unsigned char *)LLADDR (sdl))[j]);
-		  delim = ":";
-	  }
+	{
+		printf ("%s%x", delim, ((unsigned char *)LLADDR (sdl))[j]);
+		delim = ":";
+	}
 	printf ("\n");
 
 #if 0
@@ -1110,40 +1110,40 @@ bool bootpc_init (bool update_files, bool forever)
 #endif
 
 	while (true)
-	  {
-		  bzero ((caddr_t) & call, sizeof (call));
+	{
+		bzero ((caddr_t) & call, sizeof (call));
 
-		  /* bootpc part */
-		  call.op = 1;			/* BOOTREQUEST */
-		  call.htype = 1;		/* 10mb ethernet */
-		  call.hlen = sdl->sdl_alen;	/* Hardware address length */
-		  call.hops = 0;
-		  xid++;
-		  call.xid = txdr_unsigned (xid);
-		  bcopy (LLADDR (sdl), &call.chaddr, sdl->sdl_alen);
+		/* bootpc part */
+		call.op = 1;			/* BOOTREQUEST */
+		call.htype = 1;		/* 10mb ethernet */
+		call.hlen = sdl->sdl_alen;	/* Hardware address length */
+		call.hops = 0;
+		xid++;
+		call.xid = txdr_unsigned (xid);
+		bcopy (LLADDR (sdl), &call.chaddr, sdl->sdl_alen);
 
-		  call.vend[0] = 99;
-		  call.vend[1] = 130;
-		  call.vend[2] = 83;
-		  call.vend[3] = 99;
-		  call.vend[4] = 255;
+		call.vend[0] = 99;
+		call.vend[1] = 130;
+		call.vend[2] = 83;
+		call.vend[3] = 99;
+		call.vend[4] = 255;
 
-		  call.secs = 0;
-		  call.flags = htons (0x8000);	/* We need an broadcast answer */
+		call.secs = 0;
+		call.flags = htons (0x8000);	/* We need an broadcast answer */
 
-		  error = bootpc_call (&call, &reply, procp);
+		error = bootpc_call (&call, &reply, procp);
 
-		  if (!error)
-			  break;
+		if (!error)
+			break;
 
-		  printf ("BOOTP call failed -- error %d", error);
+		printf ("BOOTP call failed -- error %d", error);
 
-		  if (!forever)
-			{
-				soclose (so);
-				return false;
-			}
-	  }
+		if (!forever)
+		{
+			soclose (so);
+			return false;
+		}
+	}
 
 	/*
 	 * Initialize network address structures
@@ -1169,31 +1169,31 @@ bool bootpc_init (bool update_files, bool forever)
 	 */
 	if (reply.vend[0] == 99 && reply.vend[1] == 130 &&
 		reply.vend[2] == 83 && reply.vend[3] == 99)
-	  {
-		  processOptions (&reply.vend[4], sizeof (reply.vend) - 4);
-	  }
+	{
+		processOptions (&reply.vend[4], sizeof (reply.vend) - 4);
+	}
 	if (dhcpOptionOverload & 1)
-	  {
-		  processOptions ((unsigned char *)reply.file, sizeof reply.file);
-	  }
+	{
+		processOptions ((unsigned char *)reply.file, sizeof reply.file);
+	}
 	else
-	  {
-		  if (reply.file[0])
-			  rtems_bsdnet_bootp_boot_file_name =
-				  bootp_strdup_realloc (rtems_bsdnet_bootp_boot_file_name,
+	{
+		if (reply.file[0])
+			rtems_bsdnet_bootp_boot_file_name =
+				bootp_strdup_realloc (rtems_bsdnet_bootp_boot_file_name,
 										reply.file);
-	  }
+	}
 	if (dhcpOptionOverload & 2)
-	  {
-		  processOptions ((unsigned char *)reply.sname, sizeof reply.sname);
-	  }
+	{
+		processOptions ((unsigned char *)reply.sname, sizeof reply.sname);
+	}
 	else
-	  {
-		  if (reply.sname[0])
-			  rtems_bsdnet_bootp_server_name =
-				  bootp_strdup_realloc (rtems_bsdnet_bootp_server_name,
+	{
+		if (reply.sname[0])
+			rtems_bsdnet_bootp_server_name =
+				bootp_strdup_realloc (rtems_bsdnet_bootp_server_name,
 										reply.sname);
-	  }
+	}
 	if (rtems_bsdnet_bootp_server_name)
 		printf ("Server name is %s\n", rtems_bsdnet_bootp_server_name);
 	if (rtems_bsdnet_bootp_boot_file_name)
@@ -1205,14 +1205,14 @@ bool bootpc_init (bool update_files, bool forever)
 	 * Use defaults if values were not supplied by BOOTP/DHCP options
 	 */
 	if (!dhcp_gotnetmask)
-	  {
-		  if (IN_CLASSA (ntohl (myaddr.sin_addr.s_addr)))
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSA_NET);
-		  else if (IN_CLASSB (ntohl (myaddr.sin_addr.s_addr)))
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSB_NET);
-		  else
-			  dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSC_NET);
-	  }
+	{
+		if (IN_CLASSA (ntohl (myaddr.sin_addr.s_addr)))
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSA_NET);
+		else if (IN_CLASSB (ntohl (myaddr.sin_addr.s_addr)))
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSB_NET);
+		else
+			dhcp_netmask.sin_addr.s_addr = htonl (IN_CLASSC_NET);
+	}
 	printip ("Subnet mask", dhcp_netmask.sin_addr);
 	if (!dhcp_gotserver)
 		rtems_bsdnet_bootp_server_address = reply.siaddr;
@@ -1228,68 +1228,68 @@ bool bootpc_init (bool update_files, bool forever)
 	 * Update the files if we are asked too.
 	 */
 	if (update_files)
-	  {
-		  char *dn = rtems_bsdnet_domain_name;
-		  char *hn = dhcp_hostname;
-		  if (!dn)
-			  dn = "mydomain";
-		  if (!hn)
-			  hn = "me";
-		  rtems_rootfs_append_host_rec (myaddr.sin_addr.s_addr, hn, dn);
+	{
+		char *dn = rtems_bsdnet_domain_name;
+		char *hn = dhcp_hostname;
+		if (!dn)
+			dn = "mydomain";
+		if (!hn)
+			hn = "me";
+		rtems_rootfs_append_host_rec (myaddr.sin_addr.s_addr, hn, dn);
 
-		  /*
-		   * Should the given domainname be used here ?
-		   */
-		  if (dhcp_gotserver)
-			{
-				if (rtems_bsdnet_bootp_server_name)
-					hn = rtems_bsdnet_bootp_server_name;
-				else
-					hn = "bootps";
-				rtems_rootfs_append_host_rec (rtems_bsdnet_bootp_server_address.
-											  s_addr, hn, dn);
-			}
+		/*
+		 * Should the given domainname be used here ?
+		 */
+		if (dhcp_gotserver)
+		{
+			if (rtems_bsdnet_bootp_server_name)
+				hn = rtems_bsdnet_bootp_server_name;
+			else
+				hn = "bootps";
+			rtems_rootfs_append_host_rec (rtems_bsdnet_bootp_server_address.
+										s_addr, hn, dn);
+		}
 
-		  if (dhcp_gotlogserver)
-			{
-				rtems_rootfs_append_host_rec (rtems_bsdnet_log_host_address.
-											  s_addr, "logs", dn);
-			}
+		if (dhcp_gotlogserver)
+		{
+			rtems_rootfs_append_host_rec (rtems_bsdnet_log_host_address.
+										s_addr, "logs", dn);
+		}
 
-		  /*
-		   * Setup the DNS configuration file /etc/resolv.conf.
-		   */
-		  if (rtems_bsdnet_nameserver_count)
-			{
-				int i;
-				char buf[64];
-				const char *bufl[1];
+		/*
+		 * Setup the DNS configuration file /etc/resolv.conf.
+		 */
+		if (rtems_bsdnet_nameserver_count)
+		{
+			int i;
+			char buf[64];
+			const char *bufl[1];
 
-				bufl[0] = buf;
+			bufl[0] = buf;
 
 #define MKFILE_MODE (S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH)
 
-				if (rtems_bsdnet_domain_name &&
-					(strlen (rtems_bsdnet_domain_name) < (sizeof (buf) - 1)))
-				  {
-					  strcpy (buf, "search ");
-					  strcat (buf, rtems_bsdnet_domain_name);
-					  strcat (buf, "\n");
-					  rtems_rootfs_file_append ("/etc/resolv.conf", MKFILE_MODE,
-												1, bufl);
-				  }
-
-				for (i = 0; i < rtems_bsdnet_nameserver_count; i++)
-				  {
-					  strcpy (buf, "nameserver ");
-					  strcat (buf, inet_ntoa (rtems_bsdnet_nameserver[i]));
-					  strcat (buf, "\n");
-					  if (rtems_rootfs_file_append
-						  ("/etc/resolv.conf", MKFILE_MODE, 1, bufl))
-						  break;
-				  }
+			if (rtems_bsdnet_domain_name &&
+				(strlen (rtems_bsdnet_domain_name) < (sizeof (buf) - 1)))
+			{
+				strcpy (buf, "search ");
+				strcat (buf, rtems_bsdnet_domain_name);
+				strcat (buf, "\n");
+				rtems_rootfs_file_append ("/etc/resolv.conf", MKFILE_MODE,
+											1, bufl);
 			}
-	  }
+
+			for (i = 0; i < rtems_bsdnet_nameserver_count; i++)
+			{
+				strcpy (buf, "nameserver ");
+				strcat (buf, inet_ntoa (rtems_bsdnet_nameserver[i]));
+				strcat (buf, "\n");
+				if (rtems_rootfs_file_append
+					("/etc/resolv.conf", MKFILE_MODE, 1, bufl))
+					break;
+			}
+		}
+	}
 
 	/*
 	 * Configure the interface with the new settings

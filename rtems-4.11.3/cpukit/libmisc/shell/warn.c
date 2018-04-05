@@ -52,7 +52,7 @@ __RCSID ("$NetBSD: warn.c,v 1.13 2005/09/13 13:51:50 christos Exp $");
 #ifdef __weak_alias
 __weak_alias (warn, _warn)
 #endif
-	 void warn (const char *fmt, ...)
+void warn (const char *fmt, ...)
 {
 	va_list ap;
 

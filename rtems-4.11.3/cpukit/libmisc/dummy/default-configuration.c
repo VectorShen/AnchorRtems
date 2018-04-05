@@ -28,57 +28,57 @@ static void Init (rtems_task_argument arg)
 	int result;
 
 	if (boot_cmdline != NULL)
-	  {
-		  size_t n = strlen (boot_cmdline) + 1;
+	{
+		size_t n = strlen (boot_cmdline) + 1;
 
-		  cmdline = malloc (n);
-		  if (cmdline != NULL)
+		cmdline = malloc (n);
+		if (cmdline != NULL)
+		{
+			char *command;
+
+			memcpy (cmdline, boot_cmdline, n);
+
+			command = cmdline;
+
+			/*
+			 * Break the line up into arguments with "" being ignored.
+			 */
+			while (true)
 			{
-				char *command;
+				command = strtok (command, " \t\r\n");
+				if (command == NULL)
+					break;
 
-				memcpy (cmdline, boot_cmdline, n);
+				++argc;
+				command = '\0';
+			}
+
+			/*
+			 * If there are arguments, allocate enough memory for the argv
+			 * array to be passed into main().
+			 *
+			 * NOTE: If argc is 0, then argv will be NULL.
+			 */
+			argv = calloc (argc, sizeof (*argv));
+			if (argv != NULL)
+			{
+				int a;
 
 				command = cmdline;
+				argv[0] = command;
 
-				/*
-				 * Break the line up into arguments with "" being ignored.
-				 */
-				while (true)
-				  {
-					  command = strtok (command, " \t\r\n");
-					  if (command == NULL)
-						  break;
-
-					  ++argc;
-					  command = '\0';
-				  }
-
-				/*
-				 * If there are arguments, allocate enough memory for the argv
-				 * array to be passed into main().
-				 *
-				 * NOTE: If argc is 0, then argv will be NULL.
-				 */
-				argv = calloc (argc, sizeof (*argv));
-				if (argv != NULL)
-				  {
-					  int a;
-
-					  command = cmdline;
-					  argv[0] = command;
-
-					  for (a = 1; a < argc; ++a)
-						{
-							command += strlen (command) + 1;
-							argv[a] = command;
-						}
-				  }
-				else
-				  {
-					  argc = 0;
-				  }
+				for (a = 1; a < argc; ++a)
+				{
+					command += strlen (command) + 1;
+					argv[a] = command;
+				}
 			}
-	  }
+			else
+			{
+				argc = 0;
+			}
+		}
+	}
 
 	result = main (argc, argv);
 

@@ -41,10 +41,10 @@ int sem_post (sem_t * sem)
 															&location,
 															&lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _CORE_semaphore_Surrender (&the_semaphore->Semaphore,
+		case OBJECTS_LOCAL:
+			_CORE_semaphore_Surrender (&the_semaphore->Semaphore,
 										 the_semaphore->Object.id,
 #if defined(RTEMS_MULTIPROCESSING)
 										 NULL,	/* POSIX Semaphores are local only */
@@ -52,14 +52,14 @@ int sem_post (sem_t * sem)
 										 NULL,
 #endif
 										 &lock_context);
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	rtems_set_errno_and_return_minus_one (EINVAL);
 }

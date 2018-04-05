@@ -17,7 +17,7 @@
  */
 void
 rtems_monitor_init_task_canonical (rtems_monitor_init_task_t * canonical_itask,
-								   const void *itask_void)
+								 const void *itask_void)
 {
 	const rtems_initialization_tasks_table *rtems_itask = itask_void;
 
@@ -32,10 +32,10 @@ rtems_monitor_init_task_canonical (rtems_monitor_init_task_t * canonical_itask,
 }
 
 const void *rtems_monitor_init_task_next (void *object_info
-										  __attribute__ ((unused)),
-										  rtems_monitor_init_task_t *
-										  canonical_init_task,
-										  rtems_id * next_id)
+										__attribute__ ((unused)),
+										rtems_monitor_init_task_t *
+										canonical_init_task,
+										rtems_id * next_id)
 {
 	rtems_initialization_tasks_table *itask;
 	uint32_t n = rtems_object_id_get_index (*next_id);
@@ -76,7 +76,7 @@ void rtems_monitor_init_task_dump_header (bool verbose __attribute__ ((unused)))
 
 void
 rtems_monitor_init_task_dump (rtems_monitor_init_task_t * monitor_itask,
-							  bool verbose)
+							bool verbose)
 {
 	int length = 0;
 
@@ -90,7 +90,7 @@ rtems_monitor_init_task_dump (rtems_monitor_init_task_t * monitor_itask,
 
 	length += rtems_monitor_pad (25, length);
 	length += fprintf (stdout, "%" PRId32 " [0x%" PRIx32 "]",
-					   monitor_itask->argument, monitor_itask->argument);
+					 monitor_itask->argument, monitor_itask->argument);
 
 	length += rtems_monitor_pad (39, length);
 	length += rtems_monitor_dump_priority (monitor_itask->priority);
@@ -103,7 +103,7 @@ rtems_monitor_init_task_dump (rtems_monitor_init_task_t * monitor_itask,
 
 	length += rtems_monitor_pad (66, length);
 	length += fprintf (stdout, "%" PRId32 " [0x%" PRIx32 "]",
-					   monitor_itask->stack_size, monitor_itask->stack_size);
+					 monitor_itask->stack_size, monitor_itask->stack_size);
 
 	fprintf (stdout, "\n");
 }

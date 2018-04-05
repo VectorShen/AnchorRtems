@@ -40,35 +40,35 @@ int pthread_mutex_destroy (pthread_mutex_t * mutex)
 	_Objects_Allocator_lock ();
 	the_mutex = _POSIX_Mutex_Get (mutex, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  /*
-			   * XXX: There is an error for the mutex being locked
-			   *  or being in use by a condition variable.
-			   */
+		case OBJECTS_LOCAL:
+			/*
+			 * XXX: There is an error for the mutex being locked
+			 *  or being in use by a condition variable.
+			 */
 
-			  if (_CORE_mutex_Is_locked (&the_mutex->Mutex))
-				{
-					_Objects_Put (&the_mutex->Object);
-					_Objects_Allocator_unlock ();
-					return EBUSY;
-				}
+			if (_CORE_mutex_Is_locked (&the_mutex->Mutex))
+			{
+				_Objects_Put (&the_mutex->Object);
+				_Objects_Allocator_unlock ();
+				return EBUSY;
+			}
 
-			  _Objects_Close (&_POSIX_Mutex_Information, &the_mutex->Object);
-			  _CORE_mutex_Flush (&the_mutex->Mutex, NULL, EINVAL);
-			  _Objects_Put (&the_mutex->Object);
-			  _POSIX_Mutex_Free (the_mutex);
-			  _Objects_Allocator_unlock ();
+			_Objects_Close (&_POSIX_Mutex_Information, &the_mutex->Object);
+			_CORE_mutex_Flush (&the_mutex->Mutex, NULL, EINVAL);
+			_Objects_Put (&the_mutex->Object);
+			_POSIX_Mutex_Free (the_mutex);
+			_Objects_Allocator_unlock ();
 
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

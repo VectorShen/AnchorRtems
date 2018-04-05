@@ -65,9 +65,9 @@ __weak_alias (vwarn, _vwarn)
 	(void)fprintf (stderr, "%s: ", getprogname ());
 #endif
 	if (fmt != NULL)
-	  {
-		  (void)vfprintf (stdout, fmt, ap);
-		  (void)fprintf (stdout, ": ");
-	  }
+	{
+		(void)vfprintf (stdout, fmt, ap);
+		(void)fprintf (stdout, ": ");
+	}
 	(void)fprintf (stdout, "%s\n", strerror (sverrno));
 }

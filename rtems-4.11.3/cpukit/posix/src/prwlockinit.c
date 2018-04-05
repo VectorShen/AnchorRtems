@@ -27,39 +27,39 @@
 #include <rtems/score/apimutex.h>
 
 static bool _POSIX_RWLock_Check_id_and_auto_init (pthread_mutex_t * rwlock,
-												  Objects_Locations * location)
+												Objects_Locations * location)
 {
 	if (rwlock == NULL)
-	  {
-		  *location = OBJECTS_ERROR;
+	{
+		*location = OBJECTS_ERROR;
 
-		  return false;
-	  }
+		return false;
+	}
 
 	if (*rwlock == PTHREAD_RWLOCK_INITIALIZER)
-	  {
-		  int eno;
+	{
+		int eno;
 
-		  _Once_Lock ();
+		_Once_Lock ();
 
-		  if (*rwlock == PTHREAD_RWLOCK_INITIALIZER)
-			{
-				eno = pthread_rwlock_init (rwlock, NULL);
-			}
-		  else
-			{
-				eno = 0;
-			}
+		if (*rwlock == PTHREAD_RWLOCK_INITIALIZER)
+		{
+			eno = pthread_rwlock_init (rwlock, NULL);
+		}
+		else
+		{
+			eno = 0;
+		}
 
-		  _Once_Unlock ();
+		_Once_Unlock ();
 
-		  if (eno != 0)
-			{
-				*location = OBJECTS_ERROR;
+		if (eno != 0)
+		{
+			*location = OBJECTS_ERROR;
 
-				return false;
-			}
-	  }
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -68,12 +68,12 @@ POSIX_RWLock_Control *_POSIX_RWLock_Get (pthread_rwlock_t * rwlock,
 										 Objects_Locations * location)
 {
 	if (!_POSIX_RWLock_Check_id_and_auto_init (rwlock, location))
-	  {
-		  return NULL;
-	  }
+	{
+		return NULL;
+	}
 
 	return (POSIX_RWLock_Control *) _Objects_Get (&_POSIX_RWLock_Information,
-												  *rwlock, location);
+												*rwlock, location);
 }
 
 /*
@@ -109,14 +109,14 @@ int pthread_rwlock_init (pthread_rwlock_t * rwlock,
 	 * If the user passed in NULL, use the default attributes
 	 */
 	if (attr)
-	  {
-		  the_attr = attr;
-	  }
+	{
+		the_attr = attr;
+	}
 	else
-	  {
-		  (void)pthread_rwlockattr_init (&default_attr);
-		  the_attr = &default_attr;
-	  }
+	{
+		(void)pthread_rwlockattr_init (&default_attr);
+		the_attr = &default_attr;
+	}
 
 	/*
 	 * Now start error checking the attributes that we are going to use
@@ -125,13 +125,13 @@ int pthread_rwlock_init (pthread_rwlock_t * rwlock,
 		return EINVAL;
 
 	switch (the_attr->process_shared)
-	  {
-		  case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
-			  break;
-		  case PTHREAD_PROCESS_SHARED:
-		  default:
-			  return EINVAL;
-	  }
+	{
+		case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
+			break;
+		case PTHREAD_PROCESS_SHARED:
+		default:
+			return EINVAL;
+	}
 
 	/*
 	 * Convert from POSIX attributes to Core RWLock attributes
@@ -143,10 +143,10 @@ int pthread_rwlock_init (pthread_rwlock_t * rwlock,
 	the_rwlock = _POSIX_RWLock_Allocate ();
 
 	if (!the_rwlock)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	_CORE_RWLock_Initialize (&the_rwlock->RWLock, &the_attributes);
 

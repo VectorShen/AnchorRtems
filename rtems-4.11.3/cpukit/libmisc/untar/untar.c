@@ -78,13 +78,13 @@ unsigned long _rtems_octal2ulong (const char *octascii, size_t len)
 
 	num = 0;
 	for (i = 0; i < len; i++)
-	  {
-		  if ((octascii[i] < '0') || (octascii[i] > '9'))
-			{
-				continue;
-			}
-		  num = num * 8 + ((unsigned long)(octascii[i] - '0'));
-	  }
+	{
+		if ((octascii[i] < '0') || (octascii[i] > '9'))
+		{
+			continue;
+		}
+		num = num * 8 + ((unsigned long)(octascii[i] - '0'));
+	}
 	return (num);
 }
 
@@ -129,117 +129,117 @@ int Untar_FromMemory (void *tar_buf, size_t size)
 
 	ptr = 0;
 	while (1)
-	  {
-		  if (ptr + 512 > size)
+	{
+		if (ptr + 512 > size)
+		{
+			retval = UNTAR_SUCCESSFUL;
+			break;
+		}
+
+		/* Read the header */
+		bufr = &tar_ptr[ptr];
+		ptr += 512;
+		if (strncmp (&bufr[257], "ustar", 5))
+		{
+			retval = UNTAR_SUCCESSFUL;
+			break;
+		}
+
+		strncpy (fname, bufr, MAX_NAME_FIELD_SIZE);
+		fname[MAX_NAME_FIELD_SIZE] = '\0';
+
+		linkflag = bufr[156];
+		file_size = _rtems_octal2ulong (&bufr[124], 12);
+
+		/*
+		 * Compute the TAR checksum and check with the value in
+		 * the archive.  The checksum is computed over the entire
+		 * header, but the checksum field is substituted with blanks.
+		 */
+		hdr_chksum = _rtems_octal2ulong (&bufr[148], 8);
+		sum = _rtems_tar_header_checksum (bufr);
+
+		if (sum != hdr_chksum)
+		{
+			retval = UNTAR_INVALID_CHECKSUM;
+			break;
+		}
+
+		/*
+		 * We've decoded the header, now figure out what it contains and
+		 * do something with it.
+		 */
+		if (linkflag == SYMTYPE)
+		{
+			strncpy (linkname, &bufr[157], MAX_NAME_FIELD_SIZE);
+			linkname[MAX_NAME_FIELD_SIZE] = '\0';
+			symlink (linkname, fname);
+		}
+		else if (linkflag == REGTYPE)
+		{
+			nblocks = (((file_size) + 511) & ~511) / 512;
+			if ((fp = fopen (fname, "w")) == NULL)
 			{
-				retval = UNTAR_SUCCESSFUL;
-				break;
+				printk ("Untar: failed to create file %s\n", fname);
+				ptr += 512 * nblocks;
 			}
-
-		  /* Read the header */
-		  bufr = &tar_ptr[ptr];
-		  ptr += 512;
-		  if (strncmp (&bufr[257], "ustar", 5))
+			else
 			{
-				retval = UNTAR_SUCCESSFUL;
-				break;
+				unsigned long sizeToGo = file_size;
+				size_t len;
+
+				/*
+				 * Read out the data.  There are nblocks of data where nblocks
+				 * is the file_size rounded to the nearest 512-byte boundary.
+				 */
+				for (i = 0; i < nblocks; i++)
+				{
+					len = ((sizeToGo < 512L) ? (sizeToGo) : (512L));
+					n = fwrite (&tar_ptr[ptr], 1, len, fp);
+					if (n != len)
+					{
+						printk ("untar: Error during write\n");
+						retval = UNTAR_FAIL;
+						break;
+					}
+					ptr += 512;
+					sizeToGo -= n;
+				}
+				fclose (fp);
 			}
-
-		  strncpy (fname, bufr, MAX_NAME_FIELD_SIZE);
-		  fname[MAX_NAME_FIELD_SIZE] = '\0';
-
-		  linkflag = bufr[156];
-		  file_size = _rtems_octal2ulong (&bufr[124], 12);
-
-		  /*
-		   * Compute the TAR checksum and check with the value in
-		   * the archive.  The checksum is computed over the entire
-		   * header, but the checksum field is substituted with blanks.
-		   */
-		  hdr_chksum = _rtems_octal2ulong (&bufr[148], 8);
-		  sum = _rtems_tar_header_checksum (bufr);
-
-		  if (sum != hdr_chksum)
+		}
+		else if (linkflag == DIRTYPE)
+		{
+			if (mkdir (fname, S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 			{
-				retval = UNTAR_INVALID_CHECKSUM;
-				break;
-			}
-
-		  /*
-		   * We've decoded the header, now figure out what it contains and
-		   * do something with it.
-		   */
-		  if (linkflag == SYMTYPE)
-			{
-				strncpy (linkname, &bufr[157], MAX_NAME_FIELD_SIZE);
-				linkname[MAX_NAME_FIELD_SIZE] = '\0';
-				symlink (linkname, fname);
-			}
-		  else if (linkflag == REGTYPE)
-			{
-				nblocks = (((file_size) + 511) & ~511) / 512;
-				if ((fp = fopen (fname, "w")) == NULL)
-				  {
-					  printk ("Untar: failed to create file %s\n", fname);
-					  ptr += 512 * nblocks;
-				  }
-				else
-				  {
-					  unsigned long sizeToGo = file_size;
-					  size_t len;
-
-					  /*
-					   * Read out the data.  There are nblocks of data where nblocks
-					   * is the file_size rounded to the nearest 512-byte boundary.
-					   */
-					  for (i = 0; i < nblocks; i++)
+				if (errno == EEXIST)
+				{
+					struct stat stat_buf;
+					if (stat (fname, &stat_buf) == 0)
+					{
+						if (S_ISDIR (stat_buf.st_mode))
 						{
-							len = ((sizeToGo < 512L) ? (sizeToGo) : (512L));
-							n = fwrite (&tar_ptr[ptr], 1, len, fp);
-							if (n != len)
-							  {
-								  printk ("untar: Error during write\n");
-								  retval = UNTAR_FAIL;
-								  break;
-							  }
-							ptr += 512;
-							sizeToGo -= n;
+							continue;
 						}
-					  fclose (fp);
-				  }
-			}
-		  else if (linkflag == DIRTYPE)
-			{
-				if (mkdir (fname, S_IRWXU | S_IRWXG | S_IRWXO) != 0)
-				  {
-					  if (errno == EEXIST)
+						else
 						{
-							struct stat stat_buf;
-							if (stat (fname, &stat_buf) == 0)
-							  {
-								  if (S_ISDIR (stat_buf.st_mode))
-									{
-										continue;
-									}
-								  else
-									{
-										if (unlink (fname) != -1)
-										  {
-											  if (mkdir
-												  (fname,
-												   S_IRWXU | S_IRWXG | S_IRWXO)
-												  == 0)
-												  continue;
-										  }
-									}
-							  }
+							if (unlink (fname) != -1)
+							{
+								if (mkdir
+									(fname,
+									 S_IRWXU | S_IRWXG | S_IRWXO)
+									== 0)
+									continue;
+							}
 						}
-					  printk ("Untar: failed to create directory %s\n", fname);
-					  retval = UNTAR_FAIL;
-					  break;
-				  }
+					}
+				}
+				printk ("Untar: failed to create directory %s\n", fname);
+				retval = UNTAR_FAIL;
+				break;
 			}
-	  }
+		}
+	}
 
 	return (retval);
 }
@@ -280,115 +280,115 @@ int Untar_FromFile (const char *tar_name)
 	retval = UNTAR_SUCCESSFUL;
 
 	if ((fd = open (tar_name, O_RDONLY)) < 0)
-	  {
-		  return UNTAR_FAIL;
-	  }
+	{
+		return UNTAR_FAIL;
+	}
 
 	bufr = (char *)malloc (512);
 	if (bufr == NULL)
-	  {
-		  close (fd);
-		  return (UNTAR_FAIL);
-	  }
+	{
+		close (fd);
+		return (UNTAR_FAIL);
+	}
 
 	while (1)
-	  {
-		  /* Read the header */
-		  /* If the header read fails, we just consider it the end of the tarfile. */
-		  if ((n = read (fd, bufr, 512)) != 512)
+	{
+		/* Read the header */
+		/* If the header read fails, we just consider it the end of the tarfile. */
+		if ((n = read (fd, bufr, 512)) != 512)
+		{
+			break;
+		}
+
+		if (strncmp (&bufr[257], "ustar", 5))
+		{
+			break;
+		}
+
+		strncpy (fname, bufr, MAX_NAME_FIELD_SIZE);
+		fname[MAX_NAME_FIELD_SIZE] = '\0';
+
+		linkflag = bufr[156];
+		size = _rtems_octal2ulong (&bufr[124], 12);
+
+		/*
+		 * Compute the TAR checksum and check with the value in
+		 * the archive.  The checksum is computed over the entire
+		 * header, but the checksum field is substituted with blanks.
+		 */
+		hdr_chksum = _rtems_octal2ulong (&bufr[148], 8);
+		sum = _rtems_tar_header_checksum (bufr);
+
+		if (sum != hdr_chksum)
+		{
+			retval = UNTAR_INVALID_CHECKSUM;
+			break;
+		}
+
+		/*
+		 * We've decoded the header, now figure out what it contains and
+		 * do something with it.
+		 */
+		if (linkflag == SYMTYPE)
+		{
+			strncpy (linkname, &bufr[157], MAX_NAME_FIELD_SIZE);
+			linkname[MAX_NAME_FIELD_SIZE] = '\0';
+			symlink (linkname, fname);
+		}
+		else if (linkflag == REGTYPE)
+		{
+			int out_fd;
+
+			/*
+			 * Read out the data.  There are nblocks of data where nblocks
+			 * is the size rounded to the nearest 512-byte boundary.
+			 */
+			nblocks = (((size) + 511) & ~511) / 512;
+
+			if ((out_fd = creat (fname, 0644)) == -1)
 			{
-				break;
+				(void)lseek (fd, SEEK_CUR, 512 * nblocks);
 			}
-
-		  if (strncmp (&bufr[257], "ustar", 5))
+			else
 			{
-				break;
+				for (i = 0; i < nblocks; i++)
+				{
+					n = read (fd, bufr, 512);
+					n = MIN (n, size - i * 512);
+					(void)write (out_fd, bufr, n);
+				}
+				close (out_fd);
 			}
-
-		  strncpy (fname, bufr, MAX_NAME_FIELD_SIZE);
-		  fname[MAX_NAME_FIELD_SIZE] = '\0';
-
-		  linkflag = bufr[156];
-		  size = _rtems_octal2ulong (&bufr[124], 12);
-
-		  /*
-		   * Compute the TAR checksum and check with the value in
-		   * the archive.  The checksum is computed over the entire
-		   * header, but the checksum field is substituted with blanks.
-		   */
-		  hdr_chksum = _rtems_octal2ulong (&bufr[148], 8);
-		  sum = _rtems_tar_header_checksum (bufr);
-
-		  if (sum != hdr_chksum)
+		}
+		else if (linkflag == DIRTYPE)
+		{
+			if (mkdir (fname, S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 			{
-				retval = UNTAR_INVALID_CHECKSUM;
-				break;
-			}
-
-		  /*
-		   * We've decoded the header, now figure out what it contains and
-		   * do something with it.
-		   */
-		  if (linkflag == SYMTYPE)
-			{
-				strncpy (linkname, &bufr[157], MAX_NAME_FIELD_SIZE);
-				linkname[MAX_NAME_FIELD_SIZE] = '\0';
-				symlink (linkname, fname);
-			}
-		  else if (linkflag == REGTYPE)
-			{
-				int out_fd;
-
-				/*
-				 * Read out the data.  There are nblocks of data where nblocks
-				 * is the size rounded to the nearest 512-byte boundary.
-				 */
-				nblocks = (((size) + 511) & ~511) / 512;
-
-				if ((out_fd = creat (fname, 0644)) == -1)
-				  {
-					  (void)lseek (fd, SEEK_CUR, 512 * nblocks);
-				  }
-				else
-				  {
-					  for (i = 0; i < nblocks; i++)
+				if (errno == EEXIST)
+				{
+					struct stat stat_buf;
+					if (stat (fname, &stat_buf) == 0)
+					{
+						if (S_ISDIR (stat_buf.st_mode))
 						{
-							n = read (fd, bufr, 512);
-							n = MIN (n, size - i * 512);
-							(void)write (out_fd, bufr, n);
+							continue;
 						}
-					  close (out_fd);
-				  }
-			}
-		  else if (linkflag == DIRTYPE)
-			{
-				if (mkdir (fname, S_IRWXU | S_IRWXG | S_IRWXO) != 0)
-				  {
-					  if (errno == EEXIST)
+						else
 						{
-							struct stat stat_buf;
-							if (stat (fname, &stat_buf) == 0)
-							  {
-								  if (S_ISDIR (stat_buf.st_mode))
-									{
-										continue;
-									}
-								  else
-									{
-										if (unlink (fname) != -1)
-										  {
-											  if (mkdir
-												  (fname,
-												   S_IRWXU | S_IRWXG | S_IRWXO)
-												  == 0)
-												  continue;
-										  }
-									}
-							  }
+							if (unlink (fname) != -1)
+							{
+								if (mkdir
+									(fname,
+									 S_IRWXU | S_IRWXG | S_IRWXO)
+									== 0)
+									continue;
+							}
 						}
-				  }
+					}
+				}
 			}
-	  }
+		}
+	}
 	free (bufr);
 	close (fd);
 
@@ -406,11 +406,11 @@ int _rtems_tar_header_checksum (const char *bufr)
 
 	sum = 0;
 	for (i = 0; i < 512; i++)
-	  {
-		  if ((i >= 148) && (i < 156))
-			  sum += 0xff & ' ';
-		  else
-			  sum += 0xff & bufr[i];
-	  }
+	{
+		if ((i >= 148) && (i < 156))
+			sum += 0xff & ' ';
+		else
+			sum += 0xff & bufr[i];
+	}
 	return (sum);
 }

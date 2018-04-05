@@ -79,23 +79,23 @@ int pthread_mutex_init (pthread_mutex_t * mutex,
 		Objects_Locations location;
 
 		if (*mutex != PTHREAD_MUTEX_INITIALIZER)
-		  {
+		{
 
-			  /* EBUSY if *mutex is a valid id */
+			/* EBUSY if *mutex is a valid id */
 
-			  mutex_in_use = _POSIX_Mutex_Get (mutex, &location);
-			  switch (location)
-				{
-					case OBJECTS_LOCAL:
-						_Objects_Put (&mutex_in_use->Object);
-						return EBUSY;
+			mutex_in_use = _POSIX_Mutex_Get (mutex, &location);
+			switch (location)
+			{
+				case OBJECTS_LOCAL:
+					_Objects_Put (&mutex_in_use->Object);
+					return EBUSY;
 #if defined(RTEMS_MULTIPROCESSING)
-					case OBJECTS_REMOTE:
+				case OBJECTS_REMOTE:
 #endif
-					case OBJECTS_ERROR:
-						break;
-				}
-		  }
+				case OBJECTS_ERROR:
+					break;
+			}
+		}
 	}
 #endif
 
@@ -115,19 +115,19 @@ int pthread_mutex_init (pthread_mutex_t * mutex,
 	 *  Determine the discipline of the mutex
 	 */
 	switch (the_attr->protocol)
-	  {
-		  case PTHREAD_PRIO_NONE:
-			  the_discipline = CORE_MUTEX_DISCIPLINES_FIFO;
-			  break;
-		  case PTHREAD_PRIO_INHERIT:
-			  the_discipline = CORE_MUTEX_DISCIPLINES_PRIORITY_INHERIT;
-			  break;
-		  case PTHREAD_PRIO_PROTECT:
-			  the_discipline = CORE_MUTEX_DISCIPLINES_PRIORITY_CEILING;
-			  break;
-		  default:
-			  return EINVAL;
-	  }
+	{
+		case PTHREAD_PRIO_NONE:
+			the_discipline = CORE_MUTEX_DISCIPLINES_FIFO;
+			break;
+		case PTHREAD_PRIO_INHERIT:
+			the_discipline = CORE_MUTEX_DISCIPLINES_PRIORITY_INHERIT;
+			break;
+		case PTHREAD_PRIO_PROTECT:
+			the_discipline = CORE_MUTEX_DISCIPLINES_PRIORITY_CEILING;
+			break;
+		default:
+			return EINVAL;
+	}
 
 	/*
 	 *  Validate the priority ceiling field -- should always be valid.
@@ -141,25 +141,25 @@ int pthread_mutex_init (pthread_mutex_t * mutex,
 	 *  attributes.
 	 */
 	switch (the_attr->type)
-	  {
-		  case PTHREAD_MUTEX_NORMAL:
-		  case PTHREAD_MUTEX_RECURSIVE:
-		  case PTHREAD_MUTEX_ERRORCHECK:
-		  case PTHREAD_MUTEX_DEFAULT:
-			  break;
+	{
+		case PTHREAD_MUTEX_NORMAL:
+		case PTHREAD_MUTEX_RECURSIVE:
+		case PTHREAD_MUTEX_ERRORCHECK:
+		case PTHREAD_MUTEX_DEFAULT:
+			break;
 
-		  default:
-			  return EINVAL;
-	  }
+		default:
+			return EINVAL;
+	}
 #endif
 
 	the_mutex = _POSIX_Mutex_Allocate ();
 
 	if (!the_mutex)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	the_mutex->process_shared = the_attr->process_shared;
 

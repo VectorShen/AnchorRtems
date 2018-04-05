@@ -51,11 +51,11 @@ void vsyslog (int pri, const char *fmt, va_list ap)
 	int sent;
 
 	if (pri & ~(LOG_PRIMASK | LOG_FACMASK))
-	  {
-		  syslog (LOG_ERR | LOG_CONS | LOG_PERROR | LOG_PID,
-				  "syslog: unknown facility/priority: %#x", pri);
-		  pri &= LOG_PRIMASK | LOG_FACMASK;
-	  }
+	{
+		syslog (LOG_ERR | LOG_CONS | LOG_PERROR | LOG_PID,
+				"syslog: unknown facility/priority: %#x", pri);
+		pri &= LOG_PRIMASK | LOG_FACMASK;
+	}
 
 	if (!(LOG_MASK (LOG_PRI (pri)) & LogMask))
 		return;
@@ -68,13 +68,13 @@ void vsyslog (int pri, const char *fmt, va_list ap)
 	if (LogTag && cnt < sizeof (cbuf) - 1)
 		cnt += snprintf (cbuf + cnt, sizeof (cbuf) - cnt, "%s", LogTag);
 	if (LogStatus & LOG_PID && cnt < sizeof (cbuf) - 1)
-	  {
-		  rtems_id tid;
-		  rtems_task_ident (RTEMS_SELF, 0, &tid);
-		  cnt +=
-			  snprintf (cbuf + cnt, sizeof (cbuf) - cnt, "[%#lx]",
+	{
+		rtems_id tid;
+		rtems_task_ident (RTEMS_SELF, 0, &tid);
+		cnt +=
+			snprintf (cbuf + cnt, sizeof (cbuf) - cnt, "[%#lx]",
 						(unsigned long)tid);
-	  }
+	}
 	if (LogTag && cnt < sizeof (cbuf) - 1)
 		cnt += snprintf (cbuf + cnt, sizeof (cbuf) - cnt, ": ");
 	cnt += vsnprintf (cbuf + cnt, sizeof (cbuf) - cnt, fmt, ap);
@@ -94,25 +94,25 @@ void vsyslog (int pri, const char *fmt, va_list ap)
 		&& (LogFd >= 0)
 		&& (rtems_semaphore_obtain (LogSemaphore, RTEMS_WAIT, RTEMS_NO_TIMEOUT)
 			== RTEMS_SUCCESSFUL))
-	  {
-		  /*
-		   * Set the destination address/port
-		   */
-		  struct sockaddr_in farAddress;
-		  farAddress.sin_family = AF_INET;
-		  farAddress.sin_port = htons (SYSLOG_PORT);
-		  farAddress.sin_addr = rtems_bsdnet_log_host_address;
-		  memset (farAddress.sin_zero, '\0', sizeof farAddress.sin_zero);
+	{
+		/*
+		 * Set the destination address/port
+		 */
+		struct sockaddr_in farAddress;
+		farAddress.sin_family = AF_INET;
+		farAddress.sin_port = htons (SYSLOG_PORT);
+		farAddress.sin_addr = rtems_bsdnet_log_host_address;
+		memset (farAddress.sin_zero, '\0', sizeof farAddress.sin_zero);
 
-		  /*
-		   * Send the message
-		   */
-		  if (sendto
-			  (LogFd, cbuf, cnt, 0, (struct sockaddr *)&farAddress,
-			   sizeof farAddress) >= 0)
-			  sent = 1;
-		  rtems_semaphore_release (LogSemaphore);
-	  }
+		/*
+		 * Send the message
+		 */
+		if (sendto
+			(LogFd, cbuf, cnt, 0, (struct sockaddr *)&farAddress,
+			 sizeof farAddress) >= 0)
+			sent = 1;
+		rtems_semaphore_release (LogSemaphore);
+	}
 	if (!sent && (LogStatus & LOG_CONS) && !(LogStatus & LOG_PERROR))
 		printf ("%s\n", msgp);
 }
@@ -132,10 +132,10 @@ void openlog (const char *ident, int logstat, int logfac)
 	 * Create the socket
 	 */
 	if ((LogFd = socket (AF_INET, SOCK_DGRAM, 0)) < 0)
-	  {
-		  printf ("Can't create syslog socket: %d\n", errno);
-		  return;
-	  }
+	{
+		printf ("Can't create syslog socket: %d\n", errno);
+		return;
+	}
 
 	/*
 	 * Bind socket to name
@@ -145,12 +145,12 @@ void openlog (const char *ident, int logstat, int logfac)
 	myAddress.sin_port = htons (SYSLOG_PORT);;
 	memset (myAddress.sin_zero, '\0', sizeof myAddress.sin_zero);
 	if (bind (LogFd, (struct sockaddr *)&myAddress, sizeof (myAddress)) < 0)
-	  {
-		  close (LogFd);
-		  LogFd = -1;
-		  printf ("Can't bind syslog socket: %d\n", errno);
-		  return;
-	  }
+	{
+		close (LogFd);
+		LogFd = -1;
+		printf ("Can't bind syslog socket: %d\n", errno);
+		return;
+	}
 
 	/*
 	 * Create the mutex
@@ -163,21 +163,21 @@ void openlog (const char *ident, int logstat, int logfac)
 								 RTEMS_NO_PRIORITY_CEILING |
 								 RTEMS_LOCAL, 0, &LogSemaphore);
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  printf ("Can't create syslog semaphore: %d\n", sc);
-		  close (LogFd);
-		  LogFd = -1;
-	  }
+	{
+		printf ("Can't create syslog semaphore: %d\n", sc);
+		close (LogFd);
+		LogFd = -1;
+	}
 }
 
 void closelog (void)
 {
 	if (LogFd >= 0)
-	  {
-		  close (LogFd);
-		  LogFd = -1;
-		  rtems_semaphore_delete (LogSemaphore);
-	  }
+	{
+		close (LogFd);
+		LogFd = -1;
+		rtems_semaphore_delete (LogSemaphore);
+	}
 }
 
 int setlogmask (int pmask)

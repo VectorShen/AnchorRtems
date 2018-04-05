@@ -38,7 +38,8 @@ typedef struct
 	ISR_lock_Control Lock;
 } Thread_Zombie_control;
 
-static Thread_Zombie_control _Thread_Zombies = {
+static Thread_Zombie_control _Thread_Zombies =
+{
 	.Chain = CHAIN_INITIALIZER_EMPTY (_Thread_Zombies.Chain),
 	.Lock = ISR_LOCK_INITIALIZER ("thread zombies")
 };
@@ -69,10 +70,10 @@ static void _Thread_Make_zombie (Thread_Control * the_thread)
 	Thread_Zombie_control *zombies = &_Thread_Zombies;
 
 	if (_Thread_Owns_resources (the_thread))
-	  {
-		  _Terminate (INTERNAL_ERROR_CORE,
-					  false, INTERNAL_ERROR_RESOURCE_IN_USE);
-	  }
+	{
+		_Terminate (INTERNAL_ERROR_CORE,
+					false, INTERNAL_ERROR_RESOURCE_IN_USE);
+	}
 
 	_Objects_Close (_Objects_Get_information_id (the_thread->Object.id),
 					&the_thread->Object);
@@ -120,7 +121,7 @@ static void _Thread_Free (Thread_Control * the_thread)
 #endif
 
 	_Objects_Free (_Objects_Get_information_id (the_thread->Object.id),
-				   &the_thread->Object);
+				 &the_thread->Object);
 }
 
 static void _Thread_Wait_for_execution_stop (Thread_Control * the_thread)
@@ -132,9 +133,9 @@ static void _Thread_Wait_for_execution_stop (Thread_Control * the_thread)
 	 * service on a remote processor.
 	 */
 	while (_Thread_Is_executing_on_a_processor (the_thread))
-	  {
-		  /* Wait */
-	  }
+	{
+		/* Wait */
+	}
 #else
 	(void)the_thread;
 #endif
@@ -150,17 +151,17 @@ void _Thread_Kill_zombies (void)
 
 	the_thread = (Thread_Control *) _Chain_Get_unprotected (&zombies->Chain);
 	while (the_thread != NULL)
-	  {
-		  _ISR_lock_Release_and_ISR_enable (&zombies->Lock, &lock_context);
+	{
+		_ISR_lock_Release_and_ISR_enable (&zombies->Lock, &lock_context);
 
-		  _Thread_Wait_for_execution_stop (the_thread);
-		  _Thread_Free (the_thread);
+		_Thread_Wait_for_execution_stop (the_thread);
+		_Thread_Free (the_thread);
 
-		  _ISR_lock_ISR_disable_and_acquire (&zombies->Lock, &lock_context);
+		_ISR_lock_ISR_disable_and_acquire (&zombies->Lock, &lock_context);
 
-		  the_thread =
-			  (Thread_Control *) _Chain_Get_unprotected (&zombies->Chain);
-	  }
+		the_thread =
+			(Thread_Control *) _Chain_Get_unprotected (&zombies->Chain);
+	}
 
 	_ISR_lock_Release_and_ISR_enable (&zombies->Lock, &lock_context);
 }
@@ -175,8 +176,8 @@ static void _Thread_Start_life_change_for_executing (Thread_Control * executing)
 }
 
 void _Thread_Life_action_handler (Thread_Control * executing,
-								  Thread_Action * action,
-								  Per_CPU_Control * cpu, ISR_Level level)
+								Thread_Action * action,
+								Per_CPU_Control * cpu, ISR_Level level)
 {
 	Thread_Life_state previous_life_state;
 
@@ -188,60 +189,60 @@ void _Thread_Life_action_handler (Thread_Control * executing,
 	_Thread_Action_release_and_ISR_enable (cpu, level);
 
 	if (_Thread_Is_life_terminating (previous_life_state))
-	  {
-		  _User_extensions_Thread_terminate (executing);
-	  }
+	{
+		_User_extensions_Thread_terminate (executing);
+	}
 	else
-	  {
-		  _Assert (_Thread_Is_life_restarting (previous_life_state));
+	{
+		_Assert (_Thread_Is_life_restarting (previous_life_state));
 
-		  _User_extensions_Thread_restart (executing);
-	  }
+		_User_extensions_Thread_restart (executing);
+	}
 
 	_Thread_Disable_dispatch ();
 
 	if (_Thread_Is_life_terminating (previous_life_state))
-	  {
-		  _Thread_Make_zombie (executing);
+	{
+		_Thread_Make_zombie (executing);
 
-		  if (executing->Life.terminator != NULL)
-			{
-				_Thread_Clear_state (executing->Life.terminator,
-									 STATES_WAITING_FOR_TERMINATION);
-			}
+		if (executing->Life.terminator != NULL)
+		{
+			_Thread_Clear_state (executing->Life.terminator,
+								 STATES_WAITING_FOR_TERMINATION);
+		}
 
-		  _Thread_Enable_dispatch ();
+		_Thread_Enable_dispatch ();
 
-		  _Assert_Not_reached ();
-	  }
+		_Assert_Not_reached ();
+	}
 	else
-	  {
-		  _Assert (_Thread_Is_life_restarting (previous_life_state));
+	{
+		_Assert (_Thread_Is_life_restarting (previous_life_state));
 
-		  if (_Thread_Is_life_terminating (executing->Life.state))
-			{
-				/* Someone deleted us in the mean-time */
-				_Thread_Start_life_change_for_executing (executing);
-			}
-		  else
-			{
-				_Assert (executing->Timer.state == WATCHDOG_INACTIVE);
-				_Assert (executing->current_state == STATES_READY
-						 || executing->current_state == STATES_SUSPENDED);
+		if (_Thread_Is_life_terminating (executing->Life.state))
+		{
+			/* Someone deleted us in the mean-time */
+			_Thread_Start_life_change_for_executing (executing);
+		}
+		else
+		{
+			_Assert (executing->Timer.state == WATCHDOG_INACTIVE);
+			_Assert (executing->current_state == STATES_READY
+					 || executing->current_state == STATES_SUSPENDED);
 
-				executing->Life.state = THREAD_LIFE_NORMAL;
+			executing->Life.state = THREAD_LIFE_NORMAL;
 
-				_Thread_Load_environment (executing);
-				_Thread_Restart_self (executing);
+			_Thread_Load_environment (executing);
+			_Thread_Restart_self (executing);
 
-				_Assert_Not_reached ();
-			}
-	  }
+			_Assert_Not_reached ();
+		}
+	}
 }
 
 static void _Thread_Start_life_change (Thread_Control * the_thread,
-									   const Scheduler_Control * scheduler,
-									   Priority_Control priority)
+									 const Scheduler_Control * scheduler,
+									 Priority_Control priority)
 {
 	the_thread->is_preemptible = the_thread->Start.is_preemptible;
 	the_thread->budget_algorithm = the_thread->Start.budget_algorithm;
@@ -275,29 +276,29 @@ static void _Thread_Request_life_change (Thread_Control * the_thread,
 
 	scheduler = _Scheduler_Get (the_thread);
 	if (the_thread == executing)
-	  {
-		  Priority_Control unused;
+	{
+		Priority_Control unused;
 
-		  _Thread_Set_priority (the_thread, priority, &unused, true);
-		  _Thread_Start_life_change_for_executing (executing);
-	  }
+		_Thread_Set_priority (the_thread, priority, &unused, true);
+		_Thread_Start_life_change_for_executing (executing);
+	}
 	else if (previous_life_state == THREAD_LIFE_NORMAL)
-	  {
-		  _Thread_Start_life_change (the_thread, scheduler, priority);
-	  }
+	{
+		_Thread_Start_life_change (the_thread, scheduler, priority);
+	}
 	else
-	  {
-		  _Thread_Clear_state (the_thread, STATES_SUSPENDED);
+	{
+		_Thread_Clear_state (the_thread, STATES_SUSPENDED);
 
-		  if (_Thread_Is_life_terminating (additional_life_state))
-			{
-				_Thread_Change_priority (the_thread,
-										 priority,
-										 NULL,
-										 _Thread_Raise_real_priority_filter,
-										 false);
-			}
-	  }
+		if (_Thread_Is_life_terminating (additional_life_state))
+		{
+			_Thread_Change_priority (the_thread,
+									 priority,
+									 NULL,
+									 _Thread_Raise_real_priority_filter,
+									 false);
+		}
+	}
 }
 
 void _Thread_Close (Thread_Control * the_thread, Thread_Control * executing)
@@ -305,47 +306,47 @@ void _Thread_Close (Thread_Control * the_thread, Thread_Control * executing)
 	_Assert (_Thread_Is_life_protected (executing->Life.state));
 
 	if (_States_Is_dormant (the_thread->current_state))
-	  {
-		  _Thread_Make_zombie (the_thread);
-	  }
+	{
+		_Thread_Make_zombie (the_thread);
+	}
 	else
-	  {
-		  if (the_thread != executing
-			  && !_Thread_Is_life_terminating (executing->Life.state))
-			{
-				/*
-				 * Wait for termination of victim thread.  If the executing thread is
-				 * also terminated, then do not wait.  This avoids potential cyclic
-				 * dependencies and thus dead lock.
-				 */
-				the_thread->Life.terminator = executing;
-				_Thread_Set_state (executing, STATES_WAITING_FOR_TERMINATION);
-			}
+	{
+		if (the_thread != executing
+			&& !_Thread_Is_life_terminating (executing->Life.state))
+		{
+			/*
+			 * Wait for termination of victim thread.  If the executing thread is
+			 * also terminated, then do not wait.  This avoids potential cyclic
+			 * dependencies and thus dead lock.
+			 */
+			the_thread->Life.terminator = executing;
+			_Thread_Set_state (executing, STATES_WAITING_FOR_TERMINATION);
+		}
 
-		  _Thread_Request_life_change (the_thread,
-									   executing,
-									   executing->current_priority,
-									   THREAD_LIFE_TERMINATING);
-	  }
+		_Thread_Request_life_change (the_thread,
+									 executing,
+									 executing->current_priority,
+									 THREAD_LIFE_TERMINATING);
+	}
 }
 
 bool _Thread_Restart (Thread_Control * the_thread,
-					  Thread_Control * executing,
-					  void *pointer_argument,
-					  Thread_Entry_numeric_type numeric_argument)
+					Thread_Control * executing,
+					void *pointer_argument,
+					Thread_Entry_numeric_type numeric_argument)
 {
 	if (!_States_Is_dormant (the_thread->current_state))
-	  {
-		  the_thread->Start.pointer_argument = pointer_argument;
-		  the_thread->Start.numeric_argument = numeric_argument;
+	{
+		the_thread->Start.pointer_argument = pointer_argument;
+		the_thread->Start.numeric_argument = numeric_argument;
 
-		  _Thread_Request_life_change (the_thread,
-									   executing,
-									   the_thread->Start.initial_priority,
-									   THREAD_LIFE_RESTARTING);
+		_Thread_Request_life_change (the_thread,
+									 executing,
+									 the_thread->Start.initial_priority,
+									 THREAD_LIFE_RESTARTING);
 
-		  return true;
-	  }
+		return true;
+	}
 
 	return false;
 }
@@ -365,13 +366,13 @@ bool _Thread_Set_life_protection (bool protect)
 	previous_life_protection = _Thread_Is_life_protected (previous_life_state);
 
 	if (protect)
-	  {
-		  executing->Life.state = previous_life_state | THREAD_LIFE_PROTECTED;
-	  }
+	{
+		executing->Life.state = previous_life_state | THREAD_LIFE_PROTECTED;
+	}
 	else
-	  {
-		  executing->Life.state = previous_life_state & ~THREAD_LIFE_PROTECTED;
-	  }
+	{
+		executing->Life.state = previous_life_state & ~THREAD_LIFE_PROTECTED;
+	}
 
 	_Thread_Action_release_and_ISR_enable (cpu, level);
 
@@ -386,18 +387,18 @@ bool _Thread_Set_life_protection (bool protect)
 	 */
 	if (!_Thread_Is_life_protected (previous_life_state)
 		&& _Thread_Is_life_changing (previous_life_state))
-	  {
-		  _Thread_Disable_dispatch ();
-		  _Thread_Enable_dispatch ();
-	  }
+	{
+		_Thread_Disable_dispatch ();
+		_Thread_Enable_dispatch ();
+	}
 #endif
 
 	if (!protect && _Thread_Is_life_changing (previous_life_state))
-	  {
-		  _Thread_Disable_dispatch ();
-		  _Thread_Start_life_change_for_executing (executing);
-		  _Thread_Enable_dispatch ();
-	  }
+	{
+		_Thread_Disable_dispatch ();
+		_Thread_Start_life_change_for_executing (executing);
+		_Thread_Enable_dispatch ();
+	}
 
 	return previous_life_protection;
 }

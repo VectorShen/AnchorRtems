@@ -31,16 +31,16 @@ int sethostname (const char *name, size_t namelen)
 	char *old, *new;
 
 	if (namelen >= MAXHOSTNAMELEN)
-	  {
-		  errno = EINVAL;
-		  return -1;
-	  }
+	{
+		errno = EINVAL;
+		return -1;
+	}
 	new = malloc (namelen + 1, M_HTABLE, M_NOWAIT);
 	if (new == NULL)
-	  {
-		  errno = ENOMEM;
-		  return -1;
-	  }
+	{
+		errno = ENOMEM;
+		return -1;
+	}
 	strncpy (new, name, namelen);
 	new[namelen] = '\0';
 	old = rtems_hostname;

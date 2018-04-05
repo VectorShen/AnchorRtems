@@ -54,18 +54,18 @@ bool _Thread_Initialize (Objects_Information * information,
 
 #if defined( RTEMS_SMP )
 	if (rtems_configuration_is_smp_enabled () && !is_preemptible)
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 #endif
 
 	for (i = 0; i < _Thread_Control_add_on_count; ++i)
-	  {
-		  const Thread_Control_add_on *add_on = &_Thread_Control_add_ons[i];
+	{
+		const Thread_Control_add_on *add_on = &_Thread_Control_add_ons[i];
 
-		  *(void **)((char *)the_thread + add_on->destination_offset) =
-			  (char *)the_thread + add_on->source_offset;
-	  }
+		*(void **)((char *)the_thread + add_on->destination_offset) =
+			(char *)the_thread + add_on->source_offset;
+	}
 
 	/*
 	 *  Initialize the Ada self pointer
@@ -87,51 +87,51 @@ bool _Thread_Initialize (Objects_Information * information,
 	stack = the_thread->Start.stack;
 #else
 	if (!stack_area)
-	  {
-		  actual_stack_size = _Thread_Stack_Allocate (the_thread, stack_size);
-		  if (!actual_stack_size || actual_stack_size < stack_size)
-			  return false;		/* stack allocation failed */
+	{
+		actual_stack_size = _Thread_Stack_Allocate (the_thread, stack_size);
+		if (!actual_stack_size || actual_stack_size < stack_size)
+			return false;		/* stack allocation failed */
 
-		  stack = the_thread->Start.stack;
-		  the_thread->Start.core_allocated_stack = true;
-	  }
+		stack = the_thread->Start.stack;
+		the_thread->Start.core_allocated_stack = true;
+	}
 	else
-	  {
-		  stack = stack_area;
-		  actual_stack_size = stack_size;
-		  the_thread->Start.core_allocated_stack = false;
-	  }
+	{
+		stack = stack_area;
+		actual_stack_size = stack_size;
+		the_thread->Start.core_allocated_stack = false;
+	}
 #endif
 
 	_Stack_Initialize (&the_thread->Start.Initial_stack,
-					   stack, actual_stack_size);
+					 stack, actual_stack_size);
 
 	/* Thread-local storage (TLS) area allocation */
 	if (tls_size > 0)
-	  {
-		  uintptr_t tls_align = _TLS_Heap_align_up ((uintptr_t) _TLS_Alignment);
-		  uintptr_t tls_alloc = _TLS_Get_allocation_size (tls_size, tls_align);
+	{
+		uintptr_t tls_align = _TLS_Heap_align_up ((uintptr_t) _TLS_Alignment);
+		uintptr_t tls_alloc = _TLS_Get_allocation_size (tls_size, tls_align);
 
-		  the_thread->Start.tls_area =
-			  _Workspace_Allocate_aligned (tls_alloc, tls_align);
+		the_thread->Start.tls_area =
+			_Workspace_Allocate_aligned (tls_alloc, tls_align);
 
-		  if (the_thread->Start.tls_area == NULL)
-			{
-				goto failed;
-			}
-	  }
+		if (the_thread->Start.tls_area == NULL)
+		{
+			goto failed;
+		}
+	}
 
 	/*
 	 *  Allocate the floating point area for this thread
 	 */
 #if ( CPU_HARDWARE_FP == TRUE ) || ( CPU_SOFTWARE_FP == TRUE )
 	if (is_fp)
-	  {
-		  fp_area = _Workspace_Allocate (CONTEXT_FP_SIZE);
-		  if (!fp_area)
-			  goto failed;
-		  fp_area = _Context_Fp_start (fp_area, 0);
-	  }
+	{
+		fp_area = _Workspace_Allocate (CONTEXT_FP_SIZE);
+		if (!fp_area)
+			goto failed;
+		fp_area = _Context_Fp_start (fp_area, 0);
+	}
 	the_thread->fp_context = fp_area;
 	the_thread->Start.fp_context = fp_area;
 #endif
@@ -168,21 +168,21 @@ bool _Thread_Initialize (Objects_Information * information,
 	the_thread->Start.budget_callout = budget_callout;
 
 	switch (budget_algorithm)
-	  {
-		  case THREAD_CPU_BUDGET_ALGORITHM_NONE:
-		  case THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE:
-			  break;
+	{
+		case THREAD_CPU_BUDGET_ALGORITHM_NONE:
+		case THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE:
+			break;
 #if defined(RTEMS_SCORE_THREAD_ENABLE_EXHAUST_TIMESLICE)
-		  case THREAD_CPU_BUDGET_ALGORITHM_EXHAUST_TIMESLICE:
-			  the_thread->cpu_time_budget =
-				  rtems_configuration_get_ticks_per_timeslice ();
-			  break;
+		case THREAD_CPU_BUDGET_ALGORITHM_EXHAUST_TIMESLICE:
+			the_thread->cpu_time_budget =
+				rtems_configuration_get_ticks_per_timeslice ();
+			break;
 #endif
 #if defined(RTEMS_SCORE_THREAD_ENABLE_SCHEDULER_CALLOUT)
-		  case THREAD_CPU_BUDGET_ALGORITHM_CALLOUT:
-			  break;
+		case THREAD_CPU_BUDGET_ALGORITHM_CALLOUT:
+			break;
 #endif
-	  }
+	}
 
 #if defined(RTEMS_SMP)
 	the_thread->Scheduler.state = THREAD_SCHEDULER_BLOCKED;
@@ -230,7 +230,7 @@ bool _Thread_Initialize (Objects_Information * information,
 	_Thread_Action_control_initialize (&the_thread->Post_switch_actions);
 
 	_Thread_Action_initialize (&the_thread->Life.Action,
-							   _Thread_Life_action_handler);
+							 _Thread_Life_action_handler);
 	the_thread->Life.state = THREAD_LIFE_NORMAL;
 	the_thread->Life.terminator = NULL;
 
@@ -256,9 +256,9 @@ bool _Thread_Initialize (Objects_Information * information,
   failed:
 
 	if (scheduler_node_initialized)
-	  {
-		  _Scheduler_Node_destroy (scheduler, the_thread);
-	  }
+	{
+		_Scheduler_Node_destroy (scheduler, the_thread);
+	}
 
 	_Workspace_Free (the_thread->Start.tls_area);
 

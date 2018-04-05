@@ -30,19 +30,20 @@ static int rtems_shell_main_rmdir (int argc, char *argv[])
 
 	n = 1;
 	while (n < argc)
-	  {
-		  dir = argv[n++];
-		  if (rmdir (dir))
-			{
-				fprintf (stderr, "%s: %s: %s\n", argv[0], dir,
-						 strerror (errno));
-				return -1;
-			}
-	  }
+	{
+		dir = argv[n++];
+		if (rmdir (dir))
+		{
+			fprintf (stderr, "%s: %s: %s\n", argv[0], dir,
+					 strerror (errno));
+			return -1;
+		}
+	}
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_RMDIR_Command = {
+rtems_shell_cmd_t rtems_shell_RMDIR_Command =
+{
 	"rmdir",					/* name */
 	"rmdir  dir   # remove directory",	/* usage */
 	"files",					/* topic */

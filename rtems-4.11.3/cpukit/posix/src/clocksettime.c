@@ -35,14 +35,14 @@ int clock_settime (clockid_t clock_id, const struct timespec *tp)
 		rtems_set_errno_and_return_minus_one (EINVAL);
 
 	if (clock_id == CLOCK_REALTIME)
-	  {
-		  if (tp->tv_sec < TOD_SECONDS_1970_THROUGH_1988)
-			  rtems_set_errno_and_return_minus_one (EINVAL);
+	{
+		if (tp->tv_sec < TOD_SECONDS_1970_THROUGH_1988)
+			rtems_set_errno_and_return_minus_one (EINVAL);
 
-		  _Thread_Disable_dispatch ();
-		  _TOD_Set (tp);
-		  _Thread_Enable_dispatch ();
-	  }
+		_Thread_Disable_dispatch ();
+		_TOD_Set (tp);
+		_Thread_Enable_dispatch ();
+	}
 #ifdef _POSIX_CPUTIME
 	else if (clock_id == CLOCK_PROCESS_CPUTIME_ID)
 		rtems_set_errno_and_return_minus_one (ENOSYS);

@@ -92,10 +92,10 @@ static void be32dec_vect (uint32_t * dst, const unsigned char *src, size_t len)
 /* Adjusted round function for rotating state */
 #define RNDr(S, W, i, k)			\
 	RND(S[(64 - i) % 8], S[(65 - i) % 8],	\
-	    S[(66 - i) % 8], S[(67 - i) % 8],	\
-	    S[(68 - i) % 8], S[(69 - i) % 8],	\
-	    S[(70 - i) % 8], S[(71 - i) % 8],	\
-	    W[i] + k)
+	  S[(66 - i) % 8], S[(67 - i) % 8],	\
+	  S[(68 - i) % 8], S[(69 - i) % 8],	\
+	  S[(70 - i) % 8], S[(71 - i) % 8],	\
+	  W[i] + k)
 
 /*
  * SHA256 block compression function.  The 256-bit state is transformed via
@@ -187,7 +187,8 @@ static void SHA256_Transform (uint32_t * state, const unsigned char block[64])
 		state[i] += S[i];
 }
 
-static const unsigned char PAD[64] = {
+static const unsigned char PAD[64] =
+{
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -251,10 +252,10 @@ void SHA256_Update (SHA256_CTX * ctx, const void *in, size_t len)
 
 	/* Handle the case where we don't need to perform any transforms */
 	if (len < 64 - r)
-	  {
-		  memcpy (&ctx->buf[r], src, len);
-		  return;
-	  }
+	{
+		memcpy (&ctx->buf[r], src, len);
+		return;
+	}
 
 	/* Finish the current block */
 	memcpy (&ctx->buf[r], src, 64 - r);
@@ -264,11 +265,11 @@ void SHA256_Update (SHA256_CTX * ctx, const void *in, size_t len)
 
 	/* Perform complete blocks */
 	while (len >= 64)
-	  {
-		  SHA256_Transform (ctx->state, src);
-		  src += 64;
-		  len -= 64;
-	  }
+	{
+		SHA256_Transform (ctx->state, src);
+		src += 64;
+		len -= 64;
+	}
 
 	/* Copy left over data into buffer */
 	memcpy (ctx->buf, src, len);

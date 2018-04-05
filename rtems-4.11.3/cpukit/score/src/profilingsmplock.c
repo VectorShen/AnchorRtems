@@ -19,17 +19,23 @@
 #include <rtems/score/smplock.h>
 
 #if defined( RTEMS_PROFILING )
-SMP_lock_Stats_control _SMP_lock_Stats_control = {
-	.Lock = {
-			 .Ticket_lock = {
-							 .next_ticket = ATOMIC_INITIALIZER_UINT (0U),
-							 .now_serving = ATOMIC_INITIALIZER_UINT (0U)},
-			 .Stats = {
-					   .Node =
-					   CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN
-					   (&_SMP_lock_Stats_control.Stats_chain),
-					   .name = "SMP Lock Stats"}
-			 },
+SMP_lock_Stats_control _SMP_lock_Stats_control =
+{
+	.Lock =
+	{
+		.Ticket_lock =
+		{
+			.next_ticket = ATOMIC_INITIALIZER_UINT (0U),
+			.now_serving = ATOMIC_INITIALIZER_UINT (0U)
+		},
+		.Stats =
+		{
+			.Node =
+				CHAIN_NODE_INITIALIZER_ONE_NODE_CHAIN
+				(&_SMP_lock_Stats_control.Stats_chain),
+			.name = "SMP Lock Stats"
+		}
+	},
 	.Stats_chain =
 		CHAIN_INITIALIZER_ONE_NODE (&_SMP_lock_Stats_control.Lock.Stats.Node),
 	.Iterator_chain =

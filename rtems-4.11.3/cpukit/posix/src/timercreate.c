@@ -33,7 +33,7 @@
 #include <rtems/score/watchdogimpl.h>
 
 int timer_create (clockid_t clock_id,
-				  struct sigevent *__restrict evp, timer_t * __restrict timerid)
+				struct sigevent *__restrict evp, timer_t * __restrict timerid)
 {
 	POSIX_Timer_Control *ptimer;
 
@@ -49,31 +49,31 @@ int timer_create (clockid_t clock_id,
 	 */
 
 	if (evp != NULL)
-	  {
-		  /* The structure has data */
-		  if ((evp->sigev_notify != SIGEV_NONE) &&
-			  (evp->sigev_notify != SIGEV_SIGNAL))
-			{
-				/* The value of the field sigev_notify is not valid */
-				rtems_set_errno_and_return_minus_one (EINVAL);
-			}
+	{
+		/* The structure has data */
+		if ((evp->sigev_notify != SIGEV_NONE) &&
+			(evp->sigev_notify != SIGEV_SIGNAL))
+		{
+			/* The value of the field sigev_notify is not valid */
+			rtems_set_errno_and_return_minus_one (EINVAL);
+		}
 
-		  if (!evp->sigev_signo)
-			  rtems_set_errno_and_return_minus_one (EINVAL);
+		if (!evp->sigev_signo)
+			rtems_set_errno_and_return_minus_one (EINVAL);
 
-		  if (!is_valid_signo (evp->sigev_signo))
-			  rtems_set_errno_and_return_minus_one (EINVAL);
-	  }
+		if (!is_valid_signo (evp->sigev_signo))
+			rtems_set_errno_and_return_minus_one (EINVAL);
+	}
 
 	/*
 	 *  Allocate a timer
 	 */
 	ptimer = _POSIX_Timer_Allocate ();
 	if (!ptimer)
-	  {
-		  _Objects_Allocator_unlock ();
-		  rtems_set_errno_and_return_minus_one (EAGAIN);
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		rtems_set_errno_and_return_minus_one (EAGAIN);
+	}
 
 	/* The data of the created timer are stored to use them later */
 
@@ -81,11 +81,11 @@ int timer_create (clockid_t clock_id,
 	ptimer->thread_id = _Thread_Get_executing ()->Object.id;
 
 	if (evp != NULL)
-	  {
-		  ptimer->inf.sigev_notify = evp->sigev_notify;
-		  ptimer->inf.sigev_signo = evp->sigev_signo;
-		  ptimer->inf.sigev_value = evp->sigev_value;
-	  }
+	{
+		ptimer->inf.sigev_notify = evp->sigev_notify;
+		ptimer->inf.sigev_signo = evp->sigev_signo;
+		ptimer->inf.sigev_value = evp->sigev_value;
+	}
 
 	ptimer->overrun = 0;
 	ptimer->timer_data.it_value.tv_sec = 0;

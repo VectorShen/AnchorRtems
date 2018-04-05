@@ -36,30 +36,30 @@ rtems_status_code rtems_partition_get_buffer (rtems_id id, void **buffer)
 
 	the_partition = _Partition_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  the_buffer = _Partition_Allocate_buffer (the_partition);
-			  if (the_buffer)
-				{
-					the_partition->number_of_used_blocks += 1;
-					_Objects_Put (&the_partition->Object);
-					*buffer = the_buffer;
-					return RTEMS_SUCCESSFUL;
-				}
-			  _Objects_Put (&the_partition->Object);
-			  return RTEMS_UNSATISFIED;
+		case OBJECTS_LOCAL:
+			the_buffer = _Partition_Allocate_buffer (the_partition);
+			if (the_buffer)
+			{
+				the_partition->number_of_used_blocks += 1;
+				_Objects_Put (&the_partition->Object);
+				*buffer = the_buffer;
+				return RTEMS_SUCCESSFUL;
+			}
+			_Objects_Put (&the_partition->Object);
+			return RTEMS_UNSATISFIED;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Executing->Wait.return_argument = buffer;
-			  return (_Partition_MP_Send_request_packet (PARTITION_MP_GET_BUFFER_REQUEST, id, 0	/* Not used */
-					  ));
+		case OBJECTS_REMOTE:
+			_Thread_Executing->Wait.return_argument = buffer;
+			return (_Partition_MP_Send_request_packet (PARTITION_MP_GET_BUFFER_REQUEST, id, 0	/* Not used */
+					));
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

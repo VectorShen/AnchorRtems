@@ -79,7 +79,8 @@ static bool_t xdrrec_setpos (XDR * xdrs, u_int pos);
 static int32_t *xdrrec_inline (XDR * xdrs, u_int len);
 static void xdrrec_destroy (XDR * xdrs);
 
-static struct xdr_ops xdrrec_ops = {
+static struct xdr_ops xdrrec_ops =
+{
 	xdrrec_getlong,
 	xdrrec_putlong,
 	xdrrec_getbytes,
@@ -148,14 +149,14 @@ void xdrrec_create (XDR * xdrs, u_int sendsize, u_int recvsize, caddr_t tcp_hand
 	RECSTREAM *rstrm = (RECSTREAM *) mem_alloc (sizeof (RECSTREAM));
 
 	if (rstrm == NULL)
-	  {
-		  (void)fprintf (stderr, "xdrrec_create: out of memory\n");
-		  /*
-		   *  This is bad.  Should rework xdrrec_create to
-		   *  return a handle, and in this case return NULL
-		   */
-		  return;
-	  }
+	{
+		(void)fprintf (stderr, "xdrrec_create: out of memory\n");
+		/*
+		 *  This is bad.  Should rework xdrrec_create to
+		 *  return a handle, and in this case return NULL
+		 */
+		return;
+	}
 	/*
 	 * adjust sizes and allocate buffer quad byte aligned
 	 */
@@ -163,10 +164,10 @@ void xdrrec_create (XDR * xdrs, u_int sendsize, u_int recvsize, caddr_t tcp_hand
 	rstrm->recvsize = recvsize = fix_buf_size (recvsize);
 	rstrm->the_buffer = mem_alloc (sendsize + recvsize + BYTES_PER_XDR_UNIT);
 	if (rstrm->the_buffer == NULL)
-	  {
-		  (void)fprintf (stderr, "xdrrec_create: out of memory\n");
-		  return;
-	  }
+	{
+		(void)fprintf (stderr, "xdrrec_create: out of memory\n");
+		return;
+	}
 	for (rstrm->out_base = rstrm->the_buffer;
 		 (uintptr_t) rstrm->out_base % BYTES_PER_XDR_UNIT != 0;
 		 rstrm->out_base++) ;
@@ -205,17 +206,17 @@ static bool_t xdrrec_getlong (XDR * xdrs, long *lp)
 	/* first try the inline, fast case */
 	if ((rstrm->fbtbc >= sizeof (int32_t)) &&
 		(((intptr_t) rstrm->in_boundry - (intptr_t) buflp) >= sizeof (int32_t)))
-	  {
-		  *lp = (long)ntohl ((u_int32_t) (*buflp));
-		  rstrm->fbtbc -= sizeof (int32_t);
-		  rstrm->in_finger += sizeof (int32_t);
-	  }
+	{
+		*lp = (long)ntohl ((u_int32_t) (*buflp));
+		rstrm->fbtbc -= sizeof (int32_t);
+		rstrm->in_finger += sizeof (int32_t);
+	}
 	else
-	  {
-		  if (!xdrrec_getbytes (xdrs, (caddr_t) & mylong, sizeof (int32_t)))
-			  return (FALSE);
-		  *lp = (long)ntohl ((u_int32_t) mylong);
-	  }
+	{
+		if (!xdrrec_getbytes (xdrs, (caddr_t) & mylong, sizeof (int32_t)))
+			return (FALSE);
+		*lp = (long)ntohl ((u_int32_t) mylong);
+	}
 	return (TRUE);
 }
 
@@ -225,18 +226,18 @@ static bool_t xdrrec_putlong (XDR * xdrs, const long *lp)
 	int32_t *dest_lp = ((int32_t *) (rstrm->out_finger));
 
 	if ((rstrm->out_finger += sizeof (int32_t)) > rstrm->out_boundry)
-	  {
-		  /*
-		   * this case should almost never happen so the code is
-		   * inefficient
-		   */
-		  rstrm->out_finger -= sizeof (int32_t);
-		  rstrm->frag_sent = TRUE;
-		  if (!flush_out (rstrm, FALSE))
-			  return (FALSE);
-		  dest_lp = ((int32_t *) (rstrm->out_finger));
-		  rstrm->out_finger += sizeof (int32_t);
-	  }
+	{
+		/*
+		 * this case should almost never happen so the code is
+		 * inefficient
+		 */
+		rstrm->out_finger -= sizeof (int32_t);
+		rstrm->frag_sent = TRUE;
+		if (!flush_out (rstrm, FALSE))
+			return (FALSE);
+		dest_lp = ((int32_t *) (rstrm->out_finger));
+		rstrm->out_finger += sizeof (int32_t);
+	}
 	*dest_lp = (int32_t) htonl ((u_int32_t) (*lp));
 	return (TRUE);
 }
@@ -248,23 +249,23 @@ xdrrec_getbytes (XDR * xdrs, caddr_t addr, u_int len)
 	int current;
 
 	while (len > 0)
-	  {
-		  current = rstrm->fbtbc;
-		  if (current == 0)
-			{
-				if (rstrm->last_frag)
-					return (FALSE);
-				if (!set_input_fragment (rstrm))
-					return (FALSE);
-				continue;
-			}
-		  current = (len < current) ? len : current;
-		  if (!get_input_bytes (rstrm, addr, current))
-			  return (FALSE);
-		  addr += current;
-		  rstrm->fbtbc -= current;
-		  len -= current;
-	  }
+	{
+		current = rstrm->fbtbc;
+		if (current == 0)
+		{
+			if (rstrm->last_frag)
+				return (FALSE);
+			if (!set_input_fragment (rstrm))
+				return (FALSE);
+			continue;
+		}
+		current = (len < current) ? len : current;
+		if (!get_input_bytes (rstrm, addr, current))
+			return (FALSE);
+		addr += current;
+		rstrm->fbtbc -= current;
+		len -= current;
+	}
 	return (TRUE);
 }
 
@@ -274,21 +275,21 @@ static bool_t xdrrec_putbytes (XDR * xdrs, const char *addr, u_int len)
 	long current;
 
 	while (len > 0)
-	  {
-		  current = (intptr_t) rstrm->out_boundry -
-			  (intptr_t) rstrm->out_finger;
-		  current = (len < current) ? len : current;
-		  memcpy (rstrm->out_finger, addr, current);
-		  rstrm->out_finger += current;
-		  addr += current;
-		  len -= current;
-		  if (rstrm->out_finger == rstrm->out_boundry)
-			{
-				rstrm->frag_sent = TRUE;
-				if (!flush_out (rstrm, FALSE))
-					return (FALSE);
-			}
-	  }
+	{
+		current = (intptr_t) rstrm->out_boundry -
+			(intptr_t) rstrm->out_finger;
+		current = (len < current) ? len : current;
+		memcpy (rstrm->out_finger, addr, current);
+		rstrm->out_finger += current;
+		addr += current;
+		len -= current;
+		if (rstrm->out_finger == rstrm->out_boundry)
+		{
+			rstrm->frag_sent = TRUE;
+			if (!flush_out (rstrm, FALSE))
+				return (FALSE);
+		}
+	}
 	return (TRUE);
 }
 
@@ -300,20 +301,20 @@ static u_int xdrrec_getpos (XDR * xdrs)
 	pos = lseek ((intptr_t) rstrm->tcp_handle, (off_t) 0, 1);
 	if (pos != -1)
 		switch (xdrs->x_op)
-		  {
+		{
 
-			  case XDR_ENCODE:
-				  pos += rstrm->out_finger - rstrm->out_base;
-				  break;
+			case XDR_ENCODE:
+				pos += rstrm->out_finger - rstrm->out_base;
+				break;
 
-			  case XDR_DECODE:
-				  pos -= rstrm->in_boundry - rstrm->in_finger;
-				  break;
+			case XDR_DECODE:
+				pos -= rstrm->in_boundry - rstrm->in_finger;
+				break;
 
-			  default:
-				  pos = -1;
-				  break;
-		  }
+			default:
+				pos = -1;
+				break;
+		}
 	return ((u_int) pos);
 }
 
@@ -326,32 +327,32 @@ static bool_t xdrrec_setpos (XDR * xdrs, u_int pos)
 
 	if ((int)currpos != -1)
 		switch (xdrs->x_op)
-		  {
+		{
 
-			  case XDR_ENCODE:
-				  newpos = rstrm->out_finger - delta;
-				  if ((newpos > (caddr_t) (rstrm->frag_header)) &&
-					  (newpos < rstrm->out_boundry))
-					{
-						rstrm->out_finger = newpos;
-						return (TRUE);
-					}
-				  break;
+			case XDR_ENCODE:
+				newpos = rstrm->out_finger - delta;
+				if ((newpos > (caddr_t) (rstrm->frag_header)) &&
+					(newpos < rstrm->out_boundry))
+				{
+					rstrm->out_finger = newpos;
+					return (TRUE);
+				}
+				break;
 
-			  case XDR_DECODE:
-				  newpos = rstrm->in_finger - delta;
-				  if ((delta < (int)(rstrm->fbtbc)) &&
-					  (newpos <= rstrm->in_boundry) &&
-					  (newpos >= rstrm->in_base))
-					{
-						rstrm->in_finger = newpos;
-						rstrm->fbtbc -= delta;
-						return (TRUE);
-					}
-				  break;
-			  case XDR_FREE:	/* to avoid warning */
-				  break;
-		  }
+			case XDR_DECODE:
+				newpos = rstrm->in_finger - delta;
+				if ((delta < (int)(rstrm->fbtbc)) &&
+					(newpos <= rstrm->in_boundry) &&
+					(newpos >= rstrm->in_base))
+				{
+					rstrm->in_finger = newpos;
+					rstrm->fbtbc -= delta;
+					return (TRUE);
+				}
+				break;
+			case XDR_FREE:	/* to avoid warning */
+				break;
+		}
 	return (FALSE);
 }
 
@@ -361,28 +362,28 @@ static int32_t *xdrrec_inline (XDR * xdrs, u_int len)
 	int32_t *buf = NULL;
 
 	switch (xdrs->x_op)
-	  {
+	{
 
-		  case XDR_ENCODE:
-			  if ((rstrm->out_finger + len) <= rstrm->out_boundry)
-				{
-					buf = (int32_t *) rstrm->out_finger;
-					rstrm->out_finger += len;
-				}
-			  break;
+		case XDR_ENCODE:
+			if ((rstrm->out_finger + len) <= rstrm->out_boundry)
+			{
+				buf = (int32_t *) rstrm->out_finger;
+				rstrm->out_finger += len;
+			}
+			break;
 
-		  case XDR_DECODE:
-			  if ((len <= rstrm->fbtbc) &&
-				  ((rstrm->in_finger + len) <= rstrm->in_boundry))
-				{
-					buf = (int32_t *) rstrm->in_finger;
-					rstrm->fbtbc -= len;
-					rstrm->in_finger += len;
-				}
-			  break;
-		  case XDR_FREE:		/* to avoid warning */
-			  break;
-	  }
+		case XDR_DECODE:
+			if ((len <= rstrm->fbtbc) &&
+				((rstrm->in_finger + len) <= rstrm->in_boundry))
+			{
+				buf = (int32_t *) rstrm->in_finger;
+				rstrm->fbtbc -= len;
+				rstrm->in_finger += len;
+			}
+			break;
+		case XDR_FREE:		/* to avoid warning */
+			break;
+	}
 	return (buf);
 }
 
@@ -391,7 +392,7 @@ static void xdrrec_destroy (XDR * xdrs)
 	RECSTREAM *rstrm = (RECSTREAM *) xdrs->x_private;
 
 	mem_free (rstrm->the_buffer,
-			  rstrm->sendsize + rstrm->recvsize + BYTES_PER_XDR_UNIT);
+			rstrm->sendsize + rstrm->recvsize + BYTES_PER_XDR_UNIT);
 	mem_free ((caddr_t) rstrm, sizeof (RECSTREAM));
 }
 
@@ -408,13 +409,13 @@ bool_t xdrrec_skiprecord (XDR * xdrs)
 	RECSTREAM *rstrm = (RECSTREAM *) (xdrs->x_private);
 
 	while (rstrm->fbtbc > 0 || (!rstrm->last_frag))
-	  {
-		  if (!skip_input_bytes (rstrm, rstrm->fbtbc))
-			  return (FALSE);
-		  rstrm->fbtbc = 0;
-		  if ((!rstrm->last_frag) && (!set_input_fragment (rstrm)))
-			  return (FALSE);
-	  }
+	{
+		if (!skip_input_bytes (rstrm, rstrm->fbtbc))
+			return (FALSE);
+		rstrm->fbtbc = 0;
+		if ((!rstrm->last_frag) && (!set_input_fragment (rstrm)))
+			return (FALSE);
+	}
 	rstrm->last_frag = FALSE;
 	return (TRUE);
 }
@@ -429,13 +430,13 @@ bool_t xdrrec_eof (XDR * xdrs)
 	RECSTREAM *rstrm = (RECSTREAM *) (xdrs->x_private);
 
 	while (rstrm->fbtbc > 0 || (!rstrm->last_frag))
-	  {
-		  if (!skip_input_bytes (rstrm, rstrm->fbtbc))
-			  return (TRUE);
-		  rstrm->fbtbc = 0;
-		  if ((!rstrm->last_frag) && (!set_input_fragment (rstrm)))
-			  return (TRUE);
-	  }
+	{
+		if (!skip_input_bytes (rstrm, rstrm->fbtbc))
+			return (TRUE);
+		rstrm->fbtbc = 0;
+		if ((!rstrm->last_frag) && (!set_input_fragment (rstrm)))
+			return (TRUE);
+	}
 	if (rstrm->in_finger == rstrm->in_boundry)
 		return (TRUE);
 	return (FALSE);
@@ -455,10 +456,10 @@ bool_t xdrrec_endofrecord (XDR * xdrs, bool_t sendnow)
 	if (sendnow || rstrm->frag_sent ||
 		((uintptr_t) rstrm->out_finger + sizeof (u_int32_t) >=
 		 (uintptr_t) rstrm->out_boundry))
-	  {
-		  rstrm->frag_sent = FALSE;
-		  return (flush_out (rstrm, TRUE));
-	  }
+	{
+		rstrm->frag_sent = FALSE;
+		return (flush_out (rstrm, TRUE));
+	}
 	len = (uintptr_t) (rstrm->out_finger) - (uintptr_t) (rstrm->frag_header) -
 		sizeof (u_int32_t);
 	*(rstrm->frag_header) = htonl ((u_int32_t) len | LAST_FRAG);
@@ -511,20 +512,20 @@ get_input_bytes (RECSTREAM * rstrm, caddr_t addr, int len)
 	long current;
 
 	while (len > 0)
-	  {
-		  current = (intptr_t) rstrm->in_boundry - (intptr_t) rstrm->in_finger;
-		  if (current == 0)
-			{
-				if (!fill_input_buf (rstrm))
-					return (FALSE);
-				continue;
-			}
-		  current = (len < current) ? len : current;
-		  memcpy (addr, rstrm->in_finger, current);
-		  rstrm->in_finger += current;
-		  addr += current;
-		  len -= current;
-	  }
+	{
+		current = (intptr_t) rstrm->in_boundry - (intptr_t) rstrm->in_finger;
+		if (current == 0)
+		{
+			if (!fill_input_buf (rstrm))
+				return (FALSE);
+			continue;
+		}
+		current = (len < current) ? len : current;
+		memcpy (addr, rstrm->in_finger, current);
+		rstrm->in_finger += current;
+		addr += current;
+		len -= current;
+	}
 	return (TRUE);
 }
 
@@ -557,18 +558,18 @@ skip_input_bytes (RECSTREAM * rstrm, long cnt)
 	long current;
 
 	while (cnt > 0)
-	  {
-		  current = (intptr_t) rstrm->in_boundry - (intptr_t) rstrm->in_finger;
-		  if (current == 0)
-			{
-				if (!fill_input_buf (rstrm))
-					return (FALSE);
-				continue;
-			}
-		  current = (cnt < current) ? cnt : current;
-		  rstrm->in_finger += current;
-		  cnt -= current;
-	  }
+	{
+		current = (intptr_t) rstrm->in_boundry - (intptr_t) rstrm->in_finger;
+		if (current == 0)
+		{
+			if (!fill_input_buf (rstrm))
+				return (FALSE);
+			continue;
+		}
+		current = (cnt < current) ? cnt : current;
+		rstrm->in_finger += current;
+		cnt -= current;
+	}
 	return (TRUE);
 }
 

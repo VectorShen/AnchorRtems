@@ -24,25 +24,25 @@
 #include "imfs.h"
 
 static const IMFS_mknod_control *get_control (const IMFS_mknod_controls *
-											  controls, mode_t mode)
+											controls, mode_t mode)
 {
 	if (S_ISDIR (mode))
-	  {
-		  return controls->directory;
-	  }
+	{
+		return controls->directory;
+	}
 	else if (S_ISBLK (mode) || S_ISCHR (mode))
-	  {
-		  return controls->device;
-	  }
+	{
+		return controls->device;
+	}
 	else if (S_ISFIFO (mode))
-	  {
-		  return controls->fifo;
-	  }
+	{
+		return controls->fifo;
+	}
 	else
-	  {
-		  IMFS_assert (S_ISREG (mode));
-		  return controls->file;
-	  }
+	{
+		IMFS_assert (S_ISREG (mode));
+		return controls->file;
+	}
 }
 
 int IMFS_mknod (const rtems_filesystem_location_info_t * parentloc,
@@ -59,15 +59,15 @@ int IMFS_mknod (const rtems_filesystem_location_info_t * parentloc,
 								 mknod_control->node_size,
 								 name, namelen, mode, &dev);
 	if (new_node != NULL)
-	  {
-		  IMFS_jnode_t *parent = parentloc->node_access;
+	{
+		IMFS_jnode_t *parent = parentloc->node_access;
 
-		  IMFS_mtime_ctime_update (parent);
-	  }
+		IMFS_mtime_ctime_update (parent);
+	}
 	else
-	  {
-		  rv = -1;
-	  }
+	{
+		rv = -1;
+	}
 
 	return rv;
 }

@@ -96,121 +96,121 @@ __RCSID ("$NetBSD: vis.c,v 1.33 2005/05/28 13:11:14 lukem Exp $");
 
 #define MAXEXTRAS	5
 
-#define MAKEEXTRALIST(flag, extra, orig)				      \
-do {									      \
-	const char *o = orig;						      \
-	char *e;							      \
-	while (*o++)							      \
-		continue;						      \
-	extra = malloc((size_t)((o - orig) + MAXEXTRAS));		      \
-	if (!extra) break;						      \
-	for (o = orig, e = extra; (*e++ = *o++) != '\0';)		      \
-		continue;						      \
-	e--;								      \
-	if (flag & VIS_SP) *e++ = ' ';					      \
-	if (flag & VIS_TAB) *e++ = '\t';				      \
-	if (flag & VIS_NL) *e++ = '\n';					      \
-	if ((flag & VIS_NOSLASH) == 0) *e++ = '\\';			      \
-	*e = '\0';							      \
+#define MAKEEXTRALIST(flag, extra, orig)				    \
+do {									    \
+	const char *o = orig;						    \
+	char *e;							    \
+	while (*o++)							    \
+		continue;						    \
+	extra = malloc((size_t)((o - orig) + MAXEXTRAS));		    \
+	if (!extra) break;						    \
+	for (o = orig, e = extra; (*e++ = *o++) != '\0';)		    \
+		continue;						    \
+	e--;								    \
+	if (flag & VIS_SP) *e++ = ' ';					    \
+	if (flag & VIS_TAB) *e++ = '\t';				    \
+	if (flag & VIS_NL) *e++ = '\n';					    \
+	if ((flag & VIS_NOSLASH) == 0) *e++ = '\\';			    \
+	*e = '\0';							    \
 } while (/*CONSTCOND*/0)
 
 /*
  * This is HVIS, the macro of vis used to HTTP style (RFC 1808)
  */
-#define HVIS(dst, c, flag, nextc, extra)				      \
-do									      \
+#define HVIS(dst, c, flag, nextc, extra)				    \
+do									    \
 	if (!isascii(c) || !isalnum(c) || strchr("$-_.+!*'(),", c) != NULL) { \
-		*dst++ = '%';						      \
-		*dst++ = xtoa(((unsigned int)c >> 4) & 0xf);		      \
-		*dst++ = xtoa((unsigned int)c & 0xf);			      \
-	} else {							      \
-		SVIS(dst, c, flag, nextc, extra);			      \
-	}								      \
+		*dst++ = '%';						    \
+		*dst++ = xtoa(((unsigned int)c >> 4) & 0xf);		    \
+		*dst++ = xtoa((unsigned int)c & 0xf);			    \
+	} else {							    \
+		SVIS(dst, c, flag, nextc, extra);			    \
+	}								    \
 while (/*CONSTCOND*/0)
 
 /*
  * This is SVIS, the central macro of vis.
- * dst:	      Pointer to the destination buffer
- * c:	      Character to encode
+ * dst:	    Pointer to the destination buffer
+ * c:	    Character to encode
  * flag:      Flag word
  * nextc:     The character following 'c'
  * extra:     Pointer to the list of extra characters to be
- *	      backslash-protected.
+ *	    backslash-protected.
  */
-#define SVIS(dst, c, flag, nextc, extra)				      \
-do {									      \
-	int isextra;							      \
-	isextra = strchr(extra, c) != NULL;				      \
-	if (!isextra && isascii(c) && (isgraph(c) || iswhite(c) ||	      \
-	    ((flag & VIS_SAFE) && issafe(c)))) {			      \
-		*dst++ = c;						      \
-		break;							      \
-	}								      \
-	if (flag & VIS_CSTYLE) {					      \
-		switch (c) {						      \
-		case '\n':						      \
-			*dst++ = '\\'; *dst++ = 'n';			      \
-			continue;					      \
-		case '\r':						      \
-			*dst++ = '\\'; *dst++ = 'r';			      \
-			continue;					      \
-		case '\b':						      \
-			*dst++ = '\\'; *dst++ = 'b';			      \
-			continue;					      \
-		case BELL:						      \
-			*dst++ = '\\'; *dst++ = 'a';			      \
-			continue;					      \
-		case '\v':						      \
-			*dst++ = '\\'; *dst++ = 'v';			      \
-			continue;					      \
-		case '\t':						      \
-			*dst++ = '\\'; *dst++ = 't';			      \
-			continue;					      \
-		case '\f':						      \
-			*dst++ = '\\'; *dst++ = 'f';			      \
-			continue;					      \
-		case ' ':						      \
-			*dst++ = '\\'; *dst++ = 's';			      \
-			continue;					      \
-		case '\0':						      \
-			*dst++ = '\\'; *dst++ = '0';			      \
-			if (isoctal(nextc)) {				      \
-				*dst++ = '0';				      \
-				*dst++ = '0';				      \
-			}						      \
-			continue;					      \
-		default:						      \
-			if (isgraph(c)) {				      \
-				*dst++ = '\\'; *dst++ = c;		      \
-				continue;				      \
-			}						      \
-		}							      \
-	}								      \
-	if (isextra || ((c & 0177) == ' ') || (flag & VIS_OCTAL)) {	      \
-		*dst++ = '\\';						      \
+#define SVIS(dst, c, flag, nextc, extra)				    \
+do {									    \
+	int isextra;							    \
+	isextra = strchr(extra, c) != NULL;				    \
+	if (!isextra && isascii(c) && (isgraph(c) || iswhite(c) ||	    \
+	  ((flag & VIS_SAFE) && issafe(c)))) {			    \
+		*dst++ = c;						    \
+		break;							    \
+	}								    \
+	if (flag & VIS_CSTYLE) {					    \
+		switch (c) {						    \
+		case '\n':						    \
+			*dst++ = '\\'; *dst++ = 'n';			    \
+			continue;					    \
+		case '\r':						    \
+			*dst++ = '\\'; *dst++ = 'r';			    \
+			continue;					    \
+		case '\b':						    \
+			*dst++ = '\\'; *dst++ = 'b';			    \
+			continue;					    \
+		case BELL:						    \
+			*dst++ = '\\'; *dst++ = 'a';			    \
+			continue;					    \
+		case '\v':						    \
+			*dst++ = '\\'; *dst++ = 'v';			    \
+			continue;					    \
+		case '\t':						    \
+			*dst++ = '\\'; *dst++ = 't';			    \
+			continue;					    \
+		case '\f':						    \
+			*dst++ = '\\'; *dst++ = 'f';			    \
+			continue;					    \
+		case ' ':						    \
+			*dst++ = '\\'; *dst++ = 's';			    \
+			continue;					    \
+		case '\0':						    \
+			*dst++ = '\\'; *dst++ = '0';			    \
+			if (isoctal(nextc)) {				    \
+				*dst++ = '0';				    \
+				*dst++ = '0';				    \
+			}						    \
+			continue;					    \
+		default:						    \
+			if (isgraph(c)) {				    \
+				*dst++ = '\\'; *dst++ = c;		    \
+				continue;				    \
+			}						    \
+		}							    \
+	}								    \
+	if (isextra || ((c & 0177) == ' ') || (flag & VIS_OCTAL)) {	    \
+		*dst++ = '\\';						    \
 		*dst++ = (u_char)(((u_int32_t)(u_char)c >> 6) & 03) + '0';    \
 		*dst++ = (u_char)(((u_int32_t)(u_char)c >> 3) & 07) + '0';    \
-		*dst++ =			     (c	      & 07) + '0';    \
-	} else {							      \
-		if ((flag & VIS_NOSLASH) == 0) *dst++ = '\\';		      \
-		if (c & 0200) {						      \
-			c &= 0177; *dst++ = 'M';			      \
-		}							      \
-		if (iscntrl(c)) {					      \
-			*dst++ = '^';					      \
-			if (c == 0177)					      \
-				*dst++ = '?';				      \
-			else						      \
-				*dst++ = c + '@';			      \
-		} else {						      \
-			*dst++ = '-'; *dst++ = c;			      \
-		}							      \
-	}								      \
+		*dst++ =			   (c	    & 07) + '0';    \
+	} else {							    \
+		if ((flag & VIS_NOSLASH) == 0) *dst++ = '\\';		    \
+		if (c & 0200) {						    \
+			c &= 0177; *dst++ = 'M';			    \
+		}							    \
+		if (iscntrl(c)) {					    \
+			*dst++ = '^';					    \
+			if (c == 0177)					    \
+				*dst++ = '?';				    \
+			else						    \
+				*dst++ = c + '@';			    \
+		} else {						    \
+			*dst++ = '-'; *dst++ = c;			    \
+		}							    \
+	}								    \
 } while (/*CONSTCOND*/0)
 
 /*
  * svis - visually encode characters, also encoding the characters
- *	  pointed to by `extra'
+ *	pointed to by `extra'
  */
 char *svis (char *dst, int c, int flag, int nextc, const char *extra)
 {
@@ -220,10 +220,10 @@ char *svis (char *dst, int c, int flag, int nextc, const char *extra)
 	_DIAGASSERT (extra != NULL);
 	MAKEEXTRALIST (flag, nextra, extra);
 	if (!nextra)
-	  {
-		  *dst = '\0';			/* can't create nextra, return "" */
-		  return dst;
-	  }
+	{
+		*dst = '\0';			/* can't create nextra, return "" */
+		return dst;
+	}
 	if (flag & VIS_HTTPSTYLE)
 		HVIS (dst, c, flag, nextc, nextra);
 	else
@@ -260,20 +260,20 @@ int strsvis (char *dst, const char *csrc, int flag, const char *extra)
 	_DIAGASSERT (extra != NULL);
 	MAKEEXTRALIST (flag, nextra, extra);
 	if (!nextra)
-	  {
-		  *dst = '\0';			/* can't create nextra, return "" */
-		  return 0;
-	  }
+	{
+		*dst = '\0';			/* can't create nextra, return "" */
+		return 0;
+	}
 	if (flag & VIS_HTTPSTYLE)
-	  {
-		  for (start = dst; (c = *src++) != '\0'; /* empty */ )
-			  HVIS (dst, c, flag, *src, nextra);
-	  }
+	{
+		for (start = dst; (c = *src++) != '\0'; /* empty */ )
+			HVIS (dst, c, flag, *src, nextra);
+	}
 	else
-	  {
-		  for (start = dst; (c = *src++) != '\0'; /* empty */ )
-			  SVIS (dst, c, flag, *src, nextra);
-	  }
+	{
+		for (start = dst; (c = *src++) != '\0'; /* empty */ )
+			SVIS (dst, c, flag, *src, nextra);
+	}
 	free (nextra);
 	*dst = '\0';
 	return (dst - start);
@@ -292,27 +292,27 @@ strsvisx (char *dst, const char *csrc, size_t len, int flag, const char *extra)
 	_DIAGASSERT (extra != NULL);
 	MAKEEXTRALIST (flag, nextra, extra);
 	if (!nextra)
-	  {
-		  *dst = '\0';			/* can't create nextra, return "" */
-		  return 0;
-	  }
+	{
+		*dst = '\0';			/* can't create nextra, return "" */
+		return 0;
+	}
 
 	if (flag & VIS_HTTPSTYLE)
-	  {
-		  for (start = dst; len > 0; len--)
-			{
-				c = *src++;
-				HVIS (dst, c, flag, len ? *src : '\0', nextra);
-			}
-	  }
+	{
+		for (start = dst; len > 0; len--)
+		{
+			c = *src++;
+			HVIS (dst, c, flag, len ? *src : '\0', nextra);
+		}
+	}
 	else
-	  {
-		  for (start = dst; len > 0; len--)
-			{
-				c = *src++;
-				SVIS (dst, c, flag, len ? *src : '\0', nextra);
-			}
-	  }
+	{
+		for (start = dst; len > 0; len--)
+		{
+			c = *src++;
+			SVIS (dst, c, flag, len ? *src : '\0', nextra);
+		}
+	}
 	free (nextra);
 	*dst = '\0';
 	return (dst - start);
@@ -332,10 +332,10 @@ char *vis (char *dst, int c, int flag, int nextc)
 
 	MAKEEXTRALIST (flag, extra, "");
 	if (!extra)
-	  {
-		  *dst = '\0';			/* can't create extra, return "" */
-		  return dst;
-	  }
+	{
+		*dst = '\0';			/* can't create extra, return "" */
+		return dst;
+	}
 	if (flag & VIS_HTTPSTYLE)
 		HVIS (dst, uc, flag, nextc, extra);
 	else
@@ -362,10 +362,10 @@ int strvis (char *dst, const char *src, int flag)
 
 	MAKEEXTRALIST (flag, extra, "");
 	if (!extra)
-	  {
-		  *dst = '\0';			/* can't create extra, return "" */
-		  return 0;
-	  }
+	{
+		*dst = '\0';			/* can't create extra, return "" */
+		return 0;
+	}
 	rv = strsvis (dst, src, flag, extra);
 	free (extra);
 	return rv;
@@ -378,10 +378,10 @@ int strvisx (char *dst, const char *src, size_t len, int flag)
 
 	MAKEEXTRALIST (flag, extra, "");
 	if (!extra)
-	  {
-		  *dst = '\0';			/* can't create extra, return "" */
-		  return 0;
-	  }
+	{
+		*dst = '\0';			/* can't create extra, return "" */
+		return 0;
+	}
 	rv = strsvisx (dst, src, len, flag, extra);
 	free (extra);
 	return rv;

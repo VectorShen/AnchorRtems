@@ -42,13 +42,13 @@ Scheduler_Void_or_thread _Scheduler_EDF_Unblock (const Scheduler_Control *
 	 *    a pseudo-ISR system task, we need to do a context switch.
 	 */
 	if (_Scheduler_Is_priority_lower_than (scheduler,
-										   _Thread_Heir->current_priority,
-										   the_thread->current_priority))
-	  {
-		  _Scheduler_Update_heir (the_thread,
-								  the_thread->current_priority ==
-								  PRIORITY_PSEUDO_ISR);
-	  }
+										 _Thread_Heir->current_priority,
+										 the_thread->current_priority))
+	{
+		_Scheduler_Update_heir (the_thread,
+								the_thread->current_priority ==
+								PRIORITY_PSEUDO_ISR);
+	}
 
 	SCHEDULER_RETURN_VOID_OR_NULL;
 }

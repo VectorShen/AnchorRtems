@@ -55,7 +55,7 @@ struct sockaddr_un
 
 /* Socket options. */
 #define	LOCAL_PEERCRED		0x001	/* retrieve peer credentials */
-#define	LOCAL_CREDS		0x002	/* pass credentials to receiver */
+#define	LOCAL_CREDS			0x002	/* pass credentials to receiver */
 #define	LOCAL_CONNWAIT		0x004	/* connects block until accepted */
 
 #ifdef _KERNEL

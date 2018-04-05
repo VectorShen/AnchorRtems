@@ -29,8 +29,8 @@ void _TOD_Tickle_ticks (void)
 
 	_TOD.seconds_trigger += rtems_configuration_get_nanoseconds_per_tick ();
 	if (_TOD.seconds_trigger >= 1000000000UL)
-	  {
-		  _TOD.seconds_trigger -= 1000000000UL;
-		  _Watchdog_Tickle_seconds ();
-	  }
+	{
+		_TOD.seconds_trigger -= 1000000000UL;
+		_Watchdog_Tickle_seconds ();
+	}
 }

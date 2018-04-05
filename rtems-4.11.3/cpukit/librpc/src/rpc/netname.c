@@ -74,13 +74,13 @@ int getnetname (char name[MAXNETNAMELEN + 1])
 
 	uid = geteuid ();
 	if (uid == 0)
-	  {
-		  return (host2netname (name, (char *)NULL, (char *)NULL));
-	  }
+	{
+		return (host2netname (name, (char *)NULL, (char *)NULL));
+	}
 	else
-	  {
-		  return (user2netname (name, uid, (char *)NULL));
-	  }
+	{
+		return (user2netname (name, uid, (char *)NULL));
+	}
 }
 
 /*
@@ -93,17 +93,17 @@ int user2netname (char netname[MAXNETNAMELEN + 1], uid_t uid, char *domain)
 #define MAXIPRINT	(11)		/* max length of printed integer */
 
 	if (domain == NULL)
-	  {
-		  if (_rpc_get_default_domain (&dfltdom) != 0)
-			{
-				return (0);
-			}
-		  domain = dfltdom;
-	  }
+	{
+		if (_rpc_get_default_domain (&dfltdom) != 0)
+		{
+			return (0);
+		}
+		domain = dfltdom;
+	}
 	if (strlen (domain) + 1 + MAXIPRINT > MAXNETNAMELEN)
-	  {
-		  return (0);
-	  }
+	{
+		return (0);
+	}
 	(void)sprintf (netname, "%s.%ld@%s", OPSYS, (u_long) uid, domain);
 	return (1);
 }
@@ -117,22 +117,22 @@ int host2netname (char netname[MAXNETNAMELEN + 1], char *host, char *domain)
 	char hostname[MAXHOSTNAMELEN + 1];
 
 	if (domain == NULL)
-	  {
-		  if (_rpc_get_default_domain (&dfltdom) != 0)
-			{
-				return (0);
-			}
-		  domain = dfltdom;
-	  }
+	{
+		if (_rpc_get_default_domain (&dfltdom) != 0)
+		{
+			return (0);
+		}
+		domain = dfltdom;
+	}
 	if (host == NULL)
-	  {
-		  (void)gethostname (hostname, sizeof (hostname));
-		  host = hostname;
-	  }
+	{
+		(void)gethostname (hostname, sizeof (hostname));
+		host = hostname;
+	}
 	if (strlen (domain) + 1 + strlen (host) > MAXNETNAMELEN)
-	  {
-		  return (0);
-	  }
+	{
+		return (0);
+	}
 	(void)sprintf (netname, "%s.%s@%s", OPSYS, host, domain);
 	return (1);
 }

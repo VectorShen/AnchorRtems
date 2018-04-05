@@ -27,15 +27,15 @@ void _Profiling_Outer_most_interrupt_entry_and_exit (Per_CPU_Control * cpu,
 #if defined( RTEMS_PROFILING )
 	Per_CPU_Stats *stats = &cpu->Stats;
 	CPU_Counter_ticks delta = _CPU_Counter_difference (interrupt_exit_instant,
-													   interrupt_entry_instant);
+													 interrupt_entry_instant);
 
 	++stats->interrupt_count;
 	stats->total_interrupt_time += delta;
 
 	if (stats->max_interrupt_time < delta)
-	  {
-		  stats->max_interrupt_time = delta;
-	  }
+	{
+		stats->max_interrupt_time = delta;
+	}
 #else
 	(void)cpu;
 	(void)interrupt_entry_instant;

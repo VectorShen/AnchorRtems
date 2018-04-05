@@ -94,21 +94,21 @@ int pthread_create (pthread_t * thread,
 	 *  attributes structure.
 	 */
 	switch (the_attr->inheritsched)
-	  {
-		  case PTHREAD_INHERIT_SCHED:
-			  api = executing->API_Extensions[THREAD_API_POSIX];
-			  schedpolicy = api->schedpolicy;
-			  schedparam = api->schedparam;
-			  break;
+	{
+		case PTHREAD_INHERIT_SCHED:
+			api = executing->API_Extensions[THREAD_API_POSIX];
+			schedpolicy = api->schedpolicy;
+			schedparam = api->schedparam;
+			break;
 
-		  case PTHREAD_EXPLICIT_SCHED:
-			  schedpolicy = the_attr->schedpolicy;
-			  schedparam = the_attr->schedparam;
-			  break;
+		case PTHREAD_EXPLICIT_SCHED:
+			schedpolicy = the_attr->schedpolicy;
+			schedparam = the_attr->schedparam;
+			break;
 
-		  default:
-			  return EINVAL;
-	  }
+		default:
+			return EINVAL;
+	}
 
 	/*
 	 *  Check the contentionscope since rtems only supports PROCESS wide
@@ -129,9 +129,9 @@ int pthread_create (pthread_t * thread,
 	 *  Set the core scheduling policy information.
 	 */
 	rc = _POSIX_Thread_Translate_sched_param (schedpolicy,
-											  &schedparam,
-											  &budget_algorithm,
-											  &budget_callout);
+											&schedparam,
+											&budget_algorithm,
+											&budget_callout);
 	if (rc)
 		return rc;
 
@@ -157,10 +157,10 @@ int pthread_create (pthread_t * thread,
 	 */
 	the_thread = _POSIX_Threads_Allocate ();
 	if (!the_thread)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	/*
 	 *  Initialize the core thread for this task.
@@ -171,22 +171,22 @@ int pthread_create (pthread_t * thread,
 								 name	/* posix threads don't have a name */
 		);
 	if (!status)
-	  {
-		  _POSIX_Threads_Free (the_thread);
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_POSIX_Threads_Free (the_thread);
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 #if defined(RTEMS_SMP) && __RTEMS_HAVE_SYS_CPUSET_H__
 	status = _Scheduler_Set_affinity (the_thread,
-									  the_attr->affinitysetsize,
-									  the_attr->affinityset);
+									the_attr->affinitysetsize,
+									the_attr->affinityset);
 	if (!status)
-	  {
-		  _POSIX_Threads_Free (the_thread);
-		  _RTEMS_Unlock_allocator ();
-		  return EINVAL;
-	  }
+	{
+		_POSIX_Threads_Free (the_thread);
+		_RTEMS_Unlock_allocator ();
+		return EINVAL;
+	}
 #endif
 
 	/*
@@ -215,20 +215,20 @@ int pthread_create (pthread_t * thread,
 	 *        thread while we are creating it.
 	 */
 	if (!status)
-	  {
-		  _Thread_Enable_dispatch ();
-		  _POSIX_Threads_Free (the_thread);
-		  _Objects_Allocator_unlock ();
-		  return EINVAL;
-	  }
+	{
+		_Thread_Enable_dispatch ();
+		_POSIX_Threads_Free (the_thread);
+		_Objects_Allocator_unlock ();
+		return EINVAL;
+	}
 #endif
 
 	if (schedpolicy == SCHED_SPORADIC)
-	  {
-		  _Watchdog_Insert_ticks (&api->Sporadic_timer,
-								  _Timespec_To_ticks (&api->schedparam.
-													  sched_ss_repl_period));
-	  }
+	{
+		_Watchdog_Insert_ticks (&api->Sporadic_timer,
+								_Timespec_To_ticks (&api->schedparam.
+													sched_ss_repl_period));
+	}
 
 	_Thread_Enable_dispatch ();
 

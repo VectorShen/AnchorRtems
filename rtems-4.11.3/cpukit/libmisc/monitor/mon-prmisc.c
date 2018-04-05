@@ -54,7 +54,7 @@ int rtems_monitor_dump_hex (uint32_t num)
 
 static int
 rtems_monitor_dump_assoc_bitfield (const rtems_assoc_t * ap,
-								   const char *separator, uint32_t value)
+								 const char *separator, uint32_t value)
 {
 	uint32_t b;
 	uint32_t length = 0;
@@ -62,17 +62,17 @@ rtems_monitor_dump_assoc_bitfield (const rtems_assoc_t * ap,
 
 	for (b = 1; b; b <<= 1)
 		if (b & value)
-		  {
-			  if (length)
-				  length += fprintf (stdout, "%s", separator);
+		{
+			if (length)
+				length += fprintf (stdout, "%s", separator);
 
-			  name = rtems_assoc_name_by_local (ap, b);
+			name = rtems_assoc_name_by_local (ap, b);
 
-			  if (name)
-				  length += fprintf (stdout, "%s", name);
-			  else
-				  length += fprintf (stdout, "0x%" PRIx32, b);
-		  }
+			if (name)
+				length += fprintf (stdout, "%s", name);
+			else
+				length += fprintf (stdout, "0x%" PRIx32, b);
+		}
 
 	return length;
 }
@@ -100,7 +100,8 @@ int rtems_monitor_dump_priority (rtems_task_priority priority)
 	return fprintf (stdout, "%3" PRId32, priority);
 }
 
-static const rtems_assoc_t rtems_monitor_state_assoc[] = {
+static const rtems_assoc_t rtems_monitor_state_assoc[] =
+{
 	{"DORM", STATES_DORMANT, 0},
 	{"SUSP", STATES_SUSPENDED, 0},
 	{"DELAY", STATES_DELAYING, 0},
@@ -141,7 +142,8 @@ int rtems_monitor_dump_state (States_Control state)
 	return length;
 }
 
-static const rtems_assoc_t rtems_monitor_attribute_assoc[] = {
+static const rtems_assoc_t rtems_monitor_attribute_assoc[] =
+{
 	{"GL", RTEMS_GLOBAL, 0},
 	{"PR", RTEMS_PRIORITY, 0},
 	{"FL", RTEMS_FLOATING_POINT, 0},
@@ -166,7 +168,8 @@ int rtems_monitor_dump_attributes (rtems_attribute attributes)
 	return length;
 }
 
-static const rtems_assoc_t rtems_monitor_modes_assoc[] = {
+static const rtems_assoc_t rtems_monitor_modes_assoc[] =
+{
 	{"nP", RTEMS_NO_PREEMPT, 0},
 	{"T", RTEMS_TIMESLICE, 0},
 	{"nA", RTEMS_NO_ASR, 0},
@@ -185,7 +188,8 @@ int rtems_monitor_dump_modes (rtems_mode modes)
 	return length;
 }
 
-static const rtems_assoc_t rtems_monitor_events_assoc[] = {
+static const rtems_assoc_t rtems_monitor_events_assoc[] =
+{
 	{"0", RTEMS_EVENT_0, 0},
 	{"1", RTEMS_EVENT_1, 0},
 	{"2", RTEMS_EVENT_2, 0},
@@ -234,13 +238,13 @@ int rtems_monitor_dump_notepad (uint32_t * notepad)
 	int length = 0;
 
 	if (rtems_configuration_get_notepads_enabled ())
-	  {
-		  int i;
+	{
+		int i;
 
-		  for (i = 0; i < RTEMS_NUMBER_NOTEPADS; i++)
-			  if (notepad[i])
-				  length += fprintf (stdout, "%d: 0x%" PRIx32, i, notepad[i]);
-	  }
+		for (i = 0; i < RTEMS_NUMBER_NOTEPADS; i++)
+			if (notepad[i])
+				length += fprintf (stdout, "%d: 0x%" PRIx32, i, notepad[i]);
+	}
 
 	return length;
 }

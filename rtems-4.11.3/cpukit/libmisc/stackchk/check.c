@@ -60,19 +60,19 @@ Stack_check_Control Stack_check_Pattern;
  * NOTE: This uses a GCC specific method.
  */
 static inline bool Stack_check_Frame_pointer_in_range (Stack_Control *
-													   the_stack)
+													 the_stack)
 {
 #if defined(__GNUC__)
 	void *sp = __builtin_frame_address (0);
 
 	if (sp < the_stack->area)
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 	if (sp > (the_stack->area + the_stack->size))
-	  {
-		  return false;
-	  }
+	{
+		return false;
+	}
 #else
 #error "How do I check stack bounds on a non-GNU compiler?"
 #endif
@@ -147,7 +147,8 @@ static void Stack_check_Initialize (void)
 {
 	int i;
 	uint32_t *p;
-	static uint32_t pattern[4] = {
+	static uint32_t pattern[4] =
+	{
 		0xFEEDF00D, 0x0BAD0D06,	/* FEED FOOD to  BAD DOG */
 		0xDEADF00D, 0x600D0D06	/* DEAD FOOD but GOOD DOG */
 	};
@@ -160,9 +161,9 @@ static void Stack_check_Initialize (void)
 	 */
 	p = Stack_check_Pattern.pattern;
 	for (i = 0; i < PATTERN_SIZE_WORDS; i++)
-	  {
-		  p[i] = pattern[i % 4];
-	  }
+	{
+		p[i] = pattern[i % 4];
+	}
 
 	/*
 	 * If appropriate, setup the interrupt stack for high water testing
@@ -170,12 +171,12 @@ static void Stack_check_Initialize (void)
 	 */
 #if (CPU_ALLOCATE_INTERRUPT_STACK == TRUE)
 	if (_CPU_Interrupt_stack_low && _CPU_Interrupt_stack_high)
-	  {
-		  Stack_check_Interrupt_stack.area = _CPU_Interrupt_stack_low;
-		  Stack_check_Interrupt_stack.size = (char *)_CPU_Interrupt_stack_high -
-			  (char *)_CPU_Interrupt_stack_low;
-		  Stack_check_Dope_stack (&Stack_check_Interrupt_stack);
-	  }
+	{
+		Stack_check_Interrupt_stack.area = _CPU_Interrupt_stack_low;
+		Stack_check_Interrupt_stack.size = (char *)_CPU_Interrupt_stack_high -
+			(char *)_CPU_Interrupt_stack_low;
+		Stack_check_Dope_stack (&Stack_check_Interrupt_stack);
+	}
 #endif
 
 	Stack_check_Initialized = 1;
@@ -185,8 +186,8 @@ static void Stack_check_Initialize (void)
  *  rtems_stack_checker_create_extension
  */
 bool rtems_stack_checker_create_extension (Thread_Control * running
-										   __attribute__ ((unused)),
-										   Thread_Control * the_thread)
+										 __attribute__ ((unused)),
+										 Thread_Control * the_thread)
 {
 	Stack_check_Initialize ();
 
@@ -242,18 +243,18 @@ void Stack_check_report_blown_task (Thread_Control * running,
 			"\n", (unsigned long)stack->size, stack->area,
 			((char *)stack->area + stack->size));
 	if (!pattern_ok)
-	  {
-		  printk ("damaged pattern area (%lu Bytes): 0x%08" PRIxPTR " .. 0x%08"
-				  PRIxPTR "\n", (unsigned long)PATTERN_SIZE_BYTES, pattern_area,
-				  (pattern_area + PATTERN_SIZE_BYTES));
-	  }
+	{
+		printk ("damaged pattern area (%lu Bytes): 0x%08" PRIxPTR " .. 0x%08"
+				PRIxPTR "\n", (unsigned long)PATTERN_SIZE_BYTES, pattern_area,
+				(pattern_area + PATTERN_SIZE_BYTES));
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (rtems_configuration_get_user_multiprocessing_table ())
-	  {
-		  printk ("node: 0x%08" PRIxPTR "\n",
-				  rtems_configuration_get_user_multiprocessing_table ()->node);
-	  }
+	{
+		printk ("node: 0x%08" PRIxPTR "\n",
+				rtems_configuration_get_user_multiprocessing_table ()->node);
+	}
 #endif
 
 	rtems_fatal (RTEMS_FATAL_SOURCE_STACK_CHECKER,
@@ -264,9 +265,9 @@ void Stack_check_report_blown_task (Thread_Control * running,
  *  rtems_stack_checker_switch_extension
  */
 void rtems_stack_checker_switch_extension (Thread_Control * running
-										   __attribute__ ((unused)),
-										   Thread_Control * heir
-										   __attribute__ ((unused)))
+										 __attribute__ ((unused)),
+										 Thread_Control * heir
+										 __attribute__ ((unused)))
 {
 	Stack_Control *the_stack = &running->Start.Initial_stack;
 	void *pattern;
@@ -281,13 +282,13 @@ void rtems_stack_checker_switch_extension (Thread_Control * running
 	sp_ok = Stack_check_Frame_pointer_in_range (the_stack);
 
 	pattern_ok = (!memcmp (pattern,
-						   (void *)Stack_check_Pattern.pattern,
-						   PATTERN_SIZE_BYTES));
+						 (void *)Stack_check_Pattern.pattern,
+						 PATTERN_SIZE_BYTES));
 
 	if (!sp_ok || !pattern_ok)
-	  {
-		  Stack_check_report_blown_task (running, pattern_ok);
-	  }
+	{
+		Stack_check_report_blown_task (running, pattern_ok);
+	}
 }
 
 /*
@@ -311,20 +312,20 @@ bool rtems_stack_checker_is_blown (void)
 	 * to check.
 	 */
 	if (Stack_check_Initialized)
-	  {
-		  pattern_ok = (!memcmp (Stack_check_Get_pattern (the_stack),
+	{
+		pattern_ok = (!memcmp (Stack_check_Get_pattern (the_stack),
 								 (void *)Stack_check_Pattern.pattern,
 								 PATTERN_SIZE_BYTES));
-	  }
+	}
 
 	/*
 	 * Let's report as much as we can.
 	 */
 	if (!sp_ok || !pattern_ok)
-	  {
-		  Stack_check_report_blown_task (executing, pattern_ok);
-		  /* DOES NOT RETURN */
-	  }
+	{
+		Stack_check_report_blown_task (executing, pattern_ok);
+		/* DOES NOT RETURN */
+	}
 
 	/*
 	 * The Stack Pointer and the Pattern Area are OK so return false.
@@ -395,19 +396,19 @@ static void Stack_check_Dump_threads_usage (Thread_Control * the_thread)
 	 */
 #if (CPU_ALLOCATE_INTERRUPT_STACK == TRUE)
 	if (the_thread == (Thread_Control *) - 1)
-	  {
-		  if (!Stack_check_Interrupt_stack.area)
-			  return;
-		  stack = &Stack_check_Interrupt_stack;
-		  the_thread = 0;
-		  current = 0;
-	  }
+	{
+		if (!Stack_check_Interrupt_stack.area)
+			return;
+		stack = &Stack_check_Interrupt_stack;
+		the_thread = 0;
+		current = 0;
+	}
 	else
 #endif
-	  {
-		  stack = &the_thread->Start.Initial_stack;
-		  current = (void *)_CPU_Context_Get_SP (&the_thread->Registers);
-	  }
+	{
+		stack = &the_thread->Start.Initial_stack;
+		current = (void *)_CPU_Context_Get_SP (&the_thread->Registers);
+	}
 
 	low = Stack_check_usable_stack_start (stack);
 	size = Stack_check_usable_stack_size (stack);
@@ -422,33 +423,33 @@ static void Stack_check_Dump_threads_usage (Thread_Control * the_thread)
 #if (CPU_ALLOCATE_INTERRUPT_STACK == TRUE)
 	if (the_thread)
 #endif
-	  {
-		  (*print_handler) (print_context,
+	{
+		(*print_handler) (print_context,
 							"0x%08" PRIx32 "  %4s",
 							the_thread->Object.id,
 							rtems_object_get_name (the_thread->Object.id,
-												   sizeof (name), name));
-	  }
+												 sizeof (name), name));
+	}
 #if (CPU_ALLOCATE_INTERRUPT_STACK == TRUE)
 	else
-	  {
-		  (*print_handler) (print_context, "0x%08" PRIx32 "  INTR", ~0);
-	  }
+	{
+		(*print_handler) (print_context, "0x%08" PRIx32 "  INTR", ~0);
+	}
 #endif
 
 	(*print_handler) (print_context,
-					  " %010p - %010p %010p  %8" PRId32 "   ",
-					  stack->area,
-					  stack->area + stack->size - 1, current, size);
+					" %010p - %010p %010p  %8" PRId32 "   ",
+					stack->area,
+					stack->area + stack->size - 1, current, size);
 
 	if (Stack_check_Initialized == 0)
-	  {
-		  (*print_handler) (print_context, "Unavailable\n");
-	  }
+	{
+		(*print_handler) (print_context, "Unavailable\n");
+	}
 	else
-	  {
-		  (*print_handler) (print_context, "%8" PRId32 "\n", used);
-	  }
+	{
+		(*print_handler) (print_context, "%8" PRId32 "\n", used);
+	}
 
 }
 
@@ -457,7 +458,7 @@ static void Stack_check_Dump_threads_usage (Thread_Control * the_thread)
  */
 #ifndef DONT_USE_FATAL_EXTENSION
 void rtems_stack_checker_fatal_extension (Internal_errors_Source source,
-										  bool is_internal, uint32_t status)
+										bool is_internal, uint32_t status)
 {
 	if (status == 0)
 		rtems_stack_checker_report_usage ();
@@ -469,7 +470,7 @@ void rtems_stack_checker_fatal_extension (Internal_errors_Source source,
  */
 
 void rtems_stack_checker_report_usage_with_plugin (void *context,
-												   rtems_printk_plugin_t print)
+												 rtems_printk_plugin_t print)
 {
 	if (!print)
 		return;
@@ -479,7 +480,7 @@ void rtems_stack_checker_report_usage_with_plugin (void *context,
 
 	(*print) (context, "Stack usage by thread\n");
 	(*print) (context,
-			  "    ID      NAME    LOW          HIGH     CURRENT     AVAILABLE     USED\n");
+			"    ID      NAME    LOW          HIGH     CURRENT     AVAILABLE     USED\n");
 
 	/* iterate over all threads and dump the usage */
 	rtems_iterate_over_all_threads (Stack_check_Dump_threads_usage);

@@ -60,27 +60,38 @@ static struct
 } service_names[] =
 {
 	{
-	"hosts", SERVICE_TABLE},
+		"hosts", SERVICE_TABLE
+	},
 	{
-	"/etc/hosts", SERVICE_TABLE},
+		"/etc/hosts", SERVICE_TABLE
+	},
 	{
-	"hosttable", SERVICE_TABLE},
+		"hosttable", SERVICE_TABLE
+	},
 	{
-	"htable", SERVICE_TABLE},
+		"htable", SERVICE_TABLE
+	},
 	{
-	"bind", SERVICE_BIND},
+		"bind", SERVICE_BIND
+	},
 	{
-	"dns", SERVICE_BIND},
+		"dns", SERVICE_BIND
+	},
 	{
-	"domain", SERVICE_BIND},
+		"domain", SERVICE_BIND
+	},
 	{
-	"yp", SERVICE_NIS},
+		"yp", SERVICE_NIS
+	},
 	{
-	"yellowpages", SERVICE_NIS},
+		"yellowpages", SERVICE_NIS
+	},
 	{
-	"nis", SERVICE_NIS},
+		"nis", SERVICE_NIS
+	},
 	{
-	0, SERVICE_NONE}
+		0, SERVICE_NONE
+	}
 };
 
 static enum service_type service_order[SERVICE_MAX + 1];
@@ -90,12 +101,12 @@ static enum service_type get_service_name (const char *name)
 {
 	int i;
 	for (i = 0; service_names[i].type != SERVICE_NONE; i++)
-	  {
-		  if (!strcasecmp (name, service_names[i].name))
-			{
-				return service_names[i].type;
-			}
-	  }
+	{
+		if (!strcasecmp (name, service_names[i].name))
+		{
+			return service_names[i].type;
+		}
+	}
 	return SERVICE_NONE;
 }
 
@@ -106,40 +117,40 @@ static void init_services (void)
 	FILE *fd;
 
 	if ((fd = (FILE *) fopen (_PATH_NETCONF, "r")) == NULL)
-	  {
-		  /* make some assumptions */
-		  service_order[0] = SERVICE_TABLE;
-		  service_order[1] = SERVICE_NONE;
-	  }
+	{
+		/* make some assumptions */
+		service_order[0] = SERVICE_TABLE;
+		service_order[1] = SERVICE_NONE;
+	}
 	else
-	  {
-		  while (fgets (buf, BUFSIZ, fd) != NULL && cc < SERVICE_MAX)
-			{
-				if (buf[0] == '#')
-					continue;
+	{
+		while (fgets (buf, BUFSIZ, fd) != NULL && cc < SERVICE_MAX)
+		{
+			if (buf[0] == '#')
+				continue;
 
-				p = buf;
-				while ((cp = strsep (&p, "\n \t,:;")) != NULL && *cp == '\0')
+			p = buf;
+			while ((cp = strsep (&p, "\n \t,:;")) != NULL && *cp == '\0')
+				;
+			if (cp == NULL)
+				continue;
+			do
+			{
+				if (isalpha ((unsigned char)cp[0]))
+				{
+					service_order[cc] = get_service_name (cp);
+					if (service_order[cc] != SERVICE_NONE)
+						cc++;
+				}
+				while ((cp = strsep (&p, "\n \t,:;")) != NULL
+						 && *cp == '\0')
 					;
-				if (cp == NULL)
-					continue;
-				do
-				  {
-					  if (isalpha ((unsigned char)cp[0]))
-						{
-							service_order[cc] = get_service_name (cp);
-							if (service_order[cc] != SERVICE_NONE)
-								cc++;
-						}
-					  while ((cp = strsep (&p, "\n \t,:;")) != NULL
-							 && *cp == '\0')
-						  ;
-				  }
-				while (cp != NULL && cc < SERVICE_MAX);
 			}
-		  service_order[cc] = SERVICE_NONE;
-		  fclose (fd);
-	  }
+			while (cp != NULL && cc < SERVICE_MAX);
+		}
+		service_order[cc] = SERVICE_NONE;
+		fclose (fd);
+	}
 	service_done = 1;
 }
 
@@ -152,23 +163,23 @@ struct netent *getnetbyname (const char *name)
 		init_services ();
 
 	while (!hp)
-	  {
-		  switch (service_order[nserv])
-			{
-				case SERVICE_NONE:
-					return NULL;
-				case SERVICE_TABLE:
-					hp = _getnetbyhtname (name);
-					break;
-				case SERVICE_BIND:
-					hp = _getnetbydnsname (name);
-					break;
-				case SERVICE_NIS:
-					hp = _getnetbynisname (name);
-					break;
-			}
-		  nserv++;
-	  }
+	{
+		switch (service_order[nserv])
+		{
+			case SERVICE_NONE:
+				return NULL;
+			case SERVICE_TABLE:
+				hp = _getnetbyhtname (name);
+				break;
+			case SERVICE_BIND:
+				hp = _getnetbydnsname (name);
+				break;
+			case SERVICE_NIS:
+				hp = _getnetbynisname (name);
+				break;
+		}
+		nserv++;
+	}
 	return hp;
 }
 
@@ -181,23 +192,23 @@ struct netent *getnetbyaddr (uint32_t addr, int af)
 		init_services ();
 
 	while (!hp)
-	  {
-		  switch (service_order[nserv])
-			{
-				case SERVICE_NONE:
-					return 0;
-				case SERVICE_TABLE:
-					hp = _getnetbyhtaddr (addr, af);
-					break;
-				case SERVICE_BIND:
-					hp = _getnetbydnsaddr (addr, af);
-					break;
-				case SERVICE_NIS:
-					hp = _getnetbynisaddr (addr, af);
-					break;
-			}
-		  nserv++;
-	  }
+	{
+		switch (service_order[nserv])
+		{
+			case SERVICE_NONE:
+				return 0;
+			case SERVICE_TABLE:
+				hp = _getnetbyhtaddr (addr, af);
+				break;
+			case SERVICE_BIND:
+				hp = _getnetbydnsaddr (addr, af);
+				break;
+			case SERVICE_NIS:
+				hp = _getnetbynisaddr (addr, af);
+				break;
+		}
+		nserv++;
+	}
 	return hp;
 }
 

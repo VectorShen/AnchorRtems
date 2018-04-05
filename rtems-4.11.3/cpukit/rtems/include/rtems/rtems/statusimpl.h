@@ -38,7 +38,7 @@ extern "C"
  *  This array is used to map SuperCore Object Handler return
  *  codes to Classic API status codes.
  */
-	extern const rtems_status_code _Status_Object_name_errors_to_status[];
+extern const rtems_status_code _Status_Object_name_errors_to_status[];
 
 /**@}*/
 

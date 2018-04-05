@@ -47,13 +47,13 @@ extern "C"
  * This type defines the control block used to manage each RWLock.
  */
 
-	typedef struct
-	{
-  /** This is used to manage a RWLock as an object. */
-		Objects_Control Object;
-  /** This is used to implement the RWLock. */
-		CORE_RWLock_Control RWLock;
-	} POSIX_RWLock_Control;
+typedef struct
+{
+/** This is used to manage a RWLock as an object. */
+	Objects_Control Object;
+/** This is used to implement the RWLock. */
+	CORE_RWLock_Control RWLock;
+} POSIX_RWLock_Control;
 
 /** @} */
 

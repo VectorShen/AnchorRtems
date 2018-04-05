@@ -34,11 +34,11 @@ extern uint32_t pci_invalid_address;
 /* PCI Configuration Library of the system */
 enum
 {
-	PCI_CONFIG_LIB_NONE = 0,
-	PCI_CONFIG_LIB_AUTO = 1,
-	PCI_CONFIG_LIB_STATIC = 2,
-	PCI_CONFIG_LIB_READ = 3,
-	PCI_CONFIG_LIB_PERIPHERAL = 4,
+	PCI_CONFIG_LIB_NONE 		= 0,
+	PCI_CONFIG_LIB_AUTO 		= 1,
+	PCI_CONFIG_LIB_STATIC 		= 2,
+	PCI_CONFIG_LIB_READ 		= 3,
+	PCI_CONFIG_LIB_PERIPHERAL 	= 4,
 };
 extern const int pci_config_lib_type;
 

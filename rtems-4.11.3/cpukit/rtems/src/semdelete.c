@@ -47,82 +47,82 @@ rtems_status_code rtems_semaphore_delete (rtems_id id)
 
 	the_semaphore = _Semaphore_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  attribute_set = the_semaphore->attribute_set;
+		case OBJECTS_LOCAL:
+			attribute_set = the_semaphore->attribute_set;
 #if defined(RTEMS_SMP)
-			  if (_Attributes_Is_multiprocessor_resource_sharing
-				  (attribute_set))
+			if (_Attributes_Is_multiprocessor_resource_sharing
+				(attribute_set))
+			{
+				MRSP_Status mrsp_status =
+					_MRSP_Destroy (&the_semaphore->Core_control.mrsp);
+				if (mrsp_status != MRSP_SUCCESSFUL)
 				{
-					MRSP_Status mrsp_status =
-						_MRSP_Destroy (&the_semaphore->Core_control.mrsp);
-					if (mrsp_status != MRSP_SUCCESSFUL)
-					  {
-						  _Objects_Put (&the_semaphore->Object);
-						  _Objects_Allocator_unlock ();
-						  return
-							  _Semaphore_Translate_MRSP_status_code
-							  (mrsp_status);
-					  }
+					_Objects_Put (&the_semaphore->Object);
+					_Objects_Allocator_unlock ();
+					return
+						_Semaphore_Translate_MRSP_status_code
+						(mrsp_status);
 				}
-			  else
+			}
+			else
 #endif
-			  if (!_Attributes_Is_counting_semaphore (attribute_set))
+			if (!_Attributes_Is_counting_semaphore (attribute_set))
+			{
+				if (_CORE_mutex_Is_locked
+					(&the_semaphore->Core_control.mutex)
+					&&
+					!_Attributes_Is_simple_binary_semaphore (attribute_set))
 				{
-					if (_CORE_mutex_Is_locked
-						(&the_semaphore->Core_control.mutex)
-						&&
-						!_Attributes_Is_simple_binary_semaphore (attribute_set))
-					  {
-						  _Objects_Put (&the_semaphore->Object);
-						  _Objects_Allocator_unlock ();
-						  return RTEMS_RESOURCE_IN_USE;
-					  }
-					_CORE_mutex_Flush (&the_semaphore->Core_control.mutex,
-									   SEMAPHORE_MP_OBJECT_WAS_DELETED,
-									   CORE_MUTEX_WAS_DELETED);
-					_CORE_mutex_Destroy (&the_semaphore->Core_control.mutex);
+					_Objects_Put (&the_semaphore->Object);
+					_Objects_Allocator_unlock ();
+					return RTEMS_RESOURCE_IN_USE;
 				}
-			  else
-				{
-					_CORE_semaphore_Flush (&the_semaphore->Core_control.
-										   semaphore,
-										   SEMAPHORE_MP_OBJECT_WAS_DELETED,
-										   CORE_SEMAPHORE_WAS_DELETED);
-					_CORE_semaphore_Destroy (&the_semaphore->Core_control.
-											 semaphore);
-				}
+				_CORE_mutex_Flush (&the_semaphore->Core_control.mutex,
+								 SEMAPHORE_MP_OBJECT_WAS_DELETED,
+								 CORE_MUTEX_WAS_DELETED);
+				_CORE_mutex_Destroy (&the_semaphore->Core_control.mutex);
+			}
+			else
+			{
+				_CORE_semaphore_Flush (&the_semaphore->Core_control.
+									 semaphore,
+									 SEMAPHORE_MP_OBJECT_WAS_DELETED,
+									 CORE_SEMAPHORE_WAS_DELETED);
+				_CORE_semaphore_Destroy (&the_semaphore->Core_control.
+										 semaphore);
+			}
 
-			  _Objects_Close (&_Semaphore_Information, &the_semaphore->Object);
+			_Objects_Close (&_Semaphore_Information, &the_semaphore->Object);
 
 #if defined(RTEMS_MULTIPROCESSING)
-			  if (_Attributes_Is_global (attribute_set))
-				{
+			if (_Attributes_Is_global (attribute_set))
+			{
 
-					_Objects_MP_Close (&_Semaphore_Information,
-									   the_semaphore->Object.id);
+				_Objects_MP_Close (&_Semaphore_Information,
+								 the_semaphore->Object.id);
 
-					_Semaphore_MP_Send_process_packet (SEMAPHORE_MP_ANNOUNCE_DELETE, the_semaphore->Object.id, 0,	/* Not used */
-													   0	/* Not used */
-						);
-				}
+				_Semaphore_MP_Send_process_packet (SEMAPHORE_MP_ANNOUNCE_DELETE, the_semaphore->Object.id, 0,	/* Not used */
+												 0	/* Not used */
+					);
+			}
 #endif
 
-			  _Objects_Put (&the_semaphore->Object);
-			  _Semaphore_Free (the_semaphore);
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_SUCCESSFUL;
+			_Objects_Put (&the_semaphore->Object);
+			_Semaphore_Free (the_semaphore);
+			_Objects_Allocator_unlock ();
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+		case OBJECTS_REMOTE:
+			_Objects_Allocator_unlock ();
+			return RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 	return RTEMS_INVALID_ID;

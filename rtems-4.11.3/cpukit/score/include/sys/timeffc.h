@@ -376,7 +376,8 @@ getmicrouptime_fromclock (struct timeval *tvp, int whichclock)
 #else /* !_KERNEL */
 
 /* Feed-Forward Clock system calls. */
-__BEGIN_DECLS int ffclock_getcounter (ffcounter * ffcount);
+__BEGIN_DECLS
+int ffclock_getcounter (ffcounter * ffcount);
 int ffclock_getestimate (struct ffclock_estimate *cest);
 int ffclock_setestimate (struct ffclock_estimate *cest);
 __END_DECLS

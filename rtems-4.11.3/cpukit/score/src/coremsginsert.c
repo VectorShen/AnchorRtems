@@ -22,7 +22,7 @@
 
 #if defined(RTEMS_SCORE_COREMSG_ENABLE_MESSAGE_PRIORITY)
 static bool _CORE_message_queue_Order (const Chain_Node * left,
-									   const Chain_Node * right)
+									 const Chain_Node * right)
 {
 	const CORE_message_queue_Buffer_control *left_message;
 	const CORE_message_queue_Buffer_control *right_message;
@@ -56,21 +56,21 @@ void _CORE_message_queue_Insert_message (CORE_message_queue_Control *
 	++the_message_queue->number_of_pending_messages;
 
 	if (submit_type == CORE_MESSAGE_QUEUE_SEND_REQUEST)
-	  {
-		  _Chain_Append_unprotected (pending_messages, &the_message->Node);
+	{
+		_Chain_Append_unprotected (pending_messages, &the_message->Node);
 #if defined(RTEMS_SCORE_COREMSG_ENABLE_MESSAGE_PRIORITY)
-	  }
+	}
 	else if (submit_type != CORE_MESSAGE_QUEUE_URGENT_REQUEST)
-	  {
-		  _Chain_Insert_ordered_unprotected (pending_messages,
+	{
+		_Chain_Insert_ordered_unprotected (pending_messages,
 											 &the_message->Node,
 											 _CORE_message_queue_Order);
 #endif
-	  }
+	}
 	else
-	  {
-		  _Chain_Prepend_unprotected (pending_messages, &the_message->Node);
-	  }
+	{
+		_Chain_Prepend_unprotected (pending_messages, &the_message->Node);
+	}
 
 #if defined(RTEMS_SCORE_COREMSG_ENABLE_NOTIFICATION)
 	/*
@@ -80,6 +80,6 @@ void _CORE_message_queue_Insert_message (CORE_message_queue_Control *
 	 */
 	if (notify && the_message_queue->notify_handler)
 		(*the_message_queue->notify_handler) (the_message_queue->
-											  notify_argument);
+											notify_argument);
 #endif
 }

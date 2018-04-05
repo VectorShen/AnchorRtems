@@ -45,25 +45,25 @@ int pthread_barrier_wait (pthread_barrier_t * barrier)
 
 	the_barrier = _POSIX_Barrier_Get (barrier, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  executing = _Thread_Executing;
-			  _CORE_barrier_Wait (&the_barrier->Barrier,
-								  executing,
-								  the_barrier->Object.id, true, 0, NULL);
-			  _Objects_Put (&the_barrier->Object);
-			  return
-				  _POSIX_Barrier_Translate_core_barrier_return_code (executing->
+		case OBJECTS_LOCAL:
+			executing = _Thread_Executing;
+			_CORE_barrier_Wait (&the_barrier->Barrier,
+								executing,
+								the_barrier->Object.id, true, 0, NULL);
+			_Objects_Put (&the_barrier->Object);
+			return
+				_POSIX_Barrier_Translate_core_barrier_return_code (executing->
 																	 Wait.
 																	 return_code);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return EINVAL;
 }

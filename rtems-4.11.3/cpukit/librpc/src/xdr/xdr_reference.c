@@ -65,39 +65,39 @@ static char *rcsid =
  * proc is the routine to handle the referenced structure.
  */
 bool_t xdr_reference (register XDR * xdrs, caddr_t * pp,	/* the pointer to work on */
-					  u_int size,	/* size of the object pointed to */
-					  xdrproc_t proc)	/* xdr routine to handle the object */
+					u_int size,	/* size of the object pointed to */
+					xdrproc_t proc)	/* xdr routine to handle the object */
 {
 	register caddr_t loc = *pp;
 	register bool_t stat;
 
 	if (loc == NULL)
 		switch (xdrs->x_op)
-		  {
-			  case XDR_FREE:
-				  return (TRUE);
+		{
+			case XDR_FREE:
+				return (TRUE);
 
-			  case XDR_DECODE:
-				  *pp = loc = (caddr_t) mem_alloc (size);
-				  if (loc == NULL)
-					{
-						(void)fprintf (stderr,
-									   "xdr_reference: out of memory\n");
-						return (FALSE);
-					}
-				  memset (loc, 0, (int)size);
-				  break;
-			  case XDR_ENCODE:	/* to avoid warning */
-				  break;
-		  }
+			case XDR_DECODE:
+				*pp = loc = (caddr_t) mem_alloc (size);
+				if (loc == NULL)
+				{
+					(void)fprintf (stderr,
+								 "xdr_reference: out of memory\n");
+					return (FALSE);
+				}
+				memset (loc, 0, (int)size);
+				break;
+			case XDR_ENCODE:	/* to avoid warning */
+				break;
+		}
 
 	stat = (*proc) (xdrs, loc, LASTUNSIGNED);
 
 	if (xdrs->x_op == XDR_FREE)
-	  {
-		  mem_free (loc, size);
-		  *pp = NULL;
-	  }
+	{
+		mem_free (loc, size);
+		*pp = NULL;
+	}
 	return (stat);
 }
 
@@ -129,13 +129,13 @@ xdr_pointer (register XDR * xdrs,
 
 	more_data = (*objpp != NULL);
 	if (!xdr_bool (xdrs, &more_data))
-	  {
-		  return (FALSE);
-	  }
+	{
+		return (FALSE);
+	}
 	if (!more_data)
-	  {
-		  *objpp = NULL;
-		  return (TRUE);
-	  }
+	{
+		*objpp = NULL;
+		return (TRUE);
+	}
 	return (xdr_reference (xdrs, objpp, obj_size, xdr_obj));
 }

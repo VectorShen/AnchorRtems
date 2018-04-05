@@ -25,11 +25,11 @@
 #include <rtems/score/heapimpl.h>
 
 static Heap_Resize_status _Heap_Resize_block_checked (Heap_Control * heap,
-													  Heap_Block * block,
-													  uintptr_t alloc_begin,
-													  uintptr_t new_alloc_size,
-													  uintptr_t * old_size,
-													  uintptr_t * new_size)
+													Heap_Block * block,
+													uintptr_t alloc_begin,
+													uintptr_t new_alloc_size,
+													uintptr_t * old_size,
+													uintptr_t * new_size)
 {
 	Heap_Statistics *const stats = &heap->stats;
 
@@ -49,29 +49,29 @@ static Heap_Resize_status _Heap_Resize_block_checked (Heap_Control * heap,
 	*old_size = alloc_size;
 
 	if (next_block_is_free)
-	  {
-		  block_size += next_block_size;
-		  alloc_size += next_block_size;
-	  }
+	{
+		block_size += next_block_size;
+		alloc_size += next_block_size;
+	}
 
 	if (new_alloc_size > alloc_size)
-	  {
-		  return HEAP_RESIZE_UNSATISFIED;
-	  }
+	{
+		return HEAP_RESIZE_UNSATISFIED;
+	}
 
 	if (next_block_is_free)
-	  {
-		  _Heap_Block_set_size (block, block_size);
+	{
+		_Heap_Block_set_size (block, block_size);
 
-		  _Heap_Free_list_remove (next_block);
+		_Heap_Free_list_remove (next_block);
 
-		  next_block = _Heap_Block_at (block, block_size);
-		  next_block->size_and_flag |= HEAP_PREV_BLOCK_USED;
+		next_block = _Heap_Block_at (block, block_size);
+		next_block->size_and_flag |= HEAP_PREV_BLOCK_USED;
 
-		  /* Statistics */
-		  --stats->free_blocks;
-		  stats->free_size -= next_block_size;
-	  }
+		/* Statistics */
+		--stats->free_blocks;
+		stats->free_size -= next_block_size;
+	}
 
 	block = _Heap_Block_allocate (heap, block, alloc_begin, new_alloc_size);
 
@@ -86,10 +86,10 @@ static Heap_Resize_status _Heap_Resize_block_checked (Heap_Control * heap,
 }
 
 Heap_Resize_status _Heap_Resize_block (Heap_Control * heap,
-									   void *alloc_begin_ptr,
-									   uintptr_t new_alloc_size,
-									   uintptr_t * old_size,
-									   uintptr_t * new_size)
+									 void *alloc_begin_ptr,
+									 uintptr_t new_alloc_size,
+									 uintptr_t * old_size,
+									 uintptr_t * new_size)
 {
 	uintptr_t const page_size = heap->page_size;
 
@@ -102,17 +102,17 @@ Heap_Resize_status _Heap_Resize_block (Heap_Control * heap,
 	*new_size = 0;
 
 	if (_Heap_Is_block_in_heap (heap, block))
-	  {
-		  _Heap_Protection_block_check (heap, block);
+	{
+		_Heap_Protection_block_check (heap, block);
 
-		  /* TODO: Free only the next block if necessary */
-		  _Heap_Protection_free_all_delayed_blocks (heap);
+		/* TODO: Free only the next block if necessary */
+		_Heap_Protection_free_all_delayed_blocks (heap);
 
-		  return _Heap_Resize_block_checked (heap,
+		return _Heap_Resize_block_checked (heap,
 											 block,
 											 alloc_begin,
 											 new_alloc_size,
 											 old_size, new_size);
-	  }
+	}
 	return HEAP_RESIZE_FATAL_ERROR;
 }

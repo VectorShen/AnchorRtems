@@ -54,7 +54,7 @@ rtems_rfs_rtems_eval_perms (rtems_filesystem_eval_path_context_t * ctx,
 
 static void
 rtems_rfs_rtems_lock_by_mt_entry (const rtems_filesystem_mount_table_entry_t *
-								  mt_entry)
+								mt_entry)
 {
 	rtems_rfs_file_system *fs = mt_entry->fs_info;
 
@@ -72,7 +72,7 @@ rtems_rfs_rtems_unlock_by_mt_entry (const rtems_filesystem_mount_table_entry_t *
 
 static bool
 rtems_rfs_rtems_is_directory (rtems_filesystem_eval_path_context_t * ctx,
-							  void *arg)
+							void *arg)
 {
 	rtems_rfs_inode_handle *inode = arg;
 
@@ -87,24 +87,24 @@ static void rtems_rfs_rtems_follow_link (rtems_filesystem_eval_path_context_t *
 	char *link = malloc (len + 1);
 
 	if (link != NULL)
-	  {
-		  int rc = rtems_rfs_symlink_read (fs, ino, link, len, &len);
+	{
+		int rc = rtems_rfs_symlink_read (fs, ino, link, len, &len);
 
-		  if (rc == 0)
-			{
-				rtems_filesystem_eval_path_recursive (ctx, link, len);
-			}
-		  else
-			{
-				rtems_filesystem_eval_path_error (ctx, 0);
-			}
+		if (rc == 0)
+		{
+			rtems_filesystem_eval_path_recursive (ctx, link, len);
+		}
+		else
+		{
+			rtems_filesystem_eval_path_error (ctx, 0);
+		}
 
-		  free (link);
-	  }
+		free (link);
+	}
 	else
-	  {
-		  rtems_filesystem_eval_path_error (ctx, ENOMEM);
-	  }
+	{
+		rtems_filesystem_eval_path_error (ctx, ENOMEM);
+	}
 }
 
 static rtems_filesystem_eval_path_generic_status
@@ -118,101 +118,102 @@ rtems_rfs_rtems_eval_token (rtems_filesystem_eval_path_context_t * ctx,
 		rtems_rfs_rtems_eval_perms (ctx, RTEMS_FS_PERMS_EXEC, inode);
 
 	if (access_ok)
-	  {
-		  if (rtems_filesystem_is_current_directory (token, tokenlen))
+	{
+		if (rtems_filesystem_is_current_directory (token, tokenlen))
+		{
+			rtems_filesystem_eval_path_clear_token (ctx);
+		}
+		else
+		{
+			rtems_filesystem_location_info_t *currentloc =
+				rtems_filesystem_eval_path_get_currentloc (ctx);
+			rtems_rfs_file_system *fs =
+				rtems_rfs_rtems_pathloc_dev (currentloc);
+			rtems_rfs_ino entry_ino;
+			uint32_t entry_doff;
+			int rc = rtems_rfs_dir_lookup_ino (fs,
+											 inode,
+											 token,
+											 tokenlen,
+											 &entry_ino,
+											 &entry_doff);
+
+			if (rc == 0)
 			{
+				rc = rtems_rfs_inode_close (fs, inode);
+				if (rc == 0)
+				{
+					rc = rtems_rfs_inode_open (fs, entry_ino, inode,
+											 true);
+				}
+
+				if (rc != 0)
+				{
+					/*
+					 * This prevents the rtems_rfs_inode_close() from doing something in
+					 * rtems_rfs_rtems_eval_path().
+					 */
+					memset (inode, 0, sizeof (*inode));
+				}
+			}
+			else
+			{
+				status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_NO_ENTRY;
+				rc = -1;
+			}
+
+			if (rc == 0)
+			{
+				bool is_sym_link =
+					S_ISLNK (rtems_rfs_inode_get_mode (inode));
+				int eval_flags =
+					rtems_filesystem_eval_path_get_flags (ctx);
+				bool follow_sym_link =
+					(eval_flags & RTEMS_FS_FOLLOW_SYM_LINK) != 0;
+				bool terminal =
+					!rtems_filesystem_eval_path_has_path (ctx);
+
 				rtems_filesystem_eval_path_clear_token (ctx);
-			}
-		  else
-			{
-				rtems_filesystem_location_info_t *currentloc =
-					rtems_filesystem_eval_path_get_currentloc (ctx);
-				rtems_rfs_file_system *fs =
-					rtems_rfs_rtems_pathloc_dev (currentloc);
-				rtems_rfs_ino entry_ino;
-				uint32_t entry_doff;
-				int rc = rtems_rfs_dir_lookup_ino (fs,
-												   inode,
-												   token,
-												   tokenlen,
-												   &entry_ino,
-												   &entry_doff);
 
-				if (rc == 0)
-				  {
-					  rc = rtems_rfs_inode_close (fs, inode);
-					  if (rc == 0)
-						{
-							rc = rtems_rfs_inode_open (fs, entry_ino, inode,
-													   true);
-						}
-
-					  if (rc != 0)
-						{
-							/*
-							 * This prevents the rtems_rfs_inode_close() from doing something in
-							 * rtems_rfs_rtems_eval_path().
-							 */
-							memset (inode, 0, sizeof (*inode));
-						}
-				  }
+				if (is_sym_link && (follow_sym_link || !terminal))
+				{
+					rtems_rfs_rtems_follow_link (ctx, fs, entry_ino);
+				}
 				else
-				  {
-					  status = RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_NO_ENTRY;
-					  rc = -1;
-				  }
+				{
+					rc = rtems_rfs_rtems_set_handlers (currentloc,
+													 inode) ? 0 : EIO;
+					if (rc == 0)
+					{
+						rtems_rfs_rtems_set_pathloc_ino (currentloc,
+														 entry_ino);
+						rtems_rfs_rtems_set_pathloc_doff (currentloc,
+															entry_doff);
 
-				if (rc == 0)
-				  {
-					  bool is_sym_link =
-						  S_ISLNK (rtems_rfs_inode_get_mode (inode));
-					  int eval_flags =
-						  rtems_filesystem_eval_path_get_flags (ctx);
-					  bool follow_sym_link =
-						  (eval_flags & RTEMS_FS_FOLLOW_SYM_LINK) != 0;
-					  bool terminal =
-						  !rtems_filesystem_eval_path_has_path (ctx);
-
-					  rtems_filesystem_eval_path_clear_token (ctx);
-
-					  if (is_sym_link && (follow_sym_link || !terminal))
+						if (!terminal)
 						{
-							rtems_rfs_rtems_follow_link (ctx, fs, entry_ino);
+							status =
+								RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
 						}
-					  else
-						{
-							rc = rtems_rfs_rtems_set_handlers (currentloc,
-															   inode) ? 0 : EIO;
-							if (rc == 0)
-							  {
-								  rtems_rfs_rtems_set_pathloc_ino (currentloc,
-																   entry_ino);
-								  rtems_rfs_rtems_set_pathloc_doff (currentloc,
-																	entry_doff);
-
-								  if (!terminal)
-									{
-										status =
-											RTEMS_FILESYSTEM_EVAL_PATH_GENERIC_CONTINUE;
-									}
-							  }
-							else
-							  {
-								  rtems_filesystem_eval_path_error (ctx,
-																	rtems_rfs_rtems_error
-																	("eval_path: set handlers",
-																	 rc));
-							  }
-						}
-				  }
+					}
+					else
+					{
+						rtems_filesystem_eval_path_error (ctx,
+															rtems_rfs_rtems_error
+															("eval_path: set handlers",
+															 rc));
+					}
+				}
 			}
-	  }
+		}
+	}
 
 	return status;
 }
 
 static const rtems_filesystem_eval_path_generic_config
-	rtems_rfs_rtems_eval_config = {
+	rtems_rfs_rtems_eval_config =
+{
 	.is_directory = rtems_rfs_rtems_is_directory,
 	.eval_token = rtems_rfs_rtems_eval_token
 };
@@ -229,25 +230,25 @@ rtems_rfs_rtems_eval_path (rtems_filesystem_eval_path_context_t * ctx)
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc == 0)
-	  {
-		  rtems_filesystem_eval_path_generic (ctx,
-											  &inode,
-											  &rtems_rfs_rtems_eval_config);
-		  rc = rtems_rfs_inode_close (fs, &inode);
-		  if (rc != 0)
-			{
-				rtems_filesystem_eval_path_error (ctx,
-												  rtems_rfs_rtems_error
-												  ("eval_path: closing inode",
-												   rc));
-			}
-	  }
+	{
+		rtems_filesystem_eval_path_generic (ctx,
+											&inode,
+											&rtems_rfs_rtems_eval_config);
+		rc = rtems_rfs_inode_close (fs, &inode);
+		if (rc != 0)
+		{
+			rtems_filesystem_eval_path_error (ctx,
+											rtems_rfs_rtems_error
+											("eval_path: closing inode",
+											 rc));
+		}
+	}
 	else
-	  {
-		  rtems_filesystem_eval_path_error (ctx,
+	{
+		rtems_filesystem_eval_path_error (ctx,
 											rtems_rfs_rtems_error
 											("eval_path: opening inode", rc));
-	  }
+	}
 }
 
 /**
@@ -256,8 +257,8 @@ rtems_rfs_rtems_eval_path (rtems_filesystem_eval_path_context_t * ctx)
  */
 static int
 rtems_rfs_rtems_link (const rtems_filesystem_location_info_t * parentloc,
-					  const rtems_filesystem_location_info_t * targetloc,
-					  const char *name, size_t namelen)
+					const rtems_filesystem_location_info_t * targetloc,
+					const char *name, size_t namelen)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (targetloc);
 	rtems_rfs_ino target = rtems_rfs_rtems_get_pathloc_ino (targetloc);
@@ -270,9 +271,9 @@ rtems_rfs_rtems_link (const rtems_filesystem_location_info_t * parentloc,
 
 	rc = rtems_rfs_link (fs, name, namelen, parent, target, false);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("link: linking", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("link: linking", rc);
+	}
 
 	return 0;
 }
@@ -289,7 +290,7 @@ rtems_rfs_rtems_link (const rtems_filesystem_location_info_t * parentloc,
 
 static int
 rtems_rfs_rtems_chown (const rtems_filesystem_location_info_t * pathloc,
-					   uid_t owner, gid_t group)
+					 uid_t owner, gid_t group)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (pathloc);
 	rtems_rfs_ino ino = rtems_rfs_rtems_get_pathloc_ino (pathloc);
@@ -305,9 +306,9 @@ rtems_rfs_rtems_chown (const rtems_filesystem_location_info_t * pathloc,
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("chown: opening inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("chown: opening inode", rc);
+	}
 
 	/*
 	 *  Verify I am the owner of the node or the super user.
@@ -317,19 +318,19 @@ rtems_rfs_rtems_chown (const rtems_filesystem_location_info_t * pathloc,
 	uid = geteuid ();
 
 	if ((uid != rtems_rfs_inode_get_uid (&inode)) && (uid != 0))
-	  {
-		  rtems_rfs_inode_close (fs, &inode);
-		  return rtems_rfs_rtems_error ("chown: not able", EPERM);
-	  }
+	{
+		rtems_rfs_inode_close (fs, &inode);
+		return rtems_rfs_rtems_error ("chown: not able", EPERM);
+	}
 #endif
 
 	rtems_rfs_inode_set_uid_gid (&inode, owner, group);
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("chown: closing inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("chown: closing inode", rc);
+	}
 
 	return 0;
 }
@@ -346,7 +347,7 @@ rtems_rfs_rtems_chown (const rtems_filesystem_location_info_t * pathloc,
 
 static int
 rtems_rfs_rtems_utime (const rtems_filesystem_location_info_t * pathloc,
-					   time_t atime, time_t mtime)
+					 time_t atime, time_t mtime)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (pathloc);
 	rtems_rfs_ino ino = rtems_rfs_rtems_get_pathloc_ino (pathloc);
@@ -355,18 +356,18 @@ rtems_rfs_rtems_utime (const rtems_filesystem_location_info_t * pathloc,
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("utime: read inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("utime: read inode", rc);
+	}
 
 	rtems_rfs_inode_set_atime (&inode, atime);
 	rtems_rfs_inode_set_mtime (&inode, mtime);
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("utime: closing inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("utime: closing inode", rc);
+	}
 
 	return 0;
 }
@@ -389,9 +390,9 @@ rtems_rfs_rtems_symlink (const rtems_filesystem_location_info_t * parent_loc,
 							target, strlen (target),
 							geteuid (), getegid (), parent);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("symlink: linking", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("symlink: linking", rc);
+	}
 
 	return 0;
 }
@@ -402,7 +403,7 @@ rtems_rfs_rtems_symlink (const rtems_filesystem_location_info_t * parent_loc,
 
 static ssize_t
 rtems_rfs_rtems_readlink (const rtems_filesystem_location_info_t * pathloc,
-						  char *buf, size_t bufsize)
+						char *buf, size_t bufsize)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (pathloc);
 	rtems_rfs_ino ino = rtems_rfs_rtems_get_pathloc_ino (pathloc);
@@ -414,9 +415,9 @@ rtems_rfs_rtems_readlink (const rtems_filesystem_location_info_t * pathloc,
 
 	rc = rtems_rfs_symlink_read (fs, ino, buf, bufsize, &length);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("readlink: reading link", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("readlink: reading link", rc);
+	}
 
 	return (ssize_t) length;
 }
@@ -436,24 +437,24 @@ rtems_rfs_rtems_fchmod (const rtems_filesystem_location_info_t * pathloc,
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("fchmod: opening inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("fchmod: opening inode", rc);
+	}
 
 	rtems_rfs_inode_set_mode (&inode, mode);
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("fchmod: closing inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("fchmod: closing inode", rc);
+	}
 
 	return 0;
 }
 
 int
 rtems_rfs_rtems_fstat (const rtems_filesystem_location_info_t * pathloc,
-					   struct stat *buf)
+					 struct stat *buf)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (pathloc);
 	rtems_rfs_ino ino = rtems_rfs_rtems_get_pathloc_ino (pathloc);
@@ -467,20 +468,20 @@ rtems_rfs_rtems_fstat (const rtems_filesystem_location_info_t * pathloc,
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("stat: opening inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("stat: opening inode", rc);
+	}
 
 	mode = rtems_rfs_inode_get_mode (&inode);
 
 	if (RTEMS_RFS_S_ISCHR (mode) || RTEMS_RFS_S_ISBLK (mode))
-	  {
-		  buf->st_rdev =
-			  rtems_filesystem_make_dev_t (rtems_rfs_inode_get_block
-										   (&inode, 0),
-										   rtems_rfs_inode_get_block (&inode,
-																	  1));
-	  }
+	{
+		buf->st_rdev =
+			rtems_filesystem_make_dev_t (rtems_rfs_inode_get_block
+										 (&inode, 0),
+										 rtems_rfs_inode_get_block (&inode,
+																	1));
+	}
 
 	buf->st_dev = (dev_t) (uintptr_t) rtems_rfs_fs_device (fs);
 	buf->st_ino = rtems_rfs_inode_ino (&inode);
@@ -496,37 +497,37 @@ rtems_rfs_rtems_fstat (const rtems_filesystem_location_info_t * pathloc,
 	shared = rtems_rfs_file_get_shared (fs, rtems_rfs_inode_ino (&inode));
 
 	if (shared)
-	  {
-		  buf->st_atime = rtems_rfs_file_shared_get_atime (shared);
-		  buf->st_mtime = rtems_rfs_file_shared_get_mtime (shared);
-		  buf->st_ctime = rtems_rfs_file_shared_get_ctime (shared);
-		  buf->st_blocks = rtems_rfs_file_shared_get_block_count (shared);
+	{
+		buf->st_atime = rtems_rfs_file_shared_get_atime (shared);
+		buf->st_mtime = rtems_rfs_file_shared_get_mtime (shared);
+		buf->st_ctime = rtems_rfs_file_shared_get_ctime (shared);
+		buf->st_blocks = rtems_rfs_file_shared_get_block_count (shared);
 
-		  if (S_ISLNK (buf->st_mode))
-			  buf->st_size = rtems_rfs_file_shared_get_block_offset (shared);
-		  else
-			  buf->st_size = rtems_rfs_file_shared_get_size (fs, shared);
-	  }
+		if (S_ISLNK (buf->st_mode))
+			buf->st_size = rtems_rfs_file_shared_get_block_offset (shared);
+		else
+			buf->st_size = rtems_rfs_file_shared_get_size (fs, shared);
+	}
 	else
-	  {
-		  buf->st_atime = rtems_rfs_inode_get_atime (&inode);
-		  buf->st_mtime = rtems_rfs_inode_get_mtime (&inode);
-		  buf->st_ctime = rtems_rfs_inode_get_ctime (&inode);
-		  buf->st_blocks = rtems_rfs_inode_get_block_count (&inode);
+	{
+		buf->st_atime = rtems_rfs_inode_get_atime (&inode);
+		buf->st_mtime = rtems_rfs_inode_get_mtime (&inode);
+		buf->st_ctime = rtems_rfs_inode_get_ctime (&inode);
+		buf->st_blocks = rtems_rfs_inode_get_block_count (&inode);
 
-		  if (S_ISLNK (buf->st_mode))
-			  buf->st_size = rtems_rfs_inode_get_block_offset (&inode);
-		  else
-			  buf->st_size = rtems_rfs_inode_get_size (fs, &inode);
-	  }
+		if (S_ISLNK (buf->st_mode))
+			buf->st_size = rtems_rfs_inode_get_block_offset (&inode);
+		else
+			buf->st_size = rtems_rfs_inode_get_size (fs, &inode);
+	}
 
 	buf->st_blksize = rtems_rfs_fs_block_size (fs);
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("stat: closing inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("stat: closing inode", rc);
+	}
 
 	return 0;
 }
@@ -537,7 +538,7 @@ rtems_rfs_rtems_fstat (const rtems_filesystem_location_info_t * pathloc,
 
 static int
 rtems_rfs_rtems_mknod (const rtems_filesystem_location_info_t * parentloc,
-					   const char *name, size_t namelen, mode_t mode, dev_t dev)
+					 const char *name, size_t namelen, mode_t mode, dev_t dev)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (parentloc);
 	rtems_rfs_ino parent = rtems_rfs_rtems_get_pathloc_ino (parentloc);
@@ -554,38 +555,38 @@ rtems_rfs_rtems_mknod (const rtems_filesystem_location_info_t * parentloc,
 								 rtems_rfs_rtems_imode (mode),
 								 1, uid, gid, &ino);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("mknod: inode create", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("mknod: inode create", rc);
+	}
 
 	rc = rtems_rfs_inode_open (fs, ino, &inode, true);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("mknod: inode open", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("mknod: inode open", rc);
+	}
 
 	if (S_ISDIR (mode) || S_ISREG (mode))
-	  {
-	  }
+	{
+	}
 	else if (S_ISCHR (mode) || S_ISBLK (mode))
-	  {
-		  int major;
-		  int minor;
-		  rtems_filesystem_split_dev_t (dev, major, minor);
-		  rtems_rfs_inode_set_block (&inode, 0, major);
-		  rtems_rfs_inode_set_block (&inode, 1, minor);
-	  }
+	{
+		int major;
+		int minor;
+		rtems_filesystem_split_dev_t (dev, major, minor);
+		rtems_rfs_inode_set_block (&inode, 0, major);
+		rtems_rfs_inode_set_block (&inode, 1, minor);
+	}
 	else
-	  {
-		  rtems_rfs_inode_close (fs, &inode);
-		  return rtems_rfs_rtems_error ("mknod: bad mode", EINVAL);
-	  }
+	{
+		rtems_rfs_inode_close (fs, &inode);
+		return rtems_rfs_rtems_error ("mknod: bad mode", EINVAL);
+	}
 
 	rc = rtems_rfs_inode_close (fs, &inode);
 	if (rc > 0)
-	  {
-		  return rtems_rfs_rtems_error ("mknod: closing inode", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("mknod: closing inode", rc);
+	}
 
 	return 0;
 }
@@ -599,7 +600,7 @@ rtems_rfs_rtems_mknod (const rtems_filesystem_location_info_t * parentloc,
  */
 int
 rtems_rfs_rtems_rmnod (const rtems_filesystem_location_info_t * parent_pathloc,
-					   const rtems_filesystem_location_info_t * pathloc)
+					 const rtems_filesystem_location_info_t * pathloc)
 {
 	rtems_rfs_file_system *fs = rtems_rfs_rtems_pathloc_dev (pathloc);
 	rtems_rfs_ino parent = rtems_rfs_rtems_get_pathloc_ino (parent_pathloc);
@@ -612,11 +613,11 @@ rtems_rfs_rtems_rmnod (const rtems_filesystem_location_info_t * parent_pathloc,
 				PRId32 "\n", parent, doff, ino);
 
 	rc = rtems_rfs_unlink (fs, parent, ino, doff,
-						   rtems_rfs_unlink_dir_if_empty);
+						 rtems_rfs_unlink_dir_if_empty);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("rmnod: unlinking", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("rmnod: unlinking", rc);
+	}
 
 	return 0;
 }
@@ -671,20 +672,20 @@ rtems_rfs_rtems_rename (const rtems_filesystem_location_info_t * old_parent_loc,
 	 */
 	rc = rtems_rfs_link (fs, new_name, new_name_len, new_parent, ino, true);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("rename: linking", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("rename: linking", rc);
+	}
 
 	/*
 	 * Unlink all inodes even directories with the dir option as false because a
 	 * directory may not be empty.
 	 */
 	rc = rtems_rfs_unlink (fs, old_parent, ino, doff,
-						   rtems_rfs_unlink_dir_allowed);
+						 rtems_rfs_unlink_dir_allowed);
 	if (rc)
-	  {
-		  return rtems_rfs_rtems_error ("rename: unlinking", rc);
-	  }
+	{
+		return rtems_rfs_rtems_error ("rename: unlinking", rc);
+	}
 
 	return 0;
 }
@@ -724,7 +725,8 @@ rtems_rfs_rtems_statvfs (const rtems_filesystem_location_info_t *
 /**
  *  Handler table for RFS link nodes
  */
-const rtems_filesystem_file_handlers_r rtems_rfs_rtems_link_handlers = {
+const rtems_filesystem_file_handlers_r rtems_rfs_rtems_link_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = rtems_filesystem_default_read,
@@ -753,7 +755,8 @@ void rtems_rfs_rtems_shutdown (rtems_filesystem_mount_table_entry_t * mt_entry);
 /**
  * RFS file system operations table.
  */
-const rtems_filesystem_operations_table rtems_rfs_ops = {
+const rtems_filesystem_operations_table rtems_rfs_ops =
+{
 	.lock_h = rtems_rfs_rtems_lock_by_mt_entry,
 	.unlock_h = rtems_rfs_rtems_unlock_by_mt_entry,
 	.are_nodes_equal_h = rtems_filesystem_default_are_nodes_equal,
@@ -794,32 +797,32 @@ rtems_rfs_rtems_initialise (rtems_filesystem_mount_table_entry_t * mt_entry,
 	 * Parse the options the user specifiies.
 	 */
 	while (options)
-	  {
-		  printf ("options=%s\n", options);
-		  if (strncmp (options, "hold-bitmaps",
-					   sizeof ("hold-bitmaps") - 1) == 0)
-			  flags |= RTEMS_RFS_FS_BITMAPS_HOLD;
-		  else if (strncmp (options, "no-local-cache",
+	{
+		printf ("options=%s\n", options);
+		if (strncmp (options, "hold-bitmaps",
+					 sizeof ("hold-bitmaps") - 1) == 0)
+			flags |= RTEMS_RFS_FS_BITMAPS_HOLD;
+		else if (strncmp (options, "no-local-cache",
 							sizeof ("no-local-cache") - 1) == 0)
-			  flags |= RTEMS_RFS_FS_NO_LOCAL_CACHE;
-		  else if (strncmp (options, "max-held-bufs",
+			flags |= RTEMS_RFS_FS_NO_LOCAL_CACHE;
+		else if (strncmp (options, "max-held-bufs",
 							sizeof ("max-held-bufs") - 1) == 0)
-			{
-				max_held_buffers =
-					strtoul (options + sizeof ("max-held-bufs"), 0, 0);
-			}
-		  else
-			  return rtems_rfs_rtems_error ("initialise: invalid option",
+		{
+			max_held_buffers =
+				strtoul (options + sizeof ("max-held-bufs"), 0, 0);
+		}
+		else
+			return rtems_rfs_rtems_error ("initialise: invalid option",
 											EINVAL);
 
-		  options = strchr (options, ',');
-		  if (options)
-			{
-				++options;
-				if (*options == '\0')
-					options = NULL;
-			}
-	  }
+		options = strchr (options, ',');
+		if (options)
+		{
+			++options;
+			if (*options == '\0')
+				options = NULL;
+		}
+	}
 
 	rtems = malloc (sizeof (rtems_rfs_rtems_private));
 	if (!rtems)
@@ -829,28 +832,28 @@ rtems_rfs_rtems_initialise (rtems_filesystem_mount_table_entry_t * mt_entry,
 
 	rc = rtems_rfs_mutex_create (&rtems->access);
 	if (rc > 0)
-	  {
-		  free (rtems);
-		  return rtems_rfs_rtems_error ("initialise: cannot create mutex", rc);
-	  }
+	{
+		free (rtems);
+		return rtems_rfs_rtems_error ("initialise: cannot create mutex", rc);
+	}
 
 	rc = rtems_rfs_mutex_lock (&rtems->access);
 	if (rc > 0)
-	  {
-		  rtems_rfs_mutex_destroy (&rtems->access);
-		  free (rtems);
-		  return rtems_rfs_rtems_error ("initialise: cannot lock access  mutex",
+	{
+		rtems_rfs_mutex_destroy (&rtems->access);
+		free (rtems);
+		return rtems_rfs_rtems_error ("initialise: cannot lock access  mutex",
 										rc);
-	  }
+	}
 
 	rc = rtems_rfs_fs_open (mt_entry->dev, rtems, flags, max_held_buffers, &fs);
 	if (rc)
-	  {
-		  rtems_rfs_mutex_unlock (&rtems->access);
-		  rtems_rfs_mutex_destroy (&rtems->access);
-		  free (rtems);
-		  return rtems_rfs_rtems_error ("initialise: open", errno);
-	  }
+	{
+		rtems_rfs_mutex_unlock (&rtems->access);
+		rtems_rfs_mutex_destroy (&rtems->access);
+		free (rtems);
+		return rtems_rfs_rtems_error ("initialise: open", errno);
+	}
 
 	mt_entry->fs_info = fs;
 	mt_entry->ops = &rtems_rfs_ops;

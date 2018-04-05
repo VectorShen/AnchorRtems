@@ -27,13 +27,13 @@ bool _Debug_Is_owner_of_allocator (void)
 	bool owner;
 
 	if (mutex != NULL)
-	  {
-		  owner = mutex->Mutex.holder == _Thread_Get_executing ();
-	  }
+	{
+		owner = mutex->Mutex.holder == _Thread_Get_executing ();
+	}
 	else
-	  {
-		  owner = false;
-	  }
+	{
+		owner = false;
+	}
 
 	return owner;
 }

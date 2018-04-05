@@ -81,7 +81,8 @@ static bool_t clntraw_freeres (CLIENT *, xdrproc_t, void *);
 static bool_t clntraw_control (CLIENT *, int, char *);
 static void clntraw_destroy (CLIENT *);
 
-static struct clnt_ops client_ops = {
+static struct clnt_ops client_ops =
+{
 	clntraw_call,
 	clntraw_abort,
 	clntraw_geterr,
@@ -101,12 +102,12 @@ CLIENT *clntraw_create (u_long prog, u_long vers)
 	CLIENT *client = &clp->client_object;
 
 	if (clp == 0)
-	  {
-		  clp = (struct clnt_raw_private *)calloc (1, sizeof (*clp));
-		  if (clp == 0)
-			  return (0);
-		  clntraw_private = clp;
-	  }
+	{
+		clp = (struct clnt_raw_private *)calloc (1, sizeof (*clp));
+		if (clp == 0)
+			return (0);
+		clntraw_private = clp;
+	}
 	/*
 	 * pre-serialize the static part of the call msg and stash it away
 	 */
@@ -116,9 +117,9 @@ CLIENT *clntraw_create (u_long prog, u_long vers)
 	call_msg.rm_call.cb_vers = vers;
 	xdrmem_create (xdrs, clp->u.mashl_callmsg, MCALL_MSG_SIZE, XDR_ENCODE);
 	if (!xdr_callhdr (xdrs, &call_msg))
-	  {
-		  perror ("clnt_raw.c - Fatal header serialization error.");
-	  }
+	{
+		perror ("clnt_raw.c - Fatal header serialization error.");
+	}
 	clp->mcnt = XDR_GETPOS (xdrs);
 	XDR_DESTROY (xdrs);
 
@@ -137,10 +138,10 @@ CLIENT *clntraw_create (u_long prog, u_long vers)
 
 static enum clnt_stat
 clntraw_call (CLIENT * h,
-			  rpcproc_t proc,
-			  xdrproc_t xargs,
-			  void *argsp,
-			  xdrproc_t xresults, void *resultsp, struct timeval timeout)
+			rpcproc_t proc,
+			xdrproc_t xargs,
+			void *argsp,
+			xdrproc_t xresults, void *resultsp, struct timeval timeout)
 {
 	struct clnt_raw_private *clp = clntraw_private;
 	XDR *xdrs = &clp->xdr_stream;
@@ -160,9 +161,9 @@ clntraw_call (CLIENT * h,
 	if ((!XDR_PUTBYTES (xdrs, clp->u.mashl_callmsg, clp->mcnt)) ||
 		(!XDR_PUTLONG (xdrs, (long *)&proc)) ||
 		(!AUTH_MARSHALL (h->cl_auth, xdrs)) || (!(*xargs) (xdrs, argsp)))
-	  {
-		  return (RPC_CANTENCODEARGS);
-	  }
+	{
+		return (RPC_CANTENCODEARGS);
+	}
 	(void)XDR_GETPOS (xdrs);	/* called just to cause overhead */
 
 	/*
@@ -185,30 +186,30 @@ clntraw_call (CLIENT * h,
 	status = error.re_status;
 
 	if (status == RPC_SUCCESS)
-	  {
-		  if (!AUTH_VALIDATE (h->cl_auth, &msg.acpted_rply.ar_verf))
-			{
-				status = RPC_AUTHERROR;
-			}
-	  }							/* end successful completion */
+	{
+		if (!AUTH_VALIDATE (h->cl_auth, &msg.acpted_rply.ar_verf))
+		{
+			status = RPC_AUTHERROR;
+		}
+	}							/* end successful completion */
 	else
-	  {
-		  if (AUTH_REFRESH (h->cl_auth))
-			  goto call_again;
-	  }							/* end of unsuccessful completion */
+	{
+		if (AUTH_REFRESH (h->cl_auth))
+			goto call_again;
+	}							/* end of unsuccessful completion */
 
 	if (status == RPC_SUCCESS)
-	  {
-		  if (!AUTH_VALIDATE (h->cl_auth, &msg.acpted_rply.ar_verf))
-			{
-				status = RPC_AUTHERROR;
-			}
-		  if (msg.acpted_rply.ar_verf.oa_base != NULL)
-			{
-				xdrs->x_op = XDR_FREE;
-				(void)xdr_opaque_auth (xdrs, &(msg.acpted_rply.ar_verf));
-			}
-	  }
+	{
+		if (!AUTH_VALIDATE (h->cl_auth, &msg.acpted_rply.ar_verf))
+		{
+			status = RPC_AUTHERROR;
+		}
+		if (msg.acpted_rply.ar_verf.oa_base != NULL)
+		{
+			xdrs->x_op = XDR_FREE;
+			(void)xdr_opaque_auth (xdrs, &(msg.acpted_rply.ar_verf));
+		}
+	}
 
 	return (status);
 }
@@ -224,10 +225,10 @@ static bool_t clntraw_freeres (CLIENT * cl, xdrproc_t xdr_res, void *res_ptr)
 	bool_t rval;
 
 	if (clp == 0)
-	  {
-		  rval = (bool_t) RPC_FAILED;
-		  return (rval);
-	  }
+	{
+		rval = (bool_t) RPC_FAILED;
+		return (rval);
+	}
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_res) (xdrs, res_ptr));
 }

@@ -76,8 +76,8 @@ extern int in_inithead (void **head, int off);
  * Do what we need to do when inserting a route.
  */
 static struct radix_node *in_addroute (void *v_arg, void *n_arg,
-									   struct radix_node_head *head,
-									   struct radix_node *treenodes)
+									 struct radix_node_head *head,
+									 struct radix_node *treenodes)
 {
 	struct rtentry *rt = (struct rtentry *)treenodes;
 	struct sockaddr_in *sin = (struct sockaddr_in *)rt_key (rt);
@@ -90,9 +90,9 @@ static struct radix_node *in_addroute (void *v_arg, void *n_arg,
 		rt->rt_flags |= RTF_MULTICAST;
 
 	if (!(rt->rt_flags & (RTF_HOST | RTF_CLONING | RTF_MULTICAST)))
-	  {
-		  rt->rt_flags |= RTF_PRCLONING;
-	  }
+	{
+		rt->rt_flags |= RTF_PRCLONING;
+	}
 
 	/*
 	 * A little bit of help for both IP output and input:
@@ -111,20 +111,20 @@ static struct radix_node *in_addroute (void *v_arg, void *n_arg,
 	 * is done above.)
 	 */
 	if (rt->rt_flags & RTF_HOST)
-	  {
-		  if (in_broadcast (sin->sin_addr, rt->rt_ifp))
-			{
-				rt->rt_flags |= RTF_BROADCAST;
-			}
-		  else
-			{
+	{
+		if (in_broadcast (sin->sin_addr, rt->rt_ifp))
+		{
+			rt->rt_flags |= RTF_BROADCAST;
+		}
+		else
+		{
 #define satosin(sa) ((struct sockaddr_in *)sa)
-				if (satosin (rt->rt_ifa->ifa_addr)->sin_addr.s_addr
-					== sin->sin_addr.s_addr)
-					rt->rt_flags |= RTF_LOCAL;
+			if (satosin (rt->rt_ifa->ifa_addr)->sin_addr.s_addr
+				== sin->sin_addr.s_addr)
+				rt->rt_flags |= RTF_LOCAL;
 #undef satosin
-			}
-	  }
+		}
+	}
 
 	/*
 	 * We also specify a send and receive pipe size for every
@@ -148,30 +148,30 @@ static struct radix_node *in_addroute (void *v_arg, void *n_arg,
 
 	ret = rn_addroute (v_arg, n_arg, head, treenodes);
 	if (ret == NULL && rt->rt_flags & RTF_HOST)
-	  {
-		  struct rtentry *rt2;
-		  /*
-		   * We are trying to add a host route, but can't.
-		   * Find out if it is because of an
-		   * ARP entry and delete it if so.
-		   */
-		  rt2 = rtalloc1 ((struct sockaddr *)sin, 0,
-						  RTF_CLONING | RTF_PRCLONING);
-		  if (rt2)
+	{
+		struct rtentry *rt2;
+		/*
+		 * We are trying to add a host route, but can't.
+		 * Find out if it is because of an
+		 * ARP entry and delete it if so.
+		 */
+		rt2 = rtalloc1 ((struct sockaddr *)sin, 0,
+						RTF_CLONING | RTF_PRCLONING);
+		if (rt2)
+		{
+			if (rt2->rt_flags & RTF_LLINFO &&
+				rt2->rt_flags & RTF_HOST &&
+				rt2->rt_gateway && rt2->rt_gateway->sa_family == AF_LINK)
 			{
-				if (rt2->rt_flags & RTF_LLINFO &&
-					rt2->rt_flags & RTF_HOST &&
-					rt2->rt_gateway && rt2->rt_gateway->sa_family == AF_LINK)
-				  {
-					  rtrequest (RTM_DELETE,
-								 (struct sockaddr *)rt_key (rt2),
-								 rt2->rt_gateway,
-								 rt_mask (rt2), rt2->rt_flags, 0);
-					  ret = rn_addroute (v_arg, n_arg, head, treenodes);
-				  }
-				RTFREE (rt2);
+				rtrequest (RTM_DELETE,
+							 (struct sockaddr *)rt_key (rt2),
+							 rt2->rt_gateway,
+							 rt_mask (rt2), rt2->rt_flags, 0);
+				ret = rn_addroute (v_arg, n_arg, head, treenodes);
 			}
-	  }
+			RTFREE (rt2);
+		}
+	}
 	return ret;
 }
 
@@ -181,19 +181,19 @@ static struct radix_node *in_addroute (void *v_arg, void *n_arg,
  * back off again.
  */
 static struct radix_node *in_matroute (void *v_arg,
-									   struct radix_node_head *head)
+									 struct radix_node_head *head)
 {
 	struct radix_node *rn = rn_match (v_arg, head);
 	struct rtentry *rt = (struct rtentry *)rn;
 
 	if (rt && rt->rt_refcnt == 0)
-	  {							/* this is first reference */
-		  if (rt->rt_flags & RTPRF_OURS)
-			{
-				rt->rt_flags &= ~RTPRF_OURS;
-				rt->rt_rmx.rmx_expire = 0;
-			}
-	  }
+	{							/* this is first reference */
+		if (rt->rt_flags & RTPRF_OURS)
+		{
+			rt->rt_flags &= ~RTPRF_OURS;
+			rt->rt_rmx.rmx_expire = 0;
+		}
+	}
 	return rn;
 }
 
@@ -235,17 +235,17 @@ static void in_clsroute (struct radix_node *rn, struct radix_node_head *head)
 	 * waiting for a timeout cycle to kill it.
 	 */
 	if (rtq_reallyold != 0)
-	  {
-		  rt->rt_flags |= RTPRF_OURS;
-		  rt->rt_rmx.rmx_expire =
-			  rtems_bsdnet_seconds_since_boot () + rtq_reallyold;
-	  }
+	{
+		rt->rt_flags |= RTPRF_OURS;
+		rt->rt_rmx.rmx_expire =
+			rtems_bsdnet_seconds_since_boot () + rtq_reallyold;
+	}
 	else
-	  {
-		  rtrequest (RTM_DELETE,
+	{
+		rtrequest (RTM_DELETE,
 					 (struct sockaddr *)rt_key (rt),
 					 rt->rt_gateway, rt_mask (rt), rt->rt_flags, 0);
-	  }
+	}
 }
 
 struct rtqk_arg
@@ -270,39 +270,39 @@ static int in_rtqkill (struct radix_node *rn, void *rock)
 	int err;
 
 	if (rt->rt_flags & RTPRF_OURS)
-	  {
-		  ap->found++;
+	{
+		ap->found++;
 
-		  if (ap->draining
-			  || rt->rt_rmx.rmx_expire <= rtems_bsdnet_seconds_since_boot ())
-			{
-				if (rt->rt_refcnt > 0)
-					panic ("rtqkill route really not free");
+		if (ap->draining
+			|| rt->rt_rmx.rmx_expire <= rtems_bsdnet_seconds_since_boot ())
+		{
+			if (rt->rt_refcnt > 0)
+				panic ("rtqkill route really not free");
 
-				err = rtrequest (RTM_DELETE,
-								 (struct sockaddr *)rt_key (rt),
-								 rt->rt_gateway, rt_mask (rt), rt->rt_flags, 0);
-				if (err)
-				  {
-					  log (LOG_WARNING, "in_rtqkill: error %d\n", err);
-				  }
-				else
-				  {
-					  ap->killed++;
-				  }
-			}
-		  else
+			err = rtrequest (RTM_DELETE,
+							 (struct sockaddr *)rt_key (rt),
+							 rt->rt_gateway, rt_mask (rt), rt->rt_flags, 0);
+			if (err)
 			{
-				if (ap->updating
-					&& (rt->rt_rmx.rmx_expire -
-						rtems_bsdnet_seconds_since_boot () > rtq_reallyold))
-				  {
-					  rt->rt_rmx.rmx_expire = rtems_bsdnet_seconds_since_boot ()
-						  + rtq_reallyold;
-				  }
-				ap->nextstop = lmin (ap->nextstop, rt->rt_rmx.rmx_expire);
+				log (LOG_WARNING, "in_rtqkill: error %d\n", err);
 			}
-	  }
+			else
+			{
+				ap->killed++;
+			}
+		}
+		else
+		{
+			if (ap->updating
+				&& (rt->rt_rmx.rmx_expire -
+					rtems_bsdnet_seconds_since_boot () > rtq_reallyold))
+			{
+				rt->rt_rmx.rmx_expire = rtems_bsdnet_seconds_since_boot ()
+					+ rtq_reallyold;
+			}
+			ap->nextstop = lmin (ap->nextstop, rt->rt_rmx.rmx_expire);
+		}
+	}
 
 	return 0;
 }
@@ -337,24 +337,24 @@ static void in_rtqtimo (void *rock)
 	if ((arg.found - arg.killed > rtq_toomany)
 		&& (rtems_bsdnet_seconds_since_boot () - last_adjusted_timeout >=
 			rtq_timeout) && rtq_reallyold > rtq_minreallyold)
-	  {
-		  rtq_reallyold = 2 * rtq_reallyold / 3;
-		  if (rtq_reallyold < rtq_minreallyold)
-			{
-				rtq_reallyold = rtq_minreallyold;
-			}
+	{
+		rtq_reallyold = 2 * rtq_reallyold / 3;
+		if (rtq_reallyold < rtq_minreallyold)
+		{
+			rtq_reallyold = rtq_minreallyold;
+		}
 
-		  last_adjusted_timeout = rtems_bsdnet_seconds_since_boot ();
+		last_adjusted_timeout = rtems_bsdnet_seconds_since_boot ();
 #ifdef DIAGNOSTIC
-		  log (LOG_DEBUG, "in_rtqtimo: adjusted rtq_reallyold to %d\n",
-			   rtq_reallyold);
+		log (LOG_DEBUG, "in_rtqtimo: adjusted rtq_reallyold to %d\n",
+			 rtq_reallyold);
 #endif
-		  arg.found = arg.killed = 0;
-		  arg.updating = 1;
-		  s = splnet ();
-		  rnh->rnh_walktree (rnh, in_rtqkill, &arg);
-		  splx (s);
-	  }
+		arg.found = arg.killed = 0;
+		arg.updating = 1;
+		s = splnet ();
+		rnh->rnh_walktree (rnh, in_rtqkill, &arg);
+		splx (s);
+	}
 
 	atv.tv_usec = 0;
 	atv.tv_sec = arg.nextstop;

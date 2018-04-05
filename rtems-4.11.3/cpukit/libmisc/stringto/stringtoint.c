@@ -31,7 +31,7 @@
  */
 
 rtems_status_code rtems_string_to_int (const char *s,
-									   int *n, char **endptr, int base)
+									 int *n, char **endptr, int base)
 {
 	long result;
 	char *end;
@@ -56,18 +56,18 @@ rtems_status_code rtems_string_to_int (const char *s,
 
 #if (INT_MAX < LONG_MAX)
 	if (result > INT_MAX)
-	  {
-		  errno = ERANGE;
-		  return RTEMS_INVALID_NUMBER;
-	  }
+	{
+		errno = ERANGE;
+		return RTEMS_INVALID_NUMBER;
+	}
 #endif
 
 #if (INT_MIN < LONG_MIN)
 	if (result < INT_MIN)
-	  {
-		  errno = ERANGE;
-		  return RTEMS_INVALID_NUMBER;
-	  }
+	{
+		errno = ERANGE;
+		return RTEMS_INVALID_NUMBER;
+	}
 #endif
 
 	*n = result;

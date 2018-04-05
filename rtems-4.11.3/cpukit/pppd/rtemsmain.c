@@ -138,7 +138,8 @@ int pppdmain (int, char *[]);
  * One entry per supported protocol.
  * The last entry must be NULL.
  */
-struct protent *protocols[] = {
+struct protent *protocols[] =
+{
 	&lcp_protent,
 	&pap_protent,
 	&chap_protent,
@@ -192,22 +193,22 @@ int pppdmain (int argc, char *argv[])
 #endif
 
 	if (!ppp_available ())
-	  {
-		  option_error (no_ppp_msg);
-		  return (EXIT_NO_KERNEL_SUPPORT);
-	  }
+	{
+		option_error (no_ppp_msg);
+		return (EXIT_NO_KERNEL_SUPPORT);
+	}
 
 	/*
 	 * Check that the options given are valid and consistent.
 	 */
 	if (!sys_check_options ())
-	  {
-		  return (EXIT_OPTION_ERROR);
-	  }
+	{
+		return (EXIT_OPTION_ERROR);
+	}
 	if (!auth_check_options ())
-	  {
-		  return (EXIT_OPTION_ERROR);
-	  }
+	{
+		return (EXIT_OPTION_ERROR);
+	}
 	for (i = 0; (protp = protocols[i]) != NULL; ++i)
 		if (protp->check_options != NULL)
 			(*protp->check_options) ();
@@ -224,286 +225,286 @@ int pppdmain (int argc, char *argv[])
 	 */
 	sys_init ();
 	/* if (debug)
-	   setlogmask(LOG_UPTO(LOG_DEBUG));
+	 setlogmask(LOG_UPTO(LOG_DEBUG));
 	 */
 
 	do_callback = 0;
 	for (;;)
-	  {
+	{
 
-		  need_holdoff = 1;
-		  pppd_ttyfd = -1;
-		  real_ttyfd = -1;
-		  pppd_status = EXIT_OK;
-		  ++unsuccess;
-		  doing_callback = do_callback;
-		  do_callback = 0;
+		need_holdoff = 1;
+		pppd_ttyfd = -1;
+		real_ttyfd = -1;
+		pppd_status = EXIT_OK;
+		++unsuccess;
+		doing_callback = do_callback;
+		do_callback = 0;
 
-		  new_phase (PHASE_SERIALCONN);
+		new_phase (PHASE_SERIALCONN);
 
-		  /*
-		   * Get a pty master/slave pair if the pty, notty, or record
-		   * options were specified.
-		   */
-		  strlcpy (ppp_devnam, devnam, sizeof (ppp_devnam));
-		  pty_master = -1;
-		  pty_slave = -1;
+		/*
+		 * Get a pty master/slave pair if the pty, notty, or record
+		 * options were specified.
+		 */
+		strlcpy (ppp_devnam, devnam, sizeof (ppp_devnam));
+		pty_master = -1;
+		pty_slave = -1;
 
-		  /*
-		   * Open the serial device and set it up to be the ppp interface.
-		   * First we open it in non-blocking mode so we can set the
-		   * various termios flags appropriately.  If we aren't dialling
-		   * out and we want to use the modem lines, we reopen it later
-		   * in order to wait for the carrier detect signal from the modem.
-		   */
-		  hungup = 0;
-		  pppd_kill_link = 0;
-		  connector = doing_callback ? callback_script : connect_script;
-		  if (devnam[0] != 0)
+		/*
+		 * Open the serial device and set it up to be the ppp interface.
+		 * First we open it in non-blocking mode so we can set the
+		 * various termios flags appropriately.  If we aren't dialling
+		 * out and we want to use the modem lines, we reopen it later
+		 * in order to wait for the carrier detect signal from the modem.
+		 */
+		hungup = 0;
+		pppd_kill_link = 0;
+		connector = doing_callback ? callback_script : connect_script;
+		if (devnam[0] != 0)
+		{
+			for (;;)
 			{
-				for (;;)
-				  {
-					  /* If the user specified the device name, become the
-					     user before opening it. */
-					  int err;
-					  pppd_ttyfd = open (devnam, O_NONBLOCK | O_RDWR, 0);
-					  err = errno;
-					  if (pppd_ttyfd >= 0)
-						{
-							break;
-						}
-					  errno = err;
-					  if (err != EINTR)
-						{
-							error ("Failed to open %s: %m", devnam);
-							pppd_status = EXIT_OPEN_FAILED;
-						}
-					  if (!persist || err != EINTR)
-						  goto fail;
-				  }
-				if ((fdflags = fcntl (pppd_ttyfd, F_GETFL)) == -1
-					|| fcntl (pppd_ttyfd, F_SETFL, fdflags & ~O_NONBLOCK) < 0)
-					warn ("Couldn't reset non-blocking mode on device: %m");
+				/* If the user specified the device name, become the
+				   user before opening it. */
+				int err;
+				pppd_ttyfd = open (devnam, O_NONBLOCK | O_RDWR, 0);
+				err = errno;
+				if (pppd_ttyfd >= 0)
+				{
+					break;
+				}
+				errno = err;
+				if (err != EINTR)
+				{
+					error ("Failed to open %s: %m", devnam);
+					pppd_status = EXIT_OPEN_FAILED;
+				}
+				if (!persist || err != EINTR)
+					goto fail;
+			}
+			if ((fdflags = fcntl (pppd_ttyfd, F_GETFL)) == -1
+				|| fcntl (pppd_ttyfd, F_SETFL, fdflags & ~O_NONBLOCK) < 0)
+				warn ("Couldn't reset non-blocking mode on device: %m");
 
-				/*
-				 * Set line speed, flow control, etc.
-				 * If we have a non-null connection or initializer script,
-				 * on most systems we set CLOCAL for now so that we can talk
-				 * to the modem before carrier comes up.  But this has the
-				 * side effect that we might miss it if CD drops before we
-				 * get to clear CLOCAL below.  On systems where we can talk
-				 * successfully to the modem with CLOCAL clear and CD down,
-				 * we could clear CLOCAL at this point.
-				 */
-				set_up_tty (pppd_ttyfd,
-							((connector != NULL && connector[0] != 0)
-							 || initializer != NULL));
-				real_ttyfd = pppd_ttyfd;
+			/*
+			 * Set line speed, flow control, etc.
+			 * If we have a non-null connection or initializer script,
+			 * on most systems we set CLOCAL for now so that we can talk
+			 * to the modem before carrier comes up.  But this has the
+			 * side effect that we might miss it if CD drops before we
+			 * get to clear CLOCAL below.  On systems where we can talk
+			 * successfully to the modem with CLOCAL clear and CD down,
+			 * we could clear CLOCAL at this point.
+			 */
+			set_up_tty (pppd_ttyfd,
+						((connector != NULL && connector[0] != 0)
+						 || initializer != NULL));
+			real_ttyfd = pppd_ttyfd;
+		}
+
+		/* run connection script */
+		if ((connector && connector[0]) || initializer)
+		{
+			if (real_ttyfd != -1)
+			{
+				/* XXX do this if doing_callback == CALLBACK_DIALIN? */
+				if (!default_device && modem)
+				{
+					setdtr (real_ttyfd, 0);	/* in case modem is off hook */
+					sleep (1);
+					setdtr (real_ttyfd, 1);
+				}
 			}
 
-		  /* run connection script */
-		  if ((connector && connector[0]) || initializer)
+			if (initializer && initializer[0])
 			{
-				if (real_ttyfd != -1)
-				  {
-					  /* XXX do this if doing_callback == CALLBACK_DIALIN? */
-					  if (!default_device && modem)
-						{
-							setdtr (real_ttyfd, 0);	/* in case modem is off hook */
-							sleep (1);
-							setdtr (real_ttyfd, 1);
-						}
-				  }
-
-				if (initializer && initializer[0])
-				  {
-					  if (device_script (pppd_ttyfd, DIALER_INIT, initializer) <
-						  0)
-						{
-							error ("Initializer script failed");
-							pppd_status = EXIT_INIT_FAILED;
-							goto fail;
-						}
-					  if (pppd_kill_link)
-						  goto disconnect;
-
-					  info ("Serial port initialized.");
-				  }
-
-				if (connector && connector[0])
-				  {
-					  if (device_script (pppd_ttyfd, DIALER_CONNECT, connector)
-						  < 0)
-						{
-							error ("Connect script failed");
-							pppd_status = EXIT_CONNECT_FAILED;
-							goto fail;
-						}
-					  if (pppd_kill_link)
-						  goto disconnect;
-
-					  info ("Serial connection established.");
-				  }
-
-				/* set line speed, flow control, etc.;
-				   clear CLOCAL if modem option */
-				if (real_ttyfd != -1)
-					set_up_tty (real_ttyfd, 0);
-
-				if (doing_callback == CALLBACK_DIALIN)
-					connector = NULL;
-			}
-
-		  /* reopen tty if necessary to wait for carrier */
-		  if (connector == NULL && modem && devnam[0] != 0)
-			{
-				for (;;)
-				  {
-					  if ((i = open (devnam, O_RDWR)) >= 0)
-						  break;
-					  if (errno != EINTR)
-						{
-							error ("Failed to reopen %s: %m", devnam);
-							pppd_status = EXIT_OPEN_FAILED;
-						}
-					  if (!persist || errno != EINTR || hungup
-						  || pppd_kill_link)
-						  goto fail;
-				  }
-				close (i);
-			}
-
-		  info ("Serial connection established.");
-		  sleep (1);
-
-		  /* run welcome script, if any */
-		  if (welcomer && welcomer[0])
-			{
-				if (device_script (pppd_ttyfd, DIALER_WELCOME, welcomer) < 0)
-					warn ("Welcome script failed");
-			}
-
-		  /* set up the serial device as a ppp interface */
-		  fd_ppp = establish_ppp (pppd_ttyfd);
-		  if (fd_ppp < 0)
-			{
-				pppd_status = EXIT_FATAL_ERROR;
-				goto disconnect;
-			}
-
-		  if (!demand)
-			{
-				info ("Using interface ppp%d", pppifunit);
-				slprintf (ifname, sizeof (ifname), "ppp%d", pppifunit);
-			}
-
-		  /*
-		   * Start opening the connection and wait for
-		   * incoming events (reply, timeout, etc.).
-		   */
-		  notice ("Connect: %s <--> %s", ifname, ppp_devnam);
-		  gettimeofday (&start_time, NULL);
-
-		  lcp_lowerup (0);
-		  lcp_open (0);			/* Start protocol */
-
-		  open_ccp_flag = 0;
-		  pppd_status = EXIT_NEGOTIATION_FAILED;
-		  new_phase (PHASE_ESTABLISH);
-		  while (pppd_phase != PHASE_DEAD)
-			{
-				wait_input (timeleft (&timo));
-				calltimeout ();
-				get_input ();
-
+				if (device_script (pppd_ttyfd, DIALER_INIT, initializer) <
+					0)
+				{
+					error ("Initializer script failed");
+					pppd_status = EXIT_INIT_FAILED;
+					goto fail;
+				}
 				if (pppd_kill_link)
-				  {
-					  lcp_close (0, "User request");
-					  pppd_kill_link = 0;
-				  }
-				if (open_ccp_flag)
-				  {
-					  if (pppd_phase == PHASE_NETWORK
-						  || pppd_phase == PHASE_RUNNING)
-						{
-							ccp_fsm[0].flags = OPT_RESTART;	/* clears OPT_SILENT */
-							(*ccp_protent.open) (0);
-						}
-					  open_ccp_flag = 0;
-				  }
+					goto disconnect;
+
+				info ("Serial port initialized.");
 			}
 
-		  /*
-		   * If we may want to bring the link up again, transfer
-		   * the ppp unit back to the loopback.  Set the
-		   * real serial device back to its normal mode of operation.
-		   */
-		  clean_check ();
-		  if (demand)
-			  restore_loop ();
-		  disestablish_ppp (pppd_ttyfd);
-		  fd_ppp = -1;
-		  if (!hungup)
-			  lcp_lowerdown (0);
-
-		  /*
-		   * Run disconnector script, if requested.
-		   * XXX we may not be able to do this if the line has hung up!
-		   */
-		disconnect:
-		  if (disconnect_script && !hungup)
+			if (connector && connector[0])
 			{
-				new_phase (PHASE_DISCONNECT);
-				if (real_ttyfd >= 0)
-					set_up_tty (real_ttyfd, 1);
-				if (device_script
-					(pppd_ttyfd, DIALER_DISCONNECT, disconnect_script) < 0)
-				  {
-					  warn ("disconnect script failed");
-				  }
-				else
-				  {
-					  info ("Serial link disconnected.");
-				  }
+				if (device_script (pppd_ttyfd, DIALER_CONNECT, connector)
+					< 0)
+				{
+					error ("Connect script failed");
+					pppd_status = EXIT_CONNECT_FAILED;
+					goto fail;
+				}
+				if (pppd_kill_link)
+					goto disconnect;
+
+				info ("Serial connection established.");
 			}
+
+			/* set line speed, flow control, etc.;
+			 clear CLOCAL if modem option */
+			if (real_ttyfd != -1)
+				set_up_tty (real_ttyfd, 0);
+
+			if (doing_callback == CALLBACK_DIALIN)
+				connector = NULL;
+		}
+
+		/* reopen tty if necessary to wait for carrier */
+		if (connector == NULL && modem && devnam[0] != 0)
+		{
+			for (;;)
+			{
+				if ((i = open (devnam, O_RDWR)) >= 0)
+					break;
+				if (errno != EINTR)
+				{
+					error ("Failed to reopen %s: %m", devnam);
+					pppd_status = EXIT_OPEN_FAILED;
+				}
+				if (!persist || errno != EINTR || hungup
+					|| pppd_kill_link)
+					goto fail;
+			}
+			close (i);
+		}
+
+		info ("Serial connection established.");
+		sleep (1);
+
+		/* run welcome script, if any */
+		if (welcomer && welcomer[0])
+		{
+			if (device_script (pppd_ttyfd, DIALER_WELCOME, welcomer) < 0)
+				warn ("Welcome script failed");
+		}
+
+		/* set up the serial device as a ppp interface */
+		fd_ppp = establish_ppp (pppd_ttyfd);
+		if (fd_ppp < 0)
+		{
+			pppd_status = EXIT_FATAL_ERROR;
+			goto disconnect;
+		}
+
+		if (!demand)
+		{
+			info ("Using interface ppp%d", pppifunit);
+			slprintf (ifname, sizeof (ifname), "ppp%d", pppifunit);
+		}
+
+		/*
+		 * Start opening the connection and wait for
+		 * incoming events (reply, timeout, etc.).
+		 */
+		notice ("Connect: %s <--> %s", ifname, ppp_devnam);
+		gettimeofday (&start_time, NULL);
+
+		lcp_lowerup (0);
+		lcp_open (0);			/* Start protocol */
+
+		open_ccp_flag = 0;
+		pppd_status = EXIT_NEGOTIATION_FAILED;
+		new_phase (PHASE_ESTABLISH);
+		while (pppd_phase != PHASE_DEAD)
+		{
+			wait_input (timeleft (&timo));
+			calltimeout ();
+			get_input ();
+
+			if (pppd_kill_link)
+			{
+				lcp_close (0, "User request");
+				pppd_kill_link = 0;
+			}
+			if (open_ccp_flag)
+			{
+				if (pppd_phase == PHASE_NETWORK
+					|| pppd_phase == PHASE_RUNNING)
+				{
+					ccp_fsm[0].flags = OPT_RESTART;	/* clears OPT_SILENT */
+					(*ccp_protent.open) (0);
+				}
+				open_ccp_flag = 0;
+			}
+		}
+
+		/*
+		 * If we may want to bring the link up again, transfer
+		 * the ppp unit back to the loopback.  Set the
+		 * real serial device back to its normal mode of operation.
+		 */
+		clean_check ();
+		if (demand)
+			restore_loop ();
+		disestablish_ppp (pppd_ttyfd);
+		fd_ppp = -1;
+		if (!hungup)
+			lcp_lowerdown (0);
+
+		/*
+		 * Run disconnector script, if requested.
+		 * XXX we may not be able to do this if the line has hung up!
+		 */
+		disconnect:
+		if (disconnect_script && !hungup)
+		{
+			new_phase (PHASE_DISCONNECT);
+			if (real_ttyfd >= 0)
+				set_up_tty (real_ttyfd, 1);
+			if (device_script
+				(pppd_ttyfd, DIALER_DISCONNECT, disconnect_script) < 0)
+			{
+				warn ("disconnect script failed");
+			}
+			else
+			{
+				info ("Serial link disconnected.");
+			}
+		}
 
 		fail:
-		  if (pty_master >= 0)
-			  close (pty_master);
-		  if (pty_slave >= 0)
-			  close (pty_slave);
-		  if (real_ttyfd >= 0)
-			  close_tty ();
+		if (pty_master >= 0)
+			close (pty_master);
+		if (pty_slave >= 0)
+			close (pty_slave);
+		if (real_ttyfd >= 0)
+			close_tty ();
 
-		  if (!persist || (maxfail > 0 && unsuccess >= maxfail))
-			  break;
+		if (!persist || (maxfail > 0 && unsuccess >= maxfail))
+			break;
 
-		  pppd_kill_link = 0;
-		  if (demand)
-			  demand_discard ();
-		  t = need_holdoff ? holdoff : 0;
-		  if (holdoff_hook)
-			  t = (*holdoff_hook) ();
-		  if (t > 0)
+		pppd_kill_link = 0;
+		if (demand)
+			demand_discard ();
+		t = need_holdoff ? holdoff : 0;
+		if (holdoff_hook)
+			t = (*holdoff_hook) ();
+		if (t > 0)
+		{
+			new_phase (PHASE_HOLDOFF);
+			TIMEOUT (holdoff_end, NULL, t);
+			do
 			{
-				new_phase (PHASE_HOLDOFF);
-				TIMEOUT (holdoff_end, NULL, t);
-				do
-				  {
-					  wait_input (timeleft (&timo));
+				wait_input (timeleft (&timo));
 
-					  calltimeout ();
-					  if (pppd_kill_link)
-						{
-							pppd_kill_link = 0;
-							new_phase (PHASE_DORMANT);	/* allow signal to end holdoff */
-						}
-				  }
-				while (pppd_phase == PHASE_HOLDOFF);
-				if (!persist)
-					break;
+				calltimeout ();
+				if (pppd_kill_link)
+				{
+					pppd_kill_link = 0;
+					new_phase (PHASE_DORMANT);	/* allow signal to end holdoff */
+				}
 			}
-	  }
+			while (pppd_phase == PHASE_HOLDOFF);
+			if (!persist)
+				break;
+		}
+	}
 
 	die (pppd_status);
 	return pppd_status;
@@ -647,7 +648,8 @@ struct protocol_list
 	{
 	0xc281, "Proprietary Authentication Protocol"},
 	{
-0, NULL},};
+	0, NULL},
+};
 
 /*
  * protocol_name - find a name for a PPP protocol.
@@ -679,23 +681,23 @@ static void get_input (void)
 		return;
 
 	if (len == 0)
-	  {
-		  notice ("Modem hangup");
-		  hungup = 1;
-		  pppd_status = EXIT_HANGUP;
-		  lcp_lowerdown (0);	/* serial link is no longer available */
-		  link_terminated (0);
-		  return;
-	  }
+	{
+		notice ("Modem hangup");
+		hungup = 1;
+		pppd_status = EXIT_HANGUP;
+		lcp_lowerdown (0);	/* serial link is no longer available */
+		link_terminated (0);
+		return;
+	}
 
 	if (debug /*&& (debugflags & DBG_INPACKET) */ )
 		dbglog ("rcvd %P", p, len);
 
 	if (len < PPP_HDRLEN)
-	  {
-		  MAINDEBUG (("io(): Received short packet."));
-		  return;
-	  }
+	{
+		MAINDEBUG (("io(): Received short packet."));
+		return;
+	}
 
 	p += 2;						/* Skip address and control */
 	GETSHORT (protocol, p);
@@ -705,10 +707,10 @@ static void get_input (void)
 	 * Toss all non-LCP packets unless LCP is OPEN.
 	 */
 	if (protocol != PPP_LCP && lcp_fsm[0].state != OPENED)
-	  {
-		  MAINDEBUG (("get_input: Received non-LCP packet when LCP not open."));
-		  return;
-	  }
+	{
+		MAINDEBUG (("get_input: Received non-LCP packet when LCP not open."));
+		return;
+	}
 
 	/*
 	 * Until we get past the authentication phase, toss all packets
@@ -717,39 +719,39 @@ static void get_input (void)
 	if (pppd_phase <= PHASE_AUTHENTICATE
 		&& !(protocol == PPP_LCP || protocol == PPP_LQR
 			 || protocol == PPP_PAP || protocol == PPP_CHAP))
-	  {
-		  MAINDEBUG (("get_input: discarding proto 0x%x in phase %d",
-					  protocol, pppd_phase));
-		  return;
-	  }
+	{
+		MAINDEBUG (("get_input: discarding proto 0x%x in phase %d",
+					protocol, pppd_phase));
+		return;
+	}
 
 	/*
 	 * Upcall the proper protocol input routine.
 	 */
 	for (i = 0; (protp = protocols[i]) != NULL; ++i)
-	  {
-		  if (protp->protocol == protocol && protp->enabled_flag)
-			{
-				(*protp->input) (0, p, len);
-				return;
-			}
-		  if (protocol == (protp->protocol & ~0x8000) && protp->enabled_flag
-			  && protp->datainput != NULL)
-			{
-				(*protp->datainput) (0, p, len);
-				return;
-			}
-	  }
+	{
+		if (protp->protocol == protocol && protp->enabled_flag)
+		{
+			(*protp->input) (0, p, len);
+			return;
+		}
+		if (protocol == (protp->protocol & ~0x8000) && protp->enabled_flag
+			&& protp->datainput != NULL)
+		{
+			(*protp->datainput) (0, p, len);
+			return;
+		}
+	}
 
 	if (debug)
-	  {
-		  const char *pname = protocol_name (protocol);
-		  if (pname != NULL)
-			  warn ("Unsupported protocol '%s' (0x%x) received", pname,
+	{
+		const char *pname = protocol_name (protocol);
+		if (pname != NULL)
+			warn ("Unsupported protocol '%s' (0x%x) received", pname,
 					protocol);
-		  else
-			  warn ("Unsupported protocol 0x%x received", protocol);
-	  }
+		else
+			warn ("Unsupported protocol 0x%x received", protocol);
+	}
 	lcp_sprotrej (0, p - PPP_HDRLEN, len + PPP_HDRLEN);
 
 	return;
@@ -796,14 +798,14 @@ static void close_tty (void)
 {
 	/* drop dtr to hang up */
 	if (!default_device && modem)
-	  {
-		  setdtr (real_ttyfd, 0);
-		  /*
-		   * This sleep is in case the serial port has CLOCAL set by default,
-		   * and consequently will reassert DTR when we close the device.
-		   */
-		  sleep (1);
-	  }
+	{
+		setdtr (real_ttyfd, 0);
+		/*
+		 * This sleep is in case the serial port has CLOCAL set by default,
+		 * and consequently will reassert DTR when we close the device.
+		 */
+		sleep (1);
+	}
 
 	restore_tty (real_ttyfd);
 
@@ -889,11 +891,11 @@ void pppuntimeout (void (*func) (void *), void *arg)
 	 */
 	for (copp = &callout; (freep = *copp); copp = &freep->c_next)
 		if (freep->c_func == func && freep->c_arg == arg)
-		  {
-			  *copp = freep->c_next;
-			  free ((char *)freep);
-			  break;
-		  }
+		{
+			*copp = freep->c_next;
+			free ((char *)freep);
+			break;
+		}
 }
 
 /*
@@ -904,21 +906,21 @@ static void calltimeout (void)
 	struct callout *p;
 
 	while (callout != NULL)
-	  {
-		  p = callout;
+	{
+		p = callout;
 
-		  if (gettimeofday (&timenow, NULL) < 0)
-			  fatal ("Failed to get time of day: %m");
-		  if (!(p->c_time.tv_sec < timenow.tv_sec
+		if (gettimeofday (&timenow, NULL) < 0)
+			fatal ("Failed to get time of day: %m");
+		if (!(p->c_time.tv_sec < timenow.tv_sec
 				|| (p->c_time.tv_sec == timenow.tv_sec
 					&& p->c_time.tv_usec <= timenow.tv_usec)))
-			  break;			/* no, it's not time yet */
+			break;			/* no, it's not time yet */
 
-		  callout = p->c_next;
-		  (*p->c_func) (p->c_arg);
+		callout = p->c_next;
+		(*p->c_func) (p->c_arg);
 
-		  free ((char *)p);
-	  }
+		free ((char *)p);
+	}
 }
 
 /*
@@ -933,10 +935,10 @@ static struct timeval *timeleft (struct timeval *tvp)
 	tvp->tv_sec = callout->c_time.tv_sec - timenow.tv_sec;
 	tvp->tv_usec = callout->c_time.tv_usec - timenow.tv_usec;
 	if (tvp->tv_usec < 0)
-	  {
-		  tvp->tv_usec += 1000000;
-		  tvp->tv_sec -= 1;
-	  }
+	{
+		tvp->tv_usec += 1000000;
+		tvp->tv_sec -= 1;
+	}
 	if (tvp->tv_sec < 0)
 		tvp->tv_sec = tvp->tv_usec = 0;
 
@@ -957,17 +959,17 @@ static int device_script (int fd, int mode, char *program)
 
 	/* check to see if dialer was initialized */
 	if (!pppd_dialer)
-	  {
-		  /* set default dialer to chatmain */
-		  pppd_dialer = chatmain;
-	  }
+	{
+		/* set default dialer to chatmain */
+		pppd_dialer = chatmain;
+	}
 
 	/* check to see if dialer is set */
 	if (pppd_dialer)
-	  {
-		  /* call the dialer */
-		  iReturn = (*pppd_dialer) (fd, mode, program);
-	  }
+	{
+		/* call the dialer */
+		iReturn = (*pppd_dialer) (fd, mode, program);
+	}
 
 	return (-iReturn);
 }

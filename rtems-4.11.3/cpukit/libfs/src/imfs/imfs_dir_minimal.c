@@ -19,7 +19,8 @@
 
 #include "imfs.h"
 
-static const rtems_filesystem_file_handlers_r IMFS_dir_minimal_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_dir_minimal_handlers =
+{
 	.open_h = rtems_filesystem_default_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = rtems_filesystem_default_read,
@@ -37,11 +38,13 @@ static const rtems_filesystem_file_handlers_r IMFS_dir_minimal_handlers = {
 	.writev_h = rtems_filesystem_default_writev
 };
 
-const IMFS_mknod_control IMFS_mknod_control_dir_minimal = {
+const IMFS_mknod_control IMFS_mknod_control_dir_minimal =
+{
 	{
-	 .handlers = &IMFS_dir_minimal_handlers,
-	 .node_initialize = IMFS_node_initialize_directory,
-	 .node_remove = IMFS_node_remove_directory,
-	 .node_destroy = IMFS_node_destroy_default},
+		.handlers = &IMFS_dir_minimal_handlers,
+	 	.node_initialize = IMFS_node_initialize_directory,
+	 	.node_remove = IMFS_node_remove_directory,
+	 	.node_destroy = IMFS_node_destroy_default
+	},
 	.node_size = sizeof (IMFS_directory_t)
 };

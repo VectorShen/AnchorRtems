@@ -45,24 +45,24 @@ int pthread_cancel (pthread_t thread)
 
 	the_thread = _Thread_Get (thread, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  thread_support = the_thread->API_Extensions[THREAD_API_POSIX];
+		case OBJECTS_LOCAL:
+			thread_support = the_thread->API_Extensions[THREAD_API_POSIX];
 
-			  thread_support->cancelation_requested = 1;
+			thread_support->cancelation_requested = 1;
 
-			  /* This enables dispatch implicitly */
-			  _POSIX_Thread_Evaluate_cancellation_and_enable_dispatch
-				  (the_thread);
-			  return 0;
+			/* This enables dispatch implicitly */
+			_POSIX_Thread_Evaluate_cancellation_and_enable_dispatch
+				(the_thread);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 }

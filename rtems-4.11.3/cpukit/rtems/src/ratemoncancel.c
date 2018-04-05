@@ -30,26 +30,26 @@ rtems_status_code rtems_rate_monotonic_cancel (rtems_id id)
 
 	the_period = _Rate_monotonic_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  if (!_Thread_Is_executing (the_period->owner))
-				{
-					_Objects_Put (&the_period->Object);
-					return RTEMS_NOT_OWNER_OF_RESOURCE;
-				}
-			  _Watchdog_Remove_ticks (&the_period->Timer);
-			  the_period->state = RATE_MONOTONIC_INACTIVE;
-			  _Scheduler_Release_job (the_period->owner, 0);
-			  _Objects_Put (&the_period->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			if (!_Thread_Is_executing (the_period->owner))
+			{
+				_Objects_Put (&the_period->Object);
+				return RTEMS_NOT_OWNER_OF_RESOURCE;
+			}
+			_Watchdog_Remove_ticks (&the_period->Timer);
+			the_period->state = RATE_MONOTONIC_INACTIVE;
+			_Scheduler_Release_job (the_period->owner, 0);
+			_Objects_Put (&the_period->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

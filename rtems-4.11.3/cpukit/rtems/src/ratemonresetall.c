@@ -46,9 +46,9 @@ void rtems_rate_monotonic_reset_all_statistics (void)
 	 */
 	for (id = _Rate_monotonic_Information.minimum_id;
 		 id <= _Rate_monotonic_Information.maximum_id; id++)
-	  {
-		  (void)rtems_rate_monotonic_reset_statistics (id);
-	  }
+	{
+		(void)rtems_rate_monotonic_reset_statistics (id);
+	}
 
 	/*
 	 *  Done so exit thread dispatching disabled critical section.

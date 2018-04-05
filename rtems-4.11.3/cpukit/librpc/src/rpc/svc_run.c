@@ -58,36 +58,36 @@ void svc_run (void)
 	fd_set *fds;
 
 	for (;;)
-	  {
-		  if (__svc_fdset)
-			{
-				int bytes = sizeof (fd_set);
-				fds = (fd_set *) malloc (bytes);
-				memcpy (fds, __svc_fdset, bytes);
-			}
-		  else
-			  fds = NULL;
-		  switch (select (svc_maxfd + 1, fds, NULL, NULL, (struct timeval *)0))
-			{
-				case -1:
-					if (errno == EINTR)
-					  {
-						  if (fds)
-							  free (fds);
-						  continue;
-					  }
-					perror ("svc_run: - select failed");
-					if (fds)
-						free (fds);
-					return;
-				case 0:
+	{
+		if (__svc_fdset)
+		{
+			int bytes = sizeof (fd_set);
+			fds = (fd_set *) malloc (bytes);
+			memcpy (fds, __svc_fdset, bytes);
+		}
+		else
+			fds = NULL;
+		switch (select (svc_maxfd + 1, fds, NULL, NULL, (struct timeval *)0))
+		{
+			case -1:
+				if (errno == EINTR)
+				{
 					if (fds)
 						free (fds);
 					continue;
-				default:
-					/* if fds == NULL, select() can't return a result */
-					svc_getreqset2 (fds, svc_maxfd + 1);
+				}
+				perror ("svc_run: - select failed");
+				if (fds)
 					free (fds);
-			}
-	  }
+				return;
+			case 0:
+				if (fds)
+					free (fds);
+				continue;
+			default:
+				/* if fds == NULL, select() can't return a result */
+				svc_getreqset2 (fds, svc_maxfd + 1);
+				free (fds);
+		}
+	}
 }

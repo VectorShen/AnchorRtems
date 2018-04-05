@@ -43,8 +43,8 @@
  */
 
 int pthread_barrier_init (pthread_barrier_t * barrier,
-						  const pthread_barrierattr_t * attr,
-						  unsigned int count)
+						const pthread_barrierattr_t * attr,
+						unsigned int count)
 {
 	POSIX_Barrier_Control *the_barrier;
 	CORE_barrier_Attributes the_attributes;
@@ -64,14 +64,14 @@ int pthread_barrier_init (pthread_barrier_t * barrier,
 	 * If the user passed in NULL, use the default attributes
 	 */
 	if (attr)
-	  {
-		  the_attr = attr;
-	  }
+	{
+		the_attr = attr;
+	}
 	else
-	  {
-		  (void)pthread_barrierattr_init (&my_attr);
-		  the_attr = &my_attr;
-	  }
+	{
+		(void)pthread_barrierattr_init (&my_attr);
+		the_attr = &my_attr;
+	}
 
 	/*
 	 * Now start error checking the attributes that we are going to use
@@ -80,13 +80,13 @@ int pthread_barrier_init (pthread_barrier_t * barrier,
 		return EINVAL;
 
 	switch (the_attr->process_shared)
-	  {
-		  case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
-			  break;
-		  case PTHREAD_PROCESS_SHARED:
-		  default:
-			  return EINVAL;
-	  }
+	{
+		case PTHREAD_PROCESS_PRIVATE:	/* only supported values */
+			break;
+		case PTHREAD_PROCESS_SHARED:
+		default:
+			return EINVAL;
+	}
 
 	/*
 	 * Convert from POSIX attributes to Core Barrier attributes
@@ -97,10 +97,10 @@ int pthread_barrier_init (pthread_barrier_t * barrier,
 	the_barrier = _POSIX_Barrier_Allocate ();
 
 	if (!the_barrier)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return EAGAIN;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return EAGAIN;
+	}
 
 	_CORE_barrier_Initialize (&the_barrier->Barrier, &the_attributes);
 

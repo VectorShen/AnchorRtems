@@ -11,13 +11,13 @@
  * ----------
  * This software was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2005,
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * This software was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -89,192 +89,192 @@ rtems_mii_ioctl (struct rtems_mdio_info *info, void *uarg, uint32_t cmd,
 	int subtype = 0, options = 0;
 
 	switch (cmd)
-	  {
-		  default:
-			  return EINVAL;
+	{
+		default:
+			return EINVAL;
 
 #ifdef DEBUG
-		  case 0:
+		case 0:
 #endif
-		  case SIOCGIFMEDIA:
-			  if (info->mdio_r (phy, uarg, MII_BMCR, &bmcr))
-				  return EINVAL;
-			  /* read BMSR twice to clear latched link status low */
-			  if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
-				  return EINVAL;
-			  if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
-				  return EINVAL;
-			  if (info->mdio_r (phy, uarg, MII_ANER, &aner))
-				  return EINVAL;
-			  if (info->has_gmii)
+		case SIOCGIFMEDIA:
+			if (info->mdio_r (phy, uarg, MII_BMCR, &bmcr))
+				return EINVAL;
+			/* read BMSR twice to clear latched link status low */
+			if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
+				return EINVAL;
+			if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
+				return EINVAL;
+			if (info->mdio_r (phy, uarg, MII_ANER, &aner))
+				return EINVAL;
+			if (info->has_gmii)
+			{
+				if (info->mdio_r (phy, uarg, MII_1000TCR, &bmcr2))
+					return EINVAL;
+				if (info->mdio_r (phy, uarg, MII_1000TSR, &bmsr2))
+					return EINVAL;
+			}
+
+			/* link status */
+			if (BMSR_LINK & bmsr)
+				options |= IFM_LINK_OK;
+
+			/* do we have autonegotiation disabled ? */
+			if (!(BMCR_AUTOEN & bmcr))
+			{
+				options |= IFM_ANEG_DIS;
+
+				/* duplex is enforced */
+				options |= BMCR_FDX & bmcr ? IFM_FDX : IFM_HDX;
+
+				/* determine speed */
+				switch (BMCR_SPEED (bmcr))
 				{
-					if (info->mdio_r (phy, uarg, MII_1000TCR, &bmcr2))
-						return EINVAL;
-					if (info->mdio_r (phy, uarg, MII_1000TSR, &bmsr2))
-						return EINVAL;
-				}
-
-			  /* link status */
-			  if (BMSR_LINK & bmsr)
-				  options |= IFM_LINK_OK;
-
-			  /* do we have autonegotiation disabled ? */
-			  if (!(BMCR_AUTOEN & bmcr))
-				{
-					options |= IFM_ANEG_DIS;
-
-					/* duplex is enforced */
-					options |= BMCR_FDX & bmcr ? IFM_FDX : IFM_HDX;
-
-					/* determine speed */
-					switch (BMCR_SPEED (bmcr))
-					  {
-						  case BMCR_S10:
-							  subtype = IFM_10_T;
-							  break;
-						  case BMCR_S100:
-							  subtype = IFM_100_TX;
-							  break;
-						  case BMCR_S1000:
-							  subtype = IFM_1000_T;
-							  break;
-						  default:
-							  return ENOTSUP;	/* ?? */
-					  }
-				}
-			  else if (!(BMSR_LINK & bmsr) || !(BMSR_ACOMP & bmsr))
-				{
-					subtype = IFM_NONE;
-				}
-			  else
-				{
-					/* everything ok on our side */
-
-					if (!(ANER_LPAN & aner))
-					  {
-						  /* Link partner doesn't autonegotiate --> our settings are the
-						   * result of 'parallel detect' (in particular: duplex status is HALF
-						   * according to the standard!).
-						   * Let them know that something's fishy...
-						   */
-						  options |= IFM_ANEG_DIS;
-					  }
-
-					tmp =
-						((bmcr2 << 2) & bmsr2) & (GTSR_LP_1000THDX |
-												  GTSR_LP_1000TFDX);
-					if (tmp)
-					  {
-						  if (GTSR_LP_1000TFDX & tmp)
-							  options |= IFM_FDX;
-						  subtype = IFM_1000_T;
-					  }
-					else
-					  {
-						  if (info->mdio_r (phy, uarg, MII_ANAR, &anar))
-							  return EINVAL;
-						  if (info->mdio_r (phy, uarg, MII_ANLPAR, &lpar))
-							  return EINVAL;
-						  if (ANLPAR_ACK & lpar)
-							{
-								/* this is a negotiated link; otherwise we merely detect the partner's ability */
-							}
-						  tmp = anar & lpar;
-						  if (ANLPAR_TX_FD & tmp)
-							{
-								options |= IFM_FDX;
-								subtype = IFM_100_TX;
-							}
-						  else if (ANLPAR_T4 & tmp)
-							{
-								subtype = IFM_100_T4;
-							}
-						  else if (ANLPAR_TX & tmp)
-							{
-								subtype = IFM_100_TX;
-							}
-						  else if (ANLPAR_10_FD & tmp)
-							{
-								options |= IFM_FDX;
-								subtype = IFM_10_T;
-							}
-						  else
-							{
-								subtype = IFM_10_T;
-							}
-					  }
-				}
-
-			  *media = IFM_MAKEWORD (IFM_ETHER, subtype, options, phy);
-
-			  break;
-
-#ifdef DEBUG
-		  case 1:
-#endif
-		  case SIOCSIFMEDIA:
-			  if (IFM_ETHER != IFM_TYPE (*media))
-				  return EINVAL;
-
-			  if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
-				  return EINVAL;
-
-			  tmp = (IFM_FDX & *media);
-
-			  switch (IFM_SUBTYPE (*media))
-				{
+					case BMCR_S10:
+						subtype = IFM_10_T;
+						break;
+					case BMCR_S100:
+						subtype = IFM_100_TX;
+						break;
+					case BMCR_S1000:
+						subtype = IFM_1000_T;
+						break;
 					default:
+						return ENOTSUP;	/* ?? */
+				}
+			}
+			else if (!(BMSR_LINK & bmsr) || !(BMSR_ACOMP & bmsr))
+			{
+				subtype = IFM_NONE;
+			}
+			else
+			{
+				/* everything ok on our side */
+
+				if (!(ANER_LPAN & aner))
+				{
+					/* Link partner doesn't autonegotiate --> our settings are the
+					 * result of 'parallel detect' (in particular: duplex status is HALF
+					 * according to the standard!).
+					 * Let them know that something's fishy...
+					 */
+					options |= IFM_ANEG_DIS;
+				}
+
+				tmp =
+					((bmcr2 << 2) & bmsr2) & (GTSR_LP_1000THDX |
+											GTSR_LP_1000TFDX);
+				if (tmp)
+				{
+					if (GTSR_LP_1000TFDX & tmp)
+						options |= IFM_FDX;
+					subtype = IFM_1000_T;
+				}
+				else
+				{
+					if (info->mdio_r (phy, uarg, MII_ANAR, &anar))
+						return EINVAL;
+					if (info->mdio_r (phy, uarg, MII_ANLPAR, &lpar))
+						return EINVAL;
+					if (ANLPAR_ACK & lpar)
+					{
+						/* this is a negotiated link; otherwise we merely detect the partner's ability */
+					}
+					tmp = anar & lpar;
+					if (ANLPAR_TX_FD & tmp)
+					{
+						options |= IFM_FDX;
+						subtype = IFM_100_TX;
+					}
+					else if (ANLPAR_T4 & tmp)
+					{
+						subtype = IFM_100_T4;
+					}
+					else if (ANLPAR_TX & tmp)
+					{
+						subtype = IFM_100_TX;
+					}
+					else if (ANLPAR_10_FD & tmp)
+					{
+						options |= IFM_FDX;
+						subtype = IFM_10_T;
+					}
+					else
+					{
+						subtype = IFM_10_T;
+					}
+				}
+			}
+
+			*media = IFM_MAKEWORD (IFM_ETHER, subtype, options, phy);
+
+			break;
+
+#ifdef DEBUG
+		case 1:
+#endif
+		case SIOCSIFMEDIA:
+			if (IFM_ETHER != IFM_TYPE (*media))
+				return EINVAL;
+
+			if (info->mdio_r (phy, uarg, MII_BMSR, &bmsr))
+				return EINVAL;
+
+			tmp = (IFM_FDX & *media);
+
+			switch (IFM_SUBTYPE (*media))
+			{
+				default:
+					return ENOTSUP;
+
+				case IFM_AUTO:
+					bmcr = BMCR_AUTOEN | BMCR_STARTNEG;
+					tmp = 0;
+					break;
+
+				case IFM_1000_T:
+					if (!info->has_gmii)
 						return ENOTSUP;
 
-					case IFM_AUTO:
-						bmcr = BMCR_AUTOEN | BMCR_STARTNEG;
-						tmp = 0;
-						break;
+					if (info->mdio_r (phy, uarg, MII_EXTSR, &bmsr2))
+						return EINVAL;
 
-					case IFM_1000_T:
-						if (!info->has_gmii)
-							return ENOTSUP;
+					if (!(bmsr2 & (tmp ? EXTSR_1000TFDX : EXTSR_1000THDX)))
+						return EOPNOTSUPP;
 
-						if (info->mdio_r (phy, uarg, MII_EXTSR, &bmsr2))
-							return EINVAL;
+					/* NOTE: gige standard demands auto-negotiation for gige links.
+					 *       Disabling autoneg did NOT work on the PHYs I tried
+					 *       (BCM5421S, intel 82540).
+					 *       I've seen drivers that simply change what they advertise
+					 *       to the desired gig mode and re-negotiate.
+					 *       We could do that here, too, but we don't see the point -
+					 *       If autoneg works fine then we can as well use it.
+					 */
+					bmcr = BMCR_S1000;
+					break;
 
-						if (!(bmsr2 & (tmp ? EXTSR_1000TFDX : EXTSR_1000THDX)))
-							return EOPNOTSUPP;
+				case IFM_100_TX:
+					if (!(bmsr & (tmp ? BMSR_100TXFDX : BMSR_100TXHDX)))
+						return EOPNOTSUPP;
+					bmcr = BMCR_S100;
+					break;
 
-						/* NOTE: gige standard demands auto-negotiation for gige links.
-						 *       Disabling autoneg did NOT work on the PHYs I tried
-						 *       (BCM5421S, intel 82540).
-						 *       I've seen drivers that simply change what they advertise
-						 *       to the desired gig mode and re-negotiate.
-						 *       We could do that here, too, but we don't see the point -
-						 *       If autoneg works fine then we can as well use it.
-						 */
-						bmcr = BMCR_S1000;
-						break;
+				case IFM_10_T:
+					if (!(bmsr & (tmp ? BMSR_10TFDX : BMSR_10THDX)))
+						return EOPNOTSUPP;
+					bmcr = BMCR_S10;
+					break;
+			}
 
-					case IFM_100_TX:
-						if (!(bmsr & (tmp ? BMSR_100TXFDX : BMSR_100TXHDX)))
-							return EOPNOTSUPP;
-						bmcr = BMCR_S100;
-						break;
+			if (tmp)
+				bmcr |= BMCR_FDX;
 
-					case IFM_10_T:
-						if (!(bmsr & (tmp ? BMSR_10TFDX : BMSR_10THDX)))
-							return EOPNOTSUPP;
-						bmcr = BMCR_S10;
-						break;
-				}
+			if (info->mdio_w (phy, uarg, MII_BMCR, bmcr))
+				return EINVAL;
 
-			  if (tmp)
-				  bmcr |= BMCR_FDX;
+			/* TODO: should we adapt advertised capabilites ? */
 
-			  if (info->mdio_w (phy, uarg, MII_BMCR, bmcr))
-				  return EINVAL;
-
-			  /* TODO: should we adapt advertised capabilites ? */
-
-			  break;
-	  }
+			break;
+	}
 
 	return 0;
 }

@@ -41,15 +41,15 @@ struct _inode;
 struct super_block;
 
 static inline unsigned int full_name_hash (const unsigned char *name,
-										   size_t len)
+										 size_t len)
 {
 
 	uint32_t hash = 0;
 	while (len--)
-	  {
-		  hash = (hash << 4) | (hash >> 28);
-		  hash ^= *(name++);
-	  }
+	{
+		hash = (hash << 4) | (hash >> 28);
+		hash ^= *(name++);
+	}
 	return hash;
 }
 
@@ -136,7 +136,7 @@ void jffs2_iput (struct _inode *i);
 void jffs2_gc_release_inode (struct jffs2_sb_info *c,
 							 struct jffs2_inode_info *f);
 struct jffs2_inode_info *jffs2_gc_fetch_inode (struct jffs2_sb_info *c,
-											   int inum, int nlink);
+											 int inum, int nlink);
 unsigned char *jffs2_gc_fetch_page (struct jffs2_sb_info *c,
 									struct jffs2_inode_info *f,
 									unsigned long offset, unsigned long *priv);
@@ -157,34 +157,34 @@ static inline uint32_t jffs2_to_os_mode (uint32_t jmode)
 
 /* flashio.c */
 int jffs2_flash_read (struct jffs2_sb_info *c, cyg_uint32 read_buffer_offset,
-					  const size_t size, size_t * return_size,
-					  unsigned char *write_buffer);
+					const size_t size, size_t * return_size,
+					unsigned char *write_buffer);
 int jffs2_flash_write (struct jffs2_sb_info *c, cyg_uint32 write_buffer_offset,
-					   const size_t size, size_t * return_size,
-					   unsigned char *read_buffer);
+					 const size_t size, size_t * return_size,
+					 unsigned char *read_buffer);
 int jffs2_flash_direct_writev (struct jffs2_sb_info *c,
-							   const struct iovec *vecs, unsigned long count,
-							   loff_t to, size_t * retlen);
+							 const struct iovec *vecs, unsigned long count,
+							 loff_t to, size_t * retlen);
 int jffs2_flash_erase (struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
 
 // dir-rtems.c
 struct _inode *jffs2_lookup (struct _inode *dir_i, const unsigned char *name,
 							 size_t namelen);
 int jffs2_create (struct _inode *dir_i, const char *d_name, size_t d_namelen,
-				  int mode);
+				int mode);
 int jffs2_mknod (struct _inode *dir_i, const unsigned char *d_name,
 				 size_t d_namelen, int mode, const unsigned char *data,
 				 size_t datalen);
 int jffs2_link (struct _inode *old_d_inode, struct _inode *dir_i,
 				const unsigned char *d_name, size_t d_namelen);
 int jffs2_unlink (struct _inode *dir_i, struct _inode *d_inode,
-				  const unsigned char *d_name, size_t d_namelen);
+				const unsigned char *d_name, size_t d_namelen);
 int jffs2_rmdir (struct _inode *dir_i, struct _inode *d_inode,
 				 const unsigned char *d_name, size_t d_namelen);
 int jffs2_rename (struct _inode *old_dir_i, struct _inode *d_inode,
-				  const unsigned char *old_d_name, size_t old_d_namelen,
-				  struct _inode *new_dir_i, const unsigned char *new_d_name,
-				  size_t new_d_namelen);
+				const unsigned char *old_d_name, size_t old_d_namelen,
+				struct _inode *new_dir_i, const unsigned char *new_d_name,
+				size_t new_d_namelen);
 
 /* erase.c */
 static inline void jffs2_erase_pending_trigger (struct jffs2_sb_info *c)

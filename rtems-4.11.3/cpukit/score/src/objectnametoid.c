@@ -21,10 +21,10 @@
 #include <rtems/score/objectimpl.h>
 
 Objects_Name_or_id_lookup_errors _Objects_Name_to_id_u32 (Objects_Information *
-														  information,
-														  uint32_t name,
-														  uint32_t node,
-														  Objects_Id * id)
+														information,
+														uint32_t name,
+														uint32_t node,
+														Objects_Id * id)
 {
 	bool search_local_node;
 	Objects_Control *the_object;
@@ -49,20 +49,20 @@ Objects_Name_or_id_lookup_errors _Objects_Name_to_id_u32 (Objects_Information *
 		search_local_node = true;
 
 	if (search_local_node)
-	  {
-		  for (index = 1; index <= information->maximum; index++)
-			{
-				the_object = information->local_table[index];
-				if (!the_object)
-					continue;
+	{
+		for (index = 1; index <= information->maximum; index++)
+		{
+			the_object = information->local_table[index];
+			if (!the_object)
+				continue;
 
-				if (name == the_object->name.name_u32)
-				  {
-					  *id = the_object->id;
-					  return OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL;
-				  }
+			if (name == the_object->name.name_u32)
+			{
+				*id = the_object->id;
+				return OBJECTS_NAME_OR_ID_LOOKUP_SUCCESSFUL;
 			}
-	  }
+		}
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_Objects_Is_local_node (node) || node == OBJECTS_SEARCH_LOCAL_NODE)

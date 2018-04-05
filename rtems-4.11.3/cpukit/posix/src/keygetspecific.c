@@ -44,30 +44,30 @@ void *pthread_getspecific (pthread_key_t key)
 
 	the_key = _POSIX_Keys_Get (key, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  p = _POSIX_Keys_Find (key, _Thread_Executing);
-			  if (p != NULL)
-				{
-					value_pair_p = POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (p);
-					key_data = value_pair_p->value;
-				}
-			  else
-				{
-					key_data = NULL;
-				}
+		case OBJECTS_LOCAL:
+			p = _POSIX_Keys_Find (key, _Thread_Executing);
+			if (p != NULL)
+			{
+				value_pair_p = POSIX_KEYS_RBTREE_NODE_TO_KEY_VALUE_PAIR (p);
+				key_data = value_pair_p->value;
+			}
+			else
+			{
+				key_data = NULL;
+			}
 
-			  _Objects_Put (&the_key->Object);
+			_Objects_Put (&the_key->Object);
 
-			  return key_data;
+			return key_data;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never happen */
+		case OBJECTS_REMOTE:	/* should never happen */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return NULL;
 }

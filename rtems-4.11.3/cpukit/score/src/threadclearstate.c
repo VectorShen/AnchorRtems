@@ -35,17 +35,17 @@ States_Control _Thread_Clear_state (Thread_Control * the_thread,
 	previous_state = the_thread->current_state;
 
 	if ((previous_state & state) != 0)
-	  {
-		  States_Control next_state;
+	{
+		States_Control next_state;
 
-		  next_state = _States_Clear (state, previous_state);
-		  the_thread->current_state = next_state;
+		next_state = _States_Clear (state, previous_state);
+		the_thread->current_state = next_state;
 
-		  if (_States_Is_ready (next_state))
-			{
-				_Scheduler_Unblock (the_thread);
-			}
-	  }
+		if (_States_Is_ready (next_state))
+		{
+			_Scheduler_Unblock (the_thread);
+		}
+	}
 
 	_Scheduler_Release (the_thread, &lock_context);
 

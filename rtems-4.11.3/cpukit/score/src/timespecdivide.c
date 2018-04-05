@@ -22,8 +22,8 @@
 #include <rtems/score/todimpl.h>
 
 void _Timespec_Divide (const struct timespec *lhs,
-					   const struct timespec *rhs,
-					   uint32_t * ival_percentage, uint32_t * fval_percentage)
+					 const struct timespec *rhs,
+					 uint32_t * ival_percentage, uint32_t * fval_percentage)
 {
 	uint64_t left, right, answer;
 
@@ -37,11 +37,11 @@ void _Timespec_Divide (const struct timespec *lhs,
 	right += rhs->tv_nsec;
 
 	if (right == 0)
-	  {
-		  *ival_percentage = 0;
-		  *fval_percentage = 0;
-		  return;
-	  }
+	{
+		*ival_percentage = 0;
+		*fval_percentage = 0;
+		return;
+	}
 
 	/*
 	 *  Put it back in the timespec result.

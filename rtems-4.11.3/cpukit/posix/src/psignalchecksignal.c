@@ -38,7 +38,7 @@
 #include <stdio.h>
 
 bool _POSIX_signals_Check_signal (POSIX_API_Control * api,
-								  int signo, bool is_global)
+								int signo, bool is_global)
 {
 	siginfo_t siginfo_struct;
 	sigset_t saved_signals_blocked;
@@ -46,7 +46,7 @@ bool _POSIX_signals_Check_signal (POSIX_API_Control * api,
 	Thread_Control *executing;
 
 	if (!_POSIX_signals_Clear_signals (api, signo, &siginfo_struct,
-									   is_global, true, true))
+									 is_global, true, true))
 		return false;
 
 	/*
@@ -84,15 +84,15 @@ bool _POSIX_signals_Check_signal (POSIX_API_Control * api,
 	 *  Here, the signal handler function executes
 	 */
 	switch (_POSIX_signals_Vectors[signo].sa_flags)
-	  {
-		  case SA_SIGINFO:
-			  (*_POSIX_signals_Vectors[signo].sa_sigaction) (signo, &siginfo_struct, NULL	/* context is undefined per 1003.1b-1993, p. 66 */
-				  );
-			  break;
-		  default:
-			  (*_POSIX_signals_Vectors[signo].sa_handler) (signo);
-			  break;
-	  }
+	{
+		case SA_SIGINFO:
+			(*_POSIX_signals_Vectors[signo].sa_sigaction) (signo, &siginfo_struct, NULL	/* context is undefined per 1003.1b-1993, p. 66 */
+				);
+			break;
+		default:
+			(*_POSIX_signals_Vectors[signo].sa_handler) (signo);
+			break;
+	}
 
 	/*
 	 *  Restore the blocking information

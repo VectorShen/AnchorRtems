@@ -64,12 +64,12 @@ sem_t *sem_open (const char *name, int oflag, ...
 	size_t name_len;
 
 	if (oflag & O_CREAT)
-	  {
-		  va_start (arg, oflag);
-		  mode = va_arg (arg, mode_t);
-		  value = va_arg (arg, unsigned int);
-		  va_end (arg);
-	  }
+	{
+		va_start (arg, oflag);
+		mode = va_arg (arg, mode_t);
+		value = va_arg (arg, unsigned int);
+		va_end (arg);
+	}
 
 	_Objects_Allocator_lock ();
 	status = _POSIX_Semaphore_Name_to_id (name, &the_semaphore_id, &name_len);
@@ -82,39 +82,39 @@ sem_t *sem_open (const char *name, int oflag, ...
 	 */
 
 	if (status)
-	  {
+	{
 
-		  /*
-		   * Unless provided a valid name that did not already exist
-		   * and we are willing to create then it is an error.
-		   */
+		/*
+		 * Unless provided a valid name that did not already exist
+		 * and we are willing to create then it is an error.
+		 */
 
-		  if (!(status == ENOENT && (oflag & O_CREAT)))
-			{
-				_Objects_Allocator_unlock ();
-				rtems_set_errno_and_return_value (status, SEM_FAILED);
-			}
-	  }
+		if (!(status == ENOENT && (oflag & O_CREAT)))
+		{
+			_Objects_Allocator_unlock ();
+			rtems_set_errno_and_return_value (status, SEM_FAILED);
+		}
+	}
 	else
-	  {
+	{
 
-		  /*
-		   * Check for existence with creation.
-		   */
+		/*
+		 * Check for existence with creation.
+		 */
 
-		  if ((oflag & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
-			{
-				_Objects_Allocator_unlock ();
-				rtems_set_errno_and_return_value (EEXIST, SEM_FAILED);
-			}
+		if ((oflag & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
+		{
+			_Objects_Allocator_unlock ();
+			rtems_set_errno_and_return_value (EEXIST, SEM_FAILED);
+		}
 
-		  the_semaphore =
-			  _POSIX_Semaphore_Get ((sem_t *) & the_semaphore_id, &location);
-		  the_semaphore->open_count += 1;
-		  _Thread_Enable_dispatch ();
-		  _Objects_Allocator_unlock ();
-		  goto return_id;
-	  }
+		the_semaphore =
+			_POSIX_Semaphore_Get ((sem_t *) & the_semaphore_id, &location);
+		the_semaphore->open_count += 1;
+		_Thread_Enable_dispatch ();
+		_Objects_Allocator_unlock ();
+		goto return_id;
+	}
 
 	/*
 	 *  At this point, the semaphore does not exist and everything has been
@@ -122,7 +122,7 @@ sem_t *sem_open (const char *name, int oflag, ...
 	 */
 
 	status = _POSIX_Semaphore_Create_support (name, name_len, false,	/* not shared across processes */
-											  value, &the_semaphore);
+											value, &the_semaphore);
 
 	/*
 	 * errno was set by Create_support, so don't set it again.

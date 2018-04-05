@@ -54,105 +54,105 @@ bool_t xdr_fattr (XDR * xdrs, fattr * objp)
 	register int32_t *buf;
 
 	if (xdrs->x_op == XDR_ENCODE)
-	  {
-		  if (!xdr_ftype (xdrs, &objp->type))
-			  return FALSE;
-		  buf = XDR_INLINE (xdrs, 10 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->mode))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->nlink))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->uid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->gid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->size))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocksize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->rdev))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocks))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->fsid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->fileid))
-					return FALSE;
+	{
+		if (!xdr_ftype (xdrs, &objp->type))
+			return FALSE;
+		buf = XDR_INLINE (xdrs, 10 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->mode))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->nlink))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->uid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->gid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->size))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocksize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->rdev))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocks))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->fsid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->fileid))
+				return FALSE;
 
-			}
-		  else
-			{
-				IXDR_PUT_U_LONG (buf, objp->mode);
-				IXDR_PUT_U_LONG (buf, objp->nlink);
-				IXDR_PUT_U_LONG (buf, objp->uid);
-				IXDR_PUT_U_LONG (buf, objp->gid);
-				IXDR_PUT_U_LONG (buf, objp->size);
-				IXDR_PUT_U_LONG (buf, objp->blocksize);
-				IXDR_PUT_U_LONG (buf, objp->rdev);
-				IXDR_PUT_U_LONG (buf, objp->blocks);
-				IXDR_PUT_U_LONG (buf, objp->fsid);
-				IXDR_PUT_U_LONG (buf, objp->fileid);
-			}
-		  if (!xdr_nfstime (xdrs, &objp->atime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->mtime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->ctime))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			IXDR_PUT_U_LONG (buf, objp->mode);
+			IXDR_PUT_U_LONG (buf, objp->nlink);
+			IXDR_PUT_U_LONG (buf, objp->uid);
+			IXDR_PUT_U_LONG (buf, objp->gid);
+			IXDR_PUT_U_LONG (buf, objp->size);
+			IXDR_PUT_U_LONG (buf, objp->blocksize);
+			IXDR_PUT_U_LONG (buf, objp->rdev);
+			IXDR_PUT_U_LONG (buf, objp->blocks);
+			IXDR_PUT_U_LONG (buf, objp->fsid);
+			IXDR_PUT_U_LONG (buf, objp->fileid);
+		}
+		if (!xdr_nfstime (xdrs, &objp->atime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->mtime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->ctime))
+			return FALSE;
+		return TRUE;
+	}
 	else if (xdrs->x_op == XDR_DECODE)
-	  {
-		  if (!xdr_ftype (xdrs, &objp->type))
-			  return FALSE;
-		  buf = XDR_INLINE (xdrs, 10 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->mode))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->nlink))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->uid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->gid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->size))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocksize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->rdev))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocks))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->fsid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->fileid))
-					return FALSE;
+	{
+		if (!xdr_ftype (xdrs, &objp->type))
+			return FALSE;
+		buf = XDR_INLINE (xdrs, 10 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->mode))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->nlink))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->uid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->gid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->size))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocksize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->rdev))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocks))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->fsid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->fileid))
+				return FALSE;
 
-			}
-		  else
-			{
-				objp->mode = IXDR_GET_U_LONG (buf);
-				objp->nlink = IXDR_GET_U_LONG (buf);
-				objp->uid = IXDR_GET_U_LONG (buf);
-				objp->gid = IXDR_GET_U_LONG (buf);
-				objp->size = IXDR_GET_U_LONG (buf);
-				objp->blocksize = IXDR_GET_U_LONG (buf);
-				objp->rdev = IXDR_GET_U_LONG (buf);
-				objp->blocks = IXDR_GET_U_LONG (buf);
-				objp->fsid = IXDR_GET_U_LONG (buf);
-				objp->fileid = IXDR_GET_U_LONG (buf);
-			}
-		  if (!xdr_nfstime (xdrs, &objp->atime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->mtime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->ctime))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			objp->mode = IXDR_GET_U_LONG (buf);
+			objp->nlink = IXDR_GET_U_LONG (buf);
+			objp->uid = IXDR_GET_U_LONG (buf);
+			objp->gid = IXDR_GET_U_LONG (buf);
+			objp->size = IXDR_GET_U_LONG (buf);
+			objp->blocksize = IXDR_GET_U_LONG (buf);
+			objp->rdev = IXDR_GET_U_LONG (buf);
+			objp->blocks = IXDR_GET_U_LONG (buf);
+			objp->fsid = IXDR_GET_U_LONG (buf);
+			objp->fileid = IXDR_GET_U_LONG (buf);
+		}
+		if (!xdr_nfstime (xdrs, &objp->atime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->mtime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->ctime))
+			return FALSE;
+		return TRUE;
+	}
 
 	if (!xdr_ftype (xdrs, &objp->type))
 		return FALSE;
@@ -190,61 +190,61 @@ bool_t xdr_sattr (XDR * xdrs, sattr * objp)
 	register int32_t *buf;
 
 	if (xdrs->x_op == XDR_ENCODE)
-	  {
-		  buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->mode))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->uid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->gid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->size))
-					return FALSE;
+	{
+		buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->mode))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->uid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->gid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->size))
+				return FALSE;
 
-			}
-		  else
-			{
-				IXDR_PUT_U_LONG (buf, objp->mode);
-				IXDR_PUT_U_LONG (buf, objp->uid);
-				IXDR_PUT_U_LONG (buf, objp->gid);
-				IXDR_PUT_U_LONG (buf, objp->size);
-			}
-		  if (!xdr_nfstime (xdrs, &objp->atime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->mtime))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			IXDR_PUT_U_LONG (buf, objp->mode);
+			IXDR_PUT_U_LONG (buf, objp->uid);
+			IXDR_PUT_U_LONG (buf, objp->gid);
+			IXDR_PUT_U_LONG (buf, objp->size);
+		}
+		if (!xdr_nfstime (xdrs, &objp->atime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->mtime))
+			return FALSE;
+		return TRUE;
+	}
 	else if (xdrs->x_op == XDR_DECODE)
-	  {
-		  buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->mode))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->uid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->gid))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->size))
-					return FALSE;
+	{
+		buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->mode))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->uid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->gid))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->size))
+				return FALSE;
 
-			}
-		  else
-			{
-				objp->mode = IXDR_GET_U_LONG (buf);
-				objp->uid = IXDR_GET_U_LONG (buf);
-				objp->gid = IXDR_GET_U_LONG (buf);
-				objp->size = IXDR_GET_U_LONG (buf);
-			}
-		  if (!xdr_nfstime (xdrs, &objp->atime))
-			  return FALSE;
-		  if (!xdr_nfstime (xdrs, &objp->mtime))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			objp->mode = IXDR_GET_U_LONG (buf);
+			objp->uid = IXDR_GET_U_LONG (buf);
+			objp->gid = IXDR_GET_U_LONG (buf);
+			objp->size = IXDR_GET_U_LONG (buf);
+		}
+		if (!xdr_nfstime (xdrs, &objp->atime))
+			return FALSE;
+		if (!xdr_nfstime (xdrs, &objp->mtime))
+			return FALSE;
+		return TRUE;
+	}
 
 	if (!xdr_u_int (xdrs, &objp->mode))
 		return FALSE;
@@ -280,14 +280,14 @@ bool_t xdr_attrstat (XDR * xdrs, attrstat * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_fattr (xdrs, &objp->attrstat_u.attributes))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_fattr (xdrs, &objp->attrstat_u.attributes))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -323,14 +323,14 @@ bool_t xdr_diropres (XDR * xdrs, diropres * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_diropokres (xdrs, &objp->diropres_u.diropres))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_diropokres (xdrs, &objp->diropres_u.diropres))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -339,14 +339,14 @@ bool_t xdr_readlinkres (XDR * xdrs, readlinkres * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_nfspath (xdrs, &objp->readlinkres_u.data))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_nfspath (xdrs, &objp->readlinkres_u.data))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -379,14 +379,14 @@ bool_t xdr_readres (XDR * xdrs, readres * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_readokres (xdrs, &objp->readres_u.reply))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_readokres (xdrs, &objp->readres_u.reply))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -395,59 +395,59 @@ bool_t xdr_writeargs (XDR * xdrs, writeargs * objp)
 	register int32_t *buf;
 
 	if (xdrs->x_op == XDR_ENCODE)
-	  {
-		  if (!xdr_nfs_fh (xdrs, &objp->file))
-			  return FALSE;
-		  buf = XDR_INLINE (xdrs, 3 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->beginoffset))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->offset))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->totalcount))
-					return FALSE;
+	{
+		if (!xdr_nfs_fh (xdrs, &objp->file))
+			return FALSE;
+		buf = XDR_INLINE (xdrs, 3 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->beginoffset))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->offset))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->totalcount))
+				return FALSE;
 
-			}
-		  else
-			{
-				IXDR_PUT_U_LONG (buf, objp->beginoffset);
-				IXDR_PUT_U_LONG (buf, objp->offset);
-				IXDR_PUT_U_LONG (buf, objp->totalcount);
-			}
-		  if (!xdr_bytes
-			  (xdrs, (char **)&objp->data.data_val,
-			   (u_int *) & objp->data.data_len, NFS_MAXDATA))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			IXDR_PUT_U_LONG (buf, objp->beginoffset);
+			IXDR_PUT_U_LONG (buf, objp->offset);
+			IXDR_PUT_U_LONG (buf, objp->totalcount);
+		}
+		if (!xdr_bytes
+			(xdrs, (char **)&objp->data.data_val,
+			 (u_int *) & objp->data.data_len, NFS_MAXDATA))
+			return FALSE;
+		return TRUE;
+	}
 	else if (xdrs->x_op == XDR_DECODE)
-	  {
-		  if (!xdr_nfs_fh (xdrs, &objp->file))
-			  return FALSE;
-		  buf = XDR_INLINE (xdrs, 3 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->beginoffset))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->offset))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->totalcount))
-					return FALSE;
+	{
+		if (!xdr_nfs_fh (xdrs, &objp->file))
+			return FALSE;
+		buf = XDR_INLINE (xdrs, 3 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->beginoffset))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->offset))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->totalcount))
+				return FALSE;
 
-			}
-		  else
-			{
-				objp->beginoffset = IXDR_GET_U_LONG (buf);
-				objp->offset = IXDR_GET_U_LONG (buf);
-				objp->totalcount = IXDR_GET_U_LONG (buf);
-			}
-		  if (!xdr_bytes
-			  (xdrs, (char **)&objp->data.data_val,
-			   (u_int *) & objp->data.data_len, NFS_MAXDATA))
-			  return FALSE;
-		  return TRUE;
-	  }
+		}
+		else
+		{
+			objp->beginoffset = IXDR_GET_U_LONG (buf);
+			objp->offset = IXDR_GET_U_LONG (buf);
+			objp->totalcount = IXDR_GET_U_LONG (buf);
+		}
+		if (!xdr_bytes
+			(xdrs, (char **)&objp->data.data_val,
+			 (u_int *) & objp->data.data_len, NFS_MAXDATA))
+			return FALSE;
+		return TRUE;
+	}
 
 	if (!xdr_nfs_fh (xdrs, &objp->file))
 		return FALSE;
@@ -550,14 +550,14 @@ bool_t xdr_readdirres (XDR * xdrs, readdirres * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_dirlist (xdrs, &objp->readdirres_u.reply))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_dirlist (xdrs, &objp->readdirres_u.reply))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -566,57 +566,57 @@ bool_t xdr_statfsokres (XDR * xdrs, statfsokres * objp)
 	register int32_t *buf;
 
 	if (xdrs->x_op == XDR_ENCODE)
-	  {
-		  buf = XDR_INLINE (xdrs, 5 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->tsize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bsize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocks))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bfree))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bavail))
-					return FALSE;
-			}
-		  else
-			{
-				IXDR_PUT_U_LONG (buf, objp->tsize);
-				IXDR_PUT_U_LONG (buf, objp->bsize);
-				IXDR_PUT_U_LONG (buf, objp->blocks);
-				IXDR_PUT_U_LONG (buf, objp->bfree);
-				IXDR_PUT_U_LONG (buf, objp->bavail);
-			}
-		  return TRUE;
-	  }
+	{
+		buf = XDR_INLINE (xdrs, 5 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->tsize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bsize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocks))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bfree))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bavail))
+				return FALSE;
+		}
+		else
+		{
+			IXDR_PUT_U_LONG (buf, objp->tsize);
+			IXDR_PUT_U_LONG (buf, objp->bsize);
+			IXDR_PUT_U_LONG (buf, objp->blocks);
+			IXDR_PUT_U_LONG (buf, objp->bfree);
+			IXDR_PUT_U_LONG (buf, objp->bavail);
+		}
+		return TRUE;
+	}
 	else if (xdrs->x_op == XDR_DECODE)
-	  {
-		  buf = XDR_INLINE (xdrs, 5 * BYTES_PER_XDR_UNIT);
-		  if (buf == NULL)
-			{
-				if (!xdr_u_int (xdrs, &objp->tsize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bsize))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->blocks))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bfree))
-					return FALSE;
-				if (!xdr_u_int (xdrs, &objp->bavail))
-					return FALSE;
-			}
-		  else
-			{
-				objp->tsize = IXDR_GET_U_LONG (buf);
-				objp->bsize = IXDR_GET_U_LONG (buf);
-				objp->blocks = IXDR_GET_U_LONG (buf);
-				objp->bfree = IXDR_GET_U_LONG (buf);
-				objp->bavail = IXDR_GET_U_LONG (buf);
-			}
-		  return TRUE;
-	  }
+	{
+		buf = XDR_INLINE (xdrs, 5 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL)
+		{
+			if (!xdr_u_int (xdrs, &objp->tsize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bsize))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->blocks))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bfree))
+				return FALSE;
+			if (!xdr_u_int (xdrs, &objp->bavail))
+				return FALSE;
+		}
+		else
+		{
+			objp->tsize = IXDR_GET_U_LONG (buf);
+			objp->bsize = IXDR_GET_U_LONG (buf);
+			objp->blocks = IXDR_GET_U_LONG (buf);
+			objp->bfree = IXDR_GET_U_LONG (buf);
+			objp->bavail = IXDR_GET_U_LONG (buf);
+		}
+		return TRUE;
+	}
 
 	if (!xdr_u_int (xdrs, &objp->tsize))
 		return FALSE;
@@ -636,13 +636,13 @@ bool_t xdr_statfsres (XDR * xdrs, statfsres * objp)
 	if (!xdr_nfsstat (xdrs, &objp->status))
 		return FALSE;
 	switch (objp->status)
-	  {
-		  case NFS_OK:
-			  if (!xdr_statfsokres (xdrs, &objp->statfsres_u.reply))
-				  return FALSE;
-			  break;
-		  default:
-			  break;
-	  }
+	{
+		case NFS_OK:
+			if (!xdr_statfsokres (xdrs, &objp->statfsres_u.reply))
+				return FALSE;
+			break;
+		default:
+			break;
+	}
 	return TRUE;
 }

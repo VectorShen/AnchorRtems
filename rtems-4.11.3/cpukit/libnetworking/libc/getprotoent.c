@@ -62,10 +62,10 @@ void setprotoent (int f)
 void endprotoent (void)
 {
 	if (protof)
-	  {
-		  fclose (protof);
-		  protof = NULL;
-	  }
+	{
+		fclose (protof);
+		protof = NULL;
+	}
 	_proto_stayopen = 0;
 }
 
@@ -98,22 +98,22 @@ struct protoent *getprotoent (void)
 	proto.p_proto = atoi (cp);
 	q = proto.p_aliases = proto_aliases;
 	if (p != NULL)
-	  {
-		  cp = p;
-		  while (cp && *cp)
+	{
+		cp = p;
+		while (cp && *cp)
+		{
+			if (*cp == ' ' || *cp == '\t')
 			{
-				if (*cp == ' ' || *cp == '\t')
-				  {
-					  cp++;
-					  continue;
-				  }
-				if (q < &proto_aliases[MAXALIASES - 1])
-					*q++ = cp;
-				cp = strpbrk (cp, " \t");
-				if (cp != NULL)
-					*cp++ = '\0';
+				cp++;
+				continue;
 			}
-	  }
+			if (q < &proto_aliases[MAXALIASES - 1])
+				*q++ = cp;
+			cp = strpbrk (cp, " \t");
+			if (cp != NULL)
+				*cp++ = '\0';
+		}
+	}
 	*q = NULL;
 	return (&proto);
 }

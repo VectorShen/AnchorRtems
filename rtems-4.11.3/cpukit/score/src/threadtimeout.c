@@ -45,54 +45,54 @@ void _Thread_Timeout (Objects_Id id, void *arg)
 	wait_flags = _Thread_Wait_flags_get (the_thread);
 
 	if ((wait_flags & THREAD_WAIT_STATE_READY_AGAIN) == 0)
-	  {
-		  Thread_Wait_flags wait_class;
-		  Thread_Wait_flags ready_again;
-		  bool success;
+	{
+		Thread_Wait_flags wait_class;
+		Thread_Wait_flags ready_again;
+		bool success;
 
-		  _Thread_Do_timeout (the_thread);
+		_Thread_Do_timeout (the_thread);
 
-		  /*
-		   * This fence is only necessary for the events, see _Event_Seize().  The
-		   * thread queues use the thread lock for synchronization.
-		   */
-		  _Atomic_Fence (ATOMIC_ORDER_RELEASE);
+		/*
+		 * This fence is only necessary for the events, see _Event_Seize().  The
+		 * thread queues use the thread lock for synchronization.
+		 */
+		_Atomic_Fence (ATOMIC_ORDER_RELEASE);
 
-		  wait_class = wait_flags & THREAD_WAIT_CLASS_MASK;
-		  ready_again = wait_class | THREAD_WAIT_STATE_READY_AGAIN;
-		  success = _Thread_Wait_flags_try_change_critical (the_thread,
+		wait_class = wait_flags & THREAD_WAIT_CLASS_MASK;
+		ready_again = wait_class | THREAD_WAIT_STATE_READY_AGAIN;
+		success = _Thread_Wait_flags_try_change_critical (the_thread,
 															wait_class |
 															THREAD_WAIT_STATE_INTEND_TO_BLOCK,
 															ready_again);
 
-		  if (success)
-			{
-				unblock = false;
-			}
-		  else
-			{
-				_Assert (_Thread_Wait_flags_get (the_thread)
-						 == (wait_class | THREAD_WAIT_STATE_BLOCKED));
-				_Thread_Wait_flags_set (the_thread, ready_again);
-				unblock = true;
-			}
-	  }
+		if (success)
+		{
+			unblock = false;
+		}
+		else
+		{
+			_Assert (_Thread_Wait_flags_get (the_thread)
+					 == (wait_class | THREAD_WAIT_STATE_BLOCKED));
+			_Thread_Wait_flags_set (the_thread, ready_again);
+			unblock = true;
+		}
+	}
 	else
-	  {
-		  unblock = false;
-	  }
+	{
+		unblock = false;
+	}
 
 	_Thread_Lock_release (thread_lock, &lock_context);
 
 	if (unblock)
-	  {
-		  _Thread_Unblock (the_thread);
+	{
+		_Thread_Unblock (the_thread);
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  if (!_Objects_Is_local_id (the_thread->Object.id))
-			{
-				_Thread_MP_Free_proxy (the_thread);
-			}
+		if (!_Objects_Is_local_id (the_thread->Object.id))
+		{
+			_Thread_MP_Free_proxy (the_thread);
+		}
 #endif
-	  }
+	}
 }

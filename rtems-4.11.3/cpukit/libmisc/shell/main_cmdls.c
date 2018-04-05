@@ -32,22 +32,22 @@ static void error (const char *s, int eno)
 static void print_cmd (const rtems_shell_cmd_t * shell_cmd)
 {
 	if (rtems_shell_can_see_cmd (shell_cmd))
-	  {
-		  mode_t m = shell_cmd->mode;
+	{
+		mode_t m = shell_cmd->mode;
 
-		  printf ("%c%c%c%c%c%c%c%c%c %5u %5u %s\n",
-				  (m & S_IRUSR) != 0 ? 'r' : '-',
-				  (m & S_IWUSR) != 0 ? 'w' : '-',
-				  (m & S_IXUSR) != 0 ? 'x' : '-',
-				  (m & S_IRGRP) != 0 ? 'r' : '-',
-				  (m & S_IWGRP) != 0 ? 'w' : '-',
-				  (m & S_IXGRP) != 0 ? 'x' : '-',
-				  (m & S_IROTH) != 0 ? 'r' : '-',
-				  (m & S_IWOTH) != 0 ? 'w' : '-',
-				  (m & S_IXOTH) != 0 ? 'x' : '-',
-				  (unsigned)shell_cmd->uid,
-				  (unsigned)shell_cmd->gid, shell_cmd->name);
-	  }
+		printf ("%c%c%c%c%c%c%c%c%c %5u %5u %s\n",
+				(m & S_IRUSR) != 0 ? 'r' : '-',
+				(m & S_IWUSR) != 0 ? 'w' : '-',
+				(m & S_IXUSR) != 0 ? 'x' : '-',
+				(m & S_IRGRP) != 0 ? 'r' : '-',
+				(m & S_IWGRP) != 0 ? 'w' : '-',
+				(m & S_IXGRP) != 0 ? 'x' : '-',
+				(m & S_IROTH) != 0 ? 'r' : '-',
+				(m & S_IWOTH) != 0 ? 'w' : '-',
+				(m & S_IXOTH) != 0 ? 'x' : '-',
+				(unsigned)shell_cmd->uid,
+				(unsigned)shell_cmd->gid, shell_cmd->name);
+	}
 }
 
 static int rtems_shell_main_cmdls (int argc, char **argv)
@@ -55,41 +55,42 @@ static int rtems_shell_main_cmdls (int argc, char **argv)
 	const rtems_shell_cmd_t *shell_cmd;
 
 	if (argc <= 1)
-	  {
-		  shell_cmd = rtems_shell_first_cmd;
+	{
+		shell_cmd = rtems_shell_first_cmd;
 
-		  while (shell_cmd != NULL)
+		while (shell_cmd != NULL)
+		{
+			print_cmd (shell_cmd);
+
+			shell_cmd = shell_cmd->next;
+		}
+	}
+	else
+	{
+		int i;
+
+		for (i = 1; i < argc; ++i)
+		{
+			const char *cmd = argv[i];
+
+			shell_cmd = rtems_shell_lookup_cmd (cmd);
+
+			if (shell_cmd != NULL)
 			{
 				print_cmd (shell_cmd);
-
-				shell_cmd = shell_cmd->next;
 			}
-	  }
-	else
-	  {
-		  int i;
-
-		  for (i = 1; i < argc; ++i)
+			else
 			{
-				const char *cmd = argv[i];
-
-				shell_cmd = rtems_shell_lookup_cmd (cmd);
-
-				if (shell_cmd != NULL)
-				  {
-					  print_cmd (shell_cmd);
-				  }
-				else
-				  {
-					  error (cmd, ENOENT);
-				  }
+				error (cmd, ENOENT);
 			}
-	  }
+		}
+	}
 
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_CMDLS_Command = {
+rtems_shell_cmd_t rtems_shell_CMDLS_Command =
+{
 	.name = "cmdls",
 	.usage = "cmdls COMMAND...",
 	.topic = "misc",

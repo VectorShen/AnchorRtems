@@ -96,256 +96,257 @@ static int rtems_bdpart_shell_main (int argc, char **argv)
 	bool do_dump = false;
 
 	if (argc < 2)
-	  {
-		  puts (rtems_bdpart_shell_usage);
-		  return -1;
-	  }
+	{
+		puts (rtems_bdpart_shell_usage);
+		return -1;
+	}
 
 	disk_name = argv[1];
 
 	if (argc == 2)
-	  {
-		  do_read = true;
-		  do_dump = true;
-	  }
+	{
+		do_read = true;
+		do_dump = true;
+	}
 	else if (argc == 3)
-	  {
-		  /* Check option */
-		  if (strcmp (argv[2], "register") == 0)
-			{
-				do_read = true;
-				do_register = true;
-			}
-		  else if (strcmp (argv[2], "unregister") == 0)
-			{
-				do_read = true;
-				do_unregister = true;
-			}
-		  else if (strcmp (argv[2], "mount") == 0)
-			{
-				do_read = true;
-				do_mount = true;
-			}
-		  else if (strcmp (argv[2], "unmount") == 0)
-			{
-				do_read = true;
-				do_unmount = true;
-			}
-		  else
-			{
-				RTEMS_BDPART_SHELL_ERROR ("unexpected option: %s", argv[2]);
-			}
-	  }
+	{
+		/* Check option */
+		if (strcmp (argv[2], "register") == 0)
+		{
+			do_read = true;
+			do_register = true;
+		}
+		else if (strcmp (argv[2], "unregister") == 0)
+		{
+			do_read = true;
+			do_unregister = true;
+		}
+		else if (strcmp (argv[2], "mount") == 0)
+		{
+			do_read = true;
+			do_mount = true;
+		}
+		else if (strcmp (argv[2], "unmount") == 0)
+		{
+			do_read = true;
+			do_unmount = true;
+		}
+		else
+		{
+			RTEMS_BDPART_SHELL_ERROR ("unexpected option: %s", argv[2]);
+		}
+	}
 	else
-	  {
-		  rtems_bdpart_shell_state state = RTEMS_BDPART_SHELL_FS;
-		  uint8_t current_type = RTEMS_BDPART_MBR_FAT_32;
-		  size_t i = 0;
-		  int ai = 0;
+	{
+		rtems_bdpart_shell_state state = RTEMS_BDPART_SHELL_FS;
+		uint8_t current_type = RTEMS_BDPART_MBR_FAT_32;
+		size_t i = 0;
+		int ai = 0;
 
-		  /* Clear partition table */
-		  memset (pt, 0, sizeof (pt));
+		/* Clear partition table */
+		memset (pt, 0, sizeof (pt));
 
-		  /* Default format */
-		  format.type = RTEMS_BDPART_FORMAT_MBR;
-		  format.mbr.disk_id = 0;
-		  format.mbr.dos_compatibility = true;
+		/* Default format */
+		format.type = RTEMS_BDPART_FORMAT_MBR;
+		format.mbr.disk_id = 0;
+		format.mbr.dos_compatibility = true;
 
-		  for (ai = 2; ai < argc; ++ai)
+		for (ai = 2; ai < argc; ++ai)
+		{
+			char *s = argv[ai];
+			unsigned long v = 0;
+			char *end = NULL;
+
+			if (strlen (s) == 0)
 			{
-				char *s = argv[ai];
-				unsigned long v = 0;
-				char *end = NULL;
-
-				if (strlen (s) == 0)
-				  {
-					  continue;
-				  }
-				else if (strcmp (s, "write") == 0)
-				  {
-					  do_write = true;
-					  continue;
-				  }
-				else if (strcmp (s, "mbr") == 0)
-				  {
-					  state = RTEMS_BDPART_SHELL_MBR;
-					  format.type = RTEMS_BDPART_FORMAT_MBR;
-					  continue;
-				  }
-				else if (strcmp (s, "gpt") == 0)
-				  {
-					  state = RTEMS_BDPART_SHELL_GPT;
-					  format.type = RTEMS_BDPART_FORMAT_GPT;
-					  continue;
-				  }
-
-				switch (state)
-				  {
-					  case RTEMS_BDPART_SHELL_FS:
-						  v = strtoul (s, &end, 16);
-						  if (*end == '\0')
-							{
-								if (v <= 0xffU)
-								  {
-									  current_type = (uint8_t) v;
-								  }
-								else
-								  {
-									  RTEMS_BDPART_SHELL_ERROR
-										  ("type value out of range: %s",
-										   argv[ai]);
-								  }
-							}
-						  else if (strcmp (s, "fat32") == 0)
-							{
-								current_type = RTEMS_BDPART_MBR_FAT_32;
-							}
-						  else if (strcmp (s, "data") == 0)
-							{
-								current_type = RTEMS_BDPART_MBR_DATA;
-							}
-						  else if (strcmp (s, "fat16") == 0)
-							{
-								current_type = RTEMS_BDPART_MBR_FAT_16;
-							}
-						  else if (strcmp (s, "fat12") == 0)
-							{
-								current_type = RTEMS_BDPART_MBR_FAT_12;
-							}
-						  else
-							{
-								RTEMS_BDPART_SHELL_ERROR
-									("unexpected option: %s", argv[ai]);
-							}
-						  state = RTEMS_BDPART_SHELL_N;
-						  break;
-					  case RTEMS_BDPART_SHELL_N:
-						  v = strtoul (s, &end, 10);
-						  if (*end == '\0')
-							{
-								rtems_bdpart_to_partition_type (current_type,
-																pt[i].type);
-								dist[i] = v;
-								if (i < count)
-								  {
-									  ++i;
-								  }
-								else
-								  {
-									  RTEMS_BDPART_SHELL_ERROR
-										  ("too many partitions");
-								  }
-							}
-						  else
-							{
-								--ai;
-								state = RTEMS_BDPART_SHELL_FS;
-							}
-						  break;
-					  case RTEMS_BDPART_SHELL_MBR:
-						  if (strcmp (s, "dos") == 0)
-							{
-								format.mbr.dos_compatibility = true;
-							}
-						  else if (strcmp (s, "nodos") == 0)
-							{
-								format.mbr.dos_compatibility = false;
-							}
-						  else
-							{
-								RTEMS_BDPART_SHELL_ERROR
-									("unexpected option: %s", argv[ai]);
-							}
-						  break;
-					  case RTEMS_BDPART_SHELL_GPT:
-						  RTEMS_BDPART_SHELL_ERROR ("unexpected option: %s",
-													argv[ai]);
-					  default:
-						  RTEMS_BDPART_SHELL_ERROR ("fdisk interal error");
-				  }
+				continue;
+			}
+			else if (strcmp (s, "write") == 0)
+			{
+				do_write = true;
+				continue;
+			}
+			else if (strcmp (s, "mbr") == 0)
+			{
+				state = RTEMS_BDPART_SHELL_MBR;
+				format.type = RTEMS_BDPART_FORMAT_MBR;
+				continue;
+			}
+			else if (strcmp (s, "gpt") == 0)
+			{
+				state = RTEMS_BDPART_SHELL_GPT;
+				format.type = RTEMS_BDPART_FORMAT_GPT;
+				continue;
 			}
 
-		  /* Partition number */
-		  count = i;
-
-		  /* Actions */
-		  do_create = true;
-		  do_dump = true;
-		  if (do_write)
+			switch (state)
 			{
-				do_read = true;
+				case RTEMS_BDPART_SHELL_FS:
+					v = strtoul (s, &end, 16);
+					if (*end == '\0')
+					{
+						if (v <= 0xffU)
+						{
+							current_type = (uint8_t) v;
+						}
+						else
+						{
+							RTEMS_BDPART_SHELL_ERROR
+								("type value out of range: %s",
+								 argv[ai]);
+						}
+					}
+					else if (strcmp (s, "fat32") == 0)
+					{
+						current_type = RTEMS_BDPART_MBR_FAT_32;
+					}
+					else if (strcmp (s, "data") == 0)
+					{
+						current_type = RTEMS_BDPART_MBR_DATA;
+					}
+					else if (strcmp (s, "fat16") == 0)
+					{
+						current_type = RTEMS_BDPART_MBR_FAT_16;
+					}
+					else if (strcmp (s, "fat12") == 0)
+					{
+						current_type = RTEMS_BDPART_MBR_FAT_12;
+					}
+					else
+					{
+						RTEMS_BDPART_SHELL_ERROR
+							("unexpected option: %s", argv[ai]);
+					}
+					state = RTEMS_BDPART_SHELL_N;
+					break;
+				case RTEMS_BDPART_SHELL_N:
+					v = strtoul (s, &end, 10);
+					if (*end == '\0')
+					{
+						rtems_bdpart_to_partition_type (current_type,
+														pt[i].type);
+						dist[i] = v;
+						if (i < count)
+						{
+							++i;
+						}
+						else
+						{
+							RTEMS_BDPART_SHELL_ERROR
+								("too many partitions");
+						}
+					}
+					else
+					{
+						--ai;
+						state = RTEMS_BDPART_SHELL_FS;
+					}
+					break;
+				case RTEMS_BDPART_SHELL_MBR:
+					if (strcmp (s, "dos") == 0)
+					{
+						format.mbr.dos_compatibility = true;
+					}
+					else if (strcmp (s, "nodos") == 0)
+					{
+						format.mbr.dos_compatibility = false;
+					}
+					else
+					{
+						RTEMS_BDPART_SHELL_ERROR
+							("unexpected option: %s", argv[ai]);
+					}
+					break;
+				case RTEMS_BDPART_SHELL_GPT:
+					RTEMS_BDPART_SHELL_ERROR ("unexpected option: %s",
+												argv[ai]);
+				default:
+					RTEMS_BDPART_SHELL_ERROR ("fdisk interal error");
 			}
-	  }
+		}
+
+		/* Partition number */
+		count = i;
+
+		/* Actions */
+		do_create = true;
+		do_dump = true;
+		if (do_write)
+		{
+			do_read = true;
+		}
+	}
 
 	if (do_create)
-	  {
-		  /* Create partitions */
-		  sc = rtems_bdpart_create (disk_name, &format, pt, dist, count);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot create partitions for '%s'",
-									   disk_name);
-	  }
+	{
+		/* Create partitions */
+		sc = rtems_bdpart_create (disk_name, &format, pt, dist, count);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot create partitions for '%s'",
+									 disk_name);
+	}
 
 	if (do_write)
-	  {
-		  /* Write partitions */
-		  sc = rtems_bdpart_write (disk_name, &format, pt, count);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot write partitions to '%s'",
-									   disk_name);
-	  }
+	{
+		/* Write partitions */
+		sc = rtems_bdpart_write (disk_name, &format, pt, count);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot write partitions to '%s'",
+									 disk_name);
+	}
 
 	if (do_read)
-	  {
-		  /* Read partitions */
-		  count = RTEMS_BDPART_PARTITION_NUMBER_HINT;
-		  sc = rtems_bdpart_read (disk_name, &format, pt, &count);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot read partitions from '%s'",
-									   disk_name);
-	  }
+	{
+		/* Read partitions */
+		count = RTEMS_BDPART_PARTITION_NUMBER_HINT;
+		sc = rtems_bdpart_read (disk_name, &format, pt, &count);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot read partitions from '%s'",
+									 disk_name);
+	}
 
 	if (do_register)
-	  {
-		  /* Register partitions */
-		  sc = rtems_bdpart_register (disk_name, pt, count);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot register partitions of '%s'",
-									   disk_name);
-	  }
+	{
+		/* Register partitions */
+		sc = rtems_bdpart_register (disk_name, pt, count);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot register partitions of '%s'",
+									 disk_name);
+	}
 
 	if (do_unregister)
-	  {
-		  /* Unregister partitions */
-		  sc = rtems_bdpart_unregister (disk_name, pt, count);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc,
-									   "cannot unregister partitions of '%s'",
-									   disk_name);
-	  }
+	{
+		/* Unregister partitions */
+		sc = rtems_bdpart_unregister (disk_name, pt, count);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc,
+									 "cannot unregister partitions of '%s'",
+									 disk_name);
+	}
 
 	if (do_mount)
-	  {
-		  /* Mount partitions */
-		  sc = rtems_bdpart_mount (disk_name, pt, count, mount_base);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc,
-									   "cannot mount partitions of '%s' to '%s'",
-									   disk_name, mount_base);
-	  }
+	{
+		/* Mount partitions */
+		sc = rtems_bdpart_mount (disk_name, pt, count, mount_base);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc,
+									 "cannot mount partitions of '%s' to '%s'",
+									 disk_name, mount_base);
+	}
 
 	if (do_unmount)
-	  {
-		  /* Unmount partitions */
-		  sc = rtems_bdpart_unmount (disk_name, pt, count, mount_base);
-		  RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot unmount partitions of '%s'",
-									   disk_name);
-	  }
+	{
+		/* Unmount partitions */
+		sc = rtems_bdpart_unmount (disk_name, pt, count, mount_base);
+		RTEMS_BDPART_SHELL_ERROR_SC (sc, "cannot unmount partitions of '%s'",
+									 disk_name);
+	}
 
 	if (do_dump)
-	  {
-		  /* Dump partitions */
-		  rtems_bdpart_dump (pt, count);
-	  }
+	{
+		/* Dump partitions */
+		rtems_bdpart_dump (pt, count);
+	}
 
 	return 0;
 }
 
-struct rtems_shell_cmd_tt rtems_shell_FDISK_Command = {
+struct rtems_shell_cmd_tt rtems_shell_FDISK_Command =
+{
 	.name = "fdisk",
 	.usage = rtems_bdpart_shell_usage,
 	.topic = "files",

@@ -26,8 +26,8 @@
 #include <rtems/score/watchdog.h>
 
 rtems_status_code rtems_timer_get_information (rtems_id id,
-											   rtems_timer_information *
-											   the_info)
+											 rtems_timer_information *
+											 the_info)
 {
 	Timer_Control *the_timer;
 	Objects_Locations location;
@@ -37,22 +37,22 @@ rtems_status_code rtems_timer_get_information (rtems_id id,
 
 	the_timer = _Timer_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  the_info->the_class = the_timer->the_class;
-			  the_info->initial = the_timer->Ticker.initial;
-			  the_info->start_time = the_timer->Ticker.start_time;
-			  the_info->stop_time = the_timer->Ticker.stop_time;
-			  _Objects_Put (&the_timer->Object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			the_info->the_class = the_timer->the_class;
+			the_info->initial = the_timer->Ticker.initial;
+			the_info->start_time = the_timer->Ticker.start_time;
+			the_info->stop_time = the_timer->Ticker.stop_time;
+			_Objects_Put (&the_timer->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

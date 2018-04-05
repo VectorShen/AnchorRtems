@@ -104,20 +104,20 @@ void _map_v4v6_hostent (struct hostent *hp, char **bpp, int *lenp)
 	hp->h_addrtype = AF_INET6;
 	hp->h_length = IN6ADDRSZ;
 	for (ap = hp->h_addr_list; *ap; ap++)
-	  {
-		  int i = sizeof (align) - ((uintptr_t) * bpp % sizeof (align));
+	{
+		int i = sizeof (align) - ((uintptr_t) * bpp % sizeof (align));
 
-		  if (*lenp < (i + IN6ADDRSZ))
-			{
-				/* Out of memory.  Truncate address list here.  XXX */
-				*ap = NULL;
-				return;
-			}
-		  *bpp += i;
-		  *lenp -= i;
-		  _map_v4v6_address (*ap, *bpp);
-		  *ap = *bpp;
-		  *bpp += IN6ADDRSZ;
-		  *lenp -= IN6ADDRSZ;
-	  }
+		if (*lenp < (i + IN6ADDRSZ))
+		{
+			/* Out of memory.  Truncate address list here.  XXX */
+			*ap = NULL;
+			return;
+		}
+		*bpp += i;
+		*lenp -= i;
+		_map_v4v6_address (*ap, *bpp);
+		*ap = *bpp;
+		*bpp += IN6ADDRSZ;
+		*lenp -= IN6ADDRSZ;
+	}
 }

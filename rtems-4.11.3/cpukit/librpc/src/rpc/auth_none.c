@@ -61,7 +61,8 @@ static int authnone_marshal (AUTH *, XDR *);
 static int authnone_validate (AUTH *, struct opaque_auth *);
 static int authnone_refresh (AUTH *);
 
-static struct auth_ops ops = {
+static struct auth_ops ops =
+{
 	authnone_verf,
 	authnone_marshal,
 	authnone_validate,
@@ -83,24 +84,24 @@ AUTH *authnone_create (void)
 	XDR *xdrs;
 
 	if (ap == 0)
-	  {
-		  ap = (struct authnone_private *)calloc (1, sizeof (*ap));
-		  if (ap == 0)
-			  return (0);
-		  authnone_private = ap;
-	  }
+	{
+		ap = (struct authnone_private *)calloc (1, sizeof (*ap));
+		if (ap == 0)
+			return (0);
+		authnone_private = ap;
+	}
 	if (!ap->mcnt)
-	  {
-		  ap->no_client.ah_cred = ap->no_client.ah_verf = _null_auth;
-		  ap->no_client.ah_ops = &ops;
-		  xdrs = &xdr_stream;
-		  xdrmem_create (xdrs, ap->marshalled_client, (u_int) MAX_MARSHAL_SIZE,
+	{
+		ap->no_client.ah_cred = ap->no_client.ah_verf = _null_auth;
+		ap->no_client.ah_ops = &ops;
+		xdrs = &xdr_stream;
+		xdrmem_create (xdrs, ap->marshalled_client, (u_int) MAX_MARSHAL_SIZE,
 						 XDR_ENCODE);
-		  (void)xdr_opaque_auth (xdrs, &ap->no_client.ah_cred);
-		  (void)xdr_opaque_auth (xdrs, &ap->no_client.ah_verf);
-		  ap->mcnt = XDR_GETPOS (xdrs);
-		  XDR_DESTROY (xdrs);
-	  }
+		(void)xdr_opaque_auth (xdrs, &ap->no_client.ah_cred);
+		(void)xdr_opaque_auth (xdrs, &ap->no_client.ah_verf);
+		ap->mcnt = XDR_GETPOS (xdrs);
+		XDR_DESTROY (xdrs);
+	}
 	return (&ap->no_client);
 }
 

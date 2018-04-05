@@ -20,7 +20,7 @@
 #include "imfs.h"
 
 static ssize_t IMFS_linfile_read (rtems_libio_t * iop,
-								  void *buffer, size_t count)
+								void *buffer, size_t count)
 {
 	IMFS_file_t *file = IMFS_iop_to_file (iop);
 	off_t start = iop->offset;
@@ -38,7 +38,7 @@ static ssize_t IMFS_linfile_read (rtems_libio_t * iop,
 }
 
 static int IMFS_linfile_open (rtems_libio_t * iop,
-							  const char *pathname, int oflag, mode_t mode)
+							const char *pathname, int oflag, mode_t mode)
 {
 	IMFS_file_t *file;
 
@@ -48,27 +48,28 @@ static int IMFS_linfile_open (rtems_libio_t * iop,
 	 * Perform 'copy on write' for linear files
 	 */
 	if ((iop->flags & LIBIO_FLAGS_WRITE) != 0)
-	  {
-		  uint32_t count = file->File.size;
-		  const unsigned char *buffer = file->Linearfile.direct;
+	{
+		uint32_t count = file->File.size;
+		const unsigned char *buffer = file->Linearfile.direct;
 
-		  file->Node.control = &IMFS_mknod_control_memfile.node_control;
-		  file->File.size = 0;
-		  file->Memfile.indirect = 0;
-		  file->Memfile.doubly_indirect = 0;
-		  file->Memfile.triply_indirect = 0;
+		file->Node.control = &IMFS_mknod_control_memfile.node_control;
+		file->File.size = 0;
+		file->Memfile.indirect = 0;
+		file->Memfile.doubly_indirect = 0;
+		file->Memfile.triply_indirect = 0;
 
-		  IMFS_Set_handlers (&iop->pathinfo);
+		IMFS_Set_handlers (&iop->pathinfo);
 
-		  if ((count != 0)
-			  && (IMFS_memfile_write (&file->Memfile, 0, buffer, count) == -1))
-			  return -1;
-	  }
+		if ((count != 0)
+			&& (IMFS_memfile_write (&file->Memfile, 0, buffer, count) == -1))
+			return -1;
+	}
 
 	return 0;
 }
 
-static const rtems_filesystem_file_handlers_r IMFS_linfile_handlers = {
+static const rtems_filesystem_file_handlers_r IMFS_linfile_handlers =
+{
 	.open_h = IMFS_linfile_open,
 	.close_h = rtems_filesystem_default_close,
 	.read_h = IMFS_linfile_read,
@@ -86,7 +87,8 @@ static const rtems_filesystem_file_handlers_r IMFS_linfile_handlers = {
 	.writev_h = rtems_filesystem_default_writev
 };
 
-const IMFS_node_control IMFS_node_control_linfile = {
+const IMFS_node_control IMFS_node_control_linfile =
+{
 	.handlers = &IMFS_linfile_handlers,
 	.node_initialize = IMFS_node_initialize_default,
 	.node_remove = IMFS_node_remove_default,

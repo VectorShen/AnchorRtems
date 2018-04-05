@@ -93,10 +93,10 @@ ssize_t msdos_file_write (rtems_libio_t * iop, const void *buffer, size_t count)
 
 	ret = fat_file_write (&fs_info->fat, fat_fd, iop->offset, count, buffer);
 	if (ret < 0)
-	  {
-		  rtems_semaphore_release (fs_info->vol_sema);
-		  return -1;
-	  }
+	{
+		rtems_semaphore_release (fs_info->vol_sema);
+		return -1;
+	}
 
 	/*
 	 * update file size in both fat-file descriptor and file control block if
@@ -176,28 +176,28 @@ int msdos_file_ftruncate (rtems_libio_t * iop, off_t length)
 
 	old_length = fat_fd->fat_file_size;
 	if (length < old_length)
-	  {
-		  rc = fat_file_truncate (&fs_info->fat, fat_fd, length);
-	  }
+	{
+		rc = fat_file_truncate (&fs_info->fat, fat_fd, length);
+	}
 	else
-	  {
-		  uint32_t new_length;
+	{
+		uint32_t new_length;
 
-		  rc = fat_file_extend (&fs_info->fat,
+		rc = fat_file_extend (&fs_info->fat,
 								fat_fd, true, length, &new_length);
-		  if (rc == RC_OK && length != new_length)
-			{
-				fat_file_truncate (&fs_info->fat, fat_fd, old_length);
-				errno = ENOSPC;
-				rc = -1;
-			}
-	  }
+		if (rc == RC_OK && length != new_length)
+		{
+			fat_file_truncate (&fs_info->fat, fat_fd, old_length);
+			errno = ENOSPC;
+			rc = -1;
+		}
+	}
 
 	if (rc == RC_OK)
-	  {
-		  fat_file_set_file_size (fat_fd, length);
-		  fat_file_set_ctime_mtime (fat_fd, time (NULL));
-	  }
+	{
+		fat_file_set_file_size (fat_fd, length);
+		fat_file_set_ctime_mtime (fat_fd, time (NULL));
+	}
 
 	rtems_semaphore_release (fs_info->vol_sema);
 
@@ -228,10 +228,10 @@ int msdos_file_sync (rtems_libio_t * iop)
 
 	rc = fat_file_update (&fs_info->fat, fat_fd);
 	if (rc != RC_OK)
-	  {
-		  rtems_semaphore_release (fs_info->vol_sema);
-		  return rc;
-	  }
+	{
+		rtems_semaphore_release (fs_info->vol_sema);
+		return rc;
+	}
 
 	rc = fat_sync (&fs_info->fat);
 

@@ -40,13 +40,13 @@ void rtems_bsdnet_show_icmp_stats (void)
 	showicmpstat ("Calls to icmp_error()", icmpstat.icps_error);
 	showicmpstat ("Errors not sent -- old was icmp", icmpstat.icps_oldicmp);
 	for (i = 0; i <= ICMP_MAXTYPE; i++)
-	  {
-		  if (icmpstat.icps_outhist[i])
-			{
-				sprintf (cbuf, "Type %d sent", i);
-				showicmpstat (cbuf, icmpstat.icps_outhist[i]);
-			}
-	  }
+	{
+		if (icmpstat.icps_outhist[i])
+		{
+			sprintf (cbuf, "Type %d sent", i);
+			showicmpstat (cbuf, icmpstat.icps_outhist[i]);
+		}
+	}
 	showicmpstat ("icmp_code out of range", icmpstat.icps_badcode);
 	showicmpstat ("packet < ICMP_MINLEN", icmpstat.icps_tooshort);
 	showicmpstat ("bad checksum", icmpstat.icps_checksum);
@@ -55,15 +55,15 @@ void rtems_bsdnet_show_icmp_stats (void)
 	showicmpstat ("all echo requests dropped", icmpstat.icps_allecho);
 	showicmpstat ("b/mcast echo requests dropped", icmpstat.icps_bmcastecho);
 	showicmpstat ("b/mcast tstamp requests dropped",
-				  icmpstat.icps_bmcasttstamp);
+				icmpstat.icps_bmcasttstamp);
 	for (i = 0; i <= ICMP_MAXTYPE; i++)
-	  {
-		  if (icmpstat.icps_inhist[i])
-			{
-				sprintf (cbuf, "Type %d received", i);
-				showicmpstat (cbuf, icmpstat.icps_inhist[i]);
-			}
-	  }
+	{
+		if (icmpstat.icps_inhist[i])
+		{
+			sprintf (cbuf, "Type %d received", i);
+			showicmpstat (cbuf, icmpstat.icps_inhist[i]);
+		}
+	}
 	showicmpstat ("ICMP panic avoided", icmplenPanicAvoided);
 	printf ("\n");
 }

@@ -80,63 +80,63 @@ enum auth_stat _svcauth_unix (struct svc_req *rqst, struct rpc_msg *msg)
 	xdrmem_create (&xdrs, msg->rm_call.cb_cred.oa_base, auth_len, XDR_DECODE);
 	buf = XDR_INLINE (&xdrs, auth_len);
 	if (buf != NULL)
-	  {
-		  aup->aup_time = IXDR_GET_LONG (buf);
-		  str_len = IXDR_GET_U_LONG (buf);
-		  if (str_len > MAX_MACHINE_NAME)
-			{
-				stat = AUTH_BADCRED;
-				goto done;
-			}
-		  memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
-		  aup->aup_machname[str_len] = 0;
-		  str_len = RNDUP (str_len);
-		  buf += str_len / sizeof (int32_t);
-		  aup->aup_uid = IXDR_GET_LONG (buf);
-		  aup->aup_gid = IXDR_GET_LONG (buf);
-		  gid_len = IXDR_GET_U_LONG (buf);
-		  if (gid_len > NGRPS)
-			{
-				stat = AUTH_BADCRED;
-				goto done;
-			}
-		  aup->aup_len = gid_len;
-		  for (i = 0; i < gid_len; i++)
-			{
-				aup->aup_gids[i] = IXDR_GET_LONG (buf);
-			}
-		  /*
-		   * five is the smallest unix credentials structure -
-		   * timestamp, hostname len (0), uid, gid, and gids len (0).
-		   */
-		  if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len)
-			{
-				(void)printf ("bad auth_len gid %d str %d auth %d\n",
-							  gid_len, str_len, auth_len);
-				stat = AUTH_BADCRED;
-				goto done;
-			}
-	  }
+	{
+		aup->aup_time = IXDR_GET_LONG (buf);
+		str_len = IXDR_GET_U_LONG (buf);
+		if (str_len > MAX_MACHINE_NAME)
+		{
+			stat = AUTH_BADCRED;
+			goto done;
+		}
+		memcpy (aup->aup_machname, (caddr_t) buf, (u_int) str_len);
+		aup->aup_machname[str_len] = 0;
+		str_len = RNDUP (str_len);
+		buf += str_len / sizeof (int32_t);
+		aup->aup_uid = IXDR_GET_LONG (buf);
+		aup->aup_gid = IXDR_GET_LONG (buf);
+		gid_len = IXDR_GET_U_LONG (buf);
+		if (gid_len > NGRPS)
+		{
+			stat = AUTH_BADCRED;
+			goto done;
+		}
+		aup->aup_len = gid_len;
+		for (i = 0; i < gid_len; i++)
+		{
+			aup->aup_gids[i] = IXDR_GET_LONG (buf);
+		}
+		/*
+		 * five is the smallest unix credentials structure -
+		 * timestamp, hostname len (0), uid, gid, and gids len (0).
+		 */
+		if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len)
+		{
+			(void)printf ("bad auth_len gid %d str %d auth %d\n",
+						gid_len, str_len, auth_len);
+			stat = AUTH_BADCRED;
+			goto done;
+		}
+	}
 	else if (!xdr_authunix_parms (&xdrs, aup))
-	  {
-		  xdrs.x_op = XDR_FREE;
-		  (void)xdr_authunix_parms (&xdrs, aup);
-		  stat = AUTH_BADCRED;
-		  goto done;
-	  }
+	{
+		xdrs.x_op = XDR_FREE;
+		(void)xdr_authunix_parms (&xdrs, aup);
+		stat = AUTH_BADCRED;
+		goto done;
+	}
 
 	/* get the verifier */
 	if ((u_int) msg->rm_call.cb_verf.oa_length)
-	  {
-		  rqst->rq_xprt->xp_verf.oa_flavor = msg->rm_call.cb_verf.oa_flavor;
-		  rqst->rq_xprt->xp_verf.oa_base = msg->rm_call.cb_verf.oa_base;
-		  rqst->rq_xprt->xp_verf.oa_length = msg->rm_call.cb_verf.oa_length;
-	  }
+	{
+		rqst->rq_xprt->xp_verf.oa_flavor = msg->rm_call.cb_verf.oa_flavor;
+		rqst->rq_xprt->xp_verf.oa_base = msg->rm_call.cb_verf.oa_base;
+		rqst->rq_xprt->xp_verf.oa_length = msg->rm_call.cb_verf.oa_length;
+	}
 	else
-	  {
-		  rqst->rq_xprt->xp_verf.oa_flavor = AUTH_NULL;
-		  rqst->rq_xprt->xp_verf.oa_length = 0;
-	  }
+	{
+		rqst->rq_xprt->xp_verf.oa_flavor = AUTH_NULL;
+		rqst->rq_xprt->xp_verf.oa_length = 0;
+	}
 	stat = AUTH_OK;
   done:
 	XDR_DESTROY (&xdrs);

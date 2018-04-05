@@ -30,7 +30,7 @@ void rtems_shell_print_unified_work_area_message (void)
 }
 
 static int rtems_shell_main_wkspace_info (int argc __attribute__ ((unused)),
-										  char *argv[] __attribute__ ((unused)))
+										char *argv[] __attribute__ ((unused)))
 {
 	Heap_Information_block info;
 
@@ -44,7 +44,8 @@ static int rtems_shell_main_wkspace_info (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_WKSPACE_INFO_Command = {
+rtems_shell_cmd_t rtems_shell_WKSPACE_INFO_Command =
+{
 	"wkspace",					/* name */
 	"Report on RTEMS Executive Workspace",	/* usage */
 	"rtems",					/* topic */

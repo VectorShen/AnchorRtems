@@ -41,23 +41,23 @@ extern "C"
 
 #define NULL_SUCCESSFUL RTEMS_SUCCESSFUL
 
-	rtems_device_driver null_initialize (rtems_device_major_number,
-										 rtems_device_minor_number, void *);
+rtems_device_driver null_initialize (rtems_device_major_number,
+									 rtems_device_minor_number, void *);
 
-	rtems_device_driver null_open (rtems_device_major_number,
-								   rtems_device_minor_number, void *);
+rtems_device_driver null_open (rtems_device_major_number,
+							   rtems_device_minor_number, void *);
 
-	rtems_device_driver null_close (rtems_device_major_number,
-									rtems_device_minor_number, void *);
+rtems_device_driver null_close (rtems_device_major_number,
+								rtems_device_minor_number, void *);
 
-	rtems_device_driver null_read (rtems_device_major_number,
-								   rtems_device_minor_number, void *);
+rtems_device_driver null_read (rtems_device_major_number,
+							   rtems_device_minor_number, void *);
 
-	rtems_device_driver null_write (rtems_device_major_number,
-									rtems_device_minor_number, void *);
+rtems_device_driver null_write (rtems_device_major_number,
+								rtems_device_minor_number, void *);
 
-	rtems_device_driver null_control (rtems_device_major_number,
-									  rtems_device_minor_number, void *);
+rtems_device_driver null_control (rtems_device_major_number,
+								  rtems_device_minor_number, void *);
 
 #ifdef __cplusplus
 }

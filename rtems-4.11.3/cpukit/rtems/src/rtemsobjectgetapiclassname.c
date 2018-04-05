@@ -23,13 +23,15 @@
 
 #include <rtems/assoc.h>
 
-static const rtems_assoc_t rtems_object_api_internal_assoc[] = {
+static const rtems_assoc_t rtems_object_api_internal_assoc[] =
+{
 	{"Thread", OBJECTS_INTERNAL_THREADS, 0},
 	{"Mutex", OBJECTS_INTERNAL_MUTEXES, 0},
 	{NULL, 0, 0}
 };
 
-static const rtems_assoc_t rtems_object_api_classic_assoc[] = {
+static const rtems_assoc_t rtems_object_api_classic_assoc[] =
+{
 	{"Task", OBJECTS_RTEMS_TASKS, 0},
 	{"Timer", OBJECTS_RTEMS_TIMERS, 0},
 	{"Semaphore", OBJECTS_RTEMS_SEMAPHORES, 0},
@@ -44,7 +46,8 @@ static const rtems_assoc_t rtems_object_api_classic_assoc[] = {
 };
 
 #ifdef RTEMS_POSIX_API
-static const rtems_assoc_t rtems_object_api_posix_assoc[] = {
+static const rtems_assoc_t rtems_object_api_posix_assoc[] =
+{
 	{"Thread", OBJECTS_POSIX_THREADS, 0},
 	{"Key", OBJECTS_POSIX_KEYS, 0},
 	{"Interrupt", OBJECTS_POSIX_INTERRUPTS, 0},

@@ -38,47 +38,47 @@ extern "C"
 {
 #endif
 
-	extern Timestamp_Control CPU_usage_Uptime_at_last_reset;
+extern Timestamp_Control CPU_usage_Uptime_at_last_reset;
 
 /*
- * rtems_cpu_usage_report_with_handler
- */
+* rtems_cpu_usage_report_with_handler
+*/
 
-	void rtems_cpu_usage_report_with_plugin (void *context,
-											 rtems_printk_plugin_t handler);
-
-/**
- *  @brief Report CPU usage.
- *
- *  CPU Usage Reporter
- */
-
-	void rtems_cpu_usage_report (void);
+void rtems_cpu_usage_report_with_plugin (void *context,
+										 rtems_printk_plugin_t handler);
 
 /**
- *   @brief CPU usage Top plugin
- *
- *   Report CPU Usage in top format to
- *   to a print plugin.
- */
-	void rtems_cpu_usage_top_with_plugin (void *context,
-										  rtems_printk_plugin_t print);
+*  @brief Report CPU usage.
+*
+*  CPU Usage Reporter
+*/
+
+void rtems_cpu_usage_report (void);
 
 /**
- *  @brief CPU usage top.
- *
- *  CPU Usage top
- */
-
-	void rtems_cpu_usage_top (void);
+*   @brief CPU usage Top plugin
+*
+*   Report CPU Usage in top format to
+*   to a print plugin.
+*/
+void rtems_cpu_usage_top_with_plugin (void *context,
+									  rtems_printk_plugin_t print);
 
 /**
- *  @brief Reset CPU usage.
- *
- *  CPU Usage Reporter
- */
+*  @brief CPU usage top.
+*
+*  CPU Usage top
+*/
 
-	void rtems_cpu_usage_reset (void);
+void rtems_cpu_usage_top (void);
+
+/**
+*  @brief Reset CPU usage.
+*
+*  CPU Usage Reporter
+*/
+
+void rtems_cpu_usage_reset (void);
 
 #ifdef __cplusplus
 }

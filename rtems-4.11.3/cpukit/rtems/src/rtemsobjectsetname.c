@@ -46,19 +46,19 @@ rtems_status_code rtems_object_set_name (rtems_id id, const char *name)
 
 	the_object = _Objects_Get (information, tmpId, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Objects_Set_name (information, the_object, name);
-			  _Objects_Put (the_object);
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			_Objects_Set_name (information, the_object, name);
+			_Objects_Put (the_object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

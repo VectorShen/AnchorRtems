@@ -39,18 +39,18 @@ extern "C"
 /*
  * Data for a timer
  */
-	typedef struct
-	{
-		Objects_Control Object;
-		Watchdog_Control Timer;	/* Internal Timer                        */
-		pthread_t thread_id;	/* Thread identifier                     */
-		char state;				/* State of the timer                    */
-		struct sigevent inf;	/* Information associated to the timer   */
-		struct itimerspec timer_data;	/* Timing data of the timer              */
-		uint32_t ticks;			/* Number of ticks of the initialization */
-		uint32_t overrun;		/* Number of expirations of the timer    */
-		struct timespec time;	/* Time at which the timer was started   */
-	} POSIX_Timer_Control;
+typedef struct
+{
+	Objects_Control Object;
+	Watchdog_Control Timer;	/* Internal Timer                        */
+	pthread_t thread_id;	/* Thread identifier                     */
+	char state;				/* State of the timer                    */
+	struct sigevent inf;	/* Information associated to the timer   */
+	struct itimerspec timer_data;	/* Timing data of the timer              */
+	uint32_t ticks;			/* Number of ticks of the initialization */
+	uint32_t overrun;		/* Number of expirations of the timer    */
+	struct timespec time;	/* Time at which the timer was started   */
+} POSIX_Timer_Control;
 
 /** @} */
 

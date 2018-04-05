@@ -39,34 +39,34 @@ u_int inet_nsap_addr (const char *ascii, u_char * binary, int maxlen)
 	u_int len = 0;
 
 	while ((c = *ascii++) != '\0' && len < (u_int) maxlen)
-	  {
-		  if (c == '.' || c == '+' || c == '/')
-			  continue;
-		  if (!isascii (c))
-			  return (0);
-		  if (islower (c))
-			  c = toupper (c);
-		  if (isxdigit (c))
+	{
+		if (c == '.' || c == '+' || c == '/')
+			continue;
+		if (!isascii (c))
+			return (0);
+		if (islower (c))
+			c = toupper (c);
+		if (isxdigit (c))
+		{
+			nib = xtob (c);
+			c = *ascii++;
+			if (c != '\0')
 			{
-				nib = xtob (c);
-				c = *ascii++;
-				if (c != '\0')
-				  {
-					  c = toupper (c);
-					  if (isxdigit (c))
-						{
-							*binary++ = (nib << 4) | xtob (c);
-							len++;
-						}
-					  else
-						  return (0);
-				  }
+				c = toupper (c);
+				if (isxdigit (c))
+				{
+					*binary++ = (nib << 4) | xtob (c);
+					len++;
+				}
 				else
 					return (0);
 			}
-		  else
-			  return (0);
-	  }
+			else
+				return (0);
+		}
+		else
+			return (0);
+	}
 	return (len);
 }
 
@@ -80,23 +80,23 @@ char *inet_nsap_ntoa (int binlen, const u_char * binary, char *ascii)
 	if (ascii)
 		start = ascii;
 	else
-	  {
-		  ascii = tmpbuf;
-		  start = tmpbuf;
-	  }
+	{
+		ascii = tmpbuf;
+		start = tmpbuf;
+	}
 
 	if (binlen > 255)
 		binlen = 255;
 
 	for (i = 0; i < binlen; i++)
-	  {
-		  nib = *binary >> 4;
-		  *ascii++ = nib + (nib < 10 ? '0' : '7');
-		  nib = *binary++ & 0x0f;
-		  *ascii++ = nib + (nib < 10 ? '0' : '7');
-		  if (((i % 2) == 0 && (i + 1) < binlen))
-			  *ascii++ = '.';
-	  }
+	{
+		nib = *binary >> 4;
+		*ascii++ = nib + (nib < 10 ? '0' : '7');
+		nib = *binary++ & 0x0f;
+		*ascii++ = nib + (nib < 10 ? '0' : '7');
+		if (((i % 2) == 0 && (i + 1) < binlen))
+			*ascii++ = '.';
+	}
 	*ascii = '\0';
 	return (start);
 }

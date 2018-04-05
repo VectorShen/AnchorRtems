@@ -54,9 +54,9 @@ __RCSID ("$NetBSD: verrx.c,v 1.13 2005/09/13 01:44:09 christos Exp $");
 #ifdef __weak_alias
 __weak_alias (verrx, _verrx)
 #endif
-	 __dead void
-		 verrx (jmp_buf * exit_jmp, int eval
-				__attribute__ ((unused)), const char *fmt, _BSD_VA_LIST_ ap)
+ __dead void
+	 verrx (jmp_buf * exit_jmp, int eval
+			__attribute__ ((unused)), const char *fmt, _BSD_VA_LIST_ ap)
 {
 #if 0
 	(void)fprintf (stderr, "%s: ", getprogname ());

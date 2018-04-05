@@ -97,29 +97,29 @@ int mouse_parser_initialize (const char *type)
 {
 	/* set button bits and parse procedure */
 	if (!strcmp (type, "pc") || !strcmp (type, "logi"))
-	  {
-		  /* pc or logitech mouse */
-		  left = PC_LEFT_BUTTON;
-		  middle = PC_MIDDLE_BUTTON;
-		  right = PC_RIGHT_BUTTON;
-		  parse = ParsePC;
-	  }
+	{
+		/* pc or logitech mouse */
+		left = PC_LEFT_BUTTON;
+		middle = PC_MIDDLE_BUTTON;
+		right = PC_RIGHT_BUTTON;
+		parse = ParsePC;
+	}
 	else if (strcmp (type, "ms") == 0)
-	  {
-		  /* microsoft mouse */
-		  left = MS_LEFT_BUTTON;
-		  right = MS_RIGHT_BUTTON;
-		  middle = 0;
-		  parse = ParseMS;
-	  }
+	{
+		/* microsoft mouse */
+		left = MS_LEFT_BUTTON;
+		right = MS_RIGHT_BUTTON;
+		middle = 0;
+		parse = ParseMS;
+	}
 	else if (strcmp (type, "ps2") == 0)
-	  {
-		  /* PS/2 mouse */
-		  left = PS2_LEFT_BUTTON;
-		  right = PS2_RIGHT_BUTTON;
-		  middle = 0;
-		  parse = ParsePS2;
-	  }
+	{
+		/* PS/2 mouse */
+		left = PS2_LEFT_BUTTON;
+		right = PS2_RIGHT_BUTTON;
+		middle = 0;
+		parse = ParsePS2;
+	}
 	else
 		return -1;
 
@@ -146,10 +146,10 @@ static int MOU_Data (int ch, COORD * dx, COORD * dy, COORD * dz, BUTTON * bptr)
 	int b;
 
 	if (!parse)
-	  {
-		  printk ("Mouse parser is not initialized!\n");
-		  return -1;
-	  }
+	{
+		printk ("Mouse parser is not initialized!\n");
+		return -1;
+	}
 
 	/*
 	 * Loop over all the bytes read in the buffer, parsing them.
@@ -157,20 +157,20 @@ static int MOU_Data (int ch, COORD * dx, COORD * dy, COORD * dz, BUTTON * bptr)
 	 * leaving further bytes in the buffer for later calls.
 	 */
 	if ((*parse) (ch))
-	  {
-		  *dx = xd;
-		  *dy = yd;
-		  *dz = 0;
-		  b = 0;
-		  if (buttons & left)
-			  b |= LBUTTON;
-		  if (buttons & right)
-			  b |= RBUTTON;
-		  if (buttons & middle)
-			  b |= MBUTTON;
-		  *bptr = b;
-		  return 1;
-	  }
+	{
+		*dx = xd;
+		*dy = yd;
+		*dz = 0;
+		b = 0;
+		if (buttons & left)
+			b |= LBUTTON;
+		if (buttons & right)
+			b |= RBUTTON;
+		if (buttons & middle)
+			b |= MBUTTON;
+		*bptr = b;
+		return 1;
+	}
 	return 0;
 }
 
@@ -183,59 +183,59 @@ static int ParsePC (int byte)
 	int sign;					/* sign of movement */
 
 	switch (state)
-	  {
-		  case IDLE:
-			  if ((byte & TOP_FIVE_BITS) == TOP_BIT)
-				{
-					buttons = ~byte & BOTTOM_THREE_BITS;
-					state = XSET;
-				}
-			  break;
+	{
+		case IDLE:
+			if ((byte & TOP_FIVE_BITS) == TOP_BIT)
+			{
+				buttons = ~byte & BOTTOM_THREE_BITS;
+				state = XSET;
+			}
+			break;
 
-		  case XSET:
-			  sign = 1;
-			  if (byte > 127)
-				{
-					byte = 256 - byte;
-					sign = -1;
-				}
-			  xd = byte * sign;
-			  state = YSET;
-			  break;
+		case XSET:
+			sign = 1;
+			if (byte > 127)
+			{
+				byte = 256 - byte;
+				sign = -1;
+			}
+			xd = byte * sign;
+			state = YSET;
+			break;
 
-		  case YSET:
-			  sign = 1;
-			  if (byte > 127)
-				{
-					byte = 256 - byte;
-					sign = -1;
-				}
-			  yd = -byte * sign;
-			  state = XADD;
-			  break;
+		case YSET:
+			sign = 1;
+			if (byte > 127)
+			{
+				byte = 256 - byte;
+				sign = -1;
+			}
+			yd = -byte * sign;
+			state = XADD;
+			break;
 
-		  case XADD:
-			  sign = 1;
-			  if (byte > 127)
-				{
-					byte = 256 - byte;
-					sign = -1;
-				}
-			  xd += byte * sign;
-			  state = YADD;
-			  break;
+		case XADD:
+			sign = 1;
+			if (byte > 127)
+			{
+				byte = 256 - byte;
+				sign = -1;
+			}
+			xd += byte * sign;
+			state = YADD;
+			break;
 
-		  case YADD:
-			  sign = 1;
-			  if (byte > 127)
-				{
-					byte = 256 - byte;
-					sign = -1;
-				}
-			  yd -= byte * sign;
-			  state = IDLE;
-			  return 1;
-	  }
+		case YADD:
+			sign = 1;
+			if (byte > 127)
+			{
+				byte = 256 - byte;
+				sign = -1;
+			}
+			yd -= byte * sign;
+			state = IDLE;
+			return 1;
+	}
 	return 0;
 }
 
@@ -246,31 +246,31 @@ static int ParsePC (int byte)
 static int ParseMS (int byte)
 {
 	switch (state)
-	  {
-		  case IDLE:
-			  if (byte & SIXTH_BIT)
-				{
-					buttons = (byte >> 4) & BOTTOM_TWO_BITS;
-					yd = ((byte & THIRD_FOURTH_BITS) << 4);
-					xd = ((byte & BOTTOM_TWO_BITS) << 6);
-					state = XADD;
-				}
-			  break;
+	{
+		case IDLE:
+			if (byte & SIXTH_BIT)
+			{
+				buttons = (byte >> 4) & BOTTOM_TWO_BITS;
+				yd = ((byte & THIRD_FOURTH_BITS) << 4);
+				xd = ((byte & BOTTOM_TWO_BITS) << 6);
+				state = XADD;
+			}
+			break;
 
-		  case XADD:
-			  xd |= (byte & BOTTOM_SIX_BITS);
-			  state = YADD;
-			  break;
+		case XADD:
+			xd |= (byte & BOTTOM_SIX_BITS);
+			state = YADD;
+			break;
 
-		  case YADD:
-			  yd |= (byte & BOTTOM_SIX_BITS);
-			  state = IDLE;
-			  if (xd > 127)
-				  xd -= 256;
-			  if (yd > 127)
-				  yd -= 256;
-			  return 1;
-	  }
+		case YADD:
+			yd |= (byte & BOTTOM_SIX_BITS);
+			state = IDLE;
+			if (xd > 127)
+				xd -= 256;
+			if (yd > 127)
+				yd -= 256;
+			return 1;
+	}
 	return 0;
 }
 
@@ -281,29 +281,29 @@ static int ParseMS (int byte)
 static int ParsePS2 (int byte)
 {
 	switch (state)
-	  {
-		  case IDLE:
-			  if (byte & PS2_CTRL_BYTE)
-				{
-					buttons = byte & (PS2_LEFT_BUTTON | PS2_RIGHT_BUTTON);
-					state = XSET;
-				}
-			  break;
+	{
+		case IDLE:
+			if (byte & PS2_CTRL_BYTE)
+			{
+				buttons = byte & (PS2_LEFT_BUTTON | PS2_RIGHT_BUTTON);
+				state = XSET;
+			}
+			break;
 
-		  case XSET:
-			  if (byte > 127)
-				  byte -= 256;
-			  xd = byte;
-			  state = YSET;
-			  break;
+		case XSET:
+			if (byte > 127)
+				byte -= 256;
+			xd = byte;
+			state = YSET;
+			break;
 
-		  case YSET:
-			  if (byte > 127)
-				  byte -= 256;
-			  yd = -byte;
-			  state = IDLE;
-			  return 1;
-	  }
+		case YSET:
+			if (byte > 127)
+				byte -= 256;
+			yd = -byte;
+			state = IDLE;
+			return 1;
+	}
 	return 0;
 }
 
@@ -316,19 +316,19 @@ void mouse_parser_enqueue (unsigned char *buffer, size_t size)
 	BUTTON bptr;
 
 	while (size--)
-	  {
-		  if (MOU_Data (*buffer++, &dx, &dy, &dz, &bptr) == 1)
-			{
-				struct MW_UID_MESSAGE m;
+	{
+		if (MOU_Data (*buffer++, &dx, &dy, &dz, &bptr) == 1)
+		{
+			struct MW_UID_MESSAGE m;
 
-				m.type = MV_UID_REL_POS;
-				/* buttons definitons have been selected to match */
-				m.m.pos.btns = bptr;
-				m.m.pos.x = dx;
-				m.m.pos.y = dy;
-				m.m.pos.z = dz;
-				/* printk( "Mouse: msg: dx=%d, dy=%d, btn=%X\n", dx, dy, bptr ); */
-				uid_send_message (&m);
-			}
-	  }
+			m.type = MV_UID_REL_POS;
+			/* buttons definitons have been selected to match */
+			m.m.pos.btns = bptr;
+			m.m.pos.x = dx;
+			m.m.pos.y = dy;
+			m.m.pos.z = dz;
+			/* printk( "Mouse: msg: dx=%d, dy=%d, btn=%X\n", dx, dy, bptr ); */
+			uid_send_message (&m);
+		}
+	}
 }

@@ -37,9 +37,12 @@ static const char rcsid[] = RCSID;
  */
 static int setcbcp (char **);
 
-static option_t cbcp_option_list[] = {
-	{"callback", o_special, setcbcp,
-	 "Ask for callback"},
+static option_t cbcp_option_list[] =
+{
+	{
+		"callback", o_special, setcbcp,
+		"Ask for callback"
+	},
 	{NULL}
 };
 
@@ -52,9 +55,10 @@ static void cbcp_lowerup (int unit);
 static void cbcp_input (int unit, u_char * pkt, int len);
 static void cbcp_protrej (int unit);
 static int cbcp_printpkt (u_char * pkt, int len,
-						  void (*printer) (void *, char *, ...), void *arg);
+						void (*printer) (void *, char *, ...), void *arg);
 
-struct protent cbcp_protent = {
+struct protent cbcp_protent =
+{
 	PPP_CBCP,
 	cbcp_init,
 	cbcp_input,
@@ -144,10 +148,10 @@ static void cbcp_input (unit, inpacket, pktlen)
 	inp = inpacket;
 
 	if (pktlen < CBCP_MINLEN)
-	  {
-		  error ("CBCP packet is too small");
-		  return;
-	  }
+	{
+		error ("CBCP packet is too small");
+		return;
+	}
 
 	GETCHAR (code, inp);
 	GETCHAR (id, inp);
@@ -155,36 +159,36 @@ static void cbcp_input (unit, inpacket, pktlen)
 
 #if 0
 	if (len > pktlen)
-	  {
-		  error ("CBCP packet: invalid length");
-		  return;
-	  }
+	{
+		error ("CBCP packet: invalid length");
+		return;
+	}
 #endif
 
 	len -= CBCP_MINLEN;
 
 	switch (code)
-	  {
-		  case CBCP_REQ:
-			  us->us_id = id;
-			  cbcp_recvreq (us, inp, len);
-			  break;
+	{
+		case CBCP_REQ:
+			us->us_id = id;
+			cbcp_recvreq (us, inp, len);
+			break;
 
-		  case CBCP_RESP:
-			  dbglog ("CBCP_RESP received");
-			  break;
+		case CBCP_RESP:
+			dbglog ("CBCP_RESP received");
+			break;
 
-		  case CBCP_ACK:
-			  if (id != us->us_id)
-				  dbglog ("id doesn't match: expected %d recv %d",
-						  us->us_id, id);
+		case CBCP_ACK:
+			if (id != us->us_id)
+				dbglog ("id doesn't match: expected %d recv %d",
+						us->us_id, id);
 
-			  cbcp_recvack (us, inp, len);
-			  break;
+			cbcp_recvack (us, inp, len);
+			break;
 
-		  default:
-			  break;
-	  }
+		default:
+			break;
+	}
 }
 
 /* protocol was rejected by foe */
@@ -192,11 +196,13 @@ void cbcp_protrej (int iface)
 {
 }
 
-char *cbcp_codenames[] = {
+char *cbcp_codenames[] =
+{
 	"Request", "Response", "Ack"
 };
 
-char *cbcp_optionnames[] = {
+char *cbcp_optionnames[] =
+{
 	"NoCallback",
 	"UserDefined",
 	"AdminDefined",
@@ -231,58 +237,58 @@ static int cbcp_printpkt (p, plen, printer, arg)
 	len -= HEADERLEN;
 
 	switch (code)
-	  {
-		  case CBCP_REQ:
-		  case CBCP_RESP:
-		  case CBCP_ACK:
-			  while (len >= 2)
+	{
+		case CBCP_REQ:
+		case CBCP_RESP:
+		case CBCP_ACK:
+			while (len >= 2)
+			{
+				GETCHAR (opt, p);
+				GETCHAR (olen, p);
+
+				if (olen < 2 || olen > len)
 				{
-					GETCHAR (opt, p);
-					GETCHAR (olen, p);
-
-					if (olen < 2 || olen > len)
-					  {
-						  break;
-					  }
-
-					printer (arg, " <");
-					len -= olen;
-
-					if (opt >= 1
-						&& opt <= sizeof (cbcp_optionnames) / sizeof (char *))
-						printer (arg, " %s", cbcp_optionnames[opt - 1]);
-					else
-						printer (arg, " option=0x%x", opt);
-
-					if (olen > 2)
-					  {
-						  GETCHAR (delay, p);
-						  printer (arg, " delay = %d", delay);
-					  }
-
-					if (olen > 3)
-					  {
-						  int addrt;
-						  char str[256];
-
-						  GETCHAR (addrt, p);
-						  memcpy (str, p, olen - 4);
-						  str[olen - 4] = 0;
-						  printer (arg, " number = %s", str);
-					  }
-					printer (arg, ">");
 					break;
 				}
 
-		  default:
-			  break;
-	  }
+				printer (arg, " <");
+				len -= olen;
+
+				if (opt >= 1
+					&& opt <= sizeof (cbcp_optionnames) / sizeof (char *))
+					printer (arg, " %s", cbcp_optionnames[opt - 1]);
+				else
+					printer (arg, " option=0x%x", opt);
+
+				if (olen > 2)
+				{
+					GETCHAR (delay, p);
+					printer (arg, " delay = %d", delay);
+				}
+
+				if (olen > 3)
+				{
+					int addrt;
+					char str[256];
+
+					GETCHAR (addrt, p);
+					memcpy (str, p, olen - 4);
+					str[olen - 4] = 0;
+					printer (arg, " number = %s", str);
+				}
+				printer (arg, ">");
+				break;
+			}
+
+		default:
+			break;
+	}
 
 	for (; len > 0; --len)
-	  {
-		  GETCHAR (code, p);
-		  printer (arg, " %.2x", code);
-	  }
+	{
+		GETCHAR (code, p);
+		printer (arg, " %.2x", code);
+	}
 
 	return p - pstart;
 }
@@ -300,44 +306,44 @@ static void cbcp_recvreq (us, pckt, pcktlen)
 	address[0] = 0;
 
 	while (len)
-	  {
-		  dbglog ("length: %d", len);
+	{
+		dbglog ("length: %d", len);
 
-		  GETCHAR (type, pckt);
-		  GETCHAR (opt_len, pckt);
+		GETCHAR (type, pckt);
+		GETCHAR (opt_len, pckt);
 
-		  if (opt_len > 2)
-			  GETCHAR (delay, pckt);
+		if (opt_len > 2)
+			GETCHAR (delay, pckt);
 
-		  us->us_allowed |= (1 << type);
+		us->us_allowed |= (1 << type);
 
-		  switch (type)
-			{
-				case CB_CONF_NO:
-					dbglog ("no callback allowed");
-					break;
+		switch (type)
+		{
+			case CB_CONF_NO:
+				dbglog ("no callback allowed");
+				break;
 
-				case CB_CONF_USER:
-					dbglog ("user callback allowed");
-					if (opt_len > 4)
-					  {
-						  GETCHAR (addr_type, pckt);
-						  memcpy (address, pckt, opt_len - 4);
-						  address[opt_len - 4] = 0;
-						  if (address[0])
-							  dbglog ("address: %s", address);
-					  }
-					break;
+			case CB_CONF_USER:
+				dbglog ("user callback allowed");
+				if (opt_len > 4)
+				{
+					GETCHAR (addr_type, pckt);
+					memcpy (address, pckt, opt_len - 4);
+					address[opt_len - 4] = 0;
+					if (address[0])
+						dbglog ("address: %s", address);
+				}
+				break;
 
-				case CB_CONF_ADMIN:
-					dbglog ("user admin defined allowed");
-					break;
+			case CB_CONF_ADMIN:
+				dbglog ("user admin defined allowed");
+				break;
 
-				case CB_CONF_LIST:
-					break;
-			}
-		  len -= opt_len;
-	  }
+			case CB_CONF_LIST:
+				break;
+		}
+		len -= opt_len;
+	}
 
 	cbcp_resp (us);
 }
@@ -359,40 +365,40 @@ static void cbcp_resp (us)
 #endif
 
 	if (cb_type & (1 << CB_CONF_USER))
-	  {
-		  dbglog ("cbcp_resp CONF_USER");
-		  PUTCHAR (CB_CONF_USER, bufp);
-		  len = 3 + 1 + strlen (us->us_number) + 1;
-		  PUTCHAR (len, bufp);
-		  PUTCHAR (5, bufp);	/* delay */
-		  PUTCHAR (1, bufp);
-		  BCOPY (us->us_number, bufp, strlen (us->us_number) + 1);
-		  cbcp_send (us, CBCP_RESP, buf, len);
-		  return;
-	  }
+	{
+		dbglog ("cbcp_resp CONF_USER");
+		PUTCHAR (CB_CONF_USER, bufp);
+		len = 3 + 1 + strlen (us->us_number) + 1;
+		PUTCHAR (len, bufp);
+		PUTCHAR (5, bufp);	/* delay */
+		PUTCHAR (1, bufp);
+		BCOPY (us->us_number, bufp, strlen (us->us_number) + 1);
+		cbcp_send (us, CBCP_RESP, buf, len);
+		return;
+	}
 
 	if (cb_type & (1 << CB_CONF_ADMIN))
-	  {
-		  dbglog ("cbcp_resp CONF_ADMIN");
-		  PUTCHAR (CB_CONF_ADMIN, bufp);
-		  len = 3;
-		  PUTCHAR (len, bufp);
-		  PUTCHAR (5, bufp);	/* delay */
-		  cbcp_send (us, CBCP_RESP, buf, len);
-		  return;
-	  }
+	{
+		dbglog ("cbcp_resp CONF_ADMIN");
+		PUTCHAR (CB_CONF_ADMIN, bufp);
+		len = 3;
+		PUTCHAR (len, bufp);
+		PUTCHAR (5, bufp);	/* delay */
+		cbcp_send (us, CBCP_RESP, buf, len);
+		return;
+	}
 
 	if (cb_type & (1 << CB_CONF_NO))
-	  {
-		  dbglog ("cbcp_resp CONF_NO");
-		  PUTCHAR (CB_CONF_NO, bufp);
-		  len = 3;
-		  PUTCHAR (len, bufp);
-		  PUTCHAR (0, bufp);
-		  cbcp_send (us, CBCP_RESP, buf, len);
-		  start_networks ();
-		  return;
-	  }
+	{
+		dbglog ("cbcp_resp CONF_NO");
+		PUTCHAR (CB_CONF_NO, bufp);
+		len = 3;
+		PUTCHAR (len, bufp);
+		PUTCHAR (0, bufp);
+		cbcp_send (us, CBCP_RESP, buf, len);
+		start_networks ();
+		return;
+	}
 }
 
 static void cbcp_send (us, code, buf, len)
@@ -430,24 +436,24 @@ static void cbcp_recvack (us, pckt, len)
 	char address[256];
 
 	if (len)
-	  {
-		  GETCHAR (type, pckt);
-		  GETCHAR (opt_len, pckt);
+	{
+		GETCHAR (type, pckt);
+		GETCHAR (opt_len, pckt);
 
-		  if (opt_len > 2)
-			  GETCHAR (delay, pckt);
+		if (opt_len > 2)
+			GETCHAR (delay, pckt);
 
-		  if (opt_len > 4)
-			{
-				GETCHAR (addr_type, pckt);
-				memcpy (address, pckt, opt_len - 4);
-				address[opt_len - 4] = 0;
-				if (address[0])
-					dbglog ("peer will call: %s", address);
-			}
-		  if (type == CB_CONF_NO)
-			  return;
-	  }
+		if (opt_len > 4)
+		{
+			GETCHAR (addr_type, pckt);
+			memcpy (address, pckt, opt_len - 4);
+			address[opt_len - 4] = 0;
+			if (address[0])
+				dbglog ("peer will call: %s", address);
+		}
+		if (type == CB_CONF_NO)
+			return;
+	}
 
 	cbcp_up (us);
 }

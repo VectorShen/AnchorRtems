@@ -29,7 +29,7 @@
 #include <rtems/score/threadimpl.h>
 
 rtems_status_code rtems_event_system_send (rtems_id id,
-										   rtems_event_set event_in)
+										 rtems_event_set event_in)
 {
 	rtems_status_code sc;
 	Thread_Control *thread;
@@ -39,25 +39,25 @@ rtems_status_code rtems_event_system_send (rtems_id id,
 
 	thread = _Thread_Get_interrupt_disable (id, &location, &lock_context);
 	switch (location)
-	  {
-		  case OBJECTS_LOCAL:
-			  api = thread->API_Extensions[THREAD_API_RTEMS];
-			  _Event_Surrender (thread,
+	{
+		case OBJECTS_LOCAL:
+			api = thread->API_Extensions[THREAD_API_RTEMS];
+			_Event_Surrender (thread,
 								event_in,
 								&api->System_event,
 								THREAD_WAIT_CLASS_SYSTEM_EVENT, &lock_context);
-			  sc = RTEMS_SUCCESSFUL;
-			  break;
+			sc = RTEMS_SUCCESSFUL;
+			break;
 #ifdef RTEMS_MULTIPROCESSING
-		  case OBJECTS_REMOTE:
-			  _Thread_Dispatch ();
-			  sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
-			  break;
+		case OBJECTS_REMOTE:
+			_Thread_Dispatch ();
+			sc = RTEMS_ILLEGAL_ON_REMOTE_OBJECT;
+			break;
 #endif
-		  default:
-			  sc = RTEMS_INVALID_ID;
-			  break;
-	  }
+		default:
+			sc = RTEMS_INVALID_ID;
+			break;
+	}
 
 	return sc;
 }

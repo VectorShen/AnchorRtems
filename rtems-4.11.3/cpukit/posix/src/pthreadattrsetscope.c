@@ -32,15 +32,15 @@ int pthread_attr_setscope (pthread_attr_t * attr, int contentionscope)
 		return EINVAL;
 
 	switch (contentionscope)
-	  {
-		  case PTHREAD_SCOPE_PROCESS:
-			  attr->contentionscope = contentionscope;
-			  return 0;
+	{
+		case PTHREAD_SCOPE_PROCESS:
+			attr->contentionscope = contentionscope;
+			return 0;
 
-		  case PTHREAD_SCOPE_SYSTEM:
-			  return ENOTSUP;
+		case PTHREAD_SCOPE_SYSTEM:
+			return ENOTSUP;
 
-		  default:
-			  return EINVAL;
-	  }
+		default:
+			return EINVAL;
+	}
 }

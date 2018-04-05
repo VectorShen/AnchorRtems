@@ -301,93 +301,93 @@ extern "C"
  * the fields of the structure correspond to Boot Sector and BPB Structure
  * fields
  */
-	typedef struct fat_vol_s
-	{
-		uint16_t bps;			/* bytes per sector */
-		uint8_t sec_log2;		/* log2 of bps */
-		uint8_t sec_mul;		/* log2 of 512bts sectors number per sector */
-		uint8_t spc;			/* sectors per cluster */
-		uint8_t spc_log2;		/* log2 of spc */
-		uint16_t bpc;			/* bytes per cluster */
-		uint8_t bpc_log2;		/* log2 of bytes per cluster */
-		uint8_t sectors_per_block;	/* sectors per bdbuf block */
-		uint16_t bytes_per_block;	/* number of bytes for the bduf block device handling */
-		uint8_t bytes_per_block_log2;	/* log2 of bytes_per_block */
-		uint8_t fats;			/* number of FATs */
-		uint8_t type;			/* FAT type */
-		uint32_t mask;
-		uint32_t eoc_val;
-		uint16_t fat_loc;		/* FAT start */
-		uint32_t fat_length;	/* sectors per FAT */
-		uint32_t rdir_loc;		/* root directory start */
-		uint16_t rdir_entrs;	/* files per root directory */
-		uint32_t rdir_secs;		/* sectors per root directory */
-		uint32_t rdir_size;		/* root directory size in bytes */
-		uint32_t tot_secs;		/* total count of sectors */
-		uint32_t data_fsec;		/* first data sector */
-		uint32_t data_cls;		/* count of data clusters */
-		uint32_t rdir_cl;		/* first cluster of the root directory */
-		uint16_t info_sec;		/* FSInfo Sector Structure location */
-		uint32_t free_cls;		/* last known free clusters count */
-		uint32_t free_cls_in_fs_info;	/* last known free clusters count
-										   in FS info sector */
-		uint32_t next_cl;		/* next free cluster number */
-		uint32_t next_cl_in_fs_info;	/* next free cluster number in FS
-										   info sector */
-		uint8_t mirror;			/* mirroring enabla/disable */
-		uint32_t afat_loc;		/* active FAT location */
-		uint8_t afat;			/* the number of active FAT */
-		int fd;					/* the disk device file descriptor */
-		rtems_disk_device *dd;	/* disk device (see libblock) */
-		void *private_data;		/* reserved */
-	} fat_vol_t;
+typedef struct fat_vol_s
+{
+	uint16_t bps;			/* bytes per sector */
+	uint8_t sec_log2;		/* log2 of bps */
+	uint8_t sec_mul;		/* log2 of 512bts sectors number per sector */
+	uint8_t spc;			/* sectors per cluster */
+	uint8_t spc_log2;		/* log2 of spc */
+	uint16_t bpc;			/* bytes per cluster */
+	uint8_t bpc_log2;		/* log2 of bytes per cluster */
+	uint8_t sectors_per_block;	/* sectors per bdbuf block */
+	uint16_t bytes_per_block;	/* number of bytes for the bduf block device handling */
+	uint8_t bytes_per_block_log2;	/* log2 of bytes_per_block */
+	uint8_t fats;			/* number of FATs */
+	uint8_t type;			/* FAT type */
+	uint32_t mask;
+	uint32_t eoc_val;
+	uint16_t fat_loc;		/* FAT start */
+	uint32_t fat_length;	/* sectors per FAT */
+	uint32_t rdir_loc;		/* root directory start */
+	uint16_t rdir_entrs;	/* files per root directory */
+	uint32_t rdir_secs;		/* sectors per root directory */
+	uint32_t rdir_size;		/* root directory size in bytes */
+	uint32_t tot_secs;		/* total count of sectors */
+	uint32_t data_fsec;		/* first data sector */
+	uint32_t data_cls;		/* count of data clusters */
+	uint32_t rdir_cl;		/* first cluster of the root directory */
+	uint16_t info_sec;		/* FSInfo Sector Structure location */
+	uint32_t free_cls;		/* last known free clusters count */
+	uint32_t free_cls_in_fs_info;	/* last known free clusters count
+									   in FS info sector */
+	uint32_t next_cl;		/* next free cluster number */
+	uint32_t next_cl_in_fs_info;	/* next free cluster number in FS
+									   info sector */
+	uint8_t mirror;			/* mirroring enabla/disable */
+	uint32_t afat_loc;		/* active FAT location */
+	uint8_t afat;			/* the number of active FAT */
+	int fd;					/* the disk device file descriptor */
+	rtems_disk_device *dd;	/* disk device (see libblock) */
+	void *private_data;		/* reserved */
+} fat_vol_t;
 
-	typedef struct fat_cache_s
-	{
-		uint32_t blk_num;
-		bool modified;
-		uint8_t state;
-		rtems_bdbuf_buffer *buf;
-	} fat_cache_t;
-
-/*
- * This structure identifies the instance of the filesystem on the FAT
- * ("fat-file") level.
- */
-	typedef struct fat_fs_info_s
-	{
-		fat_vol_t vol;			/* volume descriptor */
-		rtems_chain_control *vhash;	/* "vhash" of fat-file descriptors */
-		rtems_chain_control *rhash;	/* "rhash" of fat-file descriptors */
-		char *uino;				/* array of unique ino numbers */
-		uint32_t index;
-		uint32_t uino_pool_size;	/* size */
-		uint32_t uino_base;
-		fat_cache_t c;			/* cache */
-		uint8_t *sec_buf;		/* just placeholder for anything */
-	} fat_fs_info_t;
+typedef struct fat_cache_s
+{
+	uint32_t blk_num;
+	bool modified;
+	uint8_t state;
+	rtems_bdbuf_buffer *buf;
+} fat_cache_t;
 
 /*
- * FAT position is a the cluster and the offset into the
- * cluster.
- */
-	typedef struct fat_pos_s
-	{
-		uint32_t cln;
-		uint32_t ofs;
-	} fat_pos_t;
+* This structure identifies the instance of the filesystem on the FAT
+* ("fat-file") level.
+*/
+typedef struct fat_fs_info_s
+{
+	fat_vol_t vol;			/* volume descriptor */
+	rtems_chain_control *vhash;	/* "vhash" of fat-file descriptors */
+	rtems_chain_control *rhash;	/* "rhash" of fat-file descriptors */
+	char *uino;				/* array of unique ino numbers */
+	uint32_t index;
+	uint32_t uino_pool_size;	/* size */
+	uint32_t uino_base;
+	fat_cache_t c;			/* cache */
+	uint8_t *sec_buf;		/* just placeholder for anything */
+} fat_fs_info_t;
 
 /*
- * If the name we looking for is file we store not only first data cluster
- * number, but and cluster number and offset for directory entry for this
- * name. We also add the LFN start offset so we can delete it the whole
- * file name. We can then use this to delete the file.
- */
-	typedef struct fat_dir_pos_s
-	{
-		fat_pos_t sname;
-		fat_pos_t lname;
-	} fat_dir_pos_t;
+* FAT position is a the cluster and the offset into the
+* cluster.
+*/
+typedef struct fat_pos_s
+{
+	uint32_t cln;
+	uint32_t ofs;
+} fat_pos_t;
+
+/*
+* If the name we looking for is file we store not only first data cluster
+* number, but and cluster number and offset for directory entry for this
+* name. We also add the LFN start offset so we can delete it the whole
+* file name. We can then use this to delete the file.
+*/
+typedef struct fat_dir_pos_s
+{
+	fat_pos_t sname;
+	fat_pos_t lname;
+} fat_dir_pos_t;
 
 /*
  * Set the long name entries to this value for a short file name.
@@ -413,116 +413,116 @@ extern "C"
 #define FAT_OP_TYPE_READ  0x1
 #define FAT_OP_TYPE_GET   0x2
 
-	static inline void fat_dir_pos_init (fat_dir_pos_t * dir_pos)
-	{
-		dir_pos->sname.cln = 0;
-		dir_pos->sname.ofs = 0;
-		dir_pos->lname.cln = FAT_FILE_SHORT_NAME;
-		dir_pos->lname.ofs = FAT_FILE_SHORT_NAME;
-	}
+static inline void fat_dir_pos_init (fat_dir_pos_t * dir_pos)
+{
+	dir_pos->sname.cln = 0;
+	dir_pos->sname.ofs = 0;
+	dir_pos->lname.cln = FAT_FILE_SHORT_NAME;
+	dir_pos->lname.ofs = FAT_FILE_SHORT_NAME;
+}
 
-	static inline uint32_t
-		fat_cluster_num_to_sector_num (const fat_fs_info_t * fs_info,
-									   uint32_t cln)
-	{
-		if ((cln == 0) && (fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
-			return fs_info->vol.rdir_loc;
+static inline uint32_t
+	fat_cluster_num_to_sector_num (const fat_fs_info_t * fs_info,
+								   uint32_t cln)
+{
+	if ((cln == 0) && (fs_info->vol.type & (FAT_FAT12 | FAT_FAT16)))
+		return fs_info->vol.rdir_loc;
 
-		return (((cln - FAT_RSRVD_CLN) << fs_info->vol.spc_log2) +
-				fs_info->vol.data_fsec);
-	}
+	return (((cln - FAT_RSRVD_CLN) << fs_info->vol.spc_log2) +
+			fs_info->vol.data_fsec);
+}
 
-	static inline uint32_t
-		fat_cluster_num_to_sector512_num (const fat_fs_info_t * fs_info,
-										  uint32_t cln)
-	{
-		if (cln == 1)
-			return 1;
+static inline uint32_t
+	fat_cluster_num_to_sector512_num (const fat_fs_info_t * fs_info,
+									  uint32_t cln)
+{
+	if (cln == 1)
+		return 1;
 
-		return (fat_cluster_num_to_sector_num (fs_info, cln) <<
-				fs_info->vol.sec_mul);
-	}
+	return (fat_cluster_num_to_sector_num (fs_info, cln) <<
+			fs_info->vol.sec_mul);
+}
 
-	static inline uint32_t
-		fat_block_num_to_cluster_num (const fat_fs_info_t * fs_info,
-									  const uint32_t block_number)
-	{
-		return block_number >> (fs_info->vol.bpc_log2 -
-								fs_info->vol.bytes_per_block_log2);
-	}
+static inline uint32_t
+	fat_block_num_to_cluster_num (const fat_fs_info_t * fs_info,
+								  const uint32_t block_number)
+{
+	return block_number >> (fs_info->vol.bpc_log2 -
+							fs_info->vol.bytes_per_block_log2);
+}
 
-	static inline uint32_t
-		fat_block_num_to_sector_num (const fat_fs_info_t * fs_info,
-									 const uint32_t block_number)
-	{
-		return block_number << (fs_info->vol.bytes_per_block_log2 -
-								fs_info->vol.sec_log2);
-	}
+static inline uint32_t
+	fat_block_num_to_sector_num (const fat_fs_info_t * fs_info,
+								 const uint32_t block_number)
+{
+	return block_number << (fs_info->vol.bytes_per_block_log2 -
+							fs_info->vol.sec_log2);
+}
 
-	static inline uint32_t
-		fat_sector_num_to_block_num (const fat_fs_info_t * fs_info,
-									 const uint32_t sector_number)
-	{
-		return sector_number >> (fs_info->vol.bytes_per_block_log2 -
-								 fs_info->vol.sec_log2);
-	}
+static inline uint32_t
+	fat_sector_num_to_block_num (const fat_fs_info_t * fs_info,
+								 const uint32_t sector_number)
+{
+	return sector_number >> (fs_info->vol.bytes_per_block_log2 -
+							 fs_info->vol.sec_log2);
+}
 
-	static inline uint32_t
-		fat_sector_offset_to_block_offset (const fat_fs_info_t * fs_info,
-										   const uint32_t sector,
-										   const uint32_t sector_offset)
-	{
-		return sector_offset +
-			((sector -
-			  fat_block_num_to_sector_num (fs_info,
-										   fat_sector_num_to_block_num (fs_info,
-																		sector)))
-			 << fs_info->vol.sec_log2);
-	}
+static inline uint32_t
+	fat_sector_offset_to_block_offset (const fat_fs_info_t * fs_info,
+									   const uint32_t sector,
+									   const uint32_t sector_offset)
+{
+	return sector_offset +
+		((sector -
+		  fat_block_num_to_sector_num (fs_info,
+									   fat_sector_num_to_block_num (fs_info,
+																	sector)))
+		 << fs_info->vol.sec_log2);
+}
 
-	static inline void fat_buf_mark_modified (fat_fs_info_t * fs_info)
-	{
-		fs_info->c.modified = true;
-	}
+static inline void fat_buf_mark_modified (fat_fs_info_t * fs_info)
+{
+	fs_info->c.modified = true;
+}
 
-	int fat_buf_access (fat_fs_info_t * fs_info,
-						uint32_t sec_num, int op_type, uint8_t ** sec_buf);
+int fat_buf_access (fat_fs_info_t * fs_info,
+					uint32_t sec_num, int op_type, uint8_t ** sec_buf);
 
-	int fat_buf_release (fat_fs_info_t * fs_info);
+int fat_buf_release (fat_fs_info_t * fs_info);
 
-	ssize_t
-		_fat_block_read (fat_fs_info_t * fs_info,
-						 uint32_t start,
-						 uint32_t offset, uint32_t count, void *buff);
+ssize_t
+	_fat_block_read (fat_fs_info_t * fs_info,
+					 uint32_t start,
+					 uint32_t offset, uint32_t count, void *buff);
 
-	ssize_t
-		fat_cluster_write (fat_fs_info_t * fs_info,
-						   uint32_t start_cln,
-						   uint32_t offset, uint32_t count, const void *buff);
+ssize_t
+	fat_cluster_write (fat_fs_info_t * fs_info,
+					   uint32_t start_cln,
+					   uint32_t offset, uint32_t count, const void *buff);
 
-	ssize_t
-		fat_sector_write (fat_fs_info_t * fs_info,
-						  uint32_t start,
-						  uint32_t offset, uint32_t count, const void *buff);
+ssize_t
+	fat_sector_write (fat_fs_info_t * fs_info,
+					  uint32_t start,
+					  uint32_t offset, uint32_t count, const void *buff);
 
-	ssize_t
-		fat_cluster_set (fat_fs_info_t * fs_info,
-						 uint32_t start,
-						 uint32_t offset, uint32_t count, uint8_t pattern);
+ssize_t
+	fat_cluster_set (fat_fs_info_t * fs_info,
+					 uint32_t start,
+					 uint32_t offset, uint32_t count, uint8_t pattern);
 
-	int fat_init_volume_info (fat_fs_info_t * fs_info, const char *device);
+int fat_init_volume_info (fat_fs_info_t * fs_info, const char *device);
 
-	int fat_init_clusters_chain (fat_fs_info_t * fs_info, uint32_t start_cln);
+int fat_init_clusters_chain (fat_fs_info_t * fs_info, uint32_t start_cln);
 
-	int fat_shutdown_drive (fat_fs_info_t * fs_info);
+int fat_shutdown_drive (fat_fs_info_t * fs_info);
 
-	uint32_t fat_get_unique_ino (fat_fs_info_t * fs_info);
+uint32_t fat_get_unique_ino (fat_fs_info_t * fs_info);
 
-	bool fat_ino_is_unique (fat_fs_info_t * fs_info, uint32_t ino);
+bool fat_ino_is_unique (fat_fs_info_t * fs_info, uint32_t ino);
 
-	void fat_free_unique_ino (fat_fs_info_t * fs_info, uint32_t ino);
+void fat_free_unique_ino (fat_fs_info_t * fs_info, uint32_t ino);
 
-	int fat_sync (fat_fs_info_t * fs_info);
+int fat_sync (fat_fs_info_t * fs_info);
 
 #ifdef __cplusplus
 }

@@ -65,7 +65,8 @@ static void xdrstdio_destroy (XDR *);
 /*
  * Ops vector for stdio type XDR
  */
-static struct xdr_ops xdrstdio_ops = {
+static struct xdr_ops xdrstdio_ops =
+{
 	xdrstdio_getlong,			/* deseraialize a long int */
 	xdrstdio_putlong,			/* seraialize a long int */
 	xdrstdio_getbytes,			/* deserialize counted bytes */
@@ -105,7 +106,7 @@ static bool_t xdrstdio_getlong (XDR * xdrs, long *lp)
 {
 
 	if (fread ((caddr_t) lp, sizeof (int32_t), 1,
-			   (FILE *) xdrs->x_private) != 1)
+			 (FILE *) xdrs->x_private) != 1)
 		return (FALSE);
 	*lp = (long)ntohl ((int32_t) * lp);
 	return (TRUE);

@@ -43,22 +43,22 @@ void rtems_symbol_table_destroy (rtems_symbol_table_t * table)
 	rtems_symbol_string_block_t *p, *pnext;
 
 	if (table)
-	  {
-		  if (table->addresses)
-			  (void)free (table->addresses);
-		  table->addresses = 0;
-		  p = table->string_buffer_head;
-		  while (p)
-			{
-				pnext = p->next;
-				free (p);
-				p = pnext;
-			}
-		  table->string_buffer_head = 0;
-		  table->string_buffer_current = 0;
+	{
+		if (table->addresses)
+			(void)free (table->addresses);
+		table->addresses = 0;
+		p = table->string_buffer_head;
+		while (p)
+		{
+			pnext = p->next;
+			free (p);
+			p = pnext;
+		}
+		table->string_buffer_head = 0;
+		table->string_buffer_current = 0;
 
-		  free (table);
-	  }
+		free (table);
+	}
 }
 
 rtems_symbol_t *rtems_symbol_create (rtems_symbol_table_t * table,
@@ -72,20 +72,20 @@ rtems_symbol_t *rtems_symbol_create (rtems_symbol_table_t * table,
 
 	/* need to grow the table? */
 	if (table->next >= table->size)
-	  {
-		  if (table->size == 0)
-			  newsize = 100;
-		  else
-			  newsize =
-				  table->size + (table->size / (100 / table->growth_factor));
+	{
+		if (table->size == 0)
+			newsize = 100;
+		else
+			newsize =
+				table->size + (table->size / (100 / table->growth_factor));
 
-		  table->addresses =
-			  (rtems_symbol_t *) realloc ((void *)table->addresses,
-										  newsize * sizeof (rtems_symbol_t));
-		  if (table->addresses == 0)	/* blew it; lost orig */
-			  goto failed;
-		  table->size = newsize;
-	  }
+		table->addresses =
+			(rtems_symbol_t *) realloc ((void *)table->addresses,
+										newsize * sizeof (rtems_symbol_t));
+		if (table->addresses == 0)	/* blew it; lost orig */
+			goto failed;
+		table->size = newsize;
+	}
 
 	sp = &table->addresses[table->next];
 	sp->value = value;
@@ -95,22 +95,22 @@ rtems_symbol_t *rtems_symbol_create (rtems_symbol_table_t * table,
 
 	if ((table->string_buffer_head == 0) ||
 		(table->strings_next + symbol_length) >= SYMBOL_STRING_BLOCK_SIZE)
-	  {
-		  rtems_symbol_string_block_t *p;
+	{
+		rtems_symbol_string_block_t *p;
 
-		  p = (rtems_symbol_string_block_t *)
-			  malloc (sizeof (rtems_symbol_string_block_t));
-		  if (p == 0)
-			  goto failed;
-		  p->next = 0;
-		  if (table->string_buffer_head == 0)
-			  table->string_buffer_head = p;
-		  else
-			  table->string_buffer_current->next = p;
-		  table->string_buffer_current = p;
+		p = (rtems_symbol_string_block_t *)
+			malloc (sizeof (rtems_symbol_string_block_t));
+		if (p == 0)
+			goto failed;
+		p->next = 0;
+		if (table->string_buffer_head == 0)
+			table->string_buffer_head = p;
+		else
+			table->string_buffer_current->next = p;
+		table->string_buffer_current = p;
 
-		  table->strings_next = 0;
-	  }
+		table->strings_next = 0;
+	}
 
 	sp->name = table->string_buffer_current->buffer + table->strings_next;
 	(void)strcpy (sp->name, name);
@@ -151,7 +151,7 @@ static int rtems_symbol_compare (const void *e1, const void *e2)
 static void rtems_symbol_sort (rtems_symbol_table_t * table)
 {
 	qsort ((void *)table->addresses, (size_t) table->next,
-		   sizeof (rtems_symbol_t), rtems_symbol_compare);
+		 sizeof (rtems_symbol_t), rtems_symbol_compare);
 	table->sorted = 1;
 }
 
@@ -162,7 +162,7 @@ static void rtems_symbol_sort (rtems_symbol_table_t * table)
  */
 
 rtems_symbol_t *rtems_symbol_value_lookup (rtems_symbol_table_t * table,
-										   uint32_t value)
+										 uint32_t value)
 {
 	rtems_symbol_t *sp;
 	rtems_symbol_t *base;
@@ -184,24 +184,24 @@ rtems_symbol_t *rtems_symbol_value_lookup (rtems_symbol_table_t * table,
 	elements = table->next;
 
 	while (elements)
-	  {
-		  sp = base + (elements / 2);
-		  if (value < sp->value)
-			  elements /= 2;
-		  else if (value > sp->value)
+	{
+		sp = base + (elements / 2);
+		if (value < sp->value)
+			elements /= 2;
+		else if (value > sp->value)
+		{
+			distance = value - sp->value;
+			if (distance < best_distance)
 			{
-				distance = value - sp->value;
-				if (distance < best_distance)
-				  {
-					  best_distance = distance;
-					  best = sp;
-				  }
-				base = sp + 1;
-				elements = (elements / 2) - (elements % 2 ? 0 : 1);
+				best_distance = distance;
+				best = sp;
 			}
-		  else
-			  return sp;
-	  }
+			base = sp + 1;
+			elements = (elements / 2) - (elements % 2 ? 0 : 1);
+		}
+		else
+			return sp;
+	}
 
 	if (value == base->value)
 		return base;
@@ -221,32 +221,32 @@ rtems_symbol_t *rtems_symbol_value_lookup (rtems_symbol_table_t * table,
  * is not important.
  */
 const rtems_symbol_t *rtems_symbol_value_lookup_exact (rtems_symbol_table_t *
-													   table, uint32_t value)
+													 table, uint32_t value)
 {
 	uint32_t s;
 	rtems_symbol_t *sp;
 
 	if (table == 0)
-	  {
-		  table = rtems_monitor_symbols;
-		  if (table == 0)
-			  return NULL;
-	  }
+	{
+		table = rtems_monitor_symbols;
+		if (table == 0)
+			return NULL;
+	}
 
 	if (table->sorted)
-	  {
-		  sp = rtems_symbol_value_lookup (table, value);
-		  if (rtems_symbol_value (sp) == value)
-			  return sp;
-		  else
-			  return NULL;		/* not an exact match */
-	  }
+	{
+		sp = rtems_symbol_value_lookup (table, value);
+		if (rtems_symbol_value (sp) == value)
+			return sp;
+		else
+			return NULL;		/* not an exact match */
+	}
 
 	for (s = 0, sp = table->addresses; s < table->next; s++, sp++)
-	  {
-		  if (sp->value == value)
-			  return sp;
-	  }
+	{
+		if (sp->value == value)
+			return sp;
+	}
 
 	return NULL;
 
@@ -257,31 +257,31 @@ const rtems_symbol_t *rtems_symbol_value_lookup_exact (rtems_symbol_table_t *
  */
 
 rtems_symbol_t *rtems_symbol_name_lookup (rtems_symbol_table_t * table,
-										  const char *name)
+										const char *name)
 {
 	uint32_t s;
 	rtems_symbol_t *sp;
 
 	if (table == 0)
-	  {
-		  table = rtems_monitor_symbols;
-		  if (table == 0)
-			  return NULL;
-	  }
+	{
+		table = rtems_monitor_symbols;
+		if (table == 0)
+			return NULL;
+	}
 
 	for (s = 0, sp = table->addresses; s < table->next; s++, sp++)
-	  {
-		  if (strcasecmp (sp->name, name) == 0)
-			  return sp;
-	  }
+	{
+		if (strcasecmp (sp->name, name) == 0)
+			return sp;
+	}
 
 	return NULL;
 }
 
 const void *rtems_monitor_symbol_next (void *object_info,
-									   rtems_monitor_symbol_t * canonical
-									   __attribute__ ((unused)),
-									   rtems_id * next_id)
+									 rtems_monitor_symbol_t * canonical
+									 __attribute__ ((unused)),
+									 rtems_id * next_id)
 {
 	rtems_symbol_table_t *table;
 	uint32_t n = rtems_object_id_get_index (*next_id);
@@ -341,23 +341,23 @@ rtems_monitor_symbol_canonical_by_value (rtems_monitor_symbol_t *
 
 	sp = rtems_symbol_value_lookup (0, value);
 	if (sp)
-	  {
-		  canonical_symbol->value = sp->value;
-		  canonical_symbol->offset = value - sp->value;
-		  strncpy (canonical_symbol->name, sp->name,
-				   sizeof (canonical_symbol->name) - 1);
-	  }
+	{
+		canonical_symbol->value = sp->value;
+		canonical_symbol->offset = value - sp->value;
+		strncpy (canonical_symbol->name, sp->name,
+				 sizeof (canonical_symbol->name) - 1);
+	}
 	else
-	  {
-		  canonical_symbol->value = value;
-		  canonical_symbol->offset = 0;
-		  canonical_symbol->name[0] = '\0';
-	  }
+	{
+		canonical_symbol->value = value;
+		canonical_symbol->offset = 0;
+		canonical_symbol->name[0] = '\0';
+	}
 }
 
 uint32_t
 rtems_monitor_symbol_dump (rtems_monitor_symbol_t * canonical_symbol,
-						   bool verbose)
+						 bool verbose)
 {
 	uint32_t length = 0;
 
@@ -367,20 +367,20 @@ rtems_monitor_symbol_dump (rtems_monitor_symbol_t * canonical_symbol,
 	 */
 
 	if (canonical_symbol->name[0] && (canonical_symbol->value != 0))
-	  {
-		  if (canonical_symbol->offset == 0)
-			  length += fprintf (stdout, "%.*s",
+	{
+		if (canonical_symbol->offset == 0)
+			length += fprintf (stdout, "%.*s",
 								 (int)sizeof (canonical_symbol->name),
 								 canonical_symbol->name);
-		  else
-			  length += fprintf (stdout, "<%.*s+0x%" PRIx32 ">",
+		else
+			length += fprintf (stdout, "<%.*s+0x%" PRIx32 ">",
 								 (int)sizeof (canonical_symbol->name),
 								 canonical_symbol->name,
 								 canonical_symbol->offset);
-		  if (verbose)
-			  length += fprintf (stdout,
+		if (verbose)
+			length += fprintf (stdout,
 								 " [0x%" PRIx32 "]", canonical_symbol->value);
-	  }
+	}
 	else
 		length += fprintf (stdout, "[0x%" PRIx32 "]", canonical_symbol->value);
 
@@ -389,29 +389,29 @@ rtems_monitor_symbol_dump (rtems_monitor_symbol_t * canonical_symbol,
 
 static void
 rtems_monitor_symbol_dump_all (rtems_symbol_table_t * table,
-							   bool verbose __attribute__ ((unused)))
+							 bool verbose __attribute__ ((unused)))
 {
 	uint32_t s;
 	rtems_symbol_t *sp;
 
 	if (table == 0)
-	  {
-		  table = rtems_monitor_symbols;
-		  if (table == 0)
-			  return;
-	  }
+	{
+		table = rtems_monitor_symbols;
+		if (table == 0)
+			return;
+	}
 
 	if (table->sorted == 0)
 		rtems_symbol_sort (table);
 
 	for (s = 0, sp = table->addresses; s < table->next; s++, sp++)
-	  {
-		  rtems_monitor_symbol_t canonical_symbol;
+	{
+		rtems_monitor_symbol_t canonical_symbol;
 
-		  rtems_monitor_symbol_canonical (&canonical_symbol, sp);
-		  rtems_monitor_symbol_dump (&canonical_symbol, true);
-		  fprintf (stdout, "\n");
-	  }
+		rtems_monitor_symbol_canonical (&canonical_symbol, sp);
+		rtems_monitor_symbol_dump (&canonical_symbol, true);
+		fprintf (stdout, "\n");
+	}
 }
 
 /*
@@ -419,20 +419,20 @@ rtems_monitor_symbol_dump_all (rtems_symbol_table_t * table,
  */
 
 void rtems_monitor_symbol_cmd (int argc,
-							   char **argv,
-							   const rtems_monitor_command_arg_t * command_arg,
-							   bool verbose)
+							 char **argv,
+							 const rtems_monitor_command_arg_t * command_arg,
+							 bool verbose)
 {
 	int arg;
 	rtems_symbol_table_t *table;
 
 	table = *command_arg->symbol_table;
 	if (table == 0)
-	  {
-		  table = rtems_monitor_symbols;
-		  if (table == 0)
-			  return;
-	  }
+	{
+		table = rtems_monitor_symbols;
+		if (table == 0)
+			return;
+	}
 
 	/*
 	 * Use object command to dump out whole symbol table
@@ -440,15 +440,15 @@ void rtems_monitor_symbol_cmd (int argc,
 	if (argc == 1)
 		rtems_monitor_symbol_dump_all (table, verbose);
 	else
-	  {
-		  rtems_monitor_symbol_t canonical_symbol;
+	{
+		rtems_monitor_symbol_t canonical_symbol;
 
-		  for (arg = 1; argv[arg]; arg++)
-			{
-				rtems_monitor_symbol_canonical_by_name (&canonical_symbol,
-														argv[arg]);
-				rtems_monitor_symbol_dump (&canonical_symbol, verbose);
-				fprintf (stdout, "\n");
-			}
-	  }
+		for (arg = 1; argv[arg]; arg++)
+		{
+			rtems_monitor_symbol_canonical_by_name (&canonical_symbol,
+													argv[arg]);
+			rtems_monitor_symbol_dump (&canonical_symbol, verbose);
+			fprintf (stdout, "\n");
+		}
+	}
 }

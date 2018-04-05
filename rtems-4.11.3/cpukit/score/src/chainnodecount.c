@@ -25,11 +25,11 @@ size_t _Chain_Node_count_unprotected (const Chain_Control * chain)
 	const Chain_Node *node = _Chain_Immutable_first (chain);
 
 	while (node != tail)
-	  {
-		  ++count;
+	{
+		++count;
 
-		  node = _Chain_Immutable_next (node);
-	  }
+		node = _Chain_Immutable_next (node);
+	}
 
 	return count;
 }

@@ -61,14 +61,15 @@ static bool_t svcudp_recv (SVCXPRT * xprt, struct rpc_msg *msg);
 static bool_t svcudp_reply (SVCXPRT * xprt, struct rpc_msg *msg);
 static enum xprt_stat svcudp_stat (SVCXPRT * xprt);
 static bool_t svcudp_getargs (SVCXPRT * xprt, xdrproc_t xdr_args,
-							  caddr_t args_ptr);
+							caddr_t args_ptr);
 static bool_t svcudp_freeargs (SVCXPRT * xprt, xdrproc_t xdr_args,
-							   caddr_t args_ptr);
+							 caddr_t args_ptr);
 static void svcudp_destroy (SVCXPRT * xprt);
 static void cache_set (SVCXPRT *, u_long);
 static int cache_get (SVCXPRT *, struct rpc_msg *, char **, u_long *);
 
-static struct xp_ops svcudp_op = {
+static struct xp_ops svcudp_op =
+{
 	svcudp_recv,
 	svcudp_stat,
 	svcudp_getargs,
@@ -112,47 +113,47 @@ SVCXPRT *svcudp_bufcreate (int sock, u_int sendsz, u_int recvsz)
 	socklen_t len = sizeof (struct sockaddr_in);
 
 	if (sock == RPC_ANYSOCK)
-	  {
-		  if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-			{
-				perror ("svcudp_create: socket creation problem");
-				return ((SVCXPRT *) NULL);
-			}
-		  madesock = TRUE;
-	  }
+	{
+		if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+		{
+			perror ("svcudp_create: socket creation problem");
+			return ((SVCXPRT *) NULL);
+		}
+		madesock = TRUE;
+	}
 	memset ((char *)&addr, 0, sizeof (addr));
 	addr.sin_len = sizeof (struct sockaddr_in);
 	addr.sin_family = AF_INET;
 	if (bindresvport (sock, &addr))
-	  {
-		  addr.sin_port = 0;
-		  (void)bind (sock, (struct sockaddr *)&addr, len);
-	  }
+	{
+		addr.sin_port = 0;
+		(void)bind (sock, (struct sockaddr *)&addr, len);
+	}
 	if (getsockname (sock, (struct sockaddr *)&addr, &len) != 0)
-	  {
-		  perror ("svcudp_create - cannot getsockname");
-		  if (madesock)
-			  (void)_RPC_close (sock);
-		  return ((SVCXPRT *) NULL);
-	  }
+	{
+		perror ("svcudp_create - cannot getsockname");
+		if (madesock)
+			(void)_RPC_close (sock);
+		return ((SVCXPRT *) NULL);
+	}
 	xprt = (SVCXPRT *) mem_alloc (sizeof (SVCXPRT));
 	if (xprt == NULL)
-	  {
-		  (void)fprintf (stderr, "svcudp_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "svcudp_create: out of memory\n");
+		return (NULL);
+	}
 	su = (struct svcudp_data *)mem_alloc (sizeof (*su));
 	if (su == NULL)
-	  {
-		  (void)fprintf (stderr, "svcudp_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "svcudp_create: out of memory\n");
+		return (NULL);
+	}
 	su->su_iosz = ((MAX (sendsz, recvsz) + 3) / 4) * 4;
 	if ((rpc_buffer (xprt) = mem_alloc (su->su_iosz)) == NULL)
-	  {
-		  (void)fprintf (stderr, "svcudp_create: out of memory\n");
-		  return (NULL);
-	  }
+	{
+		(void)fprintf (stderr, "svcudp_create: out of memory\n");
+		return (NULL);
+	}
 	xdrmem_create (&(su->su_xdrs), rpc_buffer (xprt), su->su_iosz, XDR_DECODE);
 	su->su_cache = NULL;
 	xprt->xp_p2 = (caddr_t) su;
@@ -199,15 +200,15 @@ static bool_t svcudp_recv (SVCXPRT * xprt, struct rpc_msg *msg)
 		return (FALSE);
 	su->su_xid = msg->rm_xid;
 	if (su->su_cache != NULL)
-	  {
-		  if (cache_get (xprt, msg, &reply, &replylen))
-			{
-				(void)sendto (xprt->xp_sock, reply, (int)replylen, 0,
-							  (struct sockaddr *)&xprt->xp_raddr,
-							  xprt->xp_addrlen);
-				return (TRUE);
-			}
-	  }
+	{
+		if (cache_get (xprt, msg, &reply, &replylen))
+		{
+			(void)sendto (xprt->xp_sock, reply, (int)replylen, 0,
+						(struct sockaddr *)&xprt->xp_raddr,
+						xprt->xp_addrlen);
+			return (TRUE);
+		}
+	}
 	return (TRUE);
 }
 
@@ -222,19 +223,19 @@ static bool_t svcudp_reply (SVCXPRT * xprt, struct rpc_msg *msg)
 	XDR_SETPOS (xdrs, 0);
 	msg->rm_xid = su->su_xid;
 	if (xdr_replymsg (xdrs, msg))
-	  {
-		  slen = (int)XDR_GETPOS (xdrs);
-		  if (sendto (xprt->xp_sock, rpc_buffer (xprt), slen, 0,
-					  (struct sockaddr *)&(xprt->xp_raddr), xprt->xp_addrlen)
-			  == slen)
+	{
+		slen = (int)XDR_GETPOS (xdrs);
+		if (sendto (xprt->xp_sock, rpc_buffer (xprt), slen, 0,
+					(struct sockaddr *)&(xprt->xp_raddr), xprt->xp_addrlen)
+			== slen)
+		{
+			stat = TRUE;
+			if (su->su_cache && slen >= 0)
 			{
-				stat = TRUE;
-				if (su->su_cache && slen >= 0)
-				  {
-					  cache_set (xprt, (u_long) slen);
-				  }
+				cache_set (xprt, (u_long) slen);
 			}
-	  }
+		}
+	}
 	return (stat);
 }
 
@@ -341,31 +342,31 @@ int svcudp_enablecache (SVCXPRT * transp, u_long size)
 	struct udp_cache *uc;
 
 	if (su->su_cache != NULL)
-	  {
-		  CACHE_PERROR ("enablecache: cache already enabled");
-		  return (0);
-	  }
+	{
+		CACHE_PERROR ("enablecache: cache already enabled");
+		return (0);
+	}
 	uc = ALLOC (struct udp_cache, 1);
 	if (uc == NULL)
-	  {
-		  CACHE_PERROR ("enablecache: could not allocate cache");
-		  return (0);
-	  }
+	{
+		CACHE_PERROR ("enablecache: could not allocate cache");
+		return (0);
+	}
 	uc->uc_size = size;
 	uc->uc_nextvictim = 0;
 	uc->uc_entries = ALLOC (cache_ptr, size * SPARSENESS);
 	if (uc->uc_entries == NULL)
-	  {
-		  CACHE_PERROR ("enablecache: could not allocate cache data");
-		  return (0);
-	  }
+	{
+		CACHE_PERROR ("enablecache: could not allocate cache data");
+		return (0);
+	}
 	BZERO (uc->uc_entries, cache_ptr, size * SPARSENESS);
 	uc->uc_fifo = ALLOC (cache_ptr, size);
 	if (uc->uc_fifo == NULL)
-	  {
-		  CACHE_PERROR ("enablecache: could not allocate cache fifo");
-		  return (0);
-	  }
+	{
+		CACHE_PERROR ("enablecache: could not allocate cache fifo");
+		return (0);
+	}
 	BZERO (uc->uc_fifo, cache_ptr, size);
 	su->su_cache = (char *)uc;
 	return (1);
@@ -389,34 +390,34 @@ static void cache_set (SVCXPRT * xprt, u_long replylen)
 	 */
 	victim = uc->uc_fifo[uc->uc_nextvictim];
 	if (victim != NULL)
-	  {
-		  loc = CACHE_LOC (xprt, victim->cache_xid);
-		  for (vicp = &uc->uc_entries[loc];
-			   *vicp != NULL && *vicp != victim; vicp = &(*vicp)->cache_next)
-			  ;
-		  if (*vicp == NULL)
-			{
-				CACHE_PERROR ("cache_set: victim not found");
-				return;
-			}
-		  *vicp = victim->cache_next;	/* remote from cache */
-		  newbuf = victim->cache_reply;
-	  }
+	{
+		loc = CACHE_LOC (xprt, victim->cache_xid);
+		for (vicp = &uc->uc_entries[loc];
+			 *vicp != NULL && *vicp != victim; vicp = &(*vicp)->cache_next)
+			;
+		if (*vicp == NULL)
+		{
+			CACHE_PERROR ("cache_set: victim not found");
+			return;
+		}
+		*vicp = victim->cache_next;	/* remote from cache */
+		newbuf = victim->cache_reply;
+	}
 	else
-	  {
-		  victim = ALLOC (struct cache_node, 1);
-		  if (victim == NULL)
-			{
-				CACHE_PERROR ("cache_set: victim alloc failed");
-				return;
-			}
-		  newbuf = mem_alloc (su->su_iosz);
-		  if (newbuf == NULL)
-			{
-				CACHE_PERROR ("cache_set: could not allocate new rpc_buffer");
-				return;
-			}
-	  }
+	{
+		victim = ALLOC (struct cache_node, 1);
+		if (victim == NULL)
+		{
+			CACHE_PERROR ("cache_set: victim alloc failed");
+			return;
+		}
+		newbuf = mem_alloc (su->su_iosz);
+		if (newbuf == NULL)
+		{
+			CACHE_PERROR ("cache_set: could not allocate new rpc_buffer");
+			return;
+		}
+	}
 
 	/*
 	 * Store it away
@@ -443,7 +444,7 @@ static void cache_set (SVCXPRT * xprt, u_long replylen)
  */
 static int
 cache_get (SVCXPRT * xprt,
-		   struct rpc_msg *msg, char **replyp, u_long * replylenp)
+		 struct rpc_msg *msg, char **replyp, u_long * replylenp)
 {
 	u_int loc;
 	register cache_ptr ent;
@@ -454,18 +455,18 @@ cache_get (SVCXPRT * xprt,
 
 	loc = CACHE_LOC (xprt, su->su_xid);
 	for (ent = uc->uc_entries[loc]; ent != NULL; ent = ent->cache_next)
-	  {
-		  if (ent->cache_xid == su->su_xid &&
-			  ent->cache_proc == uc->uc_proc &&
-			  ent->cache_vers == uc->uc_vers &&
-			  ent->cache_prog == uc->uc_prog &&
-			  EQADDR (ent->cache_addr, uc->uc_addr))
-			{
-				*replyp = ent->cache_reply;
-				*replylenp = ent->cache_replylen;
-				return (1);
-			}
-	  }
+	{
+		if (ent->cache_xid == su->su_xid &&
+			ent->cache_proc == uc->uc_proc &&
+			ent->cache_vers == uc->uc_vers &&
+			ent->cache_prog == uc->uc_prog &&
+			EQADDR (ent->cache_addr, uc->uc_addr))
+		{
+			*replyp = ent->cache_reply;
+			*replylenp = ent->cache_replylen;
+			return (1);
+		}
+	}
 	/*
 	 * Failed to find entry
 	 * Remember a few things so we can do a set later

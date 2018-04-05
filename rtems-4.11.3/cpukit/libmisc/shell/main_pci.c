@@ -43,35 +43,35 @@ static unsigned long get_pciid_from_string (char *arg)
 
 	dev_str = strstr (arg, ":");
 	if (dev_str == NULL)
-	  {
-		  /* PCIID */
-		  pciid = strtoul (arg, NULL, 16);
-		  if (pciid == ULONG_MAX)
-			  return ~0;
-	  }
+	{
+		/* PCIID */
+		pciid = strtoul (arg, NULL, 16);
+		if (pciid == ULONG_MAX)
+			return ~0;
+	}
 	else
-	  {
-		  /* bus:dev:fun */
-		  bus_str = arg;
-		  *dev_str = '\0';
-		  dev_str++;
-		  fun_str = strstr (dev_str, ":");
-		  if (fun_str == NULL)
-			  return ~0;
-		  *fun_str = '\0';
-		  fun_str++;
+	{
+		/* bus:dev:fun */
+		bus_str = arg;
+		*dev_str = '\0';
+		dev_str++;
+		fun_str = strstr (dev_str, ":");
+		if (fun_str == NULL)
+			return ~0;
+		*fun_str = '\0';
+		fun_str++;
 
-		  busno = strtoul (bus_str, NULL, 16);
-		  if (busno == ULONG_MAX)
-			  return ~0;
-		  devno = strtoul (dev_str, NULL, 16);
-		  if (devno == ULONG_MAX)
-			  return ~0;
-		  funno = strtoul (fun_str, NULL, 16);
-		  if (funno == ULONG_MAX)
-			  return ~0;
-		  pciid = PCI_DEV (busno, devno, funno);
-	  }
+		busno = strtoul (bus_str, NULL, 16);
+		if (busno == ULONG_MAX)
+			return ~0;
+		devno = strtoul (dev_str, NULL, 16);
+		if (devno == ULONG_MAX)
+			return ~0;
+		funno = strtoul (fun_str, NULL, 16);
+		if (funno == ULONG_MAX)
+			return ~0;
+		pciid = PCI_DEV (busno, devno, funno);
+	}
 
 	return pciid;
 }
@@ -80,7 +80,7 @@ static unsigned long get_pciid_from_string (char *arg)
  * configuration setup.
  */
 static int shell_pci_pcfg (int argc,
-						   char *argv[], struct shell_pci_modifier *mod)
+						 char *argv[], struct shell_pci_modifier *mod)
 {
 	if (argc != 2)
 		return -1;
@@ -95,22 +95,22 @@ static int shell_pci_ls (int argc, char *argv[], struct shell_pci_modifier *mod)
 	unsigned long pciid;
 
 	if (argc == 2)
-	  {
-		  /* List all devices */
-		  pci_print ();
-	  }
+	{
+		/* List all devices */
+		pci_print ();
+	}
 	else if (argc > 3)
-	  {
-		  return -1;
-	  }
+	{
+		return -1;
+	}
 	else
-	  {
-		  pciid = get_pciid_from_string (argv[2]);
-		  if ((pciid & 0xffff0000) != 0)
-			  return -1;
+	{
+		pciid = get_pciid_from_string (argv[2]);
+		if ((pciid & 0xffff0000) != 0)
+			return -1;
 
-		  pci_print_dev ((pci_dev_t) pciid);
-	  }
+		pci_print_dev ((pci_dev_t) pciid);
+	}
 	return 0;
 }
 
@@ -122,31 +122,31 @@ static int shell_pci_rX (unsigned long pciid, int offset, int size)
 	int result;
 
 	switch (size)
-	  {
-		  case 1:
-			  result = pci_cfg_r8 (pciid, offset, &data8);
-			  if (result == PCISTS_OK)
-				  printf (" r08[0x%02x]: 0x%02x  DEC=%d\n", offset, data8,
-						  data8);
-			  break;
+	{
+		case 1:
+			result = pci_cfg_r8 (pciid, offset, &data8);
+			if (result == PCISTS_OK)
+				printf (" r08[0x%02x]: 0x%02x  DEC=%d\n", offset, data8,
+						data8);
+			break;
 
-		  case 2:
-			  result = pci_cfg_r16 (pciid, offset, &data16);
-			  if (result == PCISTS_OK)
-				  printf (" r16[0x%02x]: 0x%04x  DEC=%d\n", offset, data16,
-						  data16);
-			  break;
+		case 2:
+			result = pci_cfg_r16 (pciid, offset, &data16);
+			if (result == PCISTS_OK)
+				printf (" r16[0x%02x]: 0x%04x  DEC=%d\n", offset, data16,
+						data16);
+			break;
 
-		  case 4:
-			  result = pci_cfg_r32 (pciid, offset, &data32);
-			  if (result == PCISTS_OK)
-				  printf (" r32[0x%02x]: 0x%08lx  DEC=%lu\n", offset, data32,
-						  data32);
-			  break;
+		case 4:
+			result = pci_cfg_r32 (pciid, offset, &data32);
+			if (result == PCISTS_OK)
+				printf (" r32[0x%02x]: 0x%08lx  DEC=%lu\n", offset, data32,
+						data32);
+			break;
 
-		  default:
-			  return PCISTS_EINVAL;
-	  }
+		default:
+			return PCISTS_EINVAL;
+	}
 	return result;
 }
 
@@ -158,42 +158,42 @@ static int shell_pci_wX (unsigned long pciid,
 	int result;
 
 	switch (size)
-	  {
-		  case 1:
-			  if (data > 0xff)
-				  return PCISTS_EINVAL;
-			  data8 = data & 0xff;
-			  result = pci_cfg_w8 (pciid, offset, data8);
-			  if (result == PCISTS_OK)
-				  printf (" w08[0x%02x]: 0x%02x  DEC=%d\n", offset, data8,
-						  data8);
-			  break;
+	{
+		case 1:
+			if (data > 0xff)
+				return PCISTS_EINVAL;
+			data8 = data & 0xff;
+			result = pci_cfg_w8 (pciid, offset, data8);
+			if (result == PCISTS_OK)
+				printf (" w08[0x%02x]: 0x%02x  DEC=%d\n", offset, data8,
+						data8);
+			break;
 
-		  case 2:
-			  if (data > 0xffff)
-				  return PCISTS_EINVAL;
-			  data16 = data & 0xffff;
-			  result = pci_cfg_w16 (pciid, offset, data16);
-			  if (result == PCISTS_OK)
-				  printf (" w16[0x%02x]: 0x%04x  DEC=%d\n", offset, data16,
-						  data16);
-			  break;
+		case 2:
+			if (data > 0xffff)
+				return PCISTS_EINVAL;
+			data16 = data & 0xffff;
+			result = pci_cfg_w16 (pciid, offset, data16);
+			if (result == PCISTS_OK)
+				printf (" w16[0x%02x]: 0x%04x  DEC=%d\n", offset, data16,
+						data16);
+			break;
 
-		  case 4:
-			  result = pci_cfg_w32 (pciid, offset, data);
-			  if (result == PCISTS_OK)
-				  printf (" w32[0x%02x]: 0x%08lx  DEC=%lu\n", offset, data,
-						  data);
-			  break;
+		case 4:
+			result = pci_cfg_w32 (pciid, offset, data);
+			if (result == PCISTS_OK)
+				printf (" w32[0x%02x]: 0x%08lx  DEC=%lu\n", offset, data,
+						data);
+			break;
 
-		  default:
-			  return PCISTS_EINVAL;
-	  }
+		default:
+			return PCISTS_EINVAL;
+	}
 	return result;
 }
 
 static int shell_pci_read (int argc,
-						   char *argv[], struct shell_pci_modifier *mod)
+						 char *argv[], struct shell_pci_modifier *mod)
 {
 	unsigned long pciid, offset;
 	int result, size;
@@ -212,20 +212,20 @@ static int shell_pci_read (int argc,
 	size = mod->data;
 	result = shell_pci_rX (pciid, offset, size);
 	switch (result)
-	  {
-		  default:
-		  case PCISTS_OK:
-			  break;
+	{
+		default:
+		case PCISTS_OK:
+			break;
 
-		  case PCISTS_ERR:
-		  case PCISTS_EINVAL:
-			  puts (" Bad input argument\n");
-			  return PCISTS_EINVAL;
+		case PCISTS_ERR:
+		case PCISTS_EINVAL:
+			puts (" Bad input argument\n");
+			return PCISTS_EINVAL;
 
-		  case PCISTS_MSTABRT:
-			  puts (" Master abort while reading configuration space");
-			  return PCISTS_MSTABRT;
-	  }
+		case PCISTS_MSTABRT:
+			puts (" Master abort while reading configuration space");
+			return PCISTS_MSTABRT;
+	}
 
 	return 0;
 }
@@ -255,20 +255,20 @@ static int shell_pci_write (int argc,
 	size = mod->data;
 	result = shell_pci_wX (pciid, offset, data, size);
 	switch (result)
-	  {
-		  default:
-		  case PCISTS_OK:
-			  break;
+	{
+		default:
+		case PCISTS_OK:
+			break;
 
-		  case PCISTS_ERR:
-		  case PCISTS_EINVAL:
-			  puts (" Bad input argument\n");
-			  return PCISTS_EINVAL;
+		case PCISTS_ERR:
+		case PCISTS_EINVAL:
+			puts (" Bad input argument\n");
+			return PCISTS_EINVAL;
 
-		  case PCISTS_MSTABRT:
-			  puts (" Master abort while reading configuration space");
-			  return PCISTS_MSTABRT;
-	  }
+		case PCISTS_MSTABRT:
+			puts (" Master abort while reading configuration space");
+			return PCISTS_MSTABRT;
+	}
 	return 0;
 }
 
@@ -302,18 +302,18 @@ static int shell_pci_getdev (int argc,
 		return -1;
 
 	if (pci_get_dev (pciid, &dev))
-	  {
-		  printf (" GETDEV: no device on [%lx:%lx:%lx]\n",
-				  PCI_DEV_EXPAND (pciid));
-		  return 0;
-	  }
+	{
+		printf (" GETDEV: no device on [%lx:%lx:%lx]\n",
+				PCI_DEV_EXPAND (pciid));
+		return 0;
+	}
 
 	printf (" PCI RAM DEVICE: %p\n", dev);
 	return 0;
 }
 
 static int shell_pci_infodev (int argc,
-							  char *argv[], struct shell_pci_modifier *mod)
+							char *argv[], struct shell_pci_modifier *mod)
 {
 	unsigned long arg;
 	struct pci_dev *dev;
@@ -331,40 +331,40 @@ static int shell_pci_infodev (int argc,
 
 	dev = (struct pci_dev *)arg;
 	if (!dev)
-	  {
-		  printf (" INFODEV: invalid device\n");
-		  return 0;
-	  }
+	{
+		printf (" INFODEV: invalid device\n");
+		return 0;
+	}
 
 	if (dev->flags & PCI_DEV_BRIDGE)
-	  {
-		  type_str = "PCI-to-PCI BRIDGE";
-		  if (!dev->bus)
-			  type_str = "PCI HOST BRIDGE";
-	  }
+	{
+		type_str = "PCI-to-PCI BRIDGE";
+		if (!dev->bus)
+			type_str = "PCI HOST BRIDGE";
+	}
 	else
 		type_str = "PCI DEVICE";
 	printf (" %s at [%x:%x:%x]\n", type_str, PCI_DEV_EXPAND (dev->busdevfun));
 
 	bus = (struct pci_bus *)dev;
 	if (bus)
-	  {
-		  printf (" PRIMARY:       BUS 0x%x\n", bus->pri);
-		  printf (" SECONDARY:     BUS 0x%x\n", bus->num);
-		  printf (" SUB ORDINATE:  BUS 0x%x\n", bus->sord);
-	  }
+	{
+		printf (" PRIMARY:       BUS 0x%x\n", bus->pri);
+		printf (" SECONDARY:     BUS 0x%x\n", bus->num);
+		printf (" SUB ORDINATE:  BUS 0x%x\n", bus->sord);
+	}
 
 	printf (" PCIID:         0x%04x\n", dev->busdevfun);
 	bus = dev->bus;
 	if (!bus)
-	  {
-		  printf (" AT BUS:        0x%x via Host Bridge\n", bus->num);
-	  }
+	{
+		printf (" AT BUS:        0x%x via Host Bridge\n", bus->num);
+	}
 	else
-	  {
-		  printf (" AT BUS:        0x%x via Bridge at [%x:%x:%x]\n", bus->num,
-				  PCI_DEV_EXPAND (bus->dev.busdevfun));
-	  }
+	{
+		printf (" AT BUS:        0x%x via Bridge at [%x:%x:%x]\n", bus->num,
+				PCI_DEV_EXPAND (bus->dev.busdevfun));
+	}
 	printf (" VENDOR:        0x%04x\n", dev->vendor);
 	printf (" DEVICE:        0x%04x\n", dev->device);
 	printf (" SUB VENDOR:    0x%04x\n", dev->subvendor);
@@ -375,31 +375,31 @@ static int shell_pci_infodev (int argc,
 
 	res_avail = 0;
 	for (i = 0; i < DEV_RES_CNT; i++)
-	  {
-		  res = &dev->resources[i];
+	{
+		res = &dev->resources[i];
 
-		  if ((res->flags & PCI_RES_TYPE_MASK) == 0)
-			  continue;
+		if ((res->flags & PCI_RES_TYPE_MASK) == 0)
+			continue;
 
-		  str1 = res_types[(res->flags & PCI_RES_TYPE_MASK) - 1];
-		  if (res->flags & PCI_RES_IO32)
-			  str1 = " IO32";
+		str1 = res_types[(res->flags & PCI_RES_TYPE_MASK) - 1];
+		if (res->flags & PCI_RES_IO32)
+			str1 = " IO32";
 
-		  if (res_avail == 0)
-			{
-				puts (" RESOURCES:");
-				res_avail = 1;
-			}
+		if (res_avail == 0)
+		{
+			puts (" RESOURCES:");
+			res_avail = 1;
+		}
 
-		  if (res->flags & PCI_RES_FAIL)
-			{
-				printf ("  %s[%d]:  NOT ASSIGNED", str1, i);
-				continue;
-			}
+		if (res->flags & PCI_RES_FAIL)
+		{
+			printf ("  %s[%d]:  NOT ASSIGNED", str1, i);
+			continue;
+		}
 
-		  printf ("  %s[%d]:  %08lx-%08lx\n", str1, i, res->start,
-				  res->end - 1);
-	  }
+		printf ("  %s[%d]:  %08lx-%08lx\n", str1, i, res->start,
+				res->end - 1);
+	}
 
 	if (res_avail == 0)
 		puts (" NO CONFIGURED RESOURCES AVAILABLE");
@@ -421,10 +421,10 @@ static int pci_summary (void)
 	printf (" SYSTEM:            %s\n", str);
 
 	if (pci_config_lib_type > PCI_CONFIG_LIB_PERIPHERAL)
-	  {
-		  puts (" Bad configuration library");
-		  return 1;
-	  }
+	{
+		puts (" Bad configuration library");
+		return 1;
+	}
 	printf (" CFG LIBRARY:       %s\n", cfglib_strs[pci_config_lib_type]);
 	printf (" NO. PCI BUSES:     %d buses\n", pci_bus_count ());
 	printf (" PCI ENDIAN:        %s\n", pci_endian ? "Big" : "Little");
@@ -467,7 +467,8 @@ static int shell_pci_usage (int argc,
 }
 
 #define MODIFIER_NUM 12
-static struct shell_pci_modifier shell_pci_modifiers[MODIFIER_NUM] = {
+static struct shell_pci_modifier shell_pci_modifiers[MODIFIER_NUM] =
+{
 	{"ls", shell_pci_ls, 0},
 	{"r8", shell_pci_read, 1},
 	{"r16", shell_pci_read, 2},
@@ -491,10 +492,10 @@ static struct shell_pci_modifier *shell_pci_find_modifier (char *name)
 		return NULL;
 
 	for (i = 0, mod = &shell_pci_modifiers[0]; i < MODIFIER_NUM; i++, mod++)
-	  {
-		  if (strcmp (name, mod->name) == 0)
-			  return mod;
-	  }
+	{
+		if (strcmp (name, mod->name) == 0)
+			return mod;
+	}
 
 	return NULL;
 }
@@ -505,30 +506,31 @@ static int rtems_shell_main_pci (int argc, char *argv[])
 	int rc;
 
 	if (argc < 2)
-	  {
-		  /* without arguments */
-		  pci_summary ();
-		  rc = 0;
-	  }
+	{
+		/* without arguments */
+		pci_summary ();
+		rc = 0;
+	}
 	else if ((mod = shell_pci_find_modifier (argv[1])) != NULL)
-	  {
-		  rc = mod->func (argc, argv, mod);
-	  }
+	{
+		rc = mod->func (argc, argv, mod);
+	}
 	else
-	  {
-		  rc = -1;
-	  }
+	{
+		rc = -1;
+	}
 
 	if (rc < 0)
-	  {
-		  printf (" invalid argument\n");
-		  usage ();
-	  }
+	{
+		printf (" invalid argument\n");
+		usage ();
+	}
 
 	return rc;
 }
 
-rtems_shell_cmd_t rtems_shell_PCI_Command = {
+rtems_shell_cmd_t rtems_shell_PCI_Command =
+{
 	"pci",						/* name */
 	pci_usage_str,				/* usage */
 	"system",					/* topic */

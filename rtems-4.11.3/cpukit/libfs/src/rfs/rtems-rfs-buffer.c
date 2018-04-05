@@ -35,8 +35,8 @@
  * @return  rtems_rfs_buffer* The buffer if found else NULL.
  */
 static rtems_rfs_buffer *rtems_rfs_scan_chain (rtems_chain_control * chain,
-											   uint32_t * count,
-											   rtems_rfs_buffer_block block)
+											 uint32_t * count,
+											 rtems_rfs_buffer_block block)
 {
 	rtems_rfs_buffer *buffer;
 	rtems_chain_node *node;
@@ -48,25 +48,25 @@ static rtems_rfs_buffer *rtems_rfs_scan_chain (rtems_chain_control * chain,
 				": ", *count, block);
 
 	while (!rtems_chain_is_head (chain, node))
-	  {
-		  buffer = (rtems_rfs_buffer *) node;
+	{
+		buffer = (rtems_rfs_buffer *) node;
 
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CHAINS))
-			  printf ("%" PRIiPTR " ", ((intptr_t) buffer->user));
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CHAINS))
+			printf ("%" PRIiPTR " ", ((intptr_t) buffer->user));
 
-		  if (((rtems_rfs_buffer_block) ((intptr_t) (buffer->user))) == block)
-			{
-				if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CHAINS))
-					printf (": found block=%" PRIiPTR "\n",
-							((intptr_t) (buffer->user)));
+		if (((rtems_rfs_buffer_block) ((intptr_t) (buffer->user))) == block)
+		{
+			if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CHAINS))
+				printf (": found block=%" PRIiPTR "\n",
+						((intptr_t) (buffer->user)));
 
-				(*count)--;
-				rtems_chain_extract_unprotected (node);
-				rtems_chain_set_off_chain (node);
-				return buffer;
-			}
-		  node = rtems_chain_previous (node);
-	  }
+			(*count)--;
+			rtems_chain_extract_unprotected (node);
+			rtems_chain_set_off_chain (node);
+			return buffer;
+		}
+		node = rtems_chain_previous (node);
+	}
 
 	if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CHAINS))
 		printf (": not found\n");
@@ -86,23 +86,23 @@ rtems_rfs_buffer_handle_request (rtems_rfs_file_system * fs,
 	 * without needing to close then open it again.
 	 */
 	if (rtems_rfs_buffer_handle_has_block (handle))
-	  {
-		  /*
-		   * Treat block 0 as special to handle the loading of the super block.
-		   */
-		  if (block && (rtems_rfs_buffer_bnum (handle) == block))
-			  return 0;
+	{
+		/*
+		 * Treat block 0 as special to handle the loading of the super block.
+		 */
+		if (block && (rtems_rfs_buffer_bnum (handle) == block))
+			return 0;
 
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
-			  printf ("rtems-rfs: buffer-request: handle has buffer: %" PRIu32
-					  "\n", rtems_rfs_buffer_bnum (handle));
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
+			printf ("rtems-rfs: buffer-request: handle has buffer: %" PRIu32
+					"\n", rtems_rfs_buffer_bnum (handle));
 
-		  rc = rtems_rfs_buffer_handle_release (fs, handle);
-		  if (rc > 0)
-			  return rc;
-		  handle->dirty = false;
-		  handle->bnum = 0;
-	  }
+		rc = rtems_rfs_buffer_handle_release (fs, handle);
+		if (rc > 0)
+			return rc;
+		handle->dirty = false;
+		handle->bnum = 0;
+	}
 
 	if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
 		printf ("rtems-rfs: buffer-request: block=%" PRIu32 "\n", block);
@@ -115,17 +115,17 @@ rtems_rfs_buffer_handle_request (rtems_rfs_file_system * fs,
 	 * the same block at the same time.
 	 */
 	if (fs->buffers_count)
-	  {
-		  /*
-		   * Check the active buffer list for shared buffers.
-		   */
-		  handle->buffer = rtems_rfs_scan_chain (&fs->buffers,
+	{
+		/*
+		 * Check the active buffer list for shared buffers.
+		 */
+		handle->buffer = rtems_rfs_scan_chain (&fs->buffers,
 												 &fs->buffers_count, block);
-		  if (rtems_rfs_buffer_handle_has_block (handle) &&
-			  rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
-			  printf ("rtems-rfs: buffer-request: buffer shared: refs: %d\n",
-					  rtems_rfs_buffer_refs (handle) + 1);
-	  }
+		if (rtems_rfs_buffer_handle_has_block (handle) &&
+			rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
+			printf ("rtems-rfs: buffer-request: buffer shared: refs: %d\n",
+					rtems_rfs_buffer_refs (handle) + 1);
+	}
 
 	/*
 	 * If the buffer has not been found check the local cache of released
@@ -134,47 +134,47 @@ rtems_rfs_buffer_handle_request (rtems_rfs_file_system * fs,
 	 */
 	if (!rtems_rfs_fs_no_local_cache (fs) &&
 		!rtems_rfs_buffer_handle_has_block (handle))
-	  {
-		  /*
-		   * Check the local cache of released buffers.
-		   */
-		  if (fs->release_count)
-			  handle->buffer = rtems_rfs_scan_chain (&fs->release,
+	{
+		/*
+		 * Check the local cache of released buffers.
+		 */
+		if (fs->release_count)
+			handle->buffer = rtems_rfs_scan_chain (&fs->release,
 													 &fs->release_count, block);
 
-		  if (!rtems_rfs_buffer_handle_has_block (handle) &&
-			  fs->release_modified_count)
-			{
-				handle->buffer = rtems_rfs_scan_chain (&fs->release_modified,
-													   &fs->
-													   release_modified_count,
-													   block);
-				/*
-				 * If we found a buffer retain the dirty buffer state.
-				 */
-				if (rtems_rfs_buffer_handle_has_block (handle))
-					rtems_rfs_buffer_mark_dirty (handle);
-			}
-	  }
+		if (!rtems_rfs_buffer_handle_has_block (handle) &&
+			fs->release_modified_count)
+		{
+			handle->buffer = rtems_rfs_scan_chain (&fs->release_modified,
+												 &fs->
+												 release_modified_count,
+												 block);
+			/*
+			 * If we found a buffer retain the dirty buffer state.
+			 */
+			if (rtems_rfs_buffer_handle_has_block (handle))
+				rtems_rfs_buffer_mark_dirty (handle);
+		}
+	}
 
 	/*
 	 * If not located we request the buffer from the I/O layer.
 	 */
 	if (!rtems_rfs_buffer_handle_has_block (handle))
-	  {
-		  rc = rtems_rfs_buffer_io_request (fs, block, read, &handle->buffer);
+	{
+		rc = rtems_rfs_buffer_io_request (fs, block, read, &handle->buffer);
 
-		  if (rc > 0)
-			{
-				if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
-					printf ("rtems-rfs: buffer-request: block=%" PRIu32
-							": bdbuf-%s: %d: %s\n", block,
-							read ? "read" : "get", rc, strerror (rc));
-				return rc;
-			}
+		if (rc > 0)
+		{
+			if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_REQUEST))
+				printf ("rtems-rfs: buffer-request: block=%" PRIu32
+						": bdbuf-%s: %d: %s\n", block,
+						read ? "read" : "get", rc, strerror (rc));
+			return rc;
+		}
 
-		  rtems_chain_set_off_chain (rtems_rfs_buffer_link (handle));
-	  }
+		rtems_chain_set_off_chain (rtems_rfs_buffer_link (handle));
+	}
 
 	/*
 	 * Increase the reference count of the buffer.
@@ -202,95 +202,95 @@ rtems_rfs_buffer_handle_release (rtems_rfs_file_system * fs,
 	int rc = 0;
 
 	if (rtems_rfs_buffer_handle_has_block (handle))
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_RELEASE))
-			  printf ("rtems-rfs: buffer-release: block=%" PRIu32
-					  " %s refs=%d %s\n", rtems_rfs_buffer_bnum (handle),
-					  rtems_rfs_buffer_dirty (handle) ? "(dirty)" : "",
-					  rtems_rfs_buffer_refs (handle),
-					  rtems_rfs_buffer_refs (handle) ==
-					  0 ? "BAD REF COUNT" : "");
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_HANDLE_RELEASE))
+			printf ("rtems-rfs: buffer-release: block=%" PRIu32
+					" %s refs=%d %s\n", rtems_rfs_buffer_bnum (handle),
+					rtems_rfs_buffer_dirty (handle) ? "(dirty)" : "",
+					rtems_rfs_buffer_refs (handle),
+					rtems_rfs_buffer_refs (handle) ==
+					0 ? "BAD REF COUNT" : "");
 
-		  if (rtems_rfs_buffer_refs (handle) > 0)
-			  rtems_rfs_buffer_refs_down (handle);
+		if (rtems_rfs_buffer_refs (handle) > 0)
+			rtems_rfs_buffer_refs_down (handle);
 
-		  if (rtems_rfs_buffer_refs (handle) == 0)
+		if (rtems_rfs_buffer_refs (handle) == 0)
+		{
+			rtems_chain_extract_unprotected (rtems_rfs_buffer_link
+											 (handle));
+			fs->buffers_count--;
+
+			if (rtems_rfs_fs_no_local_cache (fs))
 			{
-				rtems_chain_extract_unprotected (rtems_rfs_buffer_link
-												 (handle));
-				fs->buffers_count--;
-
-				if (rtems_rfs_fs_no_local_cache (fs))
-				  {
-					  handle->buffer->user = (void *)0;
-					  rc = rtems_rfs_buffer_io_release (handle->buffer,
-														rtems_rfs_buffer_dirty
-														(handle));
-				  }
-				else
-				  {
-					  /*
-					   * If the total number of held buffers is higher than the configured
-					   * value remove a buffer from the queue with the most buffers and
-					   * release. The buffers are held on the queues with the newest at the
-					   * head.
-					   *
-					   * This code stops a large series of transactions causing all the
-					   * buffers in the cache being held in queues of this file system.
-					   */
-					  if ((fs->release_count +
-						   fs->release_modified_count) >= fs->max_held_buffers)
-						{
-							rtems_rfs_buffer *buffer;
-							bool modified;
-
-							if (rtems_rfs_trace
-								(RTEMS_RFS_TRACE_BUFFER_HANDLE_RELEASE))
-								printf
-									("rtems-rfs: buffer-release: local cache overflow:"
-									 " %" PRIu32 "\n",
-									 fs->release_count +
-									 fs->release_modified_count);
-
-							if (fs->release_count > fs->release_modified_count)
-							  {
-								  buffer = (rtems_rfs_buffer *)
-									  rtems_chain_get_unprotected (&fs->
-																   release);
-								  fs->release_count--;
-								  modified = false;
-							  }
-							else
-							  {
-								  buffer = (rtems_rfs_buffer *)
-									  rtems_chain_get_unprotected (&fs->
-																   release_modified);
-								  fs->release_modified_count--;
-								  modified = true;
-							  }
-							buffer->user = (void *)0;
-							rc = rtems_rfs_buffer_io_release (buffer, modified);
-						}
-
-					  if (rtems_rfs_buffer_dirty (handle))
-						{
-							rtems_chain_append_unprotected (&fs->
-															release_modified,
-															rtems_rfs_buffer_link
-															(handle));
-							fs->release_modified_count++;
-						}
-					  else
-						{
-							rtems_chain_append_unprotected (&fs->release,
-															rtems_rfs_buffer_link
-															(handle));
-							fs->release_count++;
-						}
-				  }
+				handle->buffer->user = (void *)0;
+				rc = rtems_rfs_buffer_io_release (handle->buffer,
+													rtems_rfs_buffer_dirty
+													(handle));
 			}
-		  handle->buffer = NULL;
-	  }
+			else
+			{
+				/*
+				 * If the total number of held buffers is higher than the configured
+				 * value remove a buffer from the queue with the most buffers and
+				 * release. The buffers are held on the queues with the newest at the
+				 * head.
+				 *
+				 * This code stops a large series of transactions causing all the
+				 * buffers in the cache being held in queues of this file system.
+				 */
+				if ((fs->release_count +
+					 fs->release_modified_count) >= fs->max_held_buffers)
+				{
+					rtems_rfs_buffer *buffer;
+					bool modified;
+
+					if (rtems_rfs_trace
+						(RTEMS_RFS_TRACE_BUFFER_HANDLE_RELEASE))
+						printf
+							("rtems-rfs: buffer-release: local cache overflow:"
+							 " %" PRIu32 "\n",
+							 fs->release_count +
+							 fs->release_modified_count);
+
+					if (fs->release_count > fs->release_modified_count)
+					{
+						buffer = (rtems_rfs_buffer *)
+							rtems_chain_get_unprotected (&fs->
+														 release);
+						fs->release_count--;
+						modified = false;
+					}
+					else
+					{
+						buffer = (rtems_rfs_buffer *)
+							rtems_chain_get_unprotected (&fs->
+														 release_modified);
+						fs->release_modified_count--;
+						modified = true;
+					}
+					buffer->user = (void *)0;
+					rc = rtems_rfs_buffer_io_release (buffer, modified);
+				}
+
+				if (rtems_rfs_buffer_dirty (handle))
+				{
+					rtems_chain_append_unprotected (&fs->
+													release_modified,
+													rtems_rfs_buffer_link
+													(handle));
+					fs->release_modified_count++;
+				}
+				else
+				{
+					rtems_chain_append_unprotected (&fs->release,
+													rtems_rfs_buffer_link
+													(handle));
+					fs->release_count++;
+				}
+			}
+		}
+		handle->buffer = NULL;
+	}
 
 	return rc;
 }
@@ -307,42 +307,42 @@ int rtems_rfs_buffer_open (const char *name, rtems_rfs_file_system * fs)
 
 	fs->device = open (name, O_RDWR);
 	if (fs->device < 0)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
-			  printf ("rtems-rfs: buffer-open: cannot open file\n");
-		  return ENXIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
+			printf ("rtems-rfs: buffer-open: cannot open file\n");
+		return ENXIO;
+	}
 
 	if (fstat (fs->device, &st) < 0)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
-			  printf ("rtems-rfs: buffer-open: stat '%s' failed: %s\n",
-					  name, strerror (errno));
-		  return ENXIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
+			printf ("rtems-rfs: buffer-open: stat '%s' failed: %s\n",
+					name, strerror (errno));
+		return ENXIO;
+	}
 
 #if RTEMS_RFS_USE_LIBBLOCK
 	/*
 	 * Is the device a block device ?
 	 */
 	if (!S_ISBLK (st.st_mode))
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
-			  printf ("rtems-rfs: buffer-open: '%s' is not a block device\n",
-					  name);
-		  return ENXIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
+			printf ("rtems-rfs: buffer-open: '%s' is not a block device\n",
+					name);
+		return ENXIO;
+	}
 
 	/*
 	 * Check that device is registred as a block device and lock it.
 	 */
 	rv = rtems_disk_fd_get_disk_device (fs->device, &fs->disk);
 	if (rv != 0)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
-			  printf ("rtems-rfs: buffer-open: cannot obtain the disk\n");
-		  return ENXIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_OPEN))
+			printf ("rtems-rfs: buffer-open: cannot obtain the disk\n");
+		return ENXIO;
+	}
 #else
 	fs->media_size = st.st_size;
 	strcat (fs->name, name);
@@ -375,12 +375,12 @@ int rtems_rfs_buffer_close (rtems_rfs_file_system * fs)
 			 rc, strerror (rc));
 
 	if (close (fs->device) < 0)
-	  {
-		  rc = errno;
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CLOSE))
-			  printf ("rtems-rfs: buffer-close: file close failed: %d: %s\n",
-					  rc, strerror (rc));
-	  }
+	{
+		rc = errno;
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CLOSE))
+			printf ("rtems-rfs: buffer-close: file close failed: %d: %s\n",
+					rc, strerror (rc));
+	}
 
 	return rc;
 }
@@ -401,21 +401,21 @@ int rtems_rfs_buffer_sync (rtems_rfs_file_system * fs)
 #if RTEMS_RFS_USE_LIBBLOCK
 	sc = rtems_bdbuf_syncdev (rtems_rfs_fs_device (fs));
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_SYNC))
-			  printf ("rtems-rfs: buffer-sync: device sync failed: %s\n",
-					  rtems_status_text (sc));
-		  result = EIO;
-	  }
+	{
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_SYNC))
+			printf ("rtems-rfs: buffer-sync: device sync failed: %s\n",
+					rtems_status_text (sc));
+		result = EIO;
+	}
 	rtems_disk_release (fs->disk);
 #else
 	if (fsync (fs->device) < 0)
-	  {
-		  result = errno;
-		  if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CLOSE))
-			  printf ("rtems-rfs: buffer-sync: file sync failed: %d: %s\n",
-					  result, strerror (result));
-	  }
+	{
+		result = errno;
+		if (rtems_rfs_trace (RTEMS_RFS_TRACE_BUFFER_CLOSE))
+			printf ("rtems-rfs: buffer-sync: file sync failed: %d: %s\n",
+					result, strerror (result));
+	}
 #endif
 	return result;
 }
@@ -457,16 +457,16 @@ rtems_rfs_release_chain (rtems_chain_control * chain,
 		printf ("rtems-rfs: release-chain: count=%" PRIu32 "\n", *count);
 
 	while (!rtems_chain_is_empty (chain))
-	  {
-		  buffer = (rtems_rfs_buffer *) rtems_chain_get_unprotected (chain);
-		  (*count)--;
+	{
+		buffer = (rtems_rfs_buffer *) rtems_chain_get_unprotected (chain);
+		(*count)--;
 
-		  buffer->user = (void *)0;
+		buffer->user = (void *)0;
 
-		  rc = rtems_rfs_buffer_io_release (buffer, modified);
-		  if ((rc > 0) && (rrc == 0))
-			  rrc = rc;
-	  }
+		rc = rtems_rfs_buffer_io_release (buffer, modified);
+		if ((rc > 0) && (rrc == 0))
+			rrc = rc;
+	}
 	return rrc;
 }
 
@@ -485,7 +485,7 @@ int rtems_rfs_buffers_release (rtems_rfs_file_system * fs)
 	if ((rc > 0) && (rrc == 0))
 		rrc = rc;
 	rc = rtems_rfs_release_chain (&fs->release_modified,
-								  &fs->release_modified_count, true);
+								&fs->release_modified_count, true);
 	if ((rc > 0) && (rrc == 0))
 		rrc = rc;
 

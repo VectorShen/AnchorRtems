@@ -78,13 +78,13 @@ portdev_t pack_native (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev (numbers[0], numbers[1]);
-		  if ((u_long) major (dev) != numbers[0])
-			  *error = iMajorError;
-		  else if ((u_long) minor (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev (numbers[0], numbers[1]);
+		if ((u_long) major (dev) != numbers[0])
+			*error = iMajorError;
+		else if ((u_long) minor (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -95,13 +95,13 @@ static portdev_t pack_netbsd (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_netbsd (numbers[0], numbers[1]);
-		  if ((u_long) major_netbsd (dev) != numbers[0])
-			  *error = iMajorError;
-		  else if ((u_long) minor_netbsd (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_netbsd (numbers[0], numbers[1]);
+		if ((u_long) major_netbsd (dev) != numbers[0])
+			*error = iMajorError;
+		else if ((u_long) minor_netbsd (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -117,13 +117,13 @@ static portdev_t pack_freebsd (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_freebsd (numbers[0], numbers[1]);
-		  if ((u_long) major_freebsd (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_freebsd (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_freebsd (numbers[0], numbers[1]);
+		if ((u_long) major_freebsd (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_freebsd (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -139,13 +139,13 @@ static portdev_t pack_8_8 (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_8_8 (numbers[0], numbers[1]);
-		  if ((u_long) major_8_8 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_8_8 (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_8_8 (numbers[0], numbers[1]);
+		if ((u_long) major_8_8 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_8_8 (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -161,13 +161,13 @@ static portdev_t pack_12_20 (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_12_20 (numbers[0], numbers[1]);
-		  if ((u_long) major_12_20 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_12_20 (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_12_20 (numbers[0], numbers[1]);
+		if ((u_long) major_12_20 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_12_20 (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -183,13 +183,13 @@ static portdev_t pack_14_18 (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_14_18 (numbers[0], numbers[1]);
-		  if ((u_long) major_14_18 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_14_18 (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_14_18 (numbers[0], numbers[1]);
+		if ((u_long) major_14_18 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_14_18 (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -205,13 +205,13 @@ static portdev_t pack_8_24 (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_8_24 (numbers[0], numbers[1]);
-		  if ((u_long) major_8_24 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_8_24 (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_8_24 (numbers[0], numbers[1]);
+		if ((u_long) major_8_24 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_8_24 (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -229,23 +229,23 @@ static portdev_t pack_bsdos (int n, u_long numbers[], const char **error)
 	portdev_t dev = 0;
 
 	if (n == 2)
-	  {
-		  dev = makedev_12_20 (numbers[0], numbers[1]);
-		  if ((u_long) major_12_20 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) minor_12_20 (dev) != numbers[1])
-			  *error = iMinorError;
-	  }
+	{
+		dev = makedev_12_20 (numbers[0], numbers[1]);
+		if ((u_long) major_12_20 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) minor_12_20 (dev) != numbers[1])
+			*error = iMinorError;
+	}
 	else if (n == 3)
-	  {
-		  dev = makedev_12_12_8 (numbers[0], numbers[1], numbers[2]);
-		  if ((u_long) major_12_12_8 (dev) != numbers[0])
-			  *error = iMajorError;
-		  if ((u_long) unit_12_12_8 (dev) != numbers[1])
-			  *error = "invalid unit number";
-		  if ((u_long) subunit_12_12_8 (dev) != numbers[2])
-			  *error = "invalid subunit number";
-	  }
+	{
+		dev = makedev_12_12_8 (numbers[0], numbers[1], numbers[2]);
+		if ((u_long) major_12_12_8 (dev) != numbers[0])
+			*error = iMajorError;
+		if ((u_long) unit_12_12_8 (dev) != numbers[1])
+			*error = "invalid unit number";
+		if ((u_long) subunit_12_12_8 (dev) != numbers[2])
+			*error = "invalid subunit number";
+	}
 	else
 		*error = tooManyFields;
 	return (dev);
@@ -260,37 +260,54 @@ struct format
 } formats[] =
 {
 	{
-	"386bsd", pack_8_8},
+		"386bsd", pack_8_8
+	},
 	{
-	"4bsd", pack_8_8},
+		"4bsd", pack_8_8
+	},
 	{
-	"bsdos", pack_bsdos},
+		"bsdos", pack_bsdos
+	},
 	{
-	"freebsd", pack_freebsd},
+		"freebsd", pack_freebsd
+	},
 	{
-	"hpux", pack_8_24},
+		"hpux", pack_8_24
+	},
 	{
-	"isc", pack_8_8},
+		"isc", pack_8_8
+	},
 	{
-	"linux", pack_8_8},
+		"linux", pack_8_8
+	},
 	{
-	"native", pack_native},
+		"native", pack_native
+	},
 	{
-	"netbsd", pack_netbsd},
+		"netbsd", pack_netbsd
+	},
 	{
-	"osf1", pack_12_20},
+		"osf1", pack_12_20
+	},
 	{
-	"sco", pack_8_8},
+		"sco", pack_8_8
+	},
 	{
-	"solaris", pack_14_18},
+		"solaris", pack_14_18
+	},
 	{
-	"sunos", pack_8_8},
+		"sunos", pack_8_8
+	},
 	{
-	"svr3", pack_8_8},
+		"svr3", pack_8_8
+	},
 	{
-	"svr4", pack_14_18},
+		"svr4", pack_14_18
+	},
 	{
-"ultrix", pack_8_8},};
+		"ultrix", pack_8_8
+	},
+};
 
 static int compare_format (const void *key, const void *element)
 {
@@ -308,8 +325,8 @@ pack_t *pack_find (const char *name)
 	struct format *format;
 
 	format = bsearch (name, formats,
-					  sizeof (formats) / sizeof (formats[0]),
-					  sizeof (formats[0]), compare_format);
+					sizeof (formats) / sizeof (formats[0]),
+					sizeof (formats[0]), compare_format);
 	if (format == 0)
 		return (NULL);
 	return (format->pack);

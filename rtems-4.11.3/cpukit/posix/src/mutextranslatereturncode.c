@@ -20,7 +20,8 @@
 
 #include <rtems/posix/muteximpl.h>
 
-const int _POSIX_Mutex_Return_codes[CORE_MUTEX_STATUS_LAST + 1] = {
+const int _POSIX_Mutex_Return_codes[CORE_MUTEX_STATUS_LAST + 1] =
+{
 	0,							/* CORE_MUTEX_STATUS_SUCCESSFUL */
 	EBUSY,						/* CORE_MUTEX_STATUS_UNSATISFIED_NOWAIT */
 	EDEADLK,					/* CORE_MUTEX_STATUS_NESTING_NOT_ALLOWED */

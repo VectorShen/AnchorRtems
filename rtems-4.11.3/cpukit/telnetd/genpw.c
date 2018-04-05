@@ -3,13 +3,13 @@
  * ----------
  * This software was created by
  *     Till Straumann <strauman@slac.stanford.edu>, 2003-2007
- * 	   Stanford Linear Accelerator Center, Stanford University.
+ * 	 Stanford Linear Accelerator Center, Stanford University.
  *
  * Acknowledgement of sponsorship
  * ------------------------------
  * This software was produced by
  *     the Stanford Linear Accelerator Center, Stanford University,
- * 	   under Contract DE-AC03-76SFO0515 with the Department of Energy.
+ * 	 under Contract DE-AC03-76SFO0515 with the Department of Energy.
  *
  * Government disclaimer of liability
  * ----------------------------------
@@ -61,24 +61,24 @@ int main (int argc, char **argv)
 	int ch;
 	char *salt = "td";
 	while ((ch = getopt (argc, argv, "hs:")) >= 0)
-	  {
-		  switch (ch)
-			{
-				default:
-					fprintf (stderr, "Unknown Option '%c'\n", ch);
-				case 'h':
-					usage (argv[0]);
-					return 0;
-				case 's':
-					salt = optarg;
-					break;
-			}
-	  }
+	{
+		switch (ch)
+		{
+			default:
+				fprintf (stderr, "Unknown Option '%c'\n", ch);
+			case 'h':
+				usage (argv[0]);
+				return 0;
+			case 's':
+				salt = optarg;
+				break;
+		}
+	}
 	if (optind >= argc)
-	  {
-		  usage (argv[0]);
-		  return 1;
-	  }
+	{
+		usage (argv[0]);
+		return 1;
+	}
 	printf ("#define TELNETD_DEFAULT_PASSWD \"%s\"\n",
 			crypt (argv[optind], salt));
 }

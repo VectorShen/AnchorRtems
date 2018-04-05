@@ -36,41 +36,41 @@ rtems_status_code rtems_signal_send (rtems_id id, rtems_signal_set signal_set)
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  api = the_thread->API_Extensions[THREAD_API_RTEMS];
-			  asr = &api->Signal;
+		case OBJECTS_LOCAL:
+			api = the_thread->API_Extensions[THREAD_API_RTEMS];
+			asr = &api->Signal;
 
-			  if (!_ASR_Is_null_handler (asr->handler))
+			if (!_ASR_Is_null_handler (asr->handler))
+			{
+				if (asr->is_enabled)
 				{
-					if (asr->is_enabled)
-					  {
-						  _ASR_Post_signals (asr, signal_set,
-											 &asr->signals_posted);
-						  _Thread_Add_post_switch_action (the_thread,
-														  &api->Signal_action);
-					  }
-					else
-					  {
-						  _ASR_Post_signals (asr, signal_set,
-											 &asr->signals_pending);
-					  }
-					_Objects_Put (&the_thread->Object);
-					return RTEMS_SUCCESSFUL;
+					_ASR_Post_signals (asr, signal_set,
+										 &asr->signals_posted);
+					_Thread_Add_post_switch_action (the_thread,
+													&api->Signal_action);
 				}
-			  _Objects_Put (&the_thread->Object);
-			  return RTEMS_NOT_DEFINED;
+				else
+				{
+					_ASR_Post_signals (asr, signal_set,
+										 &asr->signals_pending);
+				}
+				_Objects_Put (&the_thread->Object);
+				return RTEMS_SUCCESSFUL;
+			}
+			_Objects_Put (&the_thread->Object);
+			return RTEMS_NOT_DEFINED;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  return _Signal_MP_Send_request_packet (SIGNAL_MP_SEND_REQUEST,
+		case OBJECTS_REMOTE:
+			return _Signal_MP_Send_request_packet (SIGNAL_MP_SEND_REQUEST,
 													 id, signal_set);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

@@ -68,7 +68,8 @@ struct ypall_callback
 
 struct dom_binding;
 
-__BEGIN_DECLS int yp_bind (char *dom);
+__BEGIN_DECLS
+int yp_bind (char *dom);
 int _yp_dobind (char *dom, struct dom_binding **ypdb);
 void yp_unbind (char *dom);
 int yp_get_default_domain (char **domp);

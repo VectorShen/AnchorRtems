@@ -13,8 +13,8 @@
 
 void
 rtems_monitor_extension_canonical (rtems_monitor_extension_t *
-								   canonical_extension,
-								   const void *extension_void)
+								 canonical_extension,
+								 const void *extension_void)
 {
 	const Extension_Control *rtems_extension =
 		(const Extension_Control *)extension_void;
@@ -55,7 +55,7 @@ void rtems_monitor_extension_dump_header (bool verbose __attribute__ ((unused)))
 
 void
 rtems_monitor_extension_dump (rtems_monitor_extension_t * monitor_extension,
-							  bool verbose)
+							bool verbose)
 {
 	uint32_t length = 0;
 

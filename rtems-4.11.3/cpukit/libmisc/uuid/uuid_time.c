@@ -109,16 +109,16 @@ int uuid_variant (const uuid_t uu)
 static const char *variant_string (int variant)
 {
 	switch (variant)
-	  {
-		  case UUID_VARIANT_NCS:
-			  return "NCS";
-		  case UUID_VARIANT_DCE:
-			  return "DCE";
-		  case UUID_VARIANT_MICROSOFT:
-			  return "Microsoft";
-		  default:
-			  return "Other";
-	  }
+	{
+		case UUID_VARIANT_NCS:
+			return "NCS";
+		case UUID_VARIANT_DCE:
+			return "DCE";
+		case UUID_VARIANT_MICROSOFT:
+			return "Microsoft";
+		default:
+			return "Other";
+	}
 }
 
 int main (int argc, char **argv)
@@ -129,49 +129,49 @@ int main (int argc, char **argv)
 	int type, variant;
 
 	if (argc != 2)
-	  {
-		  fprintf (stderr, "Usage: %s uuid\n", argv[0]);
-		  exit (1);
-	  }
+	{
+		fprintf (stderr, "Usage: %s uuid\n", argv[0]);
+		exit (1);
+	}
 	if (uuid_parse (argv[1], buf))
-	  {
-		  fprintf (stderr, "Invalid UUID: %s\n", argv[1]);
-		  exit (1);
-	  }
+	{
+		fprintf (stderr, "Invalid UUID: %s\n", argv[1]);
+		exit (1);
+	}
 	variant = uuid_variant (buf);
 	type = uuid_type (buf);
 	time_reg = uuid_time (buf, &tv);
 
 	printf ("UUID variant is %d (%s)\n", variant, variant_string (variant));
 	if (variant != UUID_VARIANT_DCE)
-	  {
-		  printf ("Warning: This program only knows how to interpret "
-				  "DCE UUIDs.\n\tThe rest of the output is likely "
-				  "to be incorrect!!\n");
-	  }
+	{
+		printf ("Warning: This program only knows how to interpret "
+				"DCE UUIDs.\n\tThe rest of the output is likely "
+				"to be incorrect!!\n");
+	}
 	printf ("UUID type is %d", type);
 	switch (type)
-	  {
-		  case 1:
-			  printf (" (time based)\n");
-			  break;
-		  case 2:
-			  printf (" (DCE)\n");
-			  break;
-		  case 3:
-			  printf (" (name-based)\n");
-			  break;
-		  case 4:
-			  printf (" (random)\n");
-			  break;
-		  default:
-			  printf ("\n");
-	  }
+	{
+		case 1:
+			printf (" (time based)\n");
+			break;
+		case 2:
+			printf (" (DCE)\n");
+			break;
+		case 3:
+			printf (" (name-based)\n");
+			break;
+		case 4:
+			printf (" (random)\n");
+			break;
+		default:
+			printf ("\n");
+	}
 	if (type != 1)
-	  {
-		  printf ("Warning: not a time-based UUID, so UUID time "
-				  "decoding will likely not work!\n");
-	  }
+	{
+		printf ("Warning: not a time-based UUID, so UUID time "
+				"decoding will likely not work!\n");
+	}
 	printf ("UUID time is: (%ld, %ld): %s\n", tv.tv_sec, tv.tv_usec,
 			ctime (&time_reg));
 

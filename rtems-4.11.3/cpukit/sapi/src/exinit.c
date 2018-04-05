@@ -83,15 +83,15 @@ void rtems_initialize_data_structures (void)
 		rtems_configuration_get_user_multiprocessing_table ();
 
 	if (_Configuration_MP_table == NULL)
-	  {
-		  _Configuration_MP_table =
-			  (void *)&_Initialization_Default_multiprocessing_table;
-		  _System_state_Handler_initialization (FALSE);
-	  }
+	{
+		_Configuration_MP_table =
+			(void *)&_Initialization_Default_multiprocessing_table;
+		_System_state_Handler_initialization (FALSE);
+	}
 	else
-	  {
-		  _System_state_Handler_initialization (TRUE);
-	  }
+	{
+		_System_state_Handler_initialization (TRUE);
+	}
 #else
 	_System_state_Handler_initialization (FALSE);
 #endif
@@ -253,11 +253,11 @@ void rtems_initialize_device_drivers (void)
 
 #if defined(RTEMS_MULTIPROCESSING)
 	if (_System_state_Is_multiprocessing)
-	  {
-		  _MPCI_Initialization ();
-		  _MPCI_Internal_packets_Send_process_packet
-			  (MPCI_PACKETS_SYSTEM_VERIFY);
-	  }
+	{
+		_MPCI_Initialization ();
+		_MPCI_Internal_packets_Send_process_packet
+			(MPCI_PACKETS_SYSTEM_VERIFY);
+	}
 #endif
 
 	/*

@@ -42,36 +42,36 @@ int pthread_rwlock_destroy (pthread_rwlock_t * rwlock)
 	_Objects_Allocator_lock ();
 	the_rwlock = _POSIX_RWLock_Get (rwlock, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  /*
-			   *  If there is at least one thread waiting, then do not delete it.
-			   */
-			  if (_Thread_queue_First (&the_rwlock->RWLock.Wait_queue) != NULL)
-				{
-					_Objects_Put (&the_rwlock->Object);
-					_Objects_Allocator_unlock ();
-					return EBUSY;
-				}
+		case OBJECTS_LOCAL:
+			/*
+			 *  If there is at least one thread waiting, then do not delete it.
+			 */
+			if (_Thread_queue_First (&the_rwlock->RWLock.Wait_queue) != NULL)
+			{
+				_Objects_Put (&the_rwlock->Object);
+				_Objects_Allocator_unlock ();
+				return EBUSY;
+			}
 
-			  /*
-			   *  POSIX doesn't require behavior when it is locked.
-			   */
+			/*
+			 *  POSIX doesn't require behavior when it is locked.
+			 */
 
-			  _Objects_Close (&_POSIX_RWLock_Information, &the_rwlock->Object);
-			  _Objects_Put (&the_rwlock->Object);
-			  _POSIX_RWLock_Free (the_rwlock);
-			  _Objects_Allocator_unlock ();
+			_Objects_Close (&_POSIX_RWLock_Information, &the_rwlock->Object);
+			_Objects_Put (&the_rwlock->Object);
+			_POSIX_RWLock_Free (the_rwlock);
+			_Objects_Allocator_unlock ();
 
-			  return 0;
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

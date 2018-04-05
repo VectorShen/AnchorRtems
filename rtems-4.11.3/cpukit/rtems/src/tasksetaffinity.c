@@ -26,8 +26,8 @@
 #include <rtems/score/schedulerimpl.h>
 
 rtems_status_code rtems_task_set_affinity (rtems_id id,
-										   size_t cpusetsize,
-										   const cpu_set_t * cpuset)
+										 size_t cpusetsize,
+										 const cpu_set_t * cpuset)
 {
 	Thread_Control *the_thread;
 	Objects_Locations location;
@@ -38,20 +38,20 @@ rtems_status_code rtems_task_set_affinity (rtems_id id,
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  ok = _Scheduler_Set_affinity (the_thread, cpusetsize, cpuset);
-			  _Objects_Put (&the_thread->Object);
-			  return ok ? RTEMS_SUCCESSFUL : RTEMS_INVALID_NUMBER;
+		case OBJECTS_LOCAL:
+			ok = _Scheduler_Set_affinity (the_thread, cpusetsize, cpuset);
+			_Objects_Put (&the_thread->Object);
+			return ok ? RTEMS_SUCCESSFUL : RTEMS_INVALID_NUMBER;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

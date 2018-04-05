@@ -60,10 +60,10 @@ static bool _Event_Is_satisfied (const Thread_Control * the_thread,
 }
 
 void _Event_Surrender (Thread_Control * the_thread,
-					   rtems_event_set event_in,
-					   Event_Control * event,
-					   Thread_Wait_flags wait_class,
-					   ISR_lock_Context * lock_context)
+					 rtems_event_set event_in,
+					 Event_Control * event,
+					 Thread_Wait_flags wait_class,
+					 ISR_lock_Context * lock_context)
 {
 	rtems_event_set pending_events;
 	rtems_event_set seized_events;
@@ -76,52 +76,52 @@ void _Event_Surrender (Thread_Control * the_thread,
 
 	if (_Event_Is_blocking_on_event (the_thread, wait_class)
 		&& _Event_Is_satisfied (the_thread, pending_events, &seized_events))
-	  {
-		  Thread_Wait_flags ready_again;
-		  bool success;
+	{
+		Thread_Wait_flags ready_again;
+		bool success;
 
-		  _Event_Satisfy (the_thread, event, pending_events, seized_events);
+		_Event_Satisfy (the_thread, event, pending_events, seized_events);
 
-		  /* See _Event_Seize() */
-		  _Atomic_Fence (ATOMIC_ORDER_RELEASE);
+		/* See _Event_Seize() */
+		_Atomic_Fence (ATOMIC_ORDER_RELEASE);
 
-		  ready_again = wait_class | THREAD_WAIT_STATE_READY_AGAIN;
-		  success = _Thread_Wait_flags_try_change_critical (the_thread,
+		ready_again = wait_class | THREAD_WAIT_STATE_READY_AGAIN;
+		success = _Thread_Wait_flags_try_change_critical (the_thread,
 															wait_class |
 															THREAD_WAIT_STATE_INTEND_TO_BLOCK,
 															ready_again);
 
-		  if (success)
-			{
-				unblock = false;
-			}
-		  else
-			{
-				_Assert (_Thread_Wait_flags_get (the_thread)
-						 == (wait_class | THREAD_WAIT_STATE_BLOCKED));
-				_Thread_Wait_flags_set (the_thread, ready_again);
-				unblock = true;
-			}
-	  }
+		if (success)
+		{
+			unblock = false;
+		}
+		else
+		{
+			_Assert (_Thread_Wait_flags_get (the_thread)
+					 == (wait_class | THREAD_WAIT_STATE_BLOCKED));
+			_Thread_Wait_flags_set (the_thread, ready_again);
+			unblock = true;
+		}
+	}
 	else
-	  {
-		  unblock = false;
-	  }
+	{
+		unblock = false;
+	}
 
 	if (unblock)
-	  {
-		  Per_CPU_Control *cpu_self;
+	{
+		Per_CPU_Control *cpu_self;
 
-		  cpu_self = _Thread_Dispatch_disable_critical (lock_context);
-		  _Thread_Lock_release_default (the_thread, lock_context);
+		cpu_self = _Thread_Dispatch_disable_critical (lock_context);
+		_Thread_Lock_release_default (the_thread, lock_context);
 
-		  _Watchdog_Remove_ticks (&the_thread->Timer);
-		  _Thread_Unblock (the_thread);
+		_Watchdog_Remove_ticks (&the_thread->Timer);
+		_Thread_Unblock (the_thread);
 
-		  _Thread_Dispatch_enable (cpu_self);
-	  }
+		_Thread_Dispatch_enable (cpu_self);
+	}
 	else
-	  {
-		  _Thread_Lock_release_default (the_thread, lock_context);
-	  }
+	{
+		_Thread_Lock_release_default (the_thread, lock_context);
+	}
 }

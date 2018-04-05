@@ -32,15 +32,15 @@ static void _POSIX_signals_Ualarm_TSR (Objects_Id id, void *argument);
 
 static Watchdog_Control _POSIX_signals_Ualarm_timer =
 WATCHDOG_INITIALIZER (_POSIX_signals_Ualarm_TSR,
-					  0,
-					  NULL);
+					0,
+					NULL);
 
 /*
  *  _POSIX_signals_Ualarm_TSR
  */
 
 static void _POSIX_signals_Ualarm_TSR (Objects_Id id __attribute__ ((unused)),
-									   void *argument __attribute__ ((unused)))
+									 void *argument __attribute__ ((unused)))
 {
 	/*
 	 * Send a SIGALRM but if there is a problem, ignore it.
@@ -68,21 +68,21 @@ useconds_t ualarm (useconds_t useconds, useconds_t interval)
 
 	state = _Watchdog_Remove_ticks (the_timer);
 	if (state == WATCHDOG_ACTIVE)
-	  {
-		  /*
-		   *  The stop_time and start_time fields are snapshots of ticks since
-		   *  boot.  Since alarm() is dealing in seconds, we must account for
-		   *  this.
-		   */
+	{
+		/*
+		 *  The stop_time and start_time fields are snapshots of ticks since
+		 *  boot.  Since alarm() is dealing in seconds, we must account for
+		 *  this.
+		 */
 
-		  ticks = the_timer->initial;
-		  ticks -= (the_timer->stop_time - the_timer->start_time);
-		  /* remaining is now in ticks */
+		ticks = the_timer->initial;
+		ticks -= (the_timer->stop_time - the_timer->start_time);
+		/* remaining is now in ticks */
 
-		  _Timespec_From_ticks (ticks, &tp);
-		  remaining = tp.tv_sec * TOD_MICROSECONDS_PER_SECOND;
-		  remaining += tp.tv_nsec / 1000;
-	  }
+		_Timespec_From_ticks (ticks, &tp);
+		remaining = tp.tv_sec * TOD_MICROSECONDS_PER_SECOND;
+		remaining += tp.tv_nsec / 1000;
+	}
 
 	/*
 	 *  If useconds is non-zero, then the caller wants to schedule
@@ -90,17 +90,17 @@ useconds_t ualarm (useconds_t useconds, useconds_t interval)
 	 *  less than a single clock tick, then fudge it to a clock tick.
 	 */
 	if (useconds)
-	  {
-		  Watchdog_Interval ticks;
+	{
+		Watchdog_Interval ticks;
 
-		  tp.tv_sec = useconds / TOD_MICROSECONDS_PER_SECOND;
-		  tp.tv_nsec = (useconds % TOD_MICROSECONDS_PER_SECOND) * 1000;
-		  ticks = _Timespec_To_ticks (&tp);
-		  if (ticks == 0)
-			  ticks = 1;
+		tp.tv_sec = useconds / TOD_MICROSECONDS_PER_SECOND;
+		tp.tv_nsec = (useconds % TOD_MICROSECONDS_PER_SECOND) * 1000;
+		ticks = _Timespec_To_ticks (&tp);
+		if (ticks == 0)
+			ticks = 1;
 
-		  _Watchdog_Insert_ticks (the_timer, _Timespec_To_ticks (&tp));
-	  }
+		_Watchdog_Insert_ticks (the_timer, _Timespec_To_ticks (&tp));
+	}
 
 	_Thread_Enable_dispatch ();
 

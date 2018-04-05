@@ -44,13 +44,13 @@ int msdos_mknod (const rtems_filesystem_location_info_t * parentloc,
 	 *  Figure out what type of msdos node this is.
 	 */
 	if (S_ISDIR (mode))
-	  {
-		  type = FAT_DIRECTORY;
-	  }
+	{
+		type = FAT_DIRECTORY;
+	}
 	else if (S_ISREG (mode))
-	  {
-		  type = FAT_FILE;
-	  }
+	{
+		type = FAT_FILE;
+	}
 	else
 		rtems_set_errno_and_return_minus_one (EINVAL);
 

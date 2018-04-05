@@ -29,9 +29,9 @@
 void _ARMV7M_Set_exception_handler (int index, ARMV7M_Exception_handler handler)
 {
 	if (_ARMV7M_SCB->vtor[index] != handler)
-	  {
-		  _ARMV7M_SCB->vtor[index] = handler;
-	  }
+	{
+		_ARMV7M_SCB->vtor[index] = handler;
+	}
 }
 
 #endif /* ARM_MULTILIB_ARCH_V7M */

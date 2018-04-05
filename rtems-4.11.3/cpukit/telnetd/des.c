@@ -147,25 +147,29 @@ static u_int32_t psbox[4][256];
 static const u_char ascii64[] =
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-static const u_char IP[64] = {
+static const u_char IP[64] =
+{
 	58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4,
 	62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8,
 	57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
 	61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7
 };
 
-static const u_char key_perm[56] = {
+static const u_char key_perm[56] =
+{
 	57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18,
 	10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60, 52, 44, 36,
 	63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22,
 	14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4
 };
 
-static const u_char key_shifts[16] = {
+static const u_char key_shifts[16] =
+{
 	1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1
 };
 
-static const u_char comp_perm[48] = {
+static const u_char comp_perm[48] =
+{
 	14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10,
 	23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2,
 	41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48,
@@ -176,7 +180,8 @@ static const u_char comp_perm[48] = {
  *	No E box is used, as it's replaced by some ANDs, shifts, and ORs.
  */
 
-static const u_char sbox[8][64] = {
+static const u_char sbox[8][64] =
+{
 	{
 	 14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7,
 	 0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8,
@@ -219,12 +224,14 @@ static const u_char sbox[8][64] = {
 	 2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11}
 };
 
-static const u_char pbox[32] = {
+static const u_char pbox[32] =
+{
 	16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10,
 	2, 8, 24, 14, 32, 27, 3, 9, 19, 13, 30, 6, 22, 11, 4, 25
 };
 
-static const u_int32_t bits32[32] = {
+static const u_int32_t bits32[32] =
+{
 	0x80000000, 0x40000000, 0x20000000, 0x10000000,
 	0x08000000, 0x04000000, 0x02000000, 0x01000000,
 	0x00800000, 0x00400000, 0x00200000, 0x00100000,
@@ -291,10 +298,10 @@ static void des_init (void)
 	 */
 	for (i = 0; i < 8; i++)
 		for (j = 0; j < 64; j++)
-		  {
-			  b = (j & 0x20) | ((j & 1) << 4) | ((j >> 1) & 0xf);
-			  u_sbox[i][j] = sbox[i][b];
-		  }
+		{
+			b = (j & 0x20) | ((j & 1) << 4) | ((j >> 1) & 0xf);
+			u_sbox[i][j] = sbox[i][b];
+		}
 
 	/*
 	 * Convert the inverted S-boxes into 4 arrays of 8 bits.
@@ -305,98 +312,98 @@ static void des_init (void)
 			for (j = 0; j < 64; j++)
 				m_sbox[b][(i << 6) | j] =
 					(u_char) ((u_sbox[(b << 1)][i] << 4) |
-							  u_sbox[(b << 1) + 1][j]);
+							u_sbox[(b << 1) + 1][j]);
 
 	/*
 	 * Set up the initial & final permutations into a useful form, and
 	 * initialise the inverted key permutation.
 	 */
 	for (i = 0; i < 64; i++)
-	  {
-		  init_perm[final_perm[i] = IP[i] - 1] = (u_char) i;
-		  inv_key_perm[i] = 255;
-	  }
+	{
+		init_perm[final_perm[i] = IP[i] - 1] = (u_char) i;
+		inv_key_perm[i] = 255;
+	}
 
 	/*
 	 * Invert the key permutation and initialise the inverted key
 	 * compression permutation.
 	 */
 	for (i = 0; i < 56; i++)
-	  {
-		  inv_key_perm[key_perm[i] - 1] = (u_char) i;
-		  inv_comp_perm[i] = 255;
-	  }
+	{
+		inv_key_perm[key_perm[i] - 1] = (u_char) i;
+		inv_comp_perm[i] = 255;
+	}
 
 	/*
 	 * Invert the key compression permutation.
 	 */
 	for (i = 0; i < 48; i++)
-	  {
-		  inv_comp_perm[comp_perm[i] - 1] = (u_char) i;
-	  }
+	{
+		inv_comp_perm[comp_perm[i] - 1] = (u_char) i;
+	}
 
 	/*
 	 * Set up the OR-mask arrays for the initial and final permutations,
 	 * and for the key initial and compression permutations.
 	 */
 	for (k = 0; k < 8; k++)
-	  {
-		  for (i = 0; i < 256; i++)
+	{
+		for (i = 0; i < 256; i++)
+		{
+			*(il = &ip_maskl[k][i]) = 0L;
+			*(ir = &ip_maskr[k][i]) = 0L;
+			*(fl = &fp_maskl[k][i]) = 0L;
+			*(fr = &fp_maskr[k][i]) = 0L;
+			for (j = 0; j < 8; j++)
 			{
-				*(il = &ip_maskl[k][i]) = 0L;
-				*(ir = &ip_maskr[k][i]) = 0L;
-				*(fl = &fp_maskl[k][i]) = 0L;
-				*(fr = &fp_maskr[k][i]) = 0L;
-				for (j = 0; j < 8; j++)
-				  {
-					  inbit = 8 * k + j;
-					  if (i & bits8[j])
-						{
-							if ((obit = init_perm[inbit]) < 32)
-								*il |= bits32[obit];
-							else
-								*ir |= bits32[obit - 32];
-							if ((obit = final_perm[inbit]) < 32)
-								*fl |= bits32[obit];
-							else
-								*fr |= bits32[obit - 32];
-						}
-				  }
+				inbit = 8 * k + j;
+				if (i & bits8[j])
+				{
+					if ((obit = init_perm[inbit]) < 32)
+						*il |= bits32[obit];
+					else
+						*ir |= bits32[obit - 32];
+					if ((obit = final_perm[inbit]) < 32)
+						*fl |= bits32[obit];
+					else
+						*fr |= bits32[obit - 32];
+				}
 			}
-		  for (i = 0; i < 128; i++)
+		}
+		for (i = 0; i < 128; i++)
+		{
+			*(il = &key_perm_maskl[k][i]) = 0L;
+			*(ir = &key_perm_maskr[k][i]) = 0L;
+			for (j = 0; j < 7; j++)
 			{
-				*(il = &key_perm_maskl[k][i]) = 0L;
-				*(ir = &key_perm_maskr[k][i]) = 0L;
-				for (j = 0; j < 7; j++)
-				  {
-					  inbit = 8 * k + j;
-					  if (i & bits8[j + 1])
-						{
-							if ((obit = inv_key_perm[inbit]) == 255)
-								continue;
-							if (obit < 28)
-								*il |= bits28[obit];
-							else
-								*ir |= bits28[obit - 28];
-						}
-				  }
-				*(il = &comp_maskl[k][i]) = 0L;
-				*(ir = &comp_maskr[k][i]) = 0L;
-				for (j = 0; j < 7; j++)
-				  {
-					  inbit = 7 * k + j;
-					  if (i & bits8[j + 1])
-						{
-							if ((obit = inv_comp_perm[inbit]) == 255)
-								continue;
-							if (obit < 24)
-								*il |= bits24[obit];
-							else
-								*ir |= bits24[obit - 24];
-						}
-				  }
+				inbit = 8 * k + j;
+				if (i & bits8[j + 1])
+				{
+					if ((obit = inv_key_perm[inbit]) == 255)
+						continue;
+					if (obit < 28)
+						*il |= bits28[obit];
+					else
+						*ir |= bits28[obit - 28];
+				}
 			}
-	  }
+			*(il = &comp_maskl[k][i]) = 0L;
+			*(ir = &comp_maskr[k][i]) = 0L;
+			for (j = 0; j < 7; j++)
+			{
+				inbit = 7 * k + j;
+				if (i & bits8[j + 1])
+				{
+					if ((obit = inv_comp_perm[inbit]) == 255)
+						continue;
+					if (obit < 24)
+						*il |= bits24[obit];
+					else
+						*ir |= bits24[obit - 24];
+				}
+			}
+		}
+	}
 
 	/*
 	 * Invert the P-box permutation, and convert into OR-masks for
@@ -407,14 +414,14 @@ static void des_init (void)
 
 	for (b = 0; b < 4; b++)
 		for (i = 0; i < 256; i++)
-		  {
-			  *(p = &psbox[b][i]) = 0L;
-			  for (j = 0; j < 8; j++)
-				{
-					if (i & bits8[j])
-						*p |= bits32[un_pbox[8 * b + j]];
-				}
-		  }
+		{
+			*(p = &psbox[b][i]) = 0L;
+			for (j = 0; j < 8; j++)
+			{
+				if (i & bits8[j])
+					*p |= bits32[un_pbox[8 * b + j]];
+			}
+		}
 
 	des_initialised = 1;
 }
@@ -432,12 +439,12 @@ static void setup_salt (long salt, struct Des_Context *des_ctx)
 	saltbit = 1;
 	obit = 0x800000;
 	for (i = 0; i < 24; i++)
-	  {
-		  if (salt & saltbit)
-			  saltbits |= obit;
-		  saltbit <<= 1;
-		  obit >>= 1;
-	  }
+	{
+		if (salt & saltbit)
+			saltbits |= obit;
+		saltbit <<= 1;
+		obit >>= 1;
+	}
 }
 
 static int des_setkey (const char *key, struct Des_Context *des_ctx)
@@ -451,15 +458,15 @@ static int des_setkey (const char *key, struct Des_Context *des_ctx)
 	rawkey1 = ntohl (*(const u_int32_t *)(key + 4));
 
 	if ((rawkey0 | rawkey1) && rawkey0 == old_rawkey0 && rawkey1 == old_rawkey1)
-	  {
-		  /*
-		   * Already setup for this key.
-		   * This optimisation fails on a zero key (which is weak and
-		   * has bad parity anyway) in order to simplify the starting
-		   * conditions.
-		   */
-		  return (0);
-	  }
+	{
+		/*
+		 * Already setup for this key.
+		 * This optimisation fails on a zero key (which is weak and
+		 * has bad parity anyway) in order to simplify the starting
+		 * conditions.
+		 */
+		return (0);
+	}
 	old_rawkey0 = rawkey0;
 	old_rawkey1 = rawkey1;
 
@@ -487,32 +494,32 @@ static int des_setkey (const char *key, struct Des_Context *des_ctx)
 	 */
 	shifts = 0;
 	for (round = 0; round < 16; round++)
-	  {
-		  u_int32_t t0, t1;
+	{
+		u_int32_t t0, t1;
 
-		  shifts += key_shifts[round];
+		shifts += key_shifts[round];
 
-		  t0 = (k0 << shifts) | (k0 >> (28 - shifts));
-		  t1 = (k1 << shifts) | (k1 >> (28 - shifts));
+		t0 = (k0 << shifts) | (k0 >> (28 - shifts));
+		t1 = (k1 << shifts) | (k1 >> (28 - shifts));
 
-		  de_keysl[15 - round] =
-			  en_keysl[round] = comp_maskl[0][(t0 >> 21) & 0x7f]
-			  | comp_maskl[1][(t0 >> 14) & 0x7f]
-			  | comp_maskl[2][(t0 >> 7) & 0x7f]
-			  | comp_maskl[3][t0 & 0x7f]
-			  | comp_maskl[4][(t1 >> 21) & 0x7f]
-			  | comp_maskl[5][(t1 >> 14) & 0x7f]
-			  | comp_maskl[6][(t1 >> 7) & 0x7f] | comp_maskl[7][t1 & 0x7f];
+		de_keysl[15 - round] =
+			en_keysl[round] = comp_maskl[0][(t0 >> 21) & 0x7f]
+			| comp_maskl[1][(t0 >> 14) & 0x7f]
+			| comp_maskl[2][(t0 >> 7) & 0x7f]
+			| comp_maskl[3][t0 & 0x7f]
+			| comp_maskl[4][(t1 >> 21) & 0x7f]
+			| comp_maskl[5][(t1 >> 14) & 0x7f]
+			| comp_maskl[6][(t1 >> 7) & 0x7f] | comp_maskl[7][t1 & 0x7f];
 
-		  de_keysr[15 - round] =
-			  en_keysr[round] = comp_maskr[0][(t0 >> 21) & 0x7f]
-			  | comp_maskr[1][(t0 >> 14) & 0x7f]
-			  | comp_maskr[2][(t0 >> 7) & 0x7f]
-			  | comp_maskr[3][t0 & 0x7f]
-			  | comp_maskr[4][(t1 >> 21) & 0x7f]
-			  | comp_maskr[5][(t1 >> 14) & 0x7f]
-			  | comp_maskr[6][(t1 >> 7) & 0x7f] | comp_maskr[7][t1 & 0x7f];
-	  }
+		de_keysr[15 - round] =
+			en_keysr[round] = comp_maskr[0][(t0 >> 21) & 0x7f]
+			| comp_maskr[1][(t0 >> 14) & 0x7f]
+			| comp_maskr[2][(t0 >> 7) & 0x7f]
+			| comp_maskr[3][t0 & 0x7f]
+			| comp_maskr[4][(t1 >> 21) & 0x7f]
+			| comp_maskr[5][(t1 >> 14) & 0x7f]
+			| comp_maskr[6][(t1 >> 7) & 0x7f] | comp_maskr[7][t1 & 0x7f];
+	}
 	return (0);
 }
 
@@ -528,26 +535,26 @@ do_des (u_int32_t l_in, u_int32_t r_in, u_int32_t * l_out, u_int32_t * r_out,
 	int round;
 
 	if (count == 0)
-	  {
-		  return (1);
-	  }
+	{
+		return (1);
+	}
 	else if (count > 0)
-	  {
-		  /*
-		   * Encrypting
-		   */
-		  kl1 = en_keysl;
-		  kr1 = en_keysr;
-	  }
+	{
+		/*
+		 * Encrypting
+		 */
+		kl1 = en_keysl;
+		kr1 = en_keysr;
+	}
 	else
-	  {
-		  /*
-		   * Decrypting
-		   */
-		  count = -count;
-		  kl1 = de_keysl;
-		  kr1 = de_keysr;
-	  }
+	{
+		/*
+		 * Decrypting
+		 */
+		count = -count;
+		kl1 = de_keysl;
+		kr1 = de_keysr;
+	}
 
 	/*
 	 *    Do initial permutation (IP).
@@ -568,52 +575,52 @@ do_des (u_int32_t l_in, u_int32_t r_in, u_int32_t * l_out, u_int32_t * r_out,
 		| ip_maskr[6][(r_in >> 8) & 0xff] | ip_maskr[7][r_in & 0xff];
 
 	while (count--)
-	  {
-		  /*
-		   * Do each round.
-		   */
-		  kl = kl1;
-		  kr = kr1;
-		  round = 16;
-		  while (round--)
-			{
-				/*
-				 * Expand R to 48 bits (simulate the E-box).
-				 */
-				r48l = ((r & 0x00000001) << 23)
-					| ((r & 0xf8000000) >> 9)
-					| ((r & 0x1f800000) >> 11)
-					| ((r & 0x01f80000) >> 13) | ((r & 0x001f8000) >> 15);
+	{
+		/*
+		 * Do each round.
+		 */
+		kl = kl1;
+		kr = kr1;
+		round = 16;
+		while (round--)
+		{
+			/*
+			 * Expand R to 48 bits (simulate the E-box).
+			 */
+			r48l = ((r & 0x00000001) << 23)
+				| ((r & 0xf8000000) >> 9)
+				| ((r & 0x1f800000) >> 11)
+				| ((r & 0x01f80000) >> 13) | ((r & 0x001f8000) >> 15);
 
-				r48r = ((r & 0x0001f800) << 7)
-					| ((r & 0x00001f80) << 5)
-					| ((r & 0x000001f8) << 3)
-					| ((r & 0x0000001f) << 1) | ((r & 0x80000000) >> 31);
-				/*
-				 * Do salting for crypt() and friends, and
-				 * XOR with the permuted key.
-				 */
-				f = (r48l ^ r48r) & saltbits;
-				r48l ^= f ^ *kl++;
-				r48r ^= f ^ *kr++;
-				/*
-				 * Do sbox lookups (which shrink it back to 32 bits)
-				 * and do the pbox permutation at the same time.
-				 */
-				f = psbox[0][m_sbox[0][r48l >> 12]]
-					| psbox[1][m_sbox[1][r48l & 0xfff]]
-					| psbox[2][m_sbox[2][r48r >> 12]]
-					| psbox[3][m_sbox[3][r48r & 0xfff]];
-				/*
-				 * Now that we've permuted things, complete f().
-				 */
-				f ^= l;
-				l = r;
-				r = f;
-			}
-		  r = l;
-		  l = f;
-	  }
+			r48r = ((r & 0x0001f800) << 7)
+				| ((r & 0x00001f80) << 5)
+				| ((r & 0x000001f8) << 3)
+				| ((r & 0x0000001f) << 1) | ((r & 0x80000000) >> 31);
+			/*
+			 * Do salting for crypt() and friends, and
+			 * XOR with the permuted key.
+			 */
+			f = (r48l ^ r48r) & saltbits;
+			r48l ^= f ^ *kl++;
+			r48r ^= f ^ *kr++;
+			/*
+			 * Do sbox lookups (which shrink it back to 32 bits)
+			 * and do the pbox permutation at the same time.
+			 */
+			f = psbox[0][m_sbox[0][r48l >> 12]]
+				| psbox[1][m_sbox[1][r48l & 0xfff]]
+				| psbox[2][m_sbox[2][r48r >> 12]]
+				| psbox[3][m_sbox[3][r48r & 0xfff]];
+			/*
+			 * Now that we've permuted things, complete f().
+			 */
+			f ^= l;
+			l = r;
+			r = f;
+		}
+		r = l;
+		l = f;
+	}
 	/*
 	 * Do final permutation (inverse of IP).
 	 */
@@ -672,12 +679,12 @@ void setkey (const char *key)
 	p = (u_char *) packed_keys;
 
 	for (i = 0; i < 8; i++)
-	  {
-		  p[i] = 0;
-		  for (j = 0; j < 8; j++)
-			  if (*key++ & 1)
-				  p[i] |= bits8[j];
-	  }
+	{
+		p[i] = 0;
+		for (j = 0; j < 8; j++)
+			if (*key++ & 1)
+				p[i] |= bits8[j];
+	}
 	des_setkey (p, &single);
 }
 #endif
@@ -694,12 +701,12 @@ void encrypt (char *block, int flag)
 	setup_salt (0L, &single);
 	p = block;
 	for (i = 0; i < 2; i++)
-	  {
-		  io[i] = 0L;
-		  for (j = 0; j < 32; j++)
-			  if (*p++ & 1)
-				  io[i] |= bits32[j];
-	  }
+	{
+		io[i] = 0L;
+		for (j = 0; j < 32; j++)
+			if (*p++ & 1)
+				io[i] |= bits32[j];
+	}
 	do_des (io[0], io[1], io, io + 1, flag ? -1 : 1, &single);
 	for (i = 0; i < 2; i++)
 		for (j = 0; j < 32; j++)
@@ -727,81 +734,81 @@ char *__des_crypt_r (const char *key, const char *setting, char *output, int sz)
 	 */
 	q = (u_char *) keybuf;
 	while (q - (u_char *) keybuf - 8)
-	  {
-		  *q++ = *key << 1;
-		  if (*(q - 1))
-			  key++;
-	  }
+	{
+		*q++ = *key << 1;
+		if (*(q - 1))
+			key++;
+	}
 	if (des_setkey ((char *)keybuf, des_ctx))
 		goto bailout;
 
 #if 0
 	if (*setting == _PASSWORD_EFMT1)
-	  {
-		  int i;
-		  /*
-		   * "new"-style:
-		   *  setting - underscore, 4 bytes of count, 4 bytes of salt
-		   *  key - unlimited characters
-		   */
-		  for (i = 1, count = 0L; i < 5; i++)
-			  count |= ascii_to_bin (setting[i]) << ((i - 1) * 6);
+	{
+		int i;
+		/*
+		 * "new"-style:
+		 *  setting - underscore, 4 bytes of count, 4 bytes of salt
+		 *  key - unlimited characters
+		 */
+		for (i = 1, count = 0L; i < 5; i++)
+			count |= ascii_to_bin (setting[i]) << ((i - 1) * 6);
 
-		  for (i = 5, salt = 0L; i < 9; i++)
-			  salt |= ascii_to_bin (setting[i]) << ((i - 5) * 6);
+		for (i = 5, salt = 0L; i < 9; i++)
+			salt |= ascii_to_bin (setting[i]) << ((i - 5) * 6);
 
-		  while (*key)
-			{
-				/*
-				 * Encrypt the key with itself.
-				 */
-				if (des_cipher ((char *)keybuf, (char *)keybuf, 0L, 1))
-					goto bailout;
-				/*
-				 * And XOR with the next 8 characters of the key.
-				 */
-				q = (u_char *) keybuf;
-				while (q - (u_char *) keybuf - 8 && *key)
-					*q++ ^= *key++ << 1;
+		while (*key)
+		{
+			/*
+			 * Encrypt the key with itself.
+			 */
+			if (des_cipher ((char *)keybuf, (char *)keybuf, 0L, 1))
+				goto bailout;
+			/*
+			 * And XOR with the next 8 characters of the key.
+			 */
+			q = (u_char *) keybuf;
+			while (q - (u_char *) keybuf - 8 && *key)
+				*q++ ^= *key++ << 1;
 
-				if (des_setkey ((char *)keybuf))
-					goto bailout;
-			}
-		  strncpy (output, setting, 9);
+			if (des_setkey ((char *)keybuf))
+				goto bailout;
+		}
+		strncpy (output, setting, 9);
 
-		  /*
-		   * Double check that we weren't given a short setting.
-		   * If we were, the above code will probably have created
-		   * wierd values for count and salt, but we don't really care.
-		   * Just make sure the output string doesn't have an extra
-		   * NUL in it.
-		   */
-		  output[9] = '\0';
-		  p = (u_char *) output + strlen (output);
-	  }
+		/*
+		 * Double check that we weren't given a short setting.
+		 * If we were, the above code will probably have created
+		 * wierd values for count and salt, but we don't really care.
+		 * Just make sure the output string doesn't have an extra
+		 * NUL in it.
+		 */
+		output[9] = '\0';
+		p = (u_char *) output + strlen (output);
+	}
 	else
 #endif
-	  {
-		  /*
-		   * "old"-style:
-		   *  setting - 2 bytes of salt
-		   *  key - up to 8 characters
-		   */
-		  count = 25;
+	{
+		/*
+		 * "old"-style:
+		 *  setting - 2 bytes of salt
+		 *  key - up to 8 characters
+		 */
+		count = 25;
 
-		  salt = (ascii_to_bin (setting[1]) << 6) | ascii_to_bin (setting[0]);
+		salt = (ascii_to_bin (setting[1]) << 6) | ascii_to_bin (setting[0]);
 
-		  output[0] = setting[0];
-		  /*
-		   * If the encrypted password that the salt was extracted from
-		   * is only 1 character long, the salt will be corrupted.  We
-		   * need to ensure that the output string doesn't have an extra
-		   * NUL in it!
-		   */
-		  output[1] = setting[1] ? setting[1] : output[0];
+		output[0] = setting[0];
+		/*
+		 * If the encrypted password that the salt was extracted from
+		 * is only 1 character long, the salt will be corrupted.  We
+		 * need to ensure that the output string doesn't have an extra
+		 * NUL in it!
+		 */
+		output[1] = setting[1] ? setting[1] : output[0];
 
-		  p = (u_char *) output + 2;
-	  }
+		p = (u_char *) output + 2;
+	}
 	setup_salt (salt, des_ctx);
 	/*
 	 * Do it.

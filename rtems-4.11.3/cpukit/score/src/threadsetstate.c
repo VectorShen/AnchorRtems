@@ -26,7 +26,7 @@
 #include <rtems/score/schedulerimpl.h>
 
 States_Control _Thread_Set_state (Thread_Control * the_thread,
-								  States_Control state)
+								States_Control state)
 {
 	ISR_lock_Context lock_context;
 	States_Control previous_state;
@@ -41,9 +41,9 @@ States_Control _Thread_Set_state (Thread_Control * the_thread,
 	the_thread->current_state = next_state;
 
 	if (_States_Is_ready (previous_state))
-	  {
-		  _Scheduler_Block (the_thread);
-	  }
+	{
+		_Scheduler_Block (the_thread);
+	}
 
 	_Scheduler_Release (the_thread, &lock_context);
 

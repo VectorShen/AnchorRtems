@@ -31,8 +31,8 @@
 int imfs_memfile_bytes_per_block = 0;
 
 static int IMFS_determine_bytes_per_block (int *dest_bytes_per_block,
-										   int requested_bytes_per_block,
-										   int default_bytes_per_block)
+										 int requested_bytes_per_block,
+										 int default_bytes_per_block)
 {
 	bool is_valid = false;
 	int bit_mask;
@@ -41,15 +41,15 @@ static int IMFS_determine_bytes_per_block (int *dest_bytes_per_block,
 	 * check, whether requested bytes per block is valid
 	 */
 	for (bit_mask = 16; !is_valid && (bit_mask <= 512); bit_mask <<= 1)
-	  {
-		  if (bit_mask == requested_bytes_per_block)
-			{
-				is_valid = true;
-				break;
-			}
-		  if (bit_mask > requested_bytes_per_block)
-			  break;
-	  }
+	{
+		if (bit_mask == requested_bytes_per_block)
+		{
+			is_valid = true;
+			break;
+		}
+		if (bit_mask > requested_bytes_per_block)
+			break;
+	}
 	*dest_bytes_per_block = ((is_valid)
 							 ? requested_bytes_per_block
 							 : default_bytes_per_block);
@@ -64,11 +64,11 @@ IMFS_jnode_t *IMFS_initialize_node (IMFS_jnode_t * node,
 	struct timeval tv;
 
 	if (namelen > IMFS_NAME_MAX)
-	  {
-		  errno = ENAMETOOLONG;
+	{
+		errno = ENAMETOOLONG;
 
-		  return NULL;
-	  }
+		return NULL;
+	}
 
 	gettimeofday (&tv, 0);
 
@@ -109,9 +109,9 @@ int IMFS_initialize_support (rtems_filesystem_mount_table_entry_t * mt_entry,
 	fs_info->mknod_controls = mount_data->mknod_controls;
 
 	root_node = IMFS_initialize_node (&fs_info->Root_directory.Node,
-									  &fs_info->mknod_controls->directory->
-									  node_control, "", 0, (S_IFDIR | 0755),
-									  NULL);
+									&fs_info->mknod_controls->directory->
+									node_control, "", 0, (S_IFDIR | 0755),
+									NULL);
 	IMFS_assert (root_node != NULL);
 
 	mt_entry->fs_info = fs_info;
@@ -150,13 +150,13 @@ void IMFS_node_free (const rtems_filesystem_location_info_t * loc)
 	--node->reference_count;
 
 	if (node->reference_count == 0)
-	  {
-		  IMFS_node_destroy (node);
-	  }
+	{
+		IMFS_node_destroy (node);
+	}
 }
 
 static IMFS_jnode_t *IMFS_node_initialize_enosys (IMFS_jnode_t * node,
-												  void *arg)
+												void *arg)
 {
 	errno = ENOSYS;
 
@@ -176,18 +176,20 @@ IMFS_jnode_t *IMFS_node_remove_default (IMFS_jnode_t * node)
 void IMFS_node_destroy_default (IMFS_jnode_t * node)
 {
 	if ((node->flags & IMFS_NODE_FLAG_NAME_ALLOCATED) != 0)
-	  {
-		  free (RTEMS_DECONST (char *, node->name));
-	  }
+	{
+		free (RTEMS_DECONST (char *, node->name));
+	}
 
 	free (node);
 }
 
-const IMFS_mknod_control IMFS_mknod_control_enosys = {
+const IMFS_mknod_control IMFS_mknod_control_enosys =
+{
 	{
-	 .handlers = &rtems_filesystem_handlers_default,
-	 .node_initialize = IMFS_node_initialize_enosys,
-	 .node_remove = IMFS_node_remove_default,
-	 .node_destroy = IMFS_node_destroy_default},
+		.handlers = &rtems_filesystem_handlers_default,
+		.node_initialize = IMFS_node_initialize_enosys,
+		.node_remove = IMFS_node_remove_default,
+		.node_destroy = IMFS_node_destroy_default
+	},
 	.node_size = sizeof (IMFS_jnode_t)
 };

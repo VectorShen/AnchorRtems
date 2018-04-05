@@ -43,7 +43,8 @@ static const char rcsid[] = RCSID;
 static int setbsdcomp (char **);
 static int setdeflate (char **);
 
-static option_t ccp_option_list[] = {
+static option_t ccp_option_list[] =
+{
 	{"noccp", o_bool, &ccp_protent.enabled_flag,
 	 "Disable CCP negotiation", 0, NULL, 0, 0},
 	{"-ccp", o_bool, &ccp_protent.enabled_flag,
@@ -94,7 +95,8 @@ static int ccp_printpkt (u_char * pkt, int len,
 						 void (*printer) (void *, char *, ...), void *arg);
 static void ccp_datainput (int unit, u_char * pkt, int len);
 
-struct protent ccp_protent = {
+struct protent ccp_protent =
+{
 	PPP_CCP,
 	ccp_init,
 	ccp_input,
@@ -136,7 +138,8 @@ static int ccp_extcode (fsm *, int, int, u_char *, int);
 static void ccp_rack_timeout (void *);
 static char *method_name (ccp_options *, ccp_options *);
 
-static fsm_callbacks ccp_callbacks = {
+static fsm_callbacks ccp_callbacks =
+{
 	ccp_resetci,
 	ccp_cilen,
 	ccp_addci,
@@ -182,34 +185,34 @@ static int setbsdcomp (char **argv)
 	str = *argv;
 	abits = rbits = strtol (str, &endp, 0);
 	if (endp != str && *endp == ',')
-	  {
-		  str = endp + 1;
-		  abits = strtol (str, &endp, 0);
-	  }
+	{
+		str = endp + 1;
+		abits = strtol (str, &endp, 0);
+	}
 	if (*endp != 0 || endp == str)
-	  {
-		  option_error ("invalid parameter '%s' for bsdcomp option", *argv);
-		  return 0;
-	  }
+	{
+		option_error ("invalid parameter '%s' for bsdcomp option", *argv);
+		return 0;
+	}
 	if ((rbits != 0 && (rbits < BSD_MIN_BITS || rbits > BSD_MAX_BITS))
 		|| (abits != 0 && (abits < BSD_MIN_BITS || abits > BSD_MAX_BITS)))
-	  {
-		  option_error ("bsdcomp option values must be 0 or %d .. %d",
+	{
+		option_error ("bsdcomp option values must be 0 or %d .. %d",
 						BSD_MIN_BITS, BSD_MAX_BITS);
-		  return 0;
-	  }
+		return 0;
+	}
 	if (rbits > 0)
-	  {
-		  ccp_wantoptions[0].bsd_compress = 1;
-		  ccp_wantoptions[0].bsd_bits = rbits;
-	  }
+	{
+		ccp_wantoptions[0].bsd_compress = 1;
+		ccp_wantoptions[0].bsd_bits = rbits;
+	}
 	else
 		ccp_wantoptions[0].bsd_compress = 0;
 	if (abits > 0)
-	  {
-		  ccp_allowoptions[0].bsd_compress = 1;
-		  ccp_allowoptions[0].bsd_bits = abits;
-	  }
+	{
+		ccp_allowoptions[0].bsd_compress = 1;
+		ccp_allowoptions[0].bsd_bits = abits;
+	}
 	else
 		ccp_allowoptions[0].bsd_compress = 0;
 	return 1;
@@ -223,35 +226,35 @@ static int setdeflate (char **argv)
 	str = *argv;
 	abits = rbits = strtol (str, &endp, 0);
 	if (endp != str && *endp == ',')
-	  {
-		  str = endp + 1;
-		  abits = strtol (str, &endp, 0);
-	  }
+	{
+		str = endp + 1;
+		abits = strtol (str, &endp, 0);
+	}
 	if (*endp != 0 || endp == str)
-	  {
-		  option_error ("invalid parameter '%s' for deflate option", *argv);
-		  return 0;
-	  }
+	{
+		option_error ("invalid parameter '%s' for deflate option", *argv);
+		return 0;
+	}
 	if ((rbits != 0 && (rbits < DEFLATE_MIN_SIZE || rbits > DEFLATE_MAX_SIZE))
 		|| (abits != 0 && (abits < DEFLATE_MIN_SIZE
-						   || abits > DEFLATE_MAX_SIZE)))
-	  {
-		  option_error ("deflate option values must be 0 or %d .. %d",
+						 || abits > DEFLATE_MAX_SIZE)))
+	{
+		option_error ("deflate option values must be 0 or %d .. %d",
 						DEFLATE_MIN_SIZE, DEFLATE_MAX_SIZE);
-		  return 0;
-	  }
+		return 0;
+	}
 	if (rbits > 0)
-	  {
-		  ccp_wantoptions[0].deflate = 1;
-		  ccp_wantoptions[0].deflate_size = rbits;
-	  }
+	{
+		ccp_wantoptions[0].deflate = 1;
+		ccp_wantoptions[0].deflate_size = rbits;
+	}
 	else
 		ccp_wantoptions[0].deflate = 0;
 	if (abits > 0)
-	  {
-		  ccp_allowoptions[0].deflate = 1;
-		  ccp_allowoptions[0].deflate_size = abits;
-	  }
+	{
+		ccp_allowoptions[0].deflate = 1;
+		ccp_allowoptions[0].deflate_size = abits;
+	}
 	else
 		ccp_allowoptions[0].deflate = 0;
 	return 1;
@@ -368,26 +371,26 @@ static void ccp_input (int unit, u_char * p, int len)
 static int ccp_extcode (fsm * f, int code, int id, u_char * p, int len)
 {
 	switch (code)
-	  {
-		  case CCP_RESETREQ:
-			  if (f->state != OPENED)
-				  break;
-			  /* send a reset-ack, which the transmitter will see and
-			     reset its compression state. */
-			  fsm_sdata (f, CCP_RESETACK, id, NULL, 0);
-			  break;
+	{
+		case CCP_RESETREQ:
+			if (f->state != OPENED)
+				break;
+			/* send a reset-ack, which the transmitter will see and
+			   reset its compression state. */
+			fsm_sdata (f, CCP_RESETACK, id, NULL, 0);
+			break;
 
-		  case CCP_RESETACK:
-			  if (ccp_localstate[f->unit] & RACK_PENDING && id == f->reqid)
-				{
-					ccp_localstate[f->unit] &= ~(RACK_PENDING | RREQ_REPEAT);
-					UNTIMEOUT (ccp_rack_timeout, f);
-				}
-			  break;
+		case CCP_RESETACK:
+			if (ccp_localstate[f->unit] & RACK_PENDING && id == f->reqid)
+			{
+				ccp_localstate[f->unit] &= ~(RACK_PENDING | RREQ_REPEAT);
+				UNTIMEOUT (ccp_rack_timeout, f);
+			}
+			break;
 
-		  default:
-			  return 0;
-	  }
+		default:
+			return 0;
+	}
 
 	return 1;
 }
@@ -417,50 +420,50 @@ static void ccp_resetci (fsm * f)
 	 * compression methods we might request.
 	 */
 	if (go->bsd_compress)
-	  {
-		  opt_buf[0] = CI_BSD_COMPRESS;
-		  opt_buf[1] = CILEN_BSD_COMPRESS;
-		  opt_buf[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, BSD_MIN_BITS);
-		  if (ccp_test (f->unit, opt_buf, CILEN_BSD_COMPRESS, 0) <= 0)
-			  go->bsd_compress = 0;
-	  }
+	{
+		opt_buf[0] = CI_BSD_COMPRESS;
+		opt_buf[1] = CILEN_BSD_COMPRESS;
+		opt_buf[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, BSD_MIN_BITS);
+		if (ccp_test (f->unit, opt_buf, CILEN_BSD_COMPRESS, 0) <= 0)
+			go->bsd_compress = 0;
+	}
 	if (go->deflate)
-	  {
-		  if (go->deflate_correct)
-			{
-				opt_buf[0] = CI_DEFLATE;
-				opt_buf[1] = CILEN_DEFLATE;
-				opt_buf[2] = DEFLATE_MAKE_OPT (DEFLATE_MIN_SIZE);
-				opt_buf[3] = DEFLATE_CHK_SEQUENCE;
-				if (ccp_test (f->unit, opt_buf, CILEN_DEFLATE, 0) <= 0)
-					go->deflate_correct = 0;
-			}
-		  if (go->deflate_draft)
-			{
-				opt_buf[0] = CI_DEFLATE_DRAFT;
-				opt_buf[1] = CILEN_DEFLATE;
-				opt_buf[2] = DEFLATE_MAKE_OPT (DEFLATE_MIN_SIZE);
-				opt_buf[3] = DEFLATE_CHK_SEQUENCE;
-				if (ccp_test (f->unit, opt_buf, CILEN_DEFLATE, 0) <= 0)
-					go->deflate_draft = 0;
-			}
-		  if (!go->deflate_correct && !go->deflate_draft)
-			  go->deflate = 0;
-	  }
+	{
+		if (go->deflate_correct)
+		{
+			opt_buf[0] = CI_DEFLATE;
+			opt_buf[1] = CILEN_DEFLATE;
+			opt_buf[2] = DEFLATE_MAKE_OPT (DEFLATE_MIN_SIZE);
+			opt_buf[3] = DEFLATE_CHK_SEQUENCE;
+			if (ccp_test (f->unit, opt_buf, CILEN_DEFLATE, 0) <= 0)
+				go->deflate_correct = 0;
+		}
+		if (go->deflate_draft)
+		{
+			opt_buf[0] = CI_DEFLATE_DRAFT;
+			opt_buf[1] = CILEN_DEFLATE;
+			opt_buf[2] = DEFLATE_MAKE_OPT (DEFLATE_MIN_SIZE);
+			opt_buf[3] = DEFLATE_CHK_SEQUENCE;
+			if (ccp_test (f->unit, opt_buf, CILEN_DEFLATE, 0) <= 0)
+				go->deflate_draft = 0;
+		}
+		if (!go->deflate_correct && !go->deflate_draft)
+			go->deflate = 0;
+	}
 	if (go->predictor_1)
-	  {
-		  opt_buf[0] = CI_PREDICTOR_1;
-		  opt_buf[1] = CILEN_PREDICTOR_1;
-		  if (ccp_test (f->unit, opt_buf, CILEN_PREDICTOR_1, 0) <= 0)
-			  go->predictor_1 = 0;
-	  }
+	{
+		opt_buf[0] = CI_PREDICTOR_1;
+		opt_buf[1] = CILEN_PREDICTOR_1;
+		if (ccp_test (f->unit, opt_buf, CILEN_PREDICTOR_1, 0) <= 0)
+			go->predictor_1 = 0;
+	}
 	if (go->predictor_2)
-	  {
-		  opt_buf[0] = CI_PREDICTOR_2;
-		  opt_buf[1] = CILEN_PREDICTOR_2;
-		  if (ccp_test (f->unit, opt_buf, CILEN_PREDICTOR_2, 0) <= 0)
-			  go->predictor_2 = 0;
-	  }
+	{
+		opt_buf[0] = CI_PREDICTOR_2;
+		opt_buf[1] = CILEN_PREDICTOR_2;
+		if (ccp_test (f->unit, opt_buf, CILEN_PREDICTOR_2, 0) <= 0)
+			go->predictor_2 = 0;
+	}
 }
 
 /*
@@ -491,92 +494,92 @@ static void ccp_addci (fsm * f, u_char * p, int *lenp)
 	 * in case it gets Acked.
 	 */
 	if (go->deflate)
-	  {
-		  p[0] = go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT;
-		  p[1] = CILEN_DEFLATE;
-		  p[2] = DEFLATE_MAKE_OPT (go->deflate_size);
-		  p[3] = DEFLATE_CHK_SEQUENCE;
-		  for (;;)
+	{
+		p[0] = go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT;
+		p[1] = CILEN_DEFLATE;
+		p[2] = DEFLATE_MAKE_OPT (go->deflate_size);
+		p[3] = DEFLATE_CHK_SEQUENCE;
+		for (;;)
+		{
+			res = ccp_test (f->unit, p, CILEN_DEFLATE, 0);
+			if (res > 0)
 			{
-				res = ccp_test (f->unit, p, CILEN_DEFLATE, 0);
-				if (res > 0)
-				  {
-					  p += CILEN_DEFLATE;
-					  break;
-				  }
-				if (res < 0 || go->deflate_size <= DEFLATE_MIN_SIZE)
-				  {
-					  go->deflate = 0;
-					  break;
-				  }
-				--go->deflate_size;
-				p[2] = DEFLATE_MAKE_OPT (go->deflate_size);
-			}
-		  if (p != p0 && go->deflate_correct && go->deflate_draft)
-			{
-				p[0] = CI_DEFLATE_DRAFT;
-				p[1] = CILEN_DEFLATE;
-				p[2] = p[2 - CILEN_DEFLATE];
-				p[3] = DEFLATE_CHK_SEQUENCE;
 				p += CILEN_DEFLATE;
+				break;
 			}
-	  }
+			if (res < 0 || go->deflate_size <= DEFLATE_MIN_SIZE)
+			{
+				go->deflate = 0;
+				break;
+			}
+			--go->deflate_size;
+			p[2] = DEFLATE_MAKE_OPT (go->deflate_size);
+		}
+		if (p != p0 && go->deflate_correct && go->deflate_draft)
+		{
+			p[0] = CI_DEFLATE_DRAFT;
+			p[1] = CILEN_DEFLATE;
+			p[2] = p[2 - CILEN_DEFLATE];
+			p[3] = DEFLATE_CHK_SEQUENCE;
+			p += CILEN_DEFLATE;
+		}
+	}
 	if (go->bsd_compress)
-	  {
-		  p[0] = CI_BSD_COMPRESS;
-		  p[1] = CILEN_BSD_COMPRESS;
-		  p[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits);
-		  if (p != p0)
+	{
+		p[0] = CI_BSD_COMPRESS;
+		p[1] = CILEN_BSD_COMPRESS;
+		p[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits);
+		if (p != p0)
+		{
+			p += CILEN_BSD_COMPRESS;	/* not the first option */
+		}
+		else
+		{
+			for (;;)
 			{
-				p += CILEN_BSD_COMPRESS;	/* not the first option */
+				res = ccp_test (f->unit, p, CILEN_BSD_COMPRESS, 0);
+				if (res > 0)
+				{
+					p += CILEN_BSD_COMPRESS;
+					break;
+				}
+				if (res < 0 || go->bsd_bits <= BSD_MIN_BITS)
+				{
+					go->bsd_compress = 0;
+					break;
+				}
+				--go->bsd_bits;
+				p[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits);
 			}
-		  else
-			{
-				for (;;)
-				  {
-					  res = ccp_test (f->unit, p, CILEN_BSD_COMPRESS, 0);
-					  if (res > 0)
-						{
-							p += CILEN_BSD_COMPRESS;
-							break;
-						}
-					  if (res < 0 || go->bsd_bits <= BSD_MIN_BITS)
-						{
-							go->bsd_compress = 0;
-							break;
-						}
-					  --go->bsd_bits;
-					  p[2] = BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits);
-				  }
-			}
-	  }
+		}
+	}
 	/* XXX Should Predictor 2 be preferable to Predictor 1? */
 	if (go->predictor_1)
-	  {
-		  p[0] = CI_PREDICTOR_1;
-		  p[1] = CILEN_PREDICTOR_1;
-		  if (p == p0 && ccp_test (f->unit, p, CILEN_PREDICTOR_1, 0) <= 0)
-			{
-				go->predictor_1 = 0;
-			}
-		  else
-			{
-				p += CILEN_PREDICTOR_1;
-			}
-	  }
+	{
+		p[0] = CI_PREDICTOR_1;
+		p[1] = CILEN_PREDICTOR_1;
+		if (p == p0 && ccp_test (f->unit, p, CILEN_PREDICTOR_1, 0) <= 0)
+		{
+			go->predictor_1 = 0;
+		}
+		else
+		{
+			p += CILEN_PREDICTOR_1;
+		}
+	}
 	if (go->predictor_2)
-	  {
-		  p[0] = CI_PREDICTOR_2;
-		  p[1] = CILEN_PREDICTOR_2;
-		  if (p == p0 && ccp_test (f->unit, p, CILEN_PREDICTOR_2, 0) <= 0)
-			{
-				go->predictor_2 = 0;
-			}
-		  else
-			{
-				p += CILEN_PREDICTOR_2;
-			}
-	  }
+	{
+		p[0] = CI_PREDICTOR_2;
+		p[1] = CILEN_PREDICTOR_2;
+		if (p == p0 && ccp_test (f->unit, p, CILEN_PREDICTOR_2, 0) <= 0)
+		{
+			go->predictor_2 = 0;
+		}
+		else
+		{
+			p += CILEN_PREDICTOR_2;
+		}
+	}
 
 	go->method = (p > p0) ? p0[0] : -1;
 
@@ -593,64 +596,64 @@ static int ccp_ackci (fsm * f, u_char * p, int len)
 	u_char *p0 = p;
 
 	if (go->deflate)
-	  {
-		  if (len < CILEN_DEFLATE
-			  || p[0] != (go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT)
-			  || p[1] != CILEN_DEFLATE
-			  || p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
-			  || p[3] != DEFLATE_CHK_SEQUENCE)
-			  return 0;
-		  p += CILEN_DEFLATE;
-		  len -= CILEN_DEFLATE;
-		  /* XXX Cope with first/fast ack */
-		  if (len == 0)
-			  return 1;
-		  if (go->deflate_correct && go->deflate_draft)
-			{
-				if (len < CILEN_DEFLATE
-					|| p[0] != CI_DEFLATE_DRAFT
-					|| p[1] != CILEN_DEFLATE
-					|| p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
-					|| p[3] != DEFLATE_CHK_SEQUENCE)
-					return 0;
-				p += CILEN_DEFLATE;
-				len -= CILEN_DEFLATE;
-			}
-	  }
+	{
+		if (len < CILEN_DEFLATE
+			|| p[0] != (go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT)
+			|| p[1] != CILEN_DEFLATE
+			|| p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
+			|| p[3] != DEFLATE_CHK_SEQUENCE)
+			return 0;
+		p += CILEN_DEFLATE;
+		len -= CILEN_DEFLATE;
+		/* XXX Cope with first/fast ack */
+		if (len == 0)
+			return 1;
+		if (go->deflate_correct && go->deflate_draft)
+		{
+			if (len < CILEN_DEFLATE
+				|| p[0] != CI_DEFLATE_DRAFT
+				|| p[1] != CILEN_DEFLATE
+				|| p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
+				|| p[3] != DEFLATE_CHK_SEQUENCE)
+				return 0;
+			p += CILEN_DEFLATE;
+			len -= CILEN_DEFLATE;
+		}
+	}
 	if (go->bsd_compress)
-	  {
-		  if (len < CILEN_BSD_COMPRESS
-			  || p[0] != CI_BSD_COMPRESS || p[1] != CILEN_BSD_COMPRESS
-			  || p[2] != BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits))
-			  return 0;
-		  p += CILEN_BSD_COMPRESS;
-		  len -= CILEN_BSD_COMPRESS;
-		  /* XXX Cope with first/fast ack */
-		  if (p == p0 && len == 0)
-			  return 1;
-	  }
+	{
+		if (len < CILEN_BSD_COMPRESS
+			|| p[0] != CI_BSD_COMPRESS || p[1] != CILEN_BSD_COMPRESS
+			|| p[2] != BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits))
+			return 0;
+		p += CILEN_BSD_COMPRESS;
+		len -= CILEN_BSD_COMPRESS;
+		/* XXX Cope with first/fast ack */
+		if (p == p0 && len == 0)
+			return 1;
+	}
 	if (go->predictor_1)
-	  {
-		  if (len < CILEN_PREDICTOR_1
-			  || p[0] != CI_PREDICTOR_1 || p[1] != CILEN_PREDICTOR_1)
-			  return 0;
-		  p += CILEN_PREDICTOR_1;
-		  len -= CILEN_PREDICTOR_1;
-		  /* XXX Cope with first/fast ack */
-		  if (p == p0 && len == 0)
-			  return 1;
-	  }
+	{
+		if (len < CILEN_PREDICTOR_1
+			|| p[0] != CI_PREDICTOR_1 || p[1] != CILEN_PREDICTOR_1)
+			return 0;
+		p += CILEN_PREDICTOR_1;
+		len -= CILEN_PREDICTOR_1;
+		/* XXX Cope with first/fast ack */
+		if (p == p0 && len == 0)
+			return 1;
+	}
 	if (go->predictor_2)
-	  {
-		  if (len < CILEN_PREDICTOR_2
-			  || p[0] != CI_PREDICTOR_2 || p[1] != CILEN_PREDICTOR_2)
-			  return 0;
-		  p += CILEN_PREDICTOR_2;
-		  len -= CILEN_PREDICTOR_2;
-		  /* XXX Cope with first/fast ack */
-		  if (p == p0 && len == 0)
-			  return 1;
-	  }
+	{
+		if (len < CILEN_PREDICTOR_2
+			|| p[0] != CI_PREDICTOR_2 || p[1] != CILEN_PREDICTOR_2)
+			return 0;
+		p += CILEN_PREDICTOR_2;
+		len -= CILEN_PREDICTOR_2;
+		/* XXX Cope with first/fast ack */
+		if (p == p0 && len == 0)
+			return 1;
+	}
 
 	if (len != 0)
 		return 0;
@@ -673,44 +676,44 @@ static int ccp_nakci (fsm * f, u_char * p, int len)
 	if (go->deflate && len >= CILEN_DEFLATE
 		&& p[0] == (go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT)
 		&& p[1] == CILEN_DEFLATE)
-	  {
-		  no.deflate = 1;
-		  /*
-		   * Peer wants us to use a different code size or something.
-		   * Stop asking for Deflate if we don't understand his suggestion.
-		   */
-		  if (DEFLATE_METHOD (p[2]) != DEFLATE_METHOD_VAL
-			  || DEFLATE_SIZE (p[2]) < DEFLATE_MIN_SIZE
-			  || p[3] != DEFLATE_CHK_SEQUENCE)
-			  try.deflate = 0;
-		  else if (DEFLATE_SIZE (p[2]) < go->deflate_size)
-			  try.deflate_size = DEFLATE_SIZE (p[2]);
-		  p += CILEN_DEFLATE;
-		  len -= CILEN_DEFLATE;
-		  if (go->deflate_correct && go->deflate_draft
-			  && len >= CILEN_DEFLATE && p[0] == CI_DEFLATE_DRAFT
-			  && p[1] == CILEN_DEFLATE)
-			{
-				p += CILEN_DEFLATE;
-				len -= CILEN_DEFLATE;
-			}
-	  }
+	{
+		no.deflate = 1;
+		/*
+		 * Peer wants us to use a different code size or something.
+		 * Stop asking for Deflate if we don't understand his suggestion.
+		 */
+		if (DEFLATE_METHOD (p[2]) != DEFLATE_METHOD_VAL
+			|| DEFLATE_SIZE (p[2]) < DEFLATE_MIN_SIZE
+			|| p[3] != DEFLATE_CHK_SEQUENCE)
+			try.deflate = 0;
+		else if (DEFLATE_SIZE (p[2]) < go->deflate_size)
+			try.deflate_size = DEFLATE_SIZE (p[2]);
+		p += CILEN_DEFLATE;
+		len -= CILEN_DEFLATE;
+		if (go->deflate_correct && go->deflate_draft
+			&& len >= CILEN_DEFLATE && p[0] == CI_DEFLATE_DRAFT
+			&& p[1] == CILEN_DEFLATE)
+		{
+			p += CILEN_DEFLATE;
+			len -= CILEN_DEFLATE;
+		}
+	}
 
 	if (go->bsd_compress && len >= CILEN_BSD_COMPRESS
 		&& p[0] == CI_BSD_COMPRESS && p[1] == CILEN_BSD_COMPRESS)
-	  {
-		  no.bsd_compress = 1;
-		  /*
-		   * Peer wants us to use a different number of bits
-		   * or a different version.
-		   */
-		  if (BSD_VERSION (p[2]) != BSD_CURRENT_VERSION)
-			  try.bsd_compress = 0;
-		  else if (BSD_NBITS (p[2]) < go->bsd_bits)
-			  try.bsd_bits = BSD_NBITS (p[2]);
-		  p += CILEN_BSD_COMPRESS;
-		  len -= CILEN_BSD_COMPRESS;
-	  }
+	{
+		no.bsd_compress = 1;
+		/*
+		 * Peer wants us to use a different number of bits
+		 * or a different version.
+		 */
+		if (BSD_VERSION (p[2]) != BSD_CURRENT_VERSION)
+			try.bsd_compress = 0;
+		else if (BSD_NBITS (p[2]) < go->bsd_bits)
+			try.bsd_bits = BSD_NBITS (p[2]);
+		p += CILEN_BSD_COMPRESS;
+		len -= CILEN_BSD_COMPRESS;
+	}
 
 	/*
 	 * Predictor-1 and 2 have no options, so they can't be Naked.
@@ -743,53 +746,53 @@ static int ccp_rejci (fsm * f, u_char * p, int len)
 	if (go->deflate && len >= CILEN_DEFLATE
 		&& p[0] == (go->deflate_correct ? CI_DEFLATE : CI_DEFLATE_DRAFT)
 		&& p[1] == CILEN_DEFLATE)
-	  {
-		  if (p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
-			  || p[3] != DEFLATE_CHK_SEQUENCE)
-			  return 0;			/* Rej is bad */
-		  if (go->deflate_correct)
-			  try.deflate_correct = 0;
-		  else
-			  try.deflate_draft = 0;
-		  p += CILEN_DEFLATE;
-		  len -= CILEN_DEFLATE;
-		  if (go->deflate_correct && go->deflate_draft
-			  && len >= CILEN_DEFLATE && p[0] == CI_DEFLATE_DRAFT
-			  && p[1] == CILEN_DEFLATE)
-			{
-				if (p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
-					|| p[3] != DEFLATE_CHK_SEQUENCE)
-					return 0;	/* Rej is bad */
-				try.deflate_draft = 0;
-				p += CILEN_DEFLATE;
-				len -= CILEN_DEFLATE;
-			}
-		  if (!try.deflate_correct && !try.deflate_draft)
-			  try.deflate = 0;
-	  }
+	{
+		if (p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
+			|| p[3] != DEFLATE_CHK_SEQUENCE)
+			return 0;			/* Rej is bad */
+		if (go->deflate_correct)
+			try.deflate_correct = 0;
+		else
+			try.deflate_draft = 0;
+		p += CILEN_DEFLATE;
+		len -= CILEN_DEFLATE;
+		if (go->deflate_correct && go->deflate_draft
+			&& len >= CILEN_DEFLATE && p[0] == CI_DEFLATE_DRAFT
+			&& p[1] == CILEN_DEFLATE)
+		{
+			if (p[2] != DEFLATE_MAKE_OPT (go->deflate_size)
+				|| p[3] != DEFLATE_CHK_SEQUENCE)
+				return 0;	/* Rej is bad */
+			try.deflate_draft = 0;
+			p += CILEN_DEFLATE;
+			len -= CILEN_DEFLATE;
+		}
+		if (!try.deflate_correct && !try.deflate_draft)
+			try.deflate = 0;
+	}
 	if (go->bsd_compress && len >= CILEN_BSD_COMPRESS
 		&& p[0] == CI_BSD_COMPRESS && p[1] == CILEN_BSD_COMPRESS)
-	  {
-		  if (p[2] != BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits))
-			  return 0;
-		  try.bsd_compress = 0;
-		  p += CILEN_BSD_COMPRESS;
-		  len -= CILEN_BSD_COMPRESS;
-	  }
+	{
+		if (p[2] != BSD_MAKE_OPT (BSD_CURRENT_VERSION, go->bsd_bits))
+			return 0;
+		try.bsd_compress = 0;
+		p += CILEN_BSD_COMPRESS;
+		len -= CILEN_BSD_COMPRESS;
+	}
 	if (go->predictor_1 && len >= CILEN_PREDICTOR_1
 		&& p[0] == CI_PREDICTOR_1 && p[1] == CILEN_PREDICTOR_1)
-	  {
-		  try.predictor_1 = 0;
-		  p += CILEN_PREDICTOR_1;
-		  len -= CILEN_PREDICTOR_1;
-	  }
+	{
+		try.predictor_1 = 0;
+		p += CILEN_PREDICTOR_1;
+		len -= CILEN_PREDICTOR_1;
+	}
 	if (go->predictor_2 && len >= CILEN_PREDICTOR_2
 		&& p[0] == CI_PREDICTOR_2 && p[1] == CILEN_PREDICTOR_2)
-	  {
-		  try.predictor_2 = 0;
-		  p += CILEN_PREDICTOR_2;
-		  len -= CILEN_PREDICTOR_2;
-	  }
+	{
+		try.predictor_2 = 0;
+		p += CILEN_PREDICTOR_2;
+		len -= CILEN_PREDICTOR_2;
+	}
 
 	if (len != 0)
 		return 0;
@@ -821,201 +824,201 @@ static int ccp_reqci (fsm * f, u_char * p, int *lenp, int dont_nak)
 	ho->method = (len > 0) ? p[0] : -1;
 
 	while (len > 0)
-	  {
-		  newret = CONFACK;
-		  if (len < 2 || p[1] < 2 || p[1] > len)
+	{
+		newret = CONFACK;
+		if (len < 2 || p[1] < 2 || p[1] > len)
+		{
+			/* length is bad */
+			clen = len;
+			newret = CONFREJ;
+
+		}
+		else
+		{
+			type = p[0];
+			clen = p[1];
+
+			switch (type)
 			{
-				/* length is bad */
-				clen = len;
-				newret = CONFREJ;
+				case CI_DEFLATE:
+				case CI_DEFLATE_DRAFT:
+					if (!ao->deflate || clen != CILEN_DEFLATE
+						|| (!ao->deflate_correct && type == CI_DEFLATE)
+						|| (!ao->deflate_draft
+							&& type == CI_DEFLATE_DRAFT))
+					{
+						newret = CONFREJ;
+						break;
+					}
 
+					ho->deflate = 1;
+					ho->deflate_size = nb = DEFLATE_SIZE (p[2]);
+					if (DEFLATE_METHOD (p[2]) != DEFLATE_METHOD_VAL
+						|| p[3] != DEFLATE_CHK_SEQUENCE
+						|| nb > ao->deflate_size || nb < DEFLATE_MIN_SIZE)
+					{
+						newret = CONFNAK;
+						if (!dont_nak)
+						{
+							p[2] =
+								DEFLATE_MAKE_OPT (ao->deflate_size);
+							p[3] = DEFLATE_CHK_SEQUENCE;
+							/* fall through to test this #bits below */
+						}
+						else
+							break;
+					}
+
+					/*
+					 * Check whether we can do Deflate with the window
+					 * size they want.  If the window is too big, reduce
+					 * it until the kernel can cope and nak with that.
+					 * We only check this for the first option.
+					 */
+					if (p == p0)
+					{
+						for (;;)
+						{
+							res =
+								ccp_test (f->unit, p, CILEN_DEFLATE,
+											1);
+							if (res > 0)
+								break;	/* it's OK now */
+							if (res < 0 || nb == DEFLATE_MIN_SIZE
+								|| dont_nak)
+							{
+								newret = CONFREJ;
+								p[2] =
+									DEFLATE_MAKE_OPT (ho->
+													deflate_size);
+								break;
+							}
+							newret = CONFNAK;
+							--nb;
+							p[2] = DEFLATE_MAKE_OPT (nb);
+						}
+					}
+					break;
+
+				case CI_BSD_COMPRESS:
+					if (!ao->bsd_compress || clen != CILEN_BSD_COMPRESS)
+					{
+						newret = CONFREJ;
+						break;
+					}
+
+					ho->bsd_compress = 1;
+					ho->bsd_bits = nb = BSD_NBITS (p[2]);
+					if (BSD_VERSION (p[2]) != BSD_CURRENT_VERSION
+						|| nb > ao->bsd_bits || nb < BSD_MIN_BITS)
+					{
+						newret = CONFNAK;
+						if (!dont_nak)
+						{
+							p[2] =
+								BSD_MAKE_OPT (BSD_CURRENT_VERSION,
+												ao->bsd_bits);
+							/* fall through to test this #bits below */
+						}
+						else
+							break;
+					}
+
+					/*
+					 * Check whether we can do BSD-Compress with the code
+					 * size they want.  If the code size is too big, reduce
+					 * it until the kernel can cope and nak with that.
+					 * We only check this for the first option.
+					 */
+					if (p == p0)
+					{
+						for (;;)
+						{
+							res =
+								ccp_test (f->unit, p,
+											CILEN_BSD_COMPRESS, 1);
+							if (res > 0)
+								break;
+							if (res < 0 || nb == BSD_MIN_BITS
+								|| dont_nak)
+							{
+								newret = CONFREJ;
+								p[2] =
+									BSD_MAKE_OPT
+									(BSD_CURRENT_VERSION,
+									 ho->bsd_bits);
+								break;
+							}
+							newret = CONFNAK;
+							--nb;
+							p[2] =
+								BSD_MAKE_OPT (BSD_CURRENT_VERSION,
+												nb);
+						}
+					}
+					break;
+
+				case CI_PREDICTOR_1:
+					if (!ao->predictor_1 || clen != CILEN_PREDICTOR_1)
+					{
+						newret = CONFREJ;
+						break;
+					}
+
+					ho->predictor_1 = 1;
+					if (p == p0
+						&& ccp_test (f->unit, p, CILEN_PREDICTOR_1,
+									 1) <= 0)
+					{
+						newret = CONFREJ;
+					}
+					break;
+
+				case CI_PREDICTOR_2:
+					if (!ao->predictor_2 || clen != CILEN_PREDICTOR_2)
+					{
+						newret = CONFREJ;
+						break;
+					}
+
+					ho->predictor_2 = 1;
+					if (p == p0
+						&& ccp_test (f->unit, p, CILEN_PREDICTOR_2,
+									 1) <= 0)
+					{
+						newret = CONFREJ;
+					}
+					break;
+
+				default:
+					newret = CONFREJ;
 			}
-		  else
-			{
-				type = p[0];
-				clen = p[1];
+		}
 
-				switch (type)
-				  {
-					  case CI_DEFLATE:
-					  case CI_DEFLATE_DRAFT:
-						  if (!ao->deflate || clen != CILEN_DEFLATE
-							  || (!ao->deflate_correct && type == CI_DEFLATE)
-							  || (!ao->deflate_draft
-								  && type == CI_DEFLATE_DRAFT))
-							{
-								newret = CONFREJ;
-								break;
-							}
+		if (newret == CONFNAK && dont_nak)
+			newret = CONFREJ;
+		if (!(newret == CONFACK || (newret == CONFNAK && ret == CONFREJ)))
+		{
+			/* we're returning this option */
+			if (newret == CONFREJ && ret == CONFNAK)
+				retp = p0;
+			ret = newret;
+			if (p != retp)
+				BCOPY (p, retp, clen);
+			retp += clen;
+		}
 
-						  ho->deflate = 1;
-						  ho->deflate_size = nb = DEFLATE_SIZE (p[2]);
-						  if (DEFLATE_METHOD (p[2]) != DEFLATE_METHOD_VAL
-							  || p[3] != DEFLATE_CHK_SEQUENCE
-							  || nb > ao->deflate_size || nb < DEFLATE_MIN_SIZE)
-							{
-								newret = CONFNAK;
-								if (!dont_nak)
-								  {
-									  p[2] =
-										  DEFLATE_MAKE_OPT (ao->deflate_size);
-									  p[3] = DEFLATE_CHK_SEQUENCE;
-									  /* fall through to test this #bits below */
-								  }
-								else
-									break;
-							}
-
-						  /*
-						   * Check whether we can do Deflate with the window
-						   * size they want.  If the window is too big, reduce
-						   * it until the kernel can cope and nak with that.
-						   * We only check this for the first option.
-						   */
-						  if (p == p0)
-							{
-								for (;;)
-								  {
-									  res =
-										  ccp_test (f->unit, p, CILEN_DEFLATE,
-													1);
-									  if (res > 0)
-										  break;	/* it's OK now */
-									  if (res < 0 || nb == DEFLATE_MIN_SIZE
-										  || dont_nak)
-										{
-											newret = CONFREJ;
-											p[2] =
-												DEFLATE_MAKE_OPT (ho->
-																  deflate_size);
-											break;
-										}
-									  newret = CONFNAK;
-									  --nb;
-									  p[2] = DEFLATE_MAKE_OPT (nb);
-								  }
-							}
-						  break;
-
-					  case CI_BSD_COMPRESS:
-						  if (!ao->bsd_compress || clen != CILEN_BSD_COMPRESS)
-							{
-								newret = CONFREJ;
-								break;
-							}
-
-						  ho->bsd_compress = 1;
-						  ho->bsd_bits = nb = BSD_NBITS (p[2]);
-						  if (BSD_VERSION (p[2]) != BSD_CURRENT_VERSION
-							  || nb > ao->bsd_bits || nb < BSD_MIN_BITS)
-							{
-								newret = CONFNAK;
-								if (!dont_nak)
-								  {
-									  p[2] =
-										  BSD_MAKE_OPT (BSD_CURRENT_VERSION,
-														ao->bsd_bits);
-									  /* fall through to test this #bits below */
-								  }
-								else
-									break;
-							}
-
-						  /*
-						   * Check whether we can do BSD-Compress with the code
-						   * size they want.  If the code size is too big, reduce
-						   * it until the kernel can cope and nak with that.
-						   * We only check this for the first option.
-						   */
-						  if (p == p0)
-							{
-								for (;;)
-								  {
-									  res =
-										  ccp_test (f->unit, p,
-													CILEN_BSD_COMPRESS, 1);
-									  if (res > 0)
-										  break;
-									  if (res < 0 || nb == BSD_MIN_BITS
-										  || dont_nak)
-										{
-											newret = CONFREJ;
-											p[2] =
-												BSD_MAKE_OPT
-												(BSD_CURRENT_VERSION,
-												 ho->bsd_bits);
-											break;
-										}
-									  newret = CONFNAK;
-									  --nb;
-									  p[2] =
-										  BSD_MAKE_OPT (BSD_CURRENT_VERSION,
-														nb);
-								  }
-							}
-						  break;
-
-					  case CI_PREDICTOR_1:
-						  if (!ao->predictor_1 || clen != CILEN_PREDICTOR_1)
-							{
-								newret = CONFREJ;
-								break;
-							}
-
-						  ho->predictor_1 = 1;
-						  if (p == p0
-							  && ccp_test (f->unit, p, CILEN_PREDICTOR_1,
-										   1) <= 0)
-							{
-								newret = CONFREJ;
-							}
-						  break;
-
-					  case CI_PREDICTOR_2:
-						  if (!ao->predictor_2 || clen != CILEN_PREDICTOR_2)
-							{
-								newret = CONFREJ;
-								break;
-							}
-
-						  ho->predictor_2 = 1;
-						  if (p == p0
-							  && ccp_test (f->unit, p, CILEN_PREDICTOR_2,
-										   1) <= 0)
-							{
-								newret = CONFREJ;
-							}
-						  break;
-
-					  default:
-						  newret = CONFREJ;
-				  }
-			}
-
-		  if (newret == CONFNAK && dont_nak)
-			  newret = CONFREJ;
-		  if (!(newret == CONFACK || (newret == CONFNAK && ret == CONFREJ)))
-			{
-				/* we're returning this option */
-				if (newret == CONFREJ && ret == CONFNAK)
-					retp = p0;
-				ret = newret;
-				if (p != retp)
-					BCOPY (p, retp, clen);
-				retp += clen;
-			}
-
-		  p += clen;
-		  len -= clen;
-	  }
+		p += clen;
+		len -= clen;
+	}
 
 	if (ret != CONFACK)
-	  {
-		  if (ret == CONFREJ && *lenp == retp - p0)
-			  all_rejected[f->unit] = 1;
-		  else
-			  *lenp = retp - p0;
-	  }
+	{
+		if (ret == CONFREJ && *lenp == retp - p0)
+			all_rejected[f->unit] = 1;
+		else
+			*lenp = retp - p0;
+	}
 	return ret;
 }
 
@@ -1029,33 +1032,33 @@ static char *method_name (ccp_options * opt, ccp_options * opt2)
 	if (!ANY_COMPRESS (*opt))
 		return "(none)";
 	switch (opt->method)
-	  {
-		  case CI_DEFLATE:
-		  case CI_DEFLATE_DRAFT:
-			  if (opt2 != NULL && opt2->deflate_size != opt->deflate_size)
-				  slprintf (result, sizeof (result), "Deflate%s (%d/%d)",
+	{
+		case CI_DEFLATE:
+		case CI_DEFLATE_DRAFT:
+			if (opt2 != NULL && opt2->deflate_size != opt->deflate_size)
+				slprintf (result, sizeof (result), "Deflate%s (%d/%d)",
 							(opt->method == CI_DEFLATE_DRAFT ? "(old#)" : ""),
 							opt->deflate_size, opt2->deflate_size);
-			  else
-				  slprintf (result, sizeof (result), "Deflate%s (%d)",
+			else
+				slprintf (result, sizeof (result), "Deflate%s (%d)",
 							(opt->method == CI_DEFLATE_DRAFT ? "(old#)" : ""),
 							opt->deflate_size);
-			  break;
-		  case CI_BSD_COMPRESS:
-			  if (opt2 != NULL && opt2->bsd_bits != opt->bsd_bits)
-				  slprintf (result, sizeof (result), "BSD-Compress (%d/%d)",
+			break;
+		case CI_BSD_COMPRESS:
+			if (opt2 != NULL && opt2->bsd_bits != opt->bsd_bits)
+				slprintf (result, sizeof (result), "BSD-Compress (%d/%d)",
 							opt->bsd_bits, opt2->bsd_bits);
-			  else
-				  slprintf (result, sizeof (result), "BSD-Compress (%d)",
+			else
+				slprintf (result, sizeof (result), "BSD-Compress (%d)",
 							opt->bsd_bits);
-			  break;
-		  case CI_PREDICTOR_1:
-			  return "Predictor 1";
-		  case CI_PREDICTOR_2:
-			  return "Predictor 2";
-		  default:
-			  slprintf (result, sizeof (result), "Method %d", opt->method);
-	  }
+			break;
+		case CI_PREDICTOR_1:
+			return "Predictor 1";
+		case CI_PREDICTOR_2:
+			return "Predictor 2";
+		default:
+			slprintf (result, sizeof (result), "Method %d", opt->method);
+	}
 	return result;
 }
 
@@ -1070,24 +1073,24 @@ static void ccp_up (fsm * f)
 
 	ccp_flags_set (f->unit, 1, 1);
 	if (ANY_COMPRESS (*go))
-	  {
-		  if (ANY_COMPRESS (*ho))
+	{
+		if (ANY_COMPRESS (*ho))
+		{
+			if (go->method == ho->method)
 			{
-				if (go->method == ho->method)
-				  {
-					  notice ("%s compression enabled", method_name (go, ho));
-				  }
-				else
-				  {
-					  strlcpy (method1, method_name (go, NULL),
-							   sizeof (method1));
-					  notice ("%s / %s compression enabled", method1,
-							  method_name (ho, NULL));
-				  }
+				notice ("%s compression enabled", method_name (go, ho));
 			}
-		  else
-			  notice ("%s receive compression enabled", method_name (go, NULL));
-	  }
+			else
+			{
+				strlcpy (method1, method_name (go, NULL),
+						 sizeof (method1));
+				notice ("%s / %s compression enabled", method1,
+						method_name (ho, NULL));
+			}
+		}
+		else
+			notice ("%s receive compression enabled", method_name (go, NULL));
+	}
 	else if (ANY_COMPRESS (*ho))
 		notice ("%s transmit compression enabled", method_name (ho, NULL));
 }
@@ -1106,7 +1109,8 @@ static void ccp_down (fsm * f)
 /*
  * Print the contents of a CCP packet.
  */
-static char *ccp_codenames[] = {
+static char *ccp_codenames[] =
+{
 	"ConfReq", "ConfAck", "ConfNak", "ConfRej",
 	"TermReq", "TermAck", "CodeRej",
 	NULL, NULL, NULL, NULL, NULL, NULL,
@@ -1115,7 +1119,7 @@ static char *ccp_codenames[] = {
 
 static int
 ccp_printpkt (u_char * p,
-			  int plen, void (*printer) (void *, char *, ...), void *arg)
+			int plen, void (*printer) (void *, char *, ...), void *arg)
 {
 	u_char *p0, *optend;
 	int code, id, len;
@@ -1140,80 +1144,80 @@ ccp_printpkt (u_char * p,
 	p += HEADERLEN;
 
 	switch (code)
-	  {
-		  case CONFREQ:
-		  case CONFACK:
-		  case CONFNAK:
-		  case CONFREJ:
-			  /* print list of possible compression methods */
-			  while (len >= 2)
+	{
+		case CONFREQ:
+		case CONFACK:
+		case CONFNAK:
+		case CONFREJ:
+			/* print list of possible compression methods */
+			while (len >= 2)
+			{
+				code = p[0];
+				optlen = p[1];
+				if (optlen < 2 || optlen > len)
+					break;
+				printer (arg, " <");
+				len -= optlen;
+				optend = p + optlen;
+				switch (code)
 				{
-					code = p[0];
-					optlen = p[1];
-					if (optlen < 2 || optlen > len)
+					case CI_DEFLATE:
+					case CI_DEFLATE_DRAFT:
+						if (optlen >= CILEN_DEFLATE)
+						{
+							printer (arg, "deflate%s %d",
+									 (code ==
+									CI_DEFLATE_DRAFT ? "(old#)" : ""),
+									 DEFLATE_SIZE (p[2]));
+							if (DEFLATE_METHOD (p[2]) !=
+								DEFLATE_METHOD_VAL)
+								printer (arg, " method %d",
+										 DEFLATE_METHOD (p[2]));
+							if (p[3] != DEFLATE_CHK_SEQUENCE)
+								printer (arg, " check %d", p[3]);
+							p += CILEN_DEFLATE;
+						}
 						break;
-					printer (arg, " <");
-					len -= optlen;
-					optend = p + optlen;
-					switch (code)
-					  {
-						  case CI_DEFLATE:
-						  case CI_DEFLATE_DRAFT:
-							  if (optlen >= CILEN_DEFLATE)
-								{
-									printer (arg, "deflate%s %d",
-											 (code ==
-											  CI_DEFLATE_DRAFT ? "(old#)" : ""),
-											 DEFLATE_SIZE (p[2]));
-									if (DEFLATE_METHOD (p[2]) !=
-										DEFLATE_METHOD_VAL)
-										printer (arg, " method %d",
-												 DEFLATE_METHOD (p[2]));
-									if (p[3] != DEFLATE_CHK_SEQUENCE)
-										printer (arg, " check %d", p[3]);
-									p += CILEN_DEFLATE;
-								}
-							  break;
-						  case CI_BSD_COMPRESS:
-							  if (optlen >= CILEN_BSD_COMPRESS)
-								{
-									printer (arg, "bsd v%d %d",
-											 BSD_VERSION (p[2]),
-											 BSD_NBITS (p[2]));
-									p += CILEN_BSD_COMPRESS;
-								}
-							  break;
-						  case CI_PREDICTOR_1:
-							  if (optlen >= CILEN_PREDICTOR_1)
-								{
-									printer (arg, "predictor 1");
-									p += CILEN_PREDICTOR_1;
-								}
-							  break;
-						  case CI_PREDICTOR_2:
-							  if (optlen >= CILEN_PREDICTOR_2)
-								{
-									printer (arg, "predictor 2");
-									p += CILEN_PREDICTOR_2;
-								}
-							  break;
-					  }
-					while (p < optend)
-						printer (arg, " %.2x", *p++);
-					printer (arg, ">");
+					case CI_BSD_COMPRESS:
+						if (optlen >= CILEN_BSD_COMPRESS)
+						{
+							printer (arg, "bsd v%d %d",
+									 BSD_VERSION (p[2]),
+									 BSD_NBITS (p[2]));
+							p += CILEN_BSD_COMPRESS;
+						}
+						break;
+					case CI_PREDICTOR_1:
+						if (optlen >= CILEN_PREDICTOR_1)
+						{
+							printer (arg, "predictor 1");
+							p += CILEN_PREDICTOR_1;
+						}
+						break;
+					case CI_PREDICTOR_2:
+						if (optlen >= CILEN_PREDICTOR_2)
+						{
+							printer (arg, "predictor 2");
+							p += CILEN_PREDICTOR_2;
+						}
+						break;
 				}
-			  break;
+				while (p < optend)
+					printer (arg, " %.2x", *p++);
+				printer (arg, ">");
+			}
+			break;
 
-		  case TERMACK:
-		  case TERMREQ:
-			  if (len > 0 && *p >= ' ' && *p < 0x7f)
-				{
-					print_string (p, len, printer, arg);
-					p += len;
-					len = 0;
-				}
-			  break;
-	  }
+		case TERMACK:
+		case TERMREQ:
+			if (len > 0 && *p >= ' ' && *p < 0x7f)
+			{
+				print_string (p, len, printer, arg);
+				p += len;
+				len = 0;
+			}
+			break;
+	}
 
 	/* dump out the rest of the packet in hex */
 	while (--len >= 0)
@@ -1240,32 +1244,32 @@ static void ccp_datainput (int unit, u_char * pkt, int len)
 
 	f = &ccp_fsm[unit];
 	if (f->state == OPENED)
-	  {
-		  if (ccp_fatal_error (unit))
+	{
+		if (ccp_fatal_error (unit))
+		{
+			/*
+			 * Disable compression by taking CCP down.
+			 */
+			error ("Lost compression sync: disabling compression");
+			ccp_close (unit, "Lost compression sync");
+		}
+		else
+		{
+			/*
+			 * Send a reset-request to reset the peer's compressor.
+			 * We don't do that if we are still waiting for an
+			 * acknowledgement to a previous reset-request.
+			 */
+			if (!(ccp_localstate[f->unit] & RACK_PENDING))
 			{
-				/*
-				 * Disable compression by taking CCP down.
-				 */
-				error ("Lost compression sync: disabling compression");
-				ccp_close (unit, "Lost compression sync");
+				fsm_sdata (f, CCP_RESETREQ, f->reqid = ++f->id, NULL, 0);
+				TIMEOUT (ccp_rack_timeout, f, RACKTIMEOUT);
+				ccp_localstate[f->unit] |= RACK_PENDING;
 			}
-		  else
-			{
-				/*
-				 * Send a reset-request to reset the peer's compressor.
-				 * We don't do that if we are still waiting for an
-				 * acknowledgement to a previous reset-request.
-				 */
-				if (!(ccp_localstate[f->unit] & RACK_PENDING))
-				  {
-					  fsm_sdata (f, CCP_RESETREQ, f->reqid = ++f->id, NULL, 0);
-					  TIMEOUT (ccp_rack_timeout, f, RACKTIMEOUT);
-					  ccp_localstate[f->unit] |= RACK_PENDING;
-				  }
-				else
-					ccp_localstate[f->unit] |= RREQ_REPEAT;
-			}
-	  }
+			else
+				ccp_localstate[f->unit] |= RREQ_REPEAT;
+		}
+	}
 }
 
 /*
@@ -1276,11 +1280,11 @@ static void ccp_rack_timeout (void *arg)
 	fsm *f = arg;
 
 	if (f->state == OPENED && ccp_localstate[f->unit] & RREQ_REPEAT)
-	  {
-		  fsm_sdata (f, CCP_RESETREQ, f->reqid, NULL, 0);
-		  TIMEOUT (ccp_rack_timeout, f, RACKTIMEOUT);
-		  ccp_localstate[f->unit] &= ~RREQ_REPEAT;
-	  }
+	{
+		fsm_sdata (f, CCP_RESETREQ, f->reqid, NULL, 0);
+		TIMEOUT (ccp_rack_timeout, f, RACKTIMEOUT);
+		ccp_localstate[f->unit] &= ~RREQ_REPEAT;
+	}
 	else
 		ccp_localstate[f->unit] &= ~RACK_PENDING;
 }

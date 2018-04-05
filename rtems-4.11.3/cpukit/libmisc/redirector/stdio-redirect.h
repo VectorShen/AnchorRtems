@@ -54,62 +54,62 @@ extern "C"
  * @param buffer The data.
  * @param length The amount of data in the buffer.
  */
-	typedef void (*rtems_stdio_redirect_handler) (const char *buffer,
-												  ssize_t length);
+typedef void (*rtems_stdio_redirect_handler) (const char *buffer,
+											  ssize_t length);
 
 /*
- * Redirector data.
- */
-	typedef struct
-	{
-		volatile uint32_t state;			/**< The state. */
-		rtems_id reader;					/**< The reader thread. */
-		rtems_id lock;						/**< Lock for this struct. */
-		int fd;								/**< The file descriptor to redirect. */
-		int fd_dup;							/**< Duplicated fd to write to. */
-		int pipe[2];						/**< The pipe to the reader thread. */
-		char *input;						/**< The input buffer the reader uses. */
-		ssize_t input_size;					/**< The input buffer size. */
-		char *buffer;						/**< Captured redirected data. */
-		ssize_t buffer_size;				/**< Capture buffer size. */
-		ssize_t in;							/**< Buffer in index. */
-		bool full;							/**< The buffer is full. */
-		bool echo;							/**< Echo the data out the existing path. */
-		rtems_stdio_redirect_handler handler;
-											/**< Redirected data handler. */
-	} rtems_stdio_redirect;
+* Redirector data.
+*/
+typedef struct
+{
+	volatile uint32_t state;			/**< The state. */
+	rtems_id reader;					/**< The reader thread. */
+	rtems_id lock;						/**< Lock for this struct. */
+	int fd;								/**< The file descriptor to redirect. */
+	int fd_dup;							/**< Duplicated fd to write to. */
+	int pipe[2];						/**< The pipe to the reader thread. */
+	char *input;						/**< The input buffer the reader uses. */
+	ssize_t input_size;					/**< The input buffer size. */
+	char *buffer;						/**< Captured redirected data. */
+	ssize_t buffer_size;				/**< Capture buffer size. */
+	ssize_t in;							/**< Buffer in index. */
+	bool full;							/**< The buffer is full. */
+	bool echo;							/**< Echo the data out the existing path. */
+	rtems_stdio_redirect_handler handler;
+										/**< Redirected data handler. */
+} rtems_stdio_redirect;
 
 /*
- * Open a redirector returning the handle to it.
- *
- * @param fd The file descriptor to redirect.
- * @param priority The priority of the reader thread.
- */
-	rtems_stdio_redirect *rtems_stdio_redirect_open (int fd,
-													 rtems_task_priority
-													 priority,
-													 size_t stack_size,
-													 ssize_t input_size,
-													 ssize_t buffer_size,
-													 bool echo,
-													 rtems_stdio_redirect_handler
-													 handler);
+* Open a redirector returning the handle to it.
+*
+* @param fd The file descriptor to redirect.
+* @param priority The priority of the reader thread.
+*/
+rtems_stdio_redirect *rtems_stdio_redirect_open (int fd,
+												 rtems_task_priority
+												 priority,
+												 size_t stack_size,
+												 ssize_t input_size,
+												 ssize_t buffer_size,
+												 bool echo,
+												 rtems_stdio_redirect_handler
+												 handler);
 
 /*
- * Close the redirector.
- */
-	void rtems_stdio_redirect_close (rtems_stdio_redirect * sr);
+* Close the redirector.
+*/
+void rtems_stdio_redirect_close (rtems_stdio_redirect * sr);
 
 /*
- * Get data from the capture buffer. Data read is removed from the buffer.
- *
- * @param sr The stdio redirection handle.
- * @param buffer The buffer data is written into.
- * @param length The size of the buffer.
- * @return ssize_t The amount of data written and -1 or an error.
- */
-	ssize_t rtems_stdio_redirect_read (rtems_stdio_redirect * sr,
-									   char *buffer, ssize_t length);
+* Get data from the capture buffer. Data read is removed from the buffer.
+*
+* @param sr The stdio redirection handle.
+* @param buffer The buffer data is written into.
+* @param length The size of the buffer.
+* @return ssize_t The amount of data written and -1 or an error.
+*/
+ssize_t rtems_stdio_redirect_read (rtems_stdio_redirect * sr,
+								   char *buffer, ssize_t length);
 
 #ifdef __cplusplus
 }

@@ -61,10 +61,10 @@ bool _CORE_message_queue_Initialize (CORE_message_queue_Control *
 	 * size.
 	 */
 	if (allocated_message_size & (sizeof (uintptr_t) - 1))
-	  {
-		  allocated_message_size += sizeof (uintptr_t);
-		  allocated_message_size &= ~(sizeof (uintptr_t) - 1);
-	  }
+	{
+		allocated_message_size += sizeof (uintptr_t);
+		allocated_message_size &= ~(sizeof (uintptr_t) - 1);
+	}
 
 	/* 
 	 * Check for an overflow. It can occur while increasing allocated_message_size
@@ -78,10 +78,10 @@ bool _CORE_message_queue_Initialize (CORE_message_queue_Control *
 	 *  check for overflow on the multiplication.
 	 */
 	if (!size_t_mult32_with_overflow ((size_t) maximum_pending_messages,
-									  allocated_message_size +
-									  sizeof
-									  (CORE_message_queue_Buffer_control),
-									  &message_buffering_required))
+									allocated_message_size +
+									sizeof
+									(CORE_message_queue_Buffer_control),
+									&message_buffering_required))
 		return false;
 
 	/*
@@ -98,18 +98,18 @@ bool _CORE_message_queue_Initialize (CORE_message_queue_Control *
 	 *  and set of waiting threads.
 	 */
 	_Chain_Initialize (&the_message_queue->Inactive_messages,
-					   the_message_queue->message_buffers,
-					   (size_t) maximum_pending_messages,
-					   allocated_message_size +
-					   sizeof (CORE_message_queue_Buffer_control));
+					 the_message_queue->message_buffers,
+					 (size_t) maximum_pending_messages,
+					 allocated_message_size +
+					 sizeof (CORE_message_queue_Buffer_control));
 
 	_Chain_Initialize_empty (&the_message_queue->Pending_messages);
 
 	_Thread_queue_Initialize (&the_message_queue->Wait_queue,
-							  _CORE_message_queue_Is_priority
-							  (the_message_queue_attributes) ?
-							  THREAD_QUEUE_DISCIPLINE_PRIORITY :
-							  THREAD_QUEUE_DISCIPLINE_FIFO);
+							_CORE_message_queue_Is_priority
+							(the_message_queue_attributes) ?
+							THREAD_QUEUE_DISCIPLINE_PRIORITY :
+							THREAD_QUEUE_DISCIPLINE_FIFO);
 
 	return true;
 }

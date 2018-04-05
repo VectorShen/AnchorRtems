@@ -103,10 +103,10 @@ static int tcp_usr_attach (struct socket *so, intptr_t proto)
 
 	TCPDEBUG1 ();
 	if (inp)
-	  {
-		  error = EISCONN;
-		  goto out;
-	  }
+	{
+		error = EISCONN;
+		goto out;
+	}
 
 	error = tcp_attach (so);
 	if (error)
@@ -137,10 +137,10 @@ static int tcp_usr_detach (struct socket *so)
 	TCPDEBUG0;
 
 	if (inp == 0)
-	  {
-		  splx (s);
-		  return EINVAL;		/* XXX */
-	  }
+	{
+		splx (s);
+		return EINVAL;		/* XXX */
+	}
 	tp = intotcpcb (inp);
 	TCPDEBUG1 ();
 	if (tp->t_state > TCPS_LISTEN)
@@ -155,13 +155,13 @@ static int tcp_usr_detach (struct socket *so)
 
 #define	COMMON_START()	TCPDEBUG0; \
 			do { \
-				     if (inp == 0) { \
-					     splx(s); \
-					     return EINVAL; \
-				     } \
-				     tp = intotcpcb(inp); \
-				     TCPDEBUG1(); \
-		     } while(0)
+				   if (inp == 0) { \
+					   splx(s); \
+					   return EINVAL; \
+				   } \
+				   tp = intotcpcb(inp); \
+				   TCPDEBUG1(); \
+		   } while(0)
 
 #define COMMON_END(req)	out: TCPDEBUG2(req); splx(s); return error; goto out
 
@@ -185,10 +185,10 @@ static int tcp_usr_bind (struct socket *so, struct mbuf *nam)
 	sinp = mtod (nam, struct sockaddr_in *);
 	if (sinp->sin_family == AF_INET &&
 		IN_MULTICAST (ntohl (sinp->sin_addr.s_addr)))
-	  {
-		  error = EAFNOSUPPORT;
-		  goto out;
-	  }
+	{
+		error = EAFNOSUPPORT;
+		goto out;
+	}
 	error = in_pcbbind (inp, nam);
 	if (error)
 		goto out;
@@ -237,10 +237,10 @@ static int tcp_usr_connect (struct socket *so, struct mbuf *nam)
 	sinp = mtod (nam, struct sockaddr_in *);
 	if (sinp->sin_family == AF_INET
 		&& IN_MULTICAST (ntohl (sinp->sin_addr.s_addr)))
-	  {
-		  error = EAFNOSUPPORT;
-		  goto out;
-	  }
+	{
+		error = EAFNOSUPPORT;
+		goto out;
+	}
 
 	if ((error = tcp_connect (tp, nam)) != 0)
 		goto out;
@@ -327,7 +327,7 @@ static int tcp_usr_rcvd (struct socket *so, intptr_t flags)
  */
 static int
 tcp_usr_send (struct socket *so, int flags, struct mbuf *m, struct mbuf *nam,
-			  struct mbuf *control)
+			struct mbuf *control)
 {
 	int s = splnet ();
 	int error = 0;
@@ -336,80 +336,80 @@ tcp_usr_send (struct socket *so, int flags, struct mbuf *m, struct mbuf *nam,
 
 	COMMON_START ();
 	if (control && control->m_len)
-	  {
-		  m_freem (control);	/* XXX shouldn't caller do this??? */
-		  if (m)
-			  m_freem (m);
-		  error = EINVAL;
-		  goto out;
-	  }
+	{
+		m_freem (control);	/* XXX shouldn't caller do this??? */
+		if (m)
+			m_freem (m);
+		error = EINVAL;
+		goto out;
+	}
 
 	if (!(flags & PRUS_OOB))
-	  {
-		  sbappend (&so->so_snd, m);
-		  if (nam && tp->t_state < TCPS_SYN_SENT)
-			{
-				/*
-				 * Do implied connect if not yet connected,
-				 * initialize window to default value, and
-				 * initialize maxseg/maxopd using peer's cached
-				 * MSS.
-				 */
-				error = tcp_connect (tp, nam);
-				if (error)
-					goto out;
-				tp->snd_wnd = TTCP_CLIENT_SND_WND;
-				tcp_mss (tp, -1);
-			}
-
-		  if (flags & PRUS_EOF)
-			{
-				/*
-				 * Close the send side of the connection after
-				 * the data is sent.
-				 */
-				socantsendmore (so);
-				tp = tcp_usrclosed (tp);
-			}
-		  if (tp != NULL)
-			  error = tcp_output (tp);
-	  }
-	else
-	  {
-		  if (sbspace (&so->so_snd) < -512)
-			{
-				m_freem (m);
-				error = ENOBUFS;
+	{
+		sbappend (&so->so_snd, m);
+		if (nam && tp->t_state < TCPS_SYN_SENT)
+		{
+			/*
+			 * Do implied connect if not yet connected,
+			 * initialize window to default value, and
+			 * initialize maxseg/maxopd using peer's cached
+			 * MSS.
+			 */
+			error = tcp_connect (tp, nam);
+			if (error)
 				goto out;
-			}
-		  /*
-		   * According to RFC961 (Assigned Protocols),
-		   * the urgent pointer points to the last octet
-		   * of urgent data.  We continue, however,
-		   * to consider it to indicate the first octet
-		   * of data past the urgent section.
-		   * Otherwise, snd_up should be one lower.
-		   */
-		  sbappend (&so->so_snd, m);
-		  if (nam && tp->t_state < TCPS_SYN_SENT)
-			{
-				/*
-				 * Do implied connect if not yet connected,
-				 * initialize window to default value, and
-				 * initialize maxseg/maxopd using peer's cached
-				 * MSS.
-				 */
-				error = tcp_connect (tp, nam);
-				if (error)
-					goto out;
-				tp->snd_wnd = TTCP_CLIENT_SND_WND;
-				tcp_mss (tp, -1);
-			}
-		  tp->snd_up = tp->snd_una + so->so_snd.sb_cc;
-		  tp->t_force = 1;
-		  error = tcp_output (tp);
-		  tp->t_force = 0;
-	  }
+			tp->snd_wnd = TTCP_CLIENT_SND_WND;
+			tcp_mss (tp, -1);
+		}
+
+		if (flags & PRUS_EOF)
+		{
+			/*
+			 * Close the send side of the connection after
+			 * the data is sent.
+			 */
+			socantsendmore (so);
+			tp = tcp_usrclosed (tp);
+		}
+		if (tp != NULL)
+			error = tcp_output (tp);
+	}
+	else
+	{
+		if (sbspace (&so->so_snd) < -512)
+		{
+			m_freem (m);
+			error = ENOBUFS;
+			goto out;
+		}
+		/*
+		 * According to RFC961 (Assigned Protocols),
+		 * the urgent pointer points to the last octet
+		 * of urgent data.  We continue, however,
+		 * to consider it to indicate the first octet
+		 * of data past the urgent section.
+		 * Otherwise, snd_up should be one lower.
+		 */
+		sbappend (&so->so_snd, m);
+		if (nam && tp->t_state < TCPS_SYN_SENT)
+		{
+			/*
+			 * Do implied connect if not yet connected,
+			 * initialize window to default value, and
+			 * initialize maxseg/maxopd using peer's cached
+			 * MSS.
+			 */
+			error = tcp_connect (tp, nam);
+			if (error)
+				goto out;
+			tp->snd_wnd = TTCP_CLIENT_SND_WND;
+			tcp_mss (tp, -1);
+		}
+		tp->snd_up = tp->snd_una + so->so_snd.sb_cc;
+		tp->t_force = 1;
+		error = tcp_output (tp);
+		tp->t_force = 0;
+	}
 	COMMON_END ((flags & PRUS_OOB) ? PRU_SENDOOB :
 				((flags & PRUS_EOF) ? PRU_SEND_EOF : PRU_SEND));
 }
@@ -455,15 +455,15 @@ static int tcp_usr_rcvoob (struct socket *so, struct mbuf *m, intptr_t flags)
 	if ((so->so_oobmark == 0 &&
 		 (so->so_state & SS_RCVATMARK) == 0) ||
 		so->so_options & SO_OOBINLINE || tp->t_oobflags & TCPOOB_HADDATA)
-	  {
-		  error = EINVAL;
-		  goto out;
-	  }
+	{
+		error = EINVAL;
+		goto out;
+	}
 	if ((tp->t_oobflags & TCPOOB_HAVEDATA) == 0)
-	  {
-		  error = EWOULDBLOCK;
-		  goto out;
-	  }
+	{
+		error = EWOULDBLOCK;
+		goto out;
+	}
 	m->m_len = 1;
 	*mtod (m, caddr_t) = tp->t_iobc;
 	if ((flags & MSG_PEEK) == 0)
@@ -507,7 +507,8 @@ tcp_usr_control (struct socket *so, intptr_t cmd, caddr_t arg,
 }
 
 /* xxx - should be const */
-struct pr_usrreqs tcp_usrreqs = {
+struct pr_usrreqs tcp_usrreqs =
+{
 	tcp_usr_abort, tcp_usr_accept, tcp_usr_attach, tcp_usr_bind,
 	tcp_usr_connect, pru_connect2_notsupp, tcp_usr_control, tcp_usr_detach,
 	tcp_usr_disconnect, tcp_usr_listen, tcp_usr_peeraddr, tcp_usr_rcvd,
@@ -537,11 +538,11 @@ static int tcp_connect (struct tcpcb *tp, struct mbuf *nam)
 	struct rmxp_tao tao_noncached;
 
 	if (inp->inp_lport == 0)
-	  {
-		  error = in_pcbbind (inp, NULL);
-		  if (error)
-			  return error;
-	  }
+	{
+		error = in_pcbbind (inp, NULL);
+		if (error)
+			return error;
+	}
 
 	/*
 	 * Cannot simply call in_pcbconnect, because there might be an
@@ -557,14 +558,14 @@ static int tcp_connect (struct tcpcb *tp, struct mbuf *nam)
 							 INADDR_ANY ? inp->inp_laddr : ifaddr->sin_addr,
 							 inp->inp_lport, 0);
 	if (oinp)
-	  {
-		  if (oinp != inp && (otp = intotcpcb (oinp)) != NULL &&
-			  otp->t_state == TCPS_TIME_WAIT &&
-			  otp->t_duration < TCPTV_MSL && (otp->t_flags & TF_RCVD_CC))
-			  otp = tcp_close (otp);
-		  else
-			  return EADDRINUSE;
-	  }
+	{
+		if (oinp != inp && (otp = intotcpcb (oinp)) != NULL &&
+			otp->t_state == TCPS_TIME_WAIT &&
+			otp->t_duration < TCPTV_MSL && (otp->t_flags & TF_RCVD_CC))
+			otp = tcp_close (otp);
+		else
+			return EADDRINUSE;
+	}
 	if (inp->inp_laddr.s_addr == INADDR_ANY)
 		inp->inp_laddr = ifaddr->sin_addr;
 	inp->inp_faddr = sin->sin_addr;
@@ -573,14 +574,14 @@ static int tcp_connect (struct tcpcb *tp, struct mbuf *nam)
 
 	tp->t_template = tcp_template (tp);
 	if (tp->t_template == 0)
-	  {
-		  in_pcbdisconnect (inp);
-		  return ENOBUFS;
-	  }
+	{
+		in_pcbdisconnect (inp);
+		return ENOBUFS;
+	}
 
 	/* Compute window scaling to request.  */
 	while (tp->request_r_scale < TCP_MAX_WINSHIFT &&
-		   (TCP_MAXWIN << tp->request_r_scale) < so->so_rcv.sb_hiwat)
+		 (TCP_MAXWIN << tp->request_r_scale) < so->so_rcv.sb_hiwat)
 		tp->request_r_scale++;
 
 	soisconnecting (so);
@@ -596,28 +597,28 @@ static int tcp_connect (struct tcpcb *tp, struct mbuf *nam)
 	 * check whether CC or CCnew should be used.
 	 */
 	if ((taop = tcp_gettaocache (tp->t_inpcb)) == NULL)
-	  {
-		  taop = &tao_noncached;
-		  bzero (taop, sizeof (*taop));
-	  }
+	{
+		taop = &tao_noncached;
+		bzero (taop, sizeof (*taop));
+	}
 
 	tp->cc_send = CC_INC (tcp_ccgen);
 	if (taop->tao_ccsent != 0 && CC_GEQ (tp->cc_send, taop->tao_ccsent))
-	  {
-		  taop->tao_ccsent = tp->cc_send;
-	  }
+	{
+		taop->tao_ccsent = tp->cc_send;
+	}
 	else
-	  {
-		  taop->tao_ccsent = 0;
-		  tp->t_flags |= TF_SENDCCNEW;
-	  }
+	{
+		taop->tao_ccsent = 0;
+		tp->t_flags |= TF_SENDCCNEW;
+	}
 
 	return 0;
 }
 
 int
 tcp_ctloutput (int op, struct socket *so, int level, int optname,
-			   struct mbuf **mp)
+			 struct mbuf **mp)
 {
 	int error = 0, s;
 	struct inpcb *inp;
@@ -628,95 +629,95 @@ tcp_ctloutput (int op, struct socket *so, int level, int optname,
 	s = splnet ();
 	inp = sotoinpcb (so);
 	if (inp == NULL)
-	  {
-		  splx (s);
-		  if (op == PRCO_SETOPT && *mp)
-			  (void)m_free (*mp);
-		  return (ECONNRESET);
-	  }
+	{
+		splx (s);
+		if (op == PRCO_SETOPT && *mp)
+			(void)m_free (*mp);
+		return (ECONNRESET);
+	}
 	if (level != IPPROTO_TCP)
-	  {
-		  error = ip_ctloutput (op, so, level, optname, mp);
-		  splx (s);
-		  return (error);
-	  }
+	{
+		error = ip_ctloutput (op, so, level, optname, mp);
+		splx (s);
+		return (error);
+	}
 	tp = intotcpcb (inp);
 
 	switch (op)
-	  {
+	{
 
-		  case PRCO_SETOPT:
-			  m = *mp;
-			  switch (optname)
-				{
+		case PRCO_SETOPT:
+			m = *mp;
+			switch (optname)
+			{
 
-					case TCP_NODELAY:
-						if (m == NULL || m->m_len < sizeof (int))
-							error = EINVAL;
-						else if (*mtod (m, int *))
-							  tp->t_flags |= TF_NODELAY;
-						else
-							tp->t_flags &= ~TF_NODELAY;
-						break;
+				case TCP_NODELAY:
+					if (m == NULL || m->m_len < sizeof (int))
+						error = EINVAL;
+					else if (*mtod (m, int *))
+						tp->t_flags |= TF_NODELAY;
+					else
+						tp->t_flags &= ~TF_NODELAY;
+					break;
 
-					case TCP_MAXSEG:
-						if (m && (i = *mtod (m, int *)) > 0
-							&& i <= tp->t_maxseg)
-							  tp->t_maxseg = i;
-						else
-							error = EINVAL;
-						break;
+				case TCP_MAXSEG:
+					if (m && (i = *mtod (m, int *)) > 0
+						&& i <= tp->t_maxseg)
+						tp->t_maxseg = i;
+					else
+						error = EINVAL;
+					break;
 
-					case TCP_NOOPT:
-						if (m == NULL || m->m_len < sizeof (int))
-							error = EINVAL;
-						else if (*mtod (m, int *))
-							  tp->t_flags |= TF_NOOPT;
-						else
-							tp->t_flags &= ~TF_NOOPT;
-						break;
+				case TCP_NOOPT:
+					if (m == NULL || m->m_len < sizeof (int))
+						error = EINVAL;
+					else if (*mtod (m, int *))
+						tp->t_flags |= TF_NOOPT;
+					else
+						tp->t_flags &= ~TF_NOOPT;
+					break;
 
-					case TCP_NOPUSH:
-						if (m == NULL || m->m_len < sizeof (int))
-							error = EINVAL;
-						else if (*mtod (m, int *))
-							  tp->t_flags |= TF_NOPUSH;
-						else
-							tp->t_flags &= ~TF_NOPUSH;
-						break;
+				case TCP_NOPUSH:
+					if (m == NULL || m->m_len < sizeof (int))
+						error = EINVAL;
+					else if (*mtod (m, int *))
+						tp->t_flags |= TF_NOPUSH;
+					else
+						tp->t_flags &= ~TF_NOPUSH;
+					break;
 
-					default:
-						error = ENOPROTOOPT;
-						break;
-				}
-			  if (m)
-				  (void)m_free (m);
-			  break;
+				default:
+					error = ENOPROTOOPT;
+					break;
+			}
+			if (m)
+				(void)m_free (m);
+			break;
 
-		  case PRCO_GETOPT:
-			  *mp = m = m_get (M_WAIT, MT_SOOPTS);
-			  m->m_len = sizeof (int);
+		case PRCO_GETOPT:
+			*mp = m = m_get (M_WAIT, MT_SOOPTS);
+			m->m_len = sizeof (int);
 
-			  switch (optname)
-				{
-					case TCP_NODELAY:
-						*mtod (m, int *) = tp->t_flags & TF_NODELAY;
-						break;
-					case TCP_MAXSEG:
-						*mtod (m, int *) = tp->t_maxseg;
-						break;
-					case TCP_NOOPT:
-						*mtod (m, int *) = tp->t_flags & TF_NOOPT;
-						break;
-					case TCP_NOPUSH:
-						*mtod (m, int *) = tp->t_flags & TF_NOPUSH;
-						break;
-					default:
-						error = ENOPROTOOPT;
-						break;
-				}
-			  break;
-	  }
+			switch (optname)
+			{
+				case TCP_NODELAY:
+					*mtod (m, int *) = tp->t_flags & TF_NODELAY;
+					break;
+				case TCP_MAXSEG:
+					*mtod (m, int *) = tp->t_maxseg;
+					break;
+				case TCP_NOOPT:
+					*mtod (m, int *) = tp->t_flags & TF_NOOPT;
+					break;
+				case TCP_NOPUSH:
+					*mtod (m, int *) = tp->t_flags & TF_NOPUSH;
+					break;
+				default:
+					error = ENOPROTOOPT;
+					break;
+			}
+			break;
+	}
 	splx (s);
 	return (error);
 }
@@ -755,25 +756,25 @@ static int tcp_attach (struct socket *so)
 	int error;
 
 	if (so->so_snd.sb_hiwat == 0 || so->so_rcv.sb_hiwat == 0)
-	  {
-		  error = soreserve (so, tcp_sendspace, tcp_recvspace);
-		  if (error)
-			  return (error);
-	  }
+	{
+		error = soreserve (so, tcp_sendspace, tcp_recvspace);
+		if (error)
+			return (error);
+	}
 	error = in_pcballoc (so, &tcbinfo);
 	if (error)
 		return (error);
 	inp = sotoinpcb (so);
 	tp = tcp_newtcpcb (inp);
 	if (tp == 0)
-	  {
-		  int nofd = so->so_state & SS_NOFDREF;	/* XXX */
+	{
+		int nofd = so->so_state & SS_NOFDREF;	/* XXX */
 
-		  so->so_state &= ~SS_NOFDREF;	/* don't free the socket yet */
-		  in_pcbdetach (inp);
-		  so->so_state |= nofd;
-		  return (ENOBUFS);
-	  }
+		so->so_state &= ~SS_NOFDREF;	/* don't free the socket yet */
+		in_pcbdetach (inp);
+		so->so_state |= nofd;
+		return (ENOBUFS);
+	}
 	tp->t_state = TCPS_CLOSED;
 	return (0);
 }
@@ -795,13 +796,13 @@ static struct tcpcb *tcp_disconnect (struct tcpcb *tp)
 	else if ((so->so_options & SO_LINGER) && so->so_linger == 0)
 		tp = tcp_drop (tp, 0);
 	else
-	  {
-		  soisdisconnecting (so);
-		  sbflush (&so->so_rcv);
-		  tp = tcp_usrclosed (tp);
-		  if (tp)
-			  (void)tcp_output (tp);
-	  }
+	{
+		soisdisconnecting (so);
+		sbflush (&so->so_rcv);
+		tp = tcp_usrclosed (tp);
+		if (tp)
+			(void)tcp_output (tp);
+	}
 	return (tp);
 }
 
@@ -819,33 +820,33 @@ static struct tcpcb *tcp_usrclosed (struct tcpcb *tp)
 {
 
 	switch (tp->t_state)
-	  {
+	{
 
-		  case TCPS_CLOSED:
-		  case TCPS_LISTEN:
-			  tp->t_state = TCPS_CLOSED;
-			  tp = tcp_close (tp);
-			  break;
+		case TCPS_CLOSED:
+		case TCPS_LISTEN:
+			tp->t_state = TCPS_CLOSED;
+			tp = tcp_close (tp);
+			break;
 
-		  case TCPS_SYN_SENT:
-		  case TCPS_SYN_RECEIVED:
-			  tp->t_flags |= TF_NEEDFIN;
-			  break;
+		case TCPS_SYN_SENT:
+		case TCPS_SYN_RECEIVED:
+			tp->t_flags |= TF_NEEDFIN;
+			break;
 
-		  case TCPS_ESTABLISHED:
-			  tp->t_state = TCPS_FIN_WAIT_1;
-			  break;
+		case TCPS_ESTABLISHED:
+			tp->t_state = TCPS_FIN_WAIT_1;
+			break;
 
-		  case TCPS_CLOSE_WAIT:
-			  tp->t_state = TCPS_LAST_ACK;
-			  break;
-	  }
+		case TCPS_CLOSE_WAIT:
+			tp->t_state = TCPS_LAST_ACK;
+			break;
+	}
 	if (tp && tp->t_state >= TCPS_FIN_WAIT_2)
-	  {
-		  soisdisconnected (tp->t_inpcb->inp_socket);
-		  /* To prevent the connection hanging in FIN_WAIT_2 forever. */
-		  if (tp->t_state == TCPS_FIN_WAIT_2)
-			  tp->t_timer[TCPT_2MSL] = tcp_maxidle;
-	  }
+	{
+		soisdisconnected (tp->t_inpcb->inp_socket);
+		/* To prevent the connection hanging in FIN_WAIT_2 forever. */
+		if (tp->t_state == TCPS_FIN_WAIT_2)
+			tp->t_timer[TCPT_2MSL] = tcp_maxidle;
+	}
 	return (tp);
 }

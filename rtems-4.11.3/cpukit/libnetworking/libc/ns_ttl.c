@@ -59,39 +59,39 @@ int ns_format_ttl (u_long src, char *dst, size_t dstlen)
 
 	x = 0;
 	if (weeks)
-	  {
-		  T (fmt1 (weeks, 'W', &dst, &dstlen));
-		  x++;
-	  }
+	{
+		T (fmt1 (weeks, 'W', &dst, &dstlen));
+		x++;
+	}
 	if (days)
-	  {
-		  T (fmt1 (days, 'D', &dst, &dstlen));
-		  x++;
-	  }
+	{
+		T (fmt1 (days, 'D', &dst, &dstlen));
+		x++;
+	}
 	if (hours)
-	  {
-		  T (fmt1 (hours, 'H', &dst, &dstlen));
-		  x++;
-	  }
+	{
+		T (fmt1 (hours, 'H', &dst, &dstlen));
+		x++;
+	}
 	if (mins)
-	  {
-		  T (fmt1 (mins, 'M', &dst, &dstlen));
-		  x++;
-	  }
+	{
+		T (fmt1 (mins, 'M', &dst, &dstlen));
+		x++;
+	}
 	if (secs || !(weeks || days || hours || mins))
-	  {
-		  T (fmt1 (secs, 'S', &dst, &dstlen));
-		  x++;
-	  }
+	{
+		T (fmt1 (secs, 'S', &dst, &dstlen));
+		x++;
+	}
 
 	if (x > 1)
-	  {
-		  int ch;
+	{
+		int ch;
 
-		  for (p = odst; (ch = *p) != '\0'; p++)
-			  if (isascii (ch) && isupper (ch))
-				  *p = tolower (ch);
-	  }
+		for (p = odst; (ch = *p) != '\0'; p++)
+			if (isascii (ch) && isupper (ch))
+				*p = tolower (ch);
+	}
 
 	return (dst - odst);
 }
@@ -106,47 +106,47 @@ int ns_parse_ttl (const char *src, u_long * dst)
 	digits = 0;
 	dirty = 0;
 	while ((ch = *src++) != '\0')
-	  {
-		  if (!isascii (ch) || !isprint (ch))
-			  goto einval;
-		  if (isdigit (ch))
-			{
-				tmp *= 10;
-				tmp += (ch - '0');
-				digits++;
-				continue;
-			}
-		  if (digits == 0)
-			  goto einval;
-		  if (islower (ch))
-			  ch = toupper (ch);
-		  switch (ch)
-			{
-				case 'W':
-					tmp *= 7;
-				case 'D':
-					tmp *= 24;
-				case 'H':
-					tmp *= 60;
-				case 'M':
-					tmp *= 60;
-				case 'S':
-					break;
-				default:
-					goto einval;
-			}
-		  ttl += tmp;
-		  tmp = 0;
-		  digits = 0;
-		  dirty = 1;
-	  }
+	{
+		if (!isascii (ch) || !isprint (ch))
+			goto einval;
+		if (isdigit (ch))
+		{
+			tmp *= 10;
+			tmp += (ch - '0');
+			digits++;
+			continue;
+		}
+		if (digits == 0)
+			goto einval;
+		if (islower (ch))
+			ch = toupper (ch);
+		switch (ch)
+		{
+			case 'W':
+				tmp *= 7;
+			case 'D':
+				tmp *= 24;
+			case 'H':
+				tmp *= 60;
+			case 'M':
+				tmp *= 60;
+			case 'S':
+				break;
+			default:
+				goto einval;
+		}
+		ttl += tmp;
+		tmp = 0;
+		digits = 0;
+		dirty = 1;
+	}
 	if (digits > 0)
-	  {
-		  if (dirty)
-			  goto einval;
-		  else
-			  ttl += tmp;
-	  }
+	{
+		if (dirty)
+			goto einval;
+		else
+			ttl += tmp;
+	}
 	*dst = ttl;
 	return (0);
 

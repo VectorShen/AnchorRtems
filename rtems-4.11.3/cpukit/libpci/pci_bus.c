@@ -51,23 +51,26 @@ int pcibus_int_register (struct drvmgr_dev *dev,
 						 int index,
 						 const char *info, drvmgr_isr isr, void *arg);
 int pcibus_int_unregister (struct drvmgr_dev *dev,
-						   int index, drvmgr_isr isr, void *arg);
+						 int index, drvmgr_isr isr, void *arg);
 int pcibus_int_clear (struct drvmgr_dev *dev, int index);
 static int pcibus_get_freq (struct drvmgr_dev *dev,
 							int options, unsigned int *freq_hz);
 
 int pcibus_get_params (struct drvmgr_dev *dev,
-					   struct drvmgr_bus_params *params);
+					 struct drvmgr_bus_params *params);
 
 void pcibus_dev_info (struct drvmgr_dev *dev,
-					  void (*print_line) (void *p, char *str), void *p);
+					void (*print_line) (void *p, char *str), void *p);
 
-struct drvmgr_bus_ops pcibus_ops = {
-	.init = {
-			 pcibus_bus_init1,
-			 NULL,
-			 NULL,
-			 NULL},
+struct drvmgr_bus_ops pcibus_ops =
+{
+	.init =
+	{
+		pcibus_bus_init1,
+		NULL,
+		NULL,
+		NULL
+	},
 	.remove = NULL,
 	.unite = pcibus_unite,
 	.int_register = pcibus_int_register,
@@ -86,7 +89,8 @@ struct drvmgr_bus_ops pcibus_ops = {
 #endif
 };
 
-struct drvmgr_func pcibus_funcs[] = {
+struct drvmgr_func pcibus_funcs[] =
+{
 	DRVMGR_FUNC (PCI_FUNC_MREG_R8, NULL),
 	DRVMGR_FUNC (PCI_FUNC_MREG_R16, NULL),
 	DRVMGR_FUNC (PCI_FUNC_MREG_R32, NULL),
@@ -104,7 +108,9 @@ struct drvmgr_bus_res pcibus_drv_resources __attribute__ ((weak)) =
 {
 	.next = NULL,.resource =
 	{
-DRVMGR_RES_EMPTY,},};
+		DRVMGR_RES_EMPTY,
+	},
+};
 
 struct pcibus_priv
 {
@@ -145,15 +151,15 @@ int pcibus_unite (struct drvmgr_drv *drv, struct drvmgr_dev *dev)
 	if (!drvid)
 		return 0;
 	while (drvid->vendor != 0)
-	  {
-		  if (compatible (&pci->id, drvid))
-			{
-				/* Unite device and driver */
-				DBG ("DRV %p and DEV %p united\n", drv, dev);
-				return 1;
-			}
-		  drvid++;
-	  }
+	{
+		if (compatible (&pci->id, drvid))
+		{
+			/* Unite device and driver */
+			DBG ("DRV %p and DEV %p united\n", drv, dev);
+			return 1;
+		}
+		drvid++;
+	}
 
 	return 0;
 }
@@ -164,24 +170,24 @@ static int pcibus_int_get (struct drvmgr_dev *dev, int index)
 
 	/* Relative (positive) or absolute (negative) IRQ number */
 	if (index > 0)
-	  {
-		  /* PCI devices only have one IRQ per function */
-		  return -1;
-	  }
+	{
+		/* PCI devices only have one IRQ per function */
+		return -1;
+	}
 	else if (index == 0)
-	  {
-		  /* IRQ Index relative to Cores base IRQ */
+	{
+		/* IRQ Index relative to Cores base IRQ */
 
-		  /* Get Base IRQ */
-		  irq = ((struct pci_dev_info *)dev->businfo)->irq;
-		  if (irq <= 0)
-			  return -1;
-	  }
+		/* Get Base IRQ */
+		irq = ((struct pci_dev_info *)dev->businfo)->irq;
+		if (irq <= 0)
+			return -1;
+	}
 	else
-	  {
-		  /* Absolute IRQ number */
-		  irq = -index;
-	  }
+	{
+		/* Absolute IRQ number */
+		irq = -index;
+	}
 	return irq;
 }
 
@@ -207,7 +213,7 @@ int pcibus_int_register (struct drvmgr_dev *dev,
 
 /* Use standard PCI facility to unregister interrupt handler */
 int pcibus_int_unregister (struct drvmgr_dev *dev,
-						   int index, drvmgr_isr isr, void *arg)
+						 int index, drvmgr_isr isr, void *arg)
 {
 #ifdef DEBUG
 	struct drvmgr_dev *busdev = dev->parent->dev;
@@ -258,7 +264,7 @@ int pcibus_get_params (struct drvmgr_dev *dev, struct drvmgr_bus_params *params)
 
 #ifdef PCIBUS_INFO
 void pcibus_dev_info (struct drvmgr_dev *dev,
-					  void (*print_line) (void *p, char *str), void *p)
+					void (*print_line) (void *p, char *str), void *p)
 {
 	struct pci_dev_info *devinfo;
 	struct pcibus_res *pcibusres;
@@ -304,34 +310,34 @@ void pcibus_dev_info (struct drvmgr_dev *dev,
 	/* List Resources */
 	print_line (p, "RESOURCES");
 	for (i = 0; i < PCIDEV_RES_CNT; i++)
-	  {
-		  pcibusres = &devinfo->resources[i];
+	{
+		pcibusres = &devinfo->resources[i];
 
-		  str1 = "  RES";
-		  pcistart = -1;
-		  res = pcibusres->res;
-		  if (res && (res->flags & PCI_RES_TYPE_MASK))
-			{
-				str1 = res_types[(res->flags & PCI_RES_TYPE_MASK) - 1];
-				if (res->flags & PCI_RES_IO32)
-					str1 = " IO32";
-				pcistart = res->start;
-			}
+		str1 = "  RES";
+		pcistart = -1;
+		res = pcibusres->res;
+		if (res && (res->flags & PCI_RES_TYPE_MASK))
+		{
+			str1 = res_types[(res->flags & PCI_RES_TYPE_MASK) - 1];
+			if (res->flags & PCI_RES_IO32)
+				str1 = " IO32";
+			pcistart = res->start;
+		}
 
-		  if (res && (res->flags & PCI_RES_FAIL))
-			{
-				sprintf (buf, " %s[%d]:  NOT ASSIGNED", str1, i);
-				print_line (p, buf);
-				continue;
-			}
-		  if (!pcibusres->size)
-			  continue;
+		if (res && (res->flags & PCI_RES_FAIL))
+		{
+			sprintf (buf, " %s[%d]:  NOT ASSIGNED", str1, i);
+			print_line (p, buf);
+			continue;
+		}
+		if (!pcibusres->size)
+			continue;
 
-		  sprintf (buf, " %s[%d]:  %08lx-%08lx [PCIADR %lx]",
-				   str1, i, pcibusres->address,
-				   pcibusres->address + pcibusres->size - 1, pcistart);
-		  print_line (p, buf);
-	  }
+		sprintf (buf, " %s[%d]:  %08lx-%08lx [PCIADR %lx]",
+				 str1, i, pcibusres->address,
+				 pcibusres->address + pcibusres->size - 1, pcistart);
+		print_line (p, buf);
+	}
 }
 #endif
 
@@ -387,19 +393,19 @@ static int pcibus_dev_register (struct pci_dev *dev, void *arg)
 	 * into CPU accessible addresses.
 	 */
 	for (i = 0; i < PCIDEV_RES_CNT; i++)
-	  {
-		  pcibusres = &pciinfo->resources[i];
-		  pcires = &dev->resources[i];
-		  type = pcires->flags & PCI_RES_TYPE_MASK;
-		  if (type == 0 || (pcires->flags & PCI_RES_FAIL))
-			  continue;			/* size=0 */
+	{
+		pcibusres = &pciinfo->resources[i];
+		pcires = &dev->resources[i];
+		type = pcires->flags & PCI_RES_TYPE_MASK;
+		if (type == 0 || (pcires->flags & PCI_RES_FAIL))
+			continue;			/* size=0 */
 
-		  pcibusres->address = pcires->start;
-		  if (pci_pci2cpu (&pcibusres->address, type))
-			  continue;			/* size=0 */
-		  pcibusres->res = pcires;
-		  pcibusres->size = pcires->end - pcires->start;
-	  }
+		pcibusres->address = pcires->start;
+		if (pci_pci2cpu (&pcibusres->address, type))
+			continue;			/* size=0 */
+		pcibusres->res = pcires;
+		pcibusres->size = pcires->end - pcires->start;
+	}
 
 	/* Connect device with PCI information */
 	newdev->businfo = (void *)pciinfo;
@@ -449,15 +455,15 @@ static int pcibus_dev_register (pci_dev_t pcidev, void *arg)
 
 	/* Devices have subsytem device and vendor ID */
 	if ((pciinfo->id.class >> 8) != PCID_PCI2PCI_BRIDGE)
-	  {
-		  pci_cfg_r16 (pcidev, PCIR_SUBVEND_0, &pciinfo->id.subvendor);
-		  pci_cfg_r16 (pcidev, PCIR_SUBDEV_0, &pciinfo->id.subdevice);
-	  }
+	{
+		pci_cfg_r16 (pcidev, PCIR_SUBVEND_0, &pciinfo->id.subvendor);
+		pci_cfg_r16 (pcidev, PCIR_SUBDEV_0, &pciinfo->id.subdevice);
+	}
 	else
-	  {
-		  pciinfo->id.subvendor = 0;
-		  pciinfo->id.subdevice = 0;
-	  }
+	{
+		pciinfo->id.subvendor = 0;
+		pciinfo->id.subdevice = 0;
+	}
 
 	/* Read IRQ information set by PCI layer */
 	pci_cfg_r8 (pcidev, PCIR_INTLINE, &pciinfo->irq);
@@ -521,13 +527,13 @@ int pcibus_register (struct drvmgr_dev *dev, struct pcibus_config *config)
 
 	/* Copy function definitions from PCI Layer */
 	for (i = 0; i < 6; i++)
-	  {
-		  fid = pcibus_funcs[i].funcid;
-		  rc = pci_access_func (RW_DIR (fid), RW_SIZE (fid),
+	{
+		fid = pcibus_funcs[i].funcid;
+		rc = pci_access_func (RW_DIR (fid), RW_SIZE (fid),
 								&pcibus_funcs[i].func, PCI_LITTLE_ENDIAN, 3);
-		  if (rc != 0)
-			  DBG ("PCI BUS: MEMREG 0x%x function not defined\n", fid);
-	  }
+		if (rc != 0)
+			DBG ("PCI BUS: MEMREG 0x%x function not defined\n", fid);
+	}
 
 	/* Add resource configuration if user overrided the default empty cfg */
 	if (pcibus_drv_resources.resource[0].drv_id != 0)

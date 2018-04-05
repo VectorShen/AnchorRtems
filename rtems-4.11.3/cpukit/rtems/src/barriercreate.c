@@ -58,11 +58,11 @@ rtems_status_code rtems_barrier_create (rtems_name name,
 
 	/* Initialize core barrier attributes */
 	if (_Attributes_Is_barrier_automatic (attribute_set))
-	  {
-		  the_attributes.discipline = CORE_BARRIER_AUTOMATIC_RELEASE;
-		  if (maximum_waiters == 0)
-			  return RTEMS_INVALID_NUMBER;
-	  }
+	{
+		the_attributes.discipline = CORE_BARRIER_AUTOMATIC_RELEASE;
+		if (maximum_waiters == 0)
+			return RTEMS_INVALID_NUMBER;
+	}
 	else
 		the_attributes.discipline = CORE_BARRIER_MANUAL_RELEASE;
 	the_attributes.maximum_count = maximum_waiters;
@@ -70,17 +70,17 @@ rtems_status_code rtems_barrier_create (rtems_name name,
 	the_barrier = _Barrier_Allocate ();
 
 	if (!the_barrier)
-	  {
-		  _Objects_Allocator_unlock ();
-		  return RTEMS_TOO_MANY;
-	  }
+	{
+		_Objects_Allocator_unlock ();
+		return RTEMS_TOO_MANY;
+	}
 
 	the_barrier->attribute_set = attribute_set;
 
 	_CORE_barrier_Initialize (&the_barrier->Barrier, &the_attributes);
 
 	_Objects_Open (&_Barrier_Information,
-				   &the_barrier->Object, (Objects_Name) name);
+				 &the_barrier->Object, (Objects_Name) name);
 
 	*id = the_barrier->Object.id;
 

@@ -33,7 +33,8 @@ static int rtems_shell_main_logoff (int argc __attribute__ ((unused)),
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_LOGOFF_Command = {
+rtems_shell_cmd_t rtems_shell_LOGOFF_Command =
+{
 	"logoff",					/* name */
 	"logoff from the system",	/* usage */
 	"misc",						/* topic */

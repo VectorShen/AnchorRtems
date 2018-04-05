@@ -68,7 +68,7 @@ extern "C"
 /**
  * @brief Returns the pointer to the RTEMS version string.
  */
-	const char *rtems_get_version_string (void);
+const char *rtems_get_version_string (void);
 
 /**
  * @brief Indicates whether this processor variant has hardware floating point

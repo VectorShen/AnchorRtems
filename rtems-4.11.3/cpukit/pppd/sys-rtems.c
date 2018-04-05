@@ -113,15 +113,15 @@ void sys_cleanup (void)
 	struct ifreq ifr;
 
 	if (if_is_up)
-	  {
-		  strlcpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
-		  if (ioctl (sockfd, SIOCGIFFLAGS, &ifr) >= 0
-			  && ((ifr.ifr_flags & IFF_UP) != 0))
-			{
-				ifr.ifr_flags &= ~IFF_UP;
-				ioctl (sockfd, SIOCSIFFLAGS, &ifr);
-			}
-	  }
+	{
+		strlcpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
+		if (ioctl (sockfd, SIOCGIFFLAGS, &ifr) >= 0
+			&& ((ifr.ifr_flags & IFF_UP) != 0))
+		{
+			ifr.ifr_flags &= ~IFF_UP;
+			ioctl (sockfd, SIOCSIFFLAGS, &ifr);
+		}
+	}
 	if (ifaddrs[0] != 0)
 		cifaddr (0, ifaddrs[0], ifaddrs[1]);
 	if (default_route_gateway)
@@ -137,10 +137,10 @@ void sys_close (void)
 {
 	close (sockfd);
 	if (loop_slave >= 0)
-	  {
-		  close (loop_slave);
-		  close (loop_master);
-	  }
+	{
+		close (loop_slave);
+		close (loop_master);
+	}
 }
 
 /*
@@ -180,13 +180,13 @@ int establish_ppp (int fd)
 	int x;
 
 	if (demand)
-	  {
-		  /*
-		   * Demand mode - prime the old ppp device to relinquish the unit.
-		   */
-		  if (ioctl (ppp_fd, PPPIOCXFERUNIT, 0) < 0)
-			  fatal ("ioctl(transfer ppp unit): %m");
-	  }
+	{
+		/*
+		 * Demand mode - prime the old ppp device to relinquish the unit.
+		 */
+		if (ioctl (ppp_fd, PPPIOCXFERUNIT, 0) < 0)
+			fatal ("ioctl(transfer ppp unit): %m");
+	}
 
 	/*
 	 * Save the old line discipline of fd, and set it to PPP.
@@ -200,26 +200,26 @@ int establish_ppp (int fd)
 	ioctl (fd, PPPIOCSTASK, &taskid);
 
 	if (!demand)
-	  {
-		  /*
-		   * Find out which interface we were given.
-		   */
-		  if (ioctl (fd, PPPIOCGUNIT, &pppifunit) < 0)
-			  fatal ("ioctl(PPPIOCGUNIT): %m");
-	  }
+	{
+		/*
+		 * Find out which interface we were given.
+		 */
+		if (ioctl (fd, PPPIOCGUNIT, &pppifunit) < 0)
+			fatal ("ioctl(PPPIOCGUNIT): %m");
+	}
 	else
-	  {
-		  /*
-		   * Check that we got the same unit again.
-		   */
-		  if (ioctl (fd, PPPIOCGUNIT, &x) < 0)
-			  fatal ("ioctl(PPPIOCGUNIT): %m");
-		  if (x != pppifunit)
-			  fatal ("transfer_ppp failed: wanted unit %d, got %d", pppifunit,
+	{
+		/*
+		 * Check that we got the same unit again.
+		 */
+		if (ioctl (fd, PPPIOCGUNIT, &x) < 0)
+			fatal ("ioctl(PPPIOCGUNIT): %m");
+		if (x != pppifunit)
+			fatal ("transfer_ppp failed: wanted unit %d, got %d", pppifunit,
 					 x);
-		  x = TTYDISC;
-		  ioctl (loop_slave, TIOCSETD, &x);
-	  }
+		x = TTYDISC;
+		ioctl (loop_slave, TIOCSETD, &x);
+	}
 
 	ppp_fd = fd;
 
@@ -227,27 +227,27 @@ int establish_ppp (int fd)
 	 * Enable debug in the driver if requested.
 	 */
 	if (kdebugflag)
-	  {
-		  if (ioctl (fd, PPPIOCGFLAGS, (caddr_t) & x) < 0)
-			{
-				warn ("ioctl (PPPIOCGFLAGS): %m");
-			}
-		  else
-			{
-				x |= (kdebugflag & 0xFF) * SC_DEBUG;
-				if (ioctl (fd, PPPIOCSFLAGS, (caddr_t) & x) < 0)
-					warn ("ioctl(PPPIOCSFLAGS): %m");
-			}
-	  }
+	{
+		if (ioctl (fd, PPPIOCGFLAGS, (caddr_t) & x) < 0)
+		{
+			warn ("ioctl (PPPIOCGFLAGS): %m");
+		}
+		else
+		{
+			x |= (kdebugflag & 0xFF) * SC_DEBUG;
+			if (ioctl (fd, PPPIOCSFLAGS, (caddr_t) & x) < 0)
+				warn ("ioctl(PPPIOCSFLAGS): %m");
+		}
+	}
 
 	/*
 	 * Set device for non-blocking reads.
 	 */
 	if ((initfdflags = fcntl (fd, F_GETFL)) == -1
 		|| fcntl (fd, F_SETFL, initfdflags | O_NONBLOCK) == -1)
-	  {
-		  warn ("Couldn't set device to non-blocking mode: %m");
-	  }
+	{
+		warn ("Couldn't set device to non-blocking mode: %m");
+	}
 
 	return fd;
 }
@@ -312,29 +312,29 @@ void clean_check (void)
 	char *s;
 
 	if (ioctl (ppp_fd, PPPIOCGFLAGS, (caddr_t) & x) == 0)
-	  {
-		  s = NULL;
-		  switch (~x & (SC_RCV_B7_0 | SC_RCV_B7_1 | SC_RCV_EVNP | SC_RCV_ODDP))
-			{
-				case SC_RCV_B7_0:
-					s = "bit 7 set to 1";
-					break;
-				case SC_RCV_B7_1:
-					s = "bit 7 set to 0";
-					break;
-				case SC_RCV_EVNP:
-					s = "odd parity";
-					break;
-				case SC_RCV_ODDP:
-					s = "even parity";
-					break;
-			}
-		  if (s != NULL)
-			{
-				warn ("Serial link is not 8-bit clean:");
-				warn ("All received characters had %s", s);
-			}
-	  }
+	{
+		s = NULL;
+		switch (~x & (SC_RCV_B7_0 | SC_RCV_B7_1 | SC_RCV_EVNP | SC_RCV_ODDP))
+		{
+			case SC_RCV_B7_0:
+				s = "bit 7 set to 1";
+				break;
+			case SC_RCV_B7_1:
+				s = "bit 7 set to 0";
+				break;
+			case SC_RCV_EVNP:
+				s = "odd parity";
+				break;
+			case SC_RCV_ODDP:
+				s = "even parity";
+				break;
+		}
+		if (s != NULL)
+		{
+			warn ("Serial link is not 8-bit clean:");
+			warn ("All received characters had %s", s);
+		}
+	}
 }
 
 /*
@@ -352,30 +352,30 @@ void set_up_tty (int fd, int local)
 		fatal ("tcgetattr: %m");
 
 	if (!restore_term)
-	  {
-		  inittermios = tios;
-		  ioctl (fd, TIOCGWINSZ, &wsinfo);
-	  }
+	{
+		inittermios = tios;
+		ioctl (fd, TIOCGWINSZ, &wsinfo);
+	}
 
 	tios.c_cflag &= ~(CSIZE | CSTOPB | PARENB | CLOCAL);
 	if (crtscts > 0 && !local)
-	  {
-		  if (crtscts == 2)
-			{
+	{
+		if (crtscts == 2)
+		{
 #ifdef CDTRCTS
-				tios.c_cflag |= CDTRCTS;
+			tios.c_cflag |= CDTRCTS;
 #endif
-			}
-		  else
-			  tios.c_cflag |= CRTSCTS;
-	  }
+		}
+		else
+			tios.c_cflag |= CRTSCTS;
+	}
 	else if (crtscts < 0)
-	  {
-		  tios.c_cflag &= ~CRTSCTS;
+	{
+		tios.c_cflag &= ~CRTSCTS;
 #ifdef CDTRCTS
-		  tios.c_cflag &= ~CDTRCTS;
+		tios.c_cflag &= ~CDTRCTS;
 #endif
-	  }
+	}
 
 	tios.c_cflag |= CS8 | CREAD | HUPCL;
 	if (local || !modem)
@@ -387,34 +387,34 @@ void set_up_tty (int fd, int local)
 	tios.c_cc[VTIME] = 0;
 
 	if (crtscts == -2)
-	  {
-		  tios.c_iflag |= IXON | IXOFF;
-		  tios.c_cc[VSTOP] = 0x13;	/* DC3 = XOFF = ^S */
-		  tios.c_cc[VSTART] = 0x11;	/* DC1 = XON  = ^Q */
-	  }
+	{
+		tios.c_iflag |= IXON | IXOFF;
+		tios.c_cc[VSTOP] = 0x13;	/* DC3 = XOFF = ^S */
+		tios.c_cc[VSTART] = 0x11;	/* DC1 = XON  = ^Q */
+	}
 
 	if (inspeed)
-	  {
-		  cfsetospeed (&tios, inspeed);
-		  cfsetispeed (&tios, inspeed);
-	  }
+	{
+		cfsetospeed (&tios, inspeed);
+		cfsetispeed (&tios, inspeed);
+	}
 	else
-	  {
-		  inspeed = cfgetospeed (&tios);
-		  /*
-		   * We can't proceed if the serial port speed is 0,
-		   * since that implies that the serial port is disabled.
-		   */
-		  if (inspeed == 0)
-			  fatal ("Baud rate for %s is 0; need explicit baud rate", devnam);
-	  }
+	{
+		inspeed = cfgetospeed (&tios);
+		/*
+		 * We can't proceed if the serial port speed is 0,
+		 * since that implies that the serial port is disabled.
+		 */
+		if (inspeed == 0)
+			fatal ("Baud rate for %s is 0; need explicit baud rate", devnam);
+	}
 	baud_rate = inspeed;
 
 /*    if (tcsetattr(fd, TCSAFLUSH, &tios) < 0) {  */
 	if (tcsetattr (fd, TCSADRAIN, &tios) < 0)
-	  {
-		  fatal ("tcsetattr: %m");
-	  }
+	{
+		fatal ("tcsetattr: %m");
+	}
 
 	restore_term = 1;
 }
@@ -425,26 +425,26 @@ void set_up_tty (int fd, int local)
 void restore_tty (int fd)
 {
 	if (restore_term)
-	  {
-		  if (!default_device)
-			{
-				/*
-				 * Turn off echoing, because otherwise we can get into
-				 * a loop with the tty and the modem echoing to each other.
-				 * We presume we are the sole user of this tty device, so
-				 * when we close it, it will revert to its defaults anyway.
-				 */
-				inittermios.c_lflag &= ~(ECHO | ECHONL);
-			}
+	{
+		if (!default_device)
+		{
+			/*
+			 * Turn off echoing, because otherwise we can get into
+			 * a loop with the tty and the modem echoing to each other.
+			 * We presume we are the sole user of this tty device, so
+			 * when we close it, it will revert to its defaults anyway.
+			 */
+			inittermios.c_lflag &= ~(ECHO | ECHONL);
+		}
 /*	if (tcsetattr(fd, TCSAFLUSH, &inittermios) < 0) { */
-		  if (tcsetattr (fd, TCSADRAIN, &inittermios) < 0)
-			{
-				if (errno != ENXIO)
-					warn ("tcsetattr: %m");
-			}
-		  ioctl (fd, TIOCSWINSZ, &wsinfo);
-		  restore_term = 0;
-	  }
+		if (tcsetattr (fd, TCSADRAIN, &inittermios) < 0)
+		{
+			if (errno != ENXIO)
+				warn ("tcsetattr: %m");
+		}
+		ioctl (fd, TIOCSWINSZ, &wsinfo);
+		restore_term = 0;
+	}
 }
 
 /*
@@ -487,10 +487,10 @@ void output (int unit, u_char * p, int len)
 /*    printf("sent packet [%d]\n", len); */
 
 	if (write (pppd_ttyfd, p, len) < 0)
-	  {
-		  if (errno != EIO)
-			  error ("write: %m");
-	  }
+	{
+		if (errno != EIO)
+			error ("write: %m");
+	}
 }
 
 void ppp_delay (void)
@@ -514,17 +514,17 @@ void wait_input (struct timeval *timo)
 	rtems_option wait = RTEMS_WAIT;
 
 	if (timo)
-	  {
-		  if (timo->tv_sec == 0 && timo->tv_usec == 0)
-			  wait = RTEMS_NO_WAIT;
-		  else
-			{
-				ticks = (timo->tv_sec * 1000000 + timo->tv_usec) /
-					rtems_bsdnet_microseconds_per_tick;
-				if (ticks <= 0)
-					ticks = 1;
-			}
-	  }
+	{
+		if (timo->tv_sec == 0 && timo->tv_usec == 0)
+			wait = RTEMS_NO_WAIT;
+		else
+		{
+			ticks = (timo->tv_sec * 1000000 + timo->tv_usec) /
+				rtems_bsdnet_microseconds_per_tick;
+			if (ticks <= 0)
+				ticks = 1;
+		}
+	}
 	rtems_event_receive (RTEMS_EVENT_31, RTEMS_EVENT_ANY | wait, ticks,
 						 &events);
 }
@@ -537,11 +537,11 @@ int read_packet (u_char * buf)
 	int len;
 
 	if ((len = read (pppd_ttyfd, buf, PPP_MTU + PPP_HDRLEN)) < 0)
-	  {
-		  if (errno == EWOULDBLOCK || errno == EINTR)
-			  len = -1;
-		  /*fatal("read: %m"); */
-	  }
+	{
+		if (errno == EWOULDBLOCK || errno == EINTR)
+			len = -1;
+		/*fatal("read: %m"); */
+	}
 
 /*    printf("read packet [%d]\n", len); */
 	return len;
@@ -558,10 +558,10 @@ int get_loop_output (void)
 	int n;
 
 	while ((n = read (loop_master, inbuf, sizeof (inbuf))) >= 0)
-	  {
-		  if (loop_chars (inbuf, n))
-			  rv = 1;
-	  }
+	{
+		if (loop_chars (inbuf, n))
+			rv = 1;
+	}
 
 	if (n == 0)
 		fatal ("eof on loopback");
@@ -653,10 +653,10 @@ void ccp_flags_set (int unit, int isopen, int isup)
 	int x;
 
 	if (ioctl (ppp_fd, PPPIOCGFLAGS, (caddr_t) & x) < 0)
-	  {
-		  error ("ioctl (PPPIOCGFLAGS): %m");
-		  return;
-	  }
+	{
+		error ("ioctl (PPPIOCGFLAGS): %m");
+		return;
+	}
 	x = isopen ? x | SC_CCP_OPEN : x & ~SC_CCP_OPEN;
 	x = isup ? x | SC_CCP_UP : x & ~SC_CCP_UP;
 	if (ioctl (ppp_fd, PPPIOCSFLAGS, (caddr_t) & x) < 0)
@@ -673,10 +673,10 @@ int ccp_fatal_error (int unit)
 	int x;
 
 	if (ioctl (ppp_fd, PPPIOCGFLAGS, (caddr_t) & x) < 0)
-	  {
-		  error ("ioctl(PPPIOCGFLAGS): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl(PPPIOCGFLAGS): %m");
+		return 0;
+	}
 	return x & SC_DC_FERROR;
 }
 
@@ -698,10 +698,10 @@ int get_ppp_stats (int u, struct pppd_stats *stats)
 	memset (&req, 0, sizeof (req));
 	strlcpy (req.ifr_name, ifname, sizeof (req.ifr_name));
 	if (ioctl (sockfd, SIOCGPPPSTATS, &req) < 0)
-	  {
-		  error ("Couldn't get PPP statistics: %m");
-		  return 0;
-	  }
+	{
+		error ("Couldn't get PPP statistics: %m");
+		return 0;
+	}
 	stats->bytes_in = req.stats.p.ppp_ibytes;
 	stats->bytes_out = req.stats.p.ppp_obytes;
 	return 1;
@@ -716,21 +716,21 @@ int set_filters (struct bpf_program *pass, struct bpf_program *active)
 	int ret = 1;
 
 	if (pass->bf_len > 0)
-	  {
-		  if (ioctl (ppp_fd, PPPIOCSPASS, pass) < 0)
-			{
-				error ("Couldn't set pass-filter in kernel: %m");
-				ret = 0;
-			}
-	  }
+	{
+		if (ioctl (ppp_fd, PPPIOCSPASS, pass) < 0)
+		{
+			error ("Couldn't set pass-filter in kernel: %m");
+			ret = 0;
+		}
+	}
 	if (active->bf_len > 0)
-	  {
-		  if (ioctl (ppp_fd, PPPIOCSACTIVE, active) < 0)
-			{
-				error ("Couldn't set active-filter in kernel: %m");
-				ret = 0;
-			}
-	  }
+	{
+		if (ioctl (ppp_fd, PPPIOCSACTIVE, active) < 0)
+		{
+			error ("Couldn't set active-filter in kernel: %m");
+			ret = 0;
+		}
+	}
 	return ret;
 }
 #endif
@@ -743,22 +743,22 @@ int sifvjcomp (int u, int vjcomp, int cidcomp, int maxcid)
 	u_int x;
 
 	if (ioctl (ppp_fd, PPPIOCGFLAGS, (caddr_t) & x) < 0)
-	  {
-		  error ("ioctl (PPPIOCGFLAGS): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl (PPPIOCGFLAGS): %m");
+		return 0;
+	}
 	x = vjcomp ? x | SC_COMP_TCP : x & ~SC_COMP_TCP;
 	x = cidcomp ? x & ~SC_NO_TCP_CCID : x | SC_NO_TCP_CCID;
 	if (ioctl (ppp_fd, PPPIOCSFLAGS, (caddr_t) & x) < 0)
-	  {
-		  error ("ioctl(PPPIOCSFLAGS): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl(PPPIOCSFLAGS): %m");
+		return 0;
+	}
 	if (vjcomp && ioctl (ppp_fd, PPPIOCSMAXCID, (caddr_t) & maxcid) < 0)
-	  {
-		  error ("ioctl(PPPIOCSMAXCID): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl(PPPIOCSMAXCID): %m");
+		return 0;
+	}
 	return 1;
 }
 
@@ -771,16 +771,16 @@ int sifup (int u)
 
 	strlcpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
 	if (ioctl (sockfd, SIOCGIFFLAGS, (caddr_t) & ifr) < 0)
-	  {
-		  error ("ioctl (SIOCGIFFLAGS): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl (SIOCGIFFLAGS): %m");
+		return 0;
+	}
 	ifr.ifr_flags |= IFF_UP;
 	if (ioctl (sockfd, SIOCSIFFLAGS, (caddr_t) & ifr) < 0)
-	  {
-		  error ("ioctl(SIOCSIFFLAGS): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl(SIOCSIFFLAGS): %m");
+		return 0;
+	}
 	if_is_up = 1;
 	return 1;
 }
@@ -795,10 +795,10 @@ int sifnpmode (int u, int proto, enum NPmode mode)
 	npi.protocol = proto;
 	npi.mode = mode;
 	if (ioctl (ppp_fd, PPPIOCSNPMODE, &npi) < 0)
-	  {
-		  error ("ioctl(set NP %d mode to %d): %m", proto, mode);
-		  return 0;
-	  }
+	{
+		error ("ioctl(set NP %d mode to %d): %m", proto, mode);
+		return 0;
+	}
 	return 1;
 }
 
@@ -819,21 +819,21 @@ int sifdown (int u)
 
 	strlcpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
 	if (ioctl (sockfd, SIOCGIFFLAGS, (caddr_t) & ifr) < 0)
-	  {
-		  error ("ioctl (SIOCGIFFLAGS): %m");
-		  rv = 0;
-	  }
+	{
+		error ("ioctl (SIOCGIFFLAGS): %m");
+		rv = 0;
+	}
 	else
-	  {
-		  ifr.ifr_flags &= ~IFF_UP;
-		  if (ioctl (sockfd, SIOCSIFFLAGS, (caddr_t) & ifr) < 0)
-			{
-				error ("ioctl(SIOCSIFFLAGS): %m");
-				rv = 0;
-			}
-		  else
-			  if_is_up = 0;
-	  }
+	{
+		ifr.ifr_flags &= ~IFF_UP;
+		if (ioctl (sockfd, SIOCSIFFLAGS, (caddr_t) & ifr) < 0)
+		{
+			error ("ioctl(SIOCSIFFLAGS): %m");
+			rv = 0;
+		}
+		else
+			if_is_up = 0;
+	}
 	return rv;
 }
 
@@ -860,28 +860,28 @@ int sifaddr (int u, uint32_t o, uint32_t h, uint32_t m)
 	SET_SA_FAMILY (ifra.ifra_broadaddr, AF_INET);
 	((struct sockaddr_in *)&ifra.ifra_broadaddr)->sin_addr.s_addr = h;
 	if (m != 0)
-	  {
-		  SET_SA_FAMILY (ifra.ifra_mask, AF_INET);
-		  ((struct sockaddr_in *)&ifra.ifra_mask)->sin_addr.s_addr = m;
-	  }
+	{
+		SET_SA_FAMILY (ifra.ifra_mask, AF_INET);
+		((struct sockaddr_in *)&ifra.ifra_mask)->sin_addr.s_addr = m;
+	}
 	else
 		BZERO (&ifra.ifra_mask, sizeof (ifra.ifra_mask));
 	BZERO (&ifr, sizeof (ifr));
 	strlcpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
 	if (ioctl (sockfd, SIOCDIFADDR, (caddr_t) & ifr) < 0)
-	  {
-		  if (errno != EADDRNOTAVAIL)
-			  warn ("Couldn't remove interface address: %m");
-	  }
+	{
+		if (errno != EADDRNOTAVAIL)
+			warn ("Couldn't remove interface address: %m");
+	}
 	if (ioctl (sockfd, SIOCAIFADDR, (caddr_t) & ifra) < 0)
-	  {
-		  if (errno != EEXIST)
-			{
-				error ("Couldn't set interface address: %m");
-				return 0;
-			}
-		  warn ("Couldn't set interface address: Address %I already exists", o);
-	  }
+	{
+		if (errno != EEXIST)
+		{
+			error ("Couldn't set interface address: %m");
+			return 0;
+		}
+		warn ("Couldn't set interface address: Address %I already exists", o);
+	}
 	ifaddrs[0] = o;
 	ifaddrs[1] = h;
 	return 1;
@@ -903,11 +903,11 @@ int cifaddr (int u, uint32_t o, uint32_t h)
 	((struct sockaddr_in *)&ifra.ifra_broadaddr)->sin_addr.s_addr = h;
 	BZERO (&ifra.ifra_mask, sizeof (ifra.ifra_mask));
 	if (ioctl (sockfd, SIOCDIFADDR, (caddr_t) & ifra) < 0)
-	  {
-		  if (errno != EADDRNOTAVAIL)
-			  warn ("Couldn't delete interface address: %m");
-		  return 0;
-	  }
+	{
+		if (errno != EADDRNOTAVAIL)
+			warn ("Couldn't delete interface address: %m");
+		return 0;
+	}
 	return 1;
 }
 
@@ -948,31 +948,31 @@ static int dodefaultroute (uint32_t g, int cmd)
 	netmask.sin_family = AF_INET;
 
 	if (cmd == 's')
-	  {
-		  memset ((void *)&gateway, 0, sizeof (gateway));
-		  gateway.sin_len = sizeof gateway;
-		  gateway.sin_family = AF_INET;
-		  gateway.sin_addr.s_addr = g;
+	{
+		memset ((void *)&gateway, 0, sizeof (gateway));
+		gateway.sin_len = sizeof gateway;
+		gateway.sin_family = AF_INET;
+		gateway.sin_addr.s_addr = g;
 
-		  rtems_bsdnet_rtrequest (RTM_ADD,
-								  (struct sockaddr *)&address,
-								  (struct sockaddr *)&gateway,
-								  (struct sockaddr *)&netmask,
-								  (RTF_UP | RTF_GATEWAY | RTF_STATIC), NULL);
-	  }
+		rtems_bsdnet_rtrequest (RTM_ADD,
+								(struct sockaddr *)&address,
+								(struct sockaddr *)&gateway,
+								(struct sockaddr *)&netmask,
+								(RTF_UP | RTF_GATEWAY | RTF_STATIC), NULL);
+	}
 	else
-	  {
-		  memset ((void *)&gateway, 0, sizeof (gateway));
-		  gateway.sin_len = sizeof gateway;
-		  gateway.sin_family = AF_INET;
-		  gateway.sin_addr.s_addr = INADDR_ANY;
+	{
+		memset ((void *)&gateway, 0, sizeof (gateway));
+		gateway.sin_len = sizeof gateway;
+		gateway.sin_family = AF_INET;
+		gateway.sin_addr.s_addr = INADDR_ANY;
 
-		  rtems_bsdnet_rtrequest (RTM_DELETE,
-								  (struct sockaddr *)&address,
-								  (struct sockaddr *)&gateway,
-								  (struct sockaddr *)&netmask,
-								  (RTF_UP | RTF_STATIC), NULL);
-	  }
+		rtems_bsdnet_rtrequest (RTM_DELETE,
+								(struct sockaddr *)&address,
+								(struct sockaddr *)&gateway,
+								(struct sockaddr *)&netmask,
+								(RTF_UP | RTF_STATIC), NULL);
+	}
 
 	default_route_gateway = (cmd == 's') ? g : 0;
 
@@ -1004,16 +1004,16 @@ int sifproxyarp (int unit, uint32_t hisaddr)
 	 */
 	memset (&arpmsg, 0, sizeof (arpmsg));
 	if (!get_ether_addr (hisaddr, &arpmsg.hwa))
-	  {
-		  error ("Cannot determine ethernet address for proxy ARP");
-		  return 0;
-	  }
+	{
+		error ("Cannot determine ethernet address for proxy ARP");
+		return 0;
+	}
 
 	if ((routes = socket (PF_ROUTE, SOCK_RAW, AF_INET)) < 0)
-	  {
-		  error ("Couldn't add proxy arp entry: socket: %m");
-		  return 0;
-	  }
+	{
+		error ("Couldn't add proxy arp entry: socket: %m");
+		return 0;
+	}
 
 	arpmsg.hdr.rtm_type = RTM_ADD;
 	arpmsg.hdr.rtm_flags = RTF_ANNOUNCE | RTF_HOST | RTF_STATIC;
@@ -1029,11 +1029,11 @@ int sifproxyarp (int unit, uint32_t hisaddr)
 	arpmsg.hdr.rtm_msglen = (char *)&arpmsg.hwa - (char *)&arpmsg
 		+ arpmsg.hwa.sdl_len;
 	if (write (routes, &arpmsg, arpmsg.hdr.rtm_msglen) < 0)
-	  {
-		  error ("Couldn't add proxy arp entry: %m");
-		  close (routes);
-		  return 0;
-	  }
+	{
+		error ("Couldn't add proxy arp entry: %m");
+		close (routes);
+		return 0;
+	}
 
 	close (routes);
 	arpmsg_valid = 1;
@@ -1056,17 +1056,17 @@ int cifproxyarp (int unit, uint32_t hisaddr)
 	arpmsg.hdr.rtm_seq = ++rtm_seq;
 
 	if ((routes = socket (PF_ROUTE, SOCK_RAW, AF_INET)) < 0)
-	  {
-		  error ("Couldn't delete proxy arp entry: socket: %m");
-		  return 0;
-	  }
+	{
+		error ("Couldn't delete proxy arp entry: socket: %m");
+		return 0;
+	}
 
 	if (write (routes, &arpmsg, arpmsg.hdr.rtm_msglen) < 0)
-	  {
-		  error ("Couldn't delete proxy arp entry: %m");
-		  close (routes);
-		  return 0;
-	  }
+	{
+		error ("Couldn't delete proxy arp entry: %m");
+		close (routes);
+		return 0;
+	}
 
 	close (routes);
 	proxy_arp_addr = 0;
@@ -1094,10 +1094,10 @@ int sifproxyarp (int unit, uint32_t hisaddr)
 	 * as our local address.
 	 */
 	if (!get_ether_addr (hisaddr, &dls.sdl))
-	  {
-		  error ("Cannot determine ethernet address for proxy ARP");
-		  return 0;
-	  }
+	{
+		error ("Cannot determine ethernet address for proxy ARP");
+		return 0;
+	}
 
 	arpreq.arp_ha.sa_len = sizeof (struct sockaddr);
 	arpreq.arp_ha.sa_family = AF_UNSPEC;
@@ -1106,10 +1106,10 @@ int sifproxyarp (int unit, uint32_t hisaddr)
 	((struct sockaddr_in *)&arpreq.arp_pa)->sin_addr.s_addr = hisaddr;
 	arpreq.arp_flags = ATF_PERM | ATF_PUBL;
 	if (ioctl (sockfd, SIOCSARP, (caddr_t) & arpreq) < 0)
-	  {
-		  error ("Couldn't add proxy arp entry: %m");
-		  return 0;
-	  }
+	{
+		error ("Couldn't add proxy arp entry: %m");
+		return 0;
+	}
 
 	proxy_arp_addr = hisaddr;
 	return 1;
@@ -1126,10 +1126,10 @@ int cifproxyarp (int unit, uint32_t hisaddr)
 	SET_SA_FAMILY (arpreq.arp_pa, AF_INET);
 	((struct sockaddr_in *)&arpreq.arp_pa)->sin_addr.s_addr = hisaddr;
 	if (ioctl (sockfd, SIOCDARP, (caddr_t) & arpreq) < 0)
-	  {
-		  warn ("Couldn't delete proxy arp entry: %m");
-		  return 0;
-	  }
+	{
+		warn ("Couldn't delete proxy arp entry: %m");
+		return 0;
+	}
 	proxy_arp_addr = 0;
 	return 1;
 }
@@ -1153,10 +1153,10 @@ static int get_ether_addr (uint32_t ipaddr, struct sockaddr_dl *hwaddr)
 	ifc.ifc_len = sizeof (ifs);
 	ifc.ifc_req = ifs;
 	if (ioctl (sockfd, SIOCGIFCONF, &ifc) < 0)
-	  {
-		  error ("ioctl(SIOCGIFCONF): %m");
-		  return 0;
-	  }
+	{
+		error ("ioctl(SIOCGIFCONF): %m");
+		return 0;
+	}
 
 	/*
 	 * Scan through looking for an interface with an Internet
@@ -1165,34 +1165,34 @@ static int get_ether_addr (uint32_t ipaddr, struct sockaddr_dl *hwaddr)
 	ifend = (struct ifreq *)(ifc.ifc_buf + ifc.ifc_len);
 	for (ifr = ifc.ifc_req; ifr < ifend; ifr = (struct ifreq *)
 		 ((char *)&ifr->ifr_addr + ifr->ifr_addr.sa_len))
-	  {
-		  if (ifr->ifr_addr.sa_family == AF_INET)
-			{
-				ina = ((struct sockaddr_in *)&ifr->ifr_addr)->sin_addr.s_addr;
-				strlcpy (ifreq.ifr_name, ifr->ifr_name,
-						 sizeof (ifreq.ifr_name));
-				/*
-				 * Check that the interface is up, and not point-to-point
-				 * or loopback.
-				 */
-				if (ioctl (sockfd, SIOCGIFFLAGS, &ifreq) < 0)
-					continue;
-				if ((ifreq.ifr_flags &
-					 (IFF_UP | IFF_BROADCAST | IFF_POINTOPOINT | IFF_LOOPBACK |
-					  IFF_NOARP)) != (IFF_UP | IFF_BROADCAST))
-					continue;
-				/*
-				 * Get its netmask and check that it's on the right subnet.
-				 */
-				if (ioctl (sockfd, SIOCGIFNETMASK, &ifreq) < 0)
-					continue;
-				mask = ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
-				if ((ipaddr & mask) != (ina & mask))
-					continue;
+	{
+		if (ifr->ifr_addr.sa_family == AF_INET)
+		{
+			ina = ((struct sockaddr_in *)&ifr->ifr_addr)->sin_addr.s_addr;
+			strlcpy (ifreq.ifr_name, ifr->ifr_name,
+					 sizeof (ifreq.ifr_name));
+			/*
+			 * Check that the interface is up, and not point-to-point
+			 * or loopback.
+			 */
+			if (ioctl (sockfd, SIOCGIFFLAGS, &ifreq) < 0)
+				continue;
+			if ((ifreq.ifr_flags &
+				 (IFF_UP | IFF_BROADCAST | IFF_POINTOPOINT | IFF_LOOPBACK |
+				IFF_NOARP)) != (IFF_UP | IFF_BROADCAST))
+				continue;
+			/*
+			 * Get its netmask and check that it's on the right subnet.
+			 */
+			if (ioctl (sockfd, SIOCGIFNETMASK, &ifreq) < 0)
+				continue;
+			mask = ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
+			if ((ipaddr & mask) != (ina & mask))
+				continue;
 
-				break;
-			}
-	  }
+			break;
+		}
+	}
 
 	if (ifr >= ifend)
 		return 0;
@@ -1204,19 +1204,19 @@ static int get_ether_addr (uint32_t ipaddr, struct sockaddr_dl *hwaddr)
 	 */
 	ifp = ifr;
 	for (ifr = ifc.ifc_req; ifr < ifend;)
-	  {
-		  if (strcmp (ifp->ifr_name, ifr->ifr_name) == 0
-			  && ifr->ifr_addr.sa_family == AF_LINK)
-			{
-				/*
-				 * Found the link-level address - copy it out
-				 */
-				dla = (struct sockaddr_dl *)&ifr->ifr_addr;
-				BCOPY (dla, hwaddr, dla->sdl_len);
-				return 1;
-			}
-		  ifr = (struct ifreq *)((char *)&ifr->ifr_addr + ifr->ifr_addr.sa_len);
-	  }
+	{
+		if (strcmp (ifp->ifr_name, ifr->ifr_name) == 0
+			&& ifr->ifr_addr.sa_family == AF_LINK)
+		{
+			/*
+			 * Found the link-level address - copy it out
+			 */
+			dla = (struct sockaddr_dl *)&ifr->ifr_addr;
+			BCOPY (dla, hwaddr, dla->sdl_len);
+			return 1;
+		}
+		ifr = (struct ifreq *)((char *)&ifr->ifr_addr + ifr->ifr_addr.sa_len);
+	}
 
 	return 0;
 }
@@ -1252,38 +1252,38 @@ uint32_t GetMask (uint32_t addr)
 	ifc.ifc_len = sizeof (ifs);
 	ifc.ifc_req = ifs;
 	if (ioctl (sockfd, SIOCGIFCONF, &ifc) < 0)
-	  {
-		  warn ("ioctl(SIOCGIFCONF): %m");
-		  return mask;
-	  }
+	{
+		warn ("ioctl(SIOCGIFCONF): %m");
+		return mask;
+	}
 	ifend = (struct ifreq *)(ifc.ifc_buf + ifc.ifc_len);
 	for (ifr = ifc.ifc_req; ifr < ifend; ifr = (struct ifreq *)
 		 ((char *)&ifr->ifr_addr + ifr->ifr_addr.sa_len))
-	  {
-		  /*
-		   * Check the interface's internet address.
-		   */
-		  if (ifr->ifr_addr.sa_family != AF_INET)
-			  continue;
-		  ina = ((struct sockaddr_in *)&ifr->ifr_addr)->sin_addr.s_addr;
-		  if ((ntohl (ina) & nmask) != (addr & nmask))
-			  continue;
-		  /*
-		   * Check that the interface is up, and not point-to-point or loopback.
-		   */
-		  strlcpy (ifreq.ifr_name, ifr->ifr_name, sizeof (ifreq.ifr_name));
-		  if (ioctl (sockfd, SIOCGIFFLAGS, &ifreq) < 0)
-			  continue;
-		  if ((ifreq.ifr_flags & (IFF_UP | IFF_POINTOPOINT | IFF_LOOPBACK))
-			  != IFF_UP)
-			  continue;
-		  /*
-		   * Get its netmask and OR it into our mask.
-		   */
-		  if (ioctl (sockfd, SIOCGIFNETMASK, &ifreq) < 0)
-			  continue;
-		  mask |= ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
-	  }
+	{
+		/*
+		 * Check the interface's internet address.
+		 */
+		if (ifr->ifr_addr.sa_family != AF_INET)
+			continue;
+		ina = ((struct sockaddr_in *)&ifr->ifr_addr)->sin_addr.s_addr;
+		if ((ntohl (ina) & nmask) != (addr & nmask))
+			continue;
+		/*
+		 * Check that the interface is up, and not point-to-point or loopback.
+		 */
+		strlcpy (ifreq.ifr_name, ifr->ifr_name, sizeof (ifreq.ifr_name));
+		if (ioctl (sockfd, SIOCGIFFLAGS, &ifreq) < 0)
+			continue;
+		if ((ifreq.ifr_flags & (IFF_UP | IFF_POINTOPOINT | IFF_LOOPBACK))
+			!= IFF_UP)
+			continue;
+		/*
+		 * Get its netmask and OR it into our mask.
+		 */
+		if (ioctl (sockfd, SIOCGIFNETMASK, &ifreq) < 0)
+			continue;
+		mask |= ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
+	}
 
 	return mask;
 }

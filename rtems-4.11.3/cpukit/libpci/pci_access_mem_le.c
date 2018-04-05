@@ -50,7 +50,8 @@ void pci_mem_le_st_be32 (uint32_t * adr, uint32_t data)
 	st_be32 (adr, data);
 }
 
-struct pci_memreg_ops pci_mem_le_ops = {
+struct pci_memreg_ops pci_mem_le_ops =
+{
 	.ld8 = pci_mem_ld8,
 	.st8 = pci_mem_st8,
 

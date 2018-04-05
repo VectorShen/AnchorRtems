@@ -46,29 +46,29 @@ bool _Rate_monotonic_Get_status (Rate_monotonic_Control * the_period,
 	used = owning_thread->cpu_time_used;
 
 	if (owning_thread == _Thread_Executing)
-	  {
+	{
 
-		  Thread_CPU_usage_t ran;
+		Thread_CPU_usage_t ran;
 
-		  /* How much time time since last context switch */
-		  _Timestamp_Subtract (&_Thread_Time_of_last_context_switch, &uptime,
-							   &ran);
+		/* How much time time since last context switch */
+		_Timestamp_Subtract (&_Thread_Time_of_last_context_switch, &uptime,
+							 &ran);
 
-		  /* cpu usage += ran */
-		  _Timestamp_Add_to (&used, &ran);
+		/* cpu usage += ran */
+		_Timestamp_Add_to (&used, &ran);
 
-		  /*
-		   *  The cpu usage info was reset while executing.  Can't
-		   *  determine a status.
-		   */
-		  if (_Timestamp_Less_than
-			  (&used, &the_period->cpu_usage_period_initiated))
-			  return false;
+		/*
+		 *  The cpu usage info was reset while executing.  Can't
+		 *  determine a status.
+		 */
+		if (_Timestamp_Less_than
+			(&used, &the_period->cpu_usage_period_initiated))
+			return false;
 
-		  /* used = current cpu usage - cpu usage at start of period */
-		  _Timestamp_Subtract (&the_period->cpu_usage_period_initiated,
-							   &used, cpu_since_last_period);
-	  }
+		/* used = current cpu usage - cpu usage at start of period */
+		_Timestamp_Subtract (&the_period->cpu_usage_period_initiated,
+							 &used, cpu_since_last_period);
+	}
 
 	return true;
 }
@@ -107,25 +107,25 @@ void _Rate_monotonic_Initiate_statistics (Rate_monotonic_Control * the_period)
 	 */
 #ifndef __RTEMS_USE_TICKS_FOR_STATISTICS__
 	if (owning_thread == _Thread_Executing)
-	  {
-		  Timestamp_Control ran;
+	{
+		Timestamp_Control ran;
 
-		  /*
-		   *  Adjust the CPU time used to account for the time since last
-		   *  context switch.
-		   */
-		  _Timestamp_Subtract (&_Thread_Time_of_last_context_switch, &uptime,
-							   &ran);
+		/*
+		 *  Adjust the CPU time used to account for the time since last
+		 *  context switch.
+		 */
+		_Timestamp_Subtract (&_Thread_Time_of_last_context_switch, &uptime,
+							 &ran);
 
-		  _Timestamp_Add_to (&the_period->cpu_usage_period_initiated, &ran);
-	  }
+		_Timestamp_Add_to (&the_period->cpu_usage_period_initiated, &ran);
+	}
 #endif
 
 	_Scheduler_Release_job (the_period->owner, the_period->next_length);
 }
 
 static void _Rate_monotonic_Update_statistics (Rate_monotonic_Control *
-											   the_period)
+											 the_period)
 {
 	Thread_CPU_usage_t executed;
 	Rate_monotonic_Period_time_t since_last_period;
@@ -204,7 +204,7 @@ static void _Rate_monotonic_Update_statistics (Rate_monotonic_Control *
 }
 
 rtems_status_code rtems_rate_monotonic_period (rtems_id id,
-											   rtems_interval length)
+											 rtems_interval length)
 {
 	Rate_monotonic_Control *the_period;
 	Objects_Locations location;
@@ -215,127 +215,127 @@ rtems_status_code rtems_rate_monotonic_period (rtems_id id,
 	the_period = _Rate_monotonic_Get (id, &location);
 
 	switch (location)
-	  {
-		  case OBJECTS_LOCAL:
-			  if (!_Thread_Is_executing (the_period->owner))
+	{
+		case OBJECTS_LOCAL:
+			if (!_Thread_Is_executing (the_period->owner))
+			{
+				_Objects_Put (&the_period->Object);
+				return RTEMS_NOT_OWNER_OF_RESOURCE;
+			}
+
+			if (length == RTEMS_PERIOD_STATUS)
+			{
+				switch (the_period->state)
 				{
-					_Objects_Put (&the_period->Object);
-					return RTEMS_NOT_OWNER_OF_RESOURCE;
+					case RATE_MONOTONIC_INACTIVE:
+						return_value = RTEMS_NOT_DEFINED;
+						break;
+					case RATE_MONOTONIC_EXPIRED:
+					case RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING:
+						return_value = RTEMS_TIMEOUT;
+						break;
+					case RATE_MONOTONIC_ACTIVE:
+					default:	/* unreached -- only to remove warnings */
+						return_value = RTEMS_SUCCESSFUL;
+						break;
 				}
+				_Objects_Put (&the_period->Object);
+				return (return_value);
+			}
 
-			  if (length == RTEMS_PERIOD_STATUS)
-				{
-					switch (the_period->state)
-					  {
-						  case RATE_MONOTONIC_INACTIVE:
-							  return_value = RTEMS_NOT_DEFINED;
-							  break;
-						  case RATE_MONOTONIC_EXPIRED:
-						  case RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING:
-							  return_value = RTEMS_TIMEOUT;
-							  break;
-						  case RATE_MONOTONIC_ACTIVE:
-						  default:	/* unreached -- only to remove warnings */
-							  return_value = RTEMS_SUCCESSFUL;
-							  break;
-					  }
-					_Objects_Put (&the_period->Object);
-					return (return_value);
-				}
+			_ISR_Disable (level);
+			if (the_period->state == RATE_MONOTONIC_INACTIVE)
+			{
+				_ISR_Enable (level);
 
-			  _ISR_Disable (level);
-			  if (the_period->state == RATE_MONOTONIC_INACTIVE)
-				{
-					_ISR_Enable (level);
+				the_period->next_length = length;
 
-					the_period->next_length = length;
+				/*
+				 *  Baseline statistics information for the beginning of a period.
+				 */
+				_Rate_monotonic_Initiate_statistics (the_period);
 
-					/*
-					 *  Baseline statistics information for the beginning of a period.
-					 */
-					_Rate_monotonic_Initiate_statistics (the_period);
+				the_period->state = RATE_MONOTONIC_ACTIVE;
+				_Watchdog_Initialize (&the_period->Timer,
+									_Rate_monotonic_Timeout, id, NULL);
 
-					the_period->state = RATE_MONOTONIC_ACTIVE;
-					_Watchdog_Initialize (&the_period->Timer,
-										  _Rate_monotonic_Timeout, id, NULL);
+				_Watchdog_Insert_ticks (&the_period->Timer, length);
+				_Objects_Put (&the_period->Object);
+				return RTEMS_SUCCESSFUL;
+			}
 
-					_Watchdog_Insert_ticks (&the_period->Timer, length);
-					_Objects_Put (&the_period->Object);
-					return RTEMS_SUCCESSFUL;
-				}
+			if (the_period->state == RATE_MONOTONIC_ACTIVE)
+			{
+				/*
+				 *  Update statistics from the concluding period.
+				 */
+				_Rate_monotonic_Update_statistics (the_period);
 
-			  if (the_period->state == RATE_MONOTONIC_ACTIVE)
-				{
-					/*
-					 *  Update statistics from the concluding period.
-					 */
-					_Rate_monotonic_Update_statistics (the_period);
+				/*
+				 *  This tells the _Rate_monotonic_Timeout that this task is
+				 *  in the process of blocking on the period and that we
+				 *  may be changing the length of the next period.
+				 */
+				the_period->state = RATE_MONOTONIC_OWNER_IS_BLOCKING;
+				the_period->next_length = length;
 
-					/*
-					 *  This tells the _Rate_monotonic_Timeout that this task is
-					 *  in the process of blocking on the period and that we
-					 *  may be changing the length of the next period.
-					 */
-					the_period->state = RATE_MONOTONIC_OWNER_IS_BLOCKING;
-					the_period->next_length = length;
+				_ISR_Enable (level);
 
-					_ISR_Enable (level);
+				_Thread_Executing->Wait.id = the_period->Object.id;
+				_Thread_Set_state (_Thread_Executing,
+								 STATES_WAITING_FOR_PERIOD);
 
-					_Thread_Executing->Wait.id = the_period->Object.id;
-					_Thread_Set_state (_Thread_Executing,
-									   STATES_WAITING_FOR_PERIOD);
+				/*
+				 *  Did the watchdog timer expire while we were actually blocking
+				 *  on it?
+				 */
+				_ISR_Disable (level);
+				local_state = the_period->state;
+				the_period->state = RATE_MONOTONIC_ACTIVE;
+				_ISR_Enable (level);
 
-					/*
-					 *  Did the watchdog timer expire while we were actually blocking
-					 *  on it?
-					 */
-					_ISR_Disable (level);
-					local_state = the_period->state;
-					the_period->state = RATE_MONOTONIC_ACTIVE;
-					_ISR_Enable (level);
+				/*
+				 *  If it did, then we want to unblock ourself and continue as
+				 *  if nothing happen.  The period was reset in the timeout routine.
+				 */
+				if (local_state == RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING)
+					_Thread_Clear_state (_Thread_Executing,
+										 STATES_WAITING_FOR_PERIOD);
 
-					/*
-					 *  If it did, then we want to unblock ourself and continue as
-					 *  if nothing happen.  The period was reset in the timeout routine.
-					 */
-					if (local_state == RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING)
-						_Thread_Clear_state (_Thread_Executing,
-											 STATES_WAITING_FOR_PERIOD);
+				_Objects_Put (&the_period->Object);
+				return RTEMS_SUCCESSFUL;
+			}
 
-					_Objects_Put (&the_period->Object);
-					return RTEMS_SUCCESSFUL;
-				}
+			if (the_period->state == RATE_MONOTONIC_EXPIRED)
+			{
+				/*
+				 *  Update statistics from the concluding period
+				 */
+				_Rate_monotonic_Update_statistics (the_period);
 
-			  if (the_period->state == RATE_MONOTONIC_EXPIRED)
-				{
-					/*
-					 *  Update statistics from the concluding period
-					 */
-					_Rate_monotonic_Update_statistics (the_period);
+				_ISR_Enable (level);
 
-					_ISR_Enable (level);
+				the_period->state = RATE_MONOTONIC_ACTIVE;
+				the_period->next_length = length;
 
-					the_period->state = RATE_MONOTONIC_ACTIVE;
-					the_period->next_length = length;
+				_Watchdog_Insert_ticks (&the_period->Timer, length);
+				_Scheduler_Release_job (the_period->owner,
+										the_period->next_length);
+				_Objects_Put (&the_period->Object);
+				return RTEMS_TIMEOUT;
+			}
 
-					_Watchdog_Insert_ticks (&the_period->Timer, length);
-					_Scheduler_Release_job (the_period->owner,
-											the_period->next_length);
-					_Objects_Put (&the_period->Object);
-					return RTEMS_TIMEOUT;
-				}
-
-			  /*
-			   *  These should never happen so just return invalid Id.
-			   *    - RATE_MONOTONIC_OWNER_IS_BLOCKING:
-			   *    - RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING:
-			   */
+			/*
+			 *  These should never happen so just return invalid Id.
+			 *    - RATE_MONOTONIC_OWNER_IS_BLOCKING:
+			 *    - RATE_MONOTONIC_EXPIRED_WHILE_BLOCKING:
+			 */
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

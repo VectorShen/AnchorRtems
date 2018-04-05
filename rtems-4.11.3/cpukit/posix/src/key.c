@@ -93,9 +93,9 @@ static uint32_t _POSIX_Keys_Get_initial_keypool_size (void)
 static void _POSIX_Keys_Initialize_keypool (void)
 {
 	_Freechain_Initialize (&_POSIX_Keys_Keypool,
-						   _Workspace_Allocate_or_fatal_error,
-						   _POSIX_Keys_Get_initial_keypool_size (),
-						   sizeof (POSIX_Keys_Key_value_pair));
+						 _Workspace_Allocate_or_fatal_error,
+						 _POSIX_Keys_Get_initial_keypool_size (),
+						 sizeof (POSIX_Keys_Key_value_pair));
 }
 
 POSIX_Keys_Key_value_pair *_POSIX_Keys_Key_value_pair_allocate (void)

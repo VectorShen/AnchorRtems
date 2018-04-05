@@ -57,30 +57,30 @@ rtems_status_code rtems_message_queue_flush (rtems_id id, uint32_t * count)
 		return RTEMS_INVALID_ADDRESS;
 
 	the_message_queue = _Message_queue_Get_interrupt_disable (id,
-															  &location,
-															  &lock_context);
+															&location,
+															&lock_context);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  *count =
-				  _CORE_message_queue_Flush (&the_message_queue->message_queue,
+		case OBJECTS_LOCAL:
+			*count =
+				_CORE_message_queue_Flush (&the_message_queue->message_queue,
 											 &lock_context);
-			  return RTEMS_SUCCESSFUL;
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
-			  _Thread_Executing->Wait.return_argument = count;
+		case OBJECTS_REMOTE:
+			_Thread_Executing->Wait.return_argument = count;
 
-			  return _Message_queue_MP_Send_request_packet (MESSAGE_QUEUE_MP_FLUSH_REQUEST, id, 0,	/* buffer not used */
+			return _Message_queue_MP_Send_request_packet (MESSAGE_QUEUE_MP_FLUSH_REQUEST, id, 0,	/* buffer not used */
 															0,	/* size */
 															0,	/* option_set not used */
 															MPCI_DEFAULT_TIMEOUT);
 #endif
 
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

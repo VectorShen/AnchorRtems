@@ -45,11 +45,11 @@
  */
 
 rtems_status_code rtems_region_create (rtems_name name,
-									   void *starting_address,
-									   uintptr_t length,
-									   uintptr_t page_size,
-									   rtems_attribute attribute_set,
-									   rtems_id * id)
+									 void *starting_address,
+									 uintptr_t length,
+									 uintptr_t page_size,
+									 rtems_attribute attribute_set,
+									 rtems_id * id)
 {
 	rtems_status_code return_status;
 	Region_Control *the_region;
@@ -69,36 +69,36 @@ rtems_status_code rtems_region_create (rtems_name name,
 		return_status = RTEMS_TOO_MANY;
 
 	else
-	  {
-		  _Thread_queue_Initialize (&the_region->Wait_queue,
+	{
+		_Thread_queue_Initialize (&the_region->Wait_queue,
 									_Attributes_Is_priority (attribute_set) ?
 									THREAD_QUEUE_DISCIPLINE_PRIORITY :
 									THREAD_QUEUE_DISCIPLINE_FIFO);
 
-		  the_region->maximum_segment_size =
-			  _Heap_Initialize (&the_region->Memory, starting_address, length,
+		the_region->maximum_segment_size =
+			_Heap_Initialize (&the_region->Memory, starting_address, length,
 								page_size);
 
-		  if (!the_region->maximum_segment_size)
-			{
-				_Region_Free (the_region);
-				return_status = RTEMS_INVALID_SIZE;
-			}
-		  else
-			{
-				the_region->starting_address = starting_address;
-				the_region->length = length;
-				the_region->page_size = page_size;
-				the_region->attribute_set = attribute_set;
-				the_region->number_of_used_blocks = 0;
+		if (!the_region->maximum_segment_size)
+		{
+			_Region_Free (the_region);
+			return_status = RTEMS_INVALID_SIZE;
+		}
+		else
+		{
+			the_region->starting_address = starting_address;
+			the_region->length = length;
+			the_region->page_size = page_size;
+			the_region->attribute_set = attribute_set;
+			the_region->number_of_used_blocks = 0;
 
-				_Objects_Open (&_Region_Information,
-							   &the_region->Object, (Objects_Name) name);
+			_Objects_Open (&_Region_Information,
+						 &the_region->Object, (Objects_Name) name);
 
-				*id = the_region->Object.id;
-				return_status = RTEMS_SUCCESSFUL;
-			}
-	  }
+			*id = the_region->Object.id;
+			return_status = RTEMS_SUCCESSFUL;
+		}
+	}
 
 	_Objects_Allocator_unlock ();
 

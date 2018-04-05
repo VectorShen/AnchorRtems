@@ -25,7 +25,7 @@ typedef struct
 } Scheduler_Set_root_context;
 
 RTEMS_INLINE_ROUTINE bool _Scheduler_Set_root_visitor (Resource_Node *
-													   resource_node, void *arg)
+													 resource_node, void *arg)
 {
 	Scheduler_Set_root_context *ctx = arg;
 	Thread_Control *root = ctx->root;
@@ -42,10 +42,10 @@ RTEMS_INLINE_ROUTINE bool _Scheduler_Set_root_visitor (Resource_Node *
 															needs_help);
 
 	if (needs_help_too != needs_help && needs_help_too != NULL)
-	  {
-		  _Assert (ctx->needs_help == NULL);
-		  ctx->needs_help = needs_help_too;
-	  }
+	{
+		_Assert (ctx->needs_help == NULL);
+		ctx->needs_help = needs_help_too;
+	}
 
 	return false;
 }
@@ -62,17 +62,17 @@ void _Scheduler_Thread_change_resource_root (Thread_Control * top,
 	offers_help_too = _Scheduler_Node_get_owner (offers_help_node);
 
 	if (offers_help != offers_help_too)
-	  {
-		  _Scheduler_Set_root_visitor (&offers_help_too->Resource_node, &ctx);
-		  _Assert (ctx.needs_help == offers_help);
-		  ctx.needs_help = NULL;
-	  }
+	{
+		_Scheduler_Set_root_visitor (&offers_help_too->Resource_node, &ctx);
+		_Assert (ctx.needs_help == offers_help);
+		ctx.needs_help = NULL;
+	}
 
 	_Scheduler_Set_root_visitor (&top->Resource_node, &ctx);
 	_Resource_Iterate (&top->Resource_node, _Scheduler_Set_root_visitor, &ctx);
 
 	if (ctx.needs_help != NULL)
-	  {
-		  _Scheduler_Ask_for_help (ctx.needs_help);
-	  }
+	{
+		_Scheduler_Ask_for_help (ctx.needs_help);
+	}
 }

@@ -41,49 +41,49 @@ extern "C"
 /**@{*/
 
 /**
- *  @brief Interrupt level type.
- */
-	typedef ISR_Level rtems_interrupt_level;
+*  @brief Interrupt level type.
+*/
+typedef ISR_Level rtems_interrupt_level;
 
 /**
- *  @brief Control block type used to manage the vectors.
- */
-	typedef ISR_Vector_number rtems_vector_number;
+*  @brief Control block type used to manage the vectors.
+*/
+typedef ISR_Vector_number rtems_vector_number;
 
 /**
- *  @brief Return type for interrupt handler.
- */
-	typedef ISR_Handler rtems_isr;
+*  @brief Return type for interrupt handler.
+*/
+typedef ISR_Handler rtems_isr;
 
 #if (CPU_SIMPLE_VECTORED_INTERRUPTS == FALSE)
 
-	typedef ISR_Handler_entry rtems_isr_entry;
+typedef ISR_Handler_entry rtems_isr_entry;
 
 #else
 /**
- *  @brief Interrupt handler type.
- *
- *  @see rtems_interrupt_catch()
- */
-	typedef rtems_isr (*rtems_isr_entry) (rtems_vector_number);
+*  @brief Interrupt handler type.
+*
+*  @see rtems_interrupt_catch()
+*/
+typedef rtems_isr (*rtems_isr_entry) (rtems_vector_number);
 
 /**
- * @brief RTEMS Interrupt Catch
- *
- * This directive installs @a new_isr_handler as the RTEMS interrupt service
- * routine for the interrupt vector with number @a vector. The previous RTEMS
- * interrupt service routine is returned in @a old_isr_handler.
- *  
- * @param[in] new_isr_handler is the address of interrupt service routine
- * @param[in] vector is the interrupt vector number
- * @param[in] old_isr_handler address at which to store previous ISR address
- * 
- * @retval RTEMS_SUCCESSFUL and *old_isr_handler filled with previous ISR
- * 		address
- */
-	rtems_status_code rtems_interrupt_catch (rtems_isr_entry new_isr_handler,
-											 rtems_vector_number vector,
-											 rtems_isr_entry * old_isr_handler);
+* @brief RTEMS Interrupt Catch
+*
+* This directive installs @a new_isr_handler as the RTEMS interrupt service
+* routine for the interrupt vector with number @a vector. The previous RTEMS
+* interrupt service routine is returned in @a old_isr_handler.
+*
+* @param[in] new_isr_handler is the address of interrupt service routine
+* @param[in] vector is the interrupt vector number
+* @param[in] old_isr_handler address at which to store previous ISR address
+*
+* @retval RTEMS_SUCCESSFUL and *old_isr_handler filled with previous ISR
+* 		address
+*/
+rtems_status_code rtems_interrupt_catch (rtems_isr_entry new_isr_handler,
+										 rtems_vector_number vector,
+										 rtems_isr_entry * old_isr_handler);
 #endif
 
 #if !defined(RTEMS_SMP)

@@ -58,30 +58,30 @@ int mq_close (mqd_t mqdes)
 	_Objects_Allocator_lock ();
 	the_mq_fd = _POSIX_Message_queue_Get_fd (mqdes, &location);
 	if (location == OBJECTS_LOCAL)
-	  {
-		  /* OBJECTS_LOCAL:
-		   *
-		   *  First update the actual message queue to reflect this descriptor
-		   *  being disassociated.  This may result in the queue being really
-		   *  deleted.
-		   */
+	{
+		/* OBJECTS_LOCAL:
+		 *
+		 *  First update the actual message queue to reflect this descriptor
+		 *  being disassociated.  This may result in the queue being really
+		 *  deleted.
+		 */
 
-		  the_mq = the_mq_fd->Queue;
-		  the_mq->open_count -= 1;
-		  _POSIX_Message_queue_Delete (the_mq);
+		the_mq = the_mq_fd->Queue;
+		the_mq->open_count -= 1;
+		_POSIX_Message_queue_Delete (the_mq);
 
-		  /*
-		   *  Now close this file descriptor.
-		   */
+		/*
+		 *  Now close this file descriptor.
+		 */
 
-		  _Objects_Close (&_POSIX_Message_queue_Information_fds,
-						  &the_mq_fd->Object);
-		  _POSIX_Message_queue_Free_fd (the_mq_fd);
+		_Objects_Close (&_POSIX_Message_queue_Information_fds,
+						&the_mq_fd->Object);
+		_POSIX_Message_queue_Free_fd (the_mq_fd);
 
-		  _Objects_Put (&the_mq_fd->Object);
-		  _Objects_Allocator_unlock ();
-		  return 0;
-	  }
+		_Objects_Put (&the_mq_fd->Object);
+		_Objects_Allocator_unlock ();
+		return 0;
+	}
 
 	_Objects_Allocator_unlock ();
 

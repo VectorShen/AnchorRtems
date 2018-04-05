@@ -40,44 +40,44 @@ int _POSIX_Thread_Translate_sched_param (int policy,
 	*budget_callout = NULL;
 
 	if (policy == SCHED_OTHER)
-	  {
-		  *budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE;
-		  return 0;
-	  }
+	{
+		*budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_RESET_TIMESLICE;
+		return 0;
+	}
 
 	if (policy == SCHED_FIFO)
-	  {
-		  *budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_NONE;
-		  return 0;
-	  }
+	{
+		*budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_NONE;
+		return 0;
+	}
 
 	if (policy == SCHED_RR)
-	  {
-		  *budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_EXHAUST_TIMESLICE;
-		  return 0;
-	  }
+	{
+		*budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_EXHAUST_TIMESLICE;
+		return 0;
+	}
 
 	if (policy == SCHED_SPORADIC)
-	  {
-		  if ((param->sched_ss_repl_period.tv_sec == 0) &&
-			  (param->sched_ss_repl_period.tv_nsec == 0))
-			  return EINVAL;
+	{
+		if ((param->sched_ss_repl_period.tv_sec == 0) &&
+			(param->sched_ss_repl_period.tv_nsec == 0))
+			return EINVAL;
 
-		  if ((param->sched_ss_init_budget.tv_sec == 0) &&
-			  (param->sched_ss_init_budget.tv_nsec == 0))
-			  return EINVAL;
+		if ((param->sched_ss_init_budget.tv_sec == 0) &&
+			(param->sched_ss_init_budget.tv_nsec == 0))
+			return EINVAL;
 
-		  if (_Timespec_To_ticks (&param->sched_ss_repl_period) <
-			  _Timespec_To_ticks (&param->sched_ss_init_budget))
-			  return EINVAL;
+		if (_Timespec_To_ticks (&param->sched_ss_repl_period) <
+			_Timespec_To_ticks (&param->sched_ss_init_budget))
+			return EINVAL;
 
-		  if (!_POSIX_Priority_Is_valid (param->sched_ss_low_priority))
-			  return EINVAL;
+		if (!_POSIX_Priority_Is_valid (param->sched_ss_low_priority))
+			return EINVAL;
 
-		  *budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_CALLOUT;
-		  *budget_callout = _POSIX_Threads_Sporadic_budget_callout;
-		  return 0;
-	  }
+		*budget_algorithm = THREAD_CPU_BUDGET_ALGORITHM_CALLOUT;
+		*budget_callout = _POSIX_Threads_Sporadic_budget_callout;
+		return 0;
+	}
 
 	return EINVAL;
 }

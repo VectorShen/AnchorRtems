@@ -66,28 +66,28 @@ const char *user_from_uid (uid_t uid, int nouser)
 
 	cp = c_uid + (uid & MASK);
 	if (cp->uid != uid || !*cp->name)
-	  {
-		  if (pwopen == 0)
-			{
-				//setpassent(1);
-				pwopen = 1;
-			}
-		  pw = getpwuid (uid);
-		  cp->uid = uid;
-		  if (pw != NULL)
-			{
-				cp->found = 1;
-				(void)strncpy (cp->name, pw->pw_name, UT_NAMESIZE);
-				cp->name[UT_NAMESIZE] = '\0';
-			}
-		  else
-			{
-				cp->found = 0;
-				(void)snprintf (cp->name, UT_NAMESIZE, "%u", uid);
-				if (nouser)
-					return (NULL);
-			}
-	  }
+	{
+		if (pwopen == 0)
+		{
+			//setpassent(1);
+			pwopen = 1;
+		}
+		pw = getpwuid (uid);
+		cp->uid = uid;
+		if (pw != NULL)
+		{
+			cp->found = 1;
+			(void)strncpy (cp->name, pw->pw_name, UT_NAMESIZE);
+			cp->name[UT_NAMESIZE] = '\0';
+		}
+		else
+		{
+			cp->found = 0;
+			(void)snprintf (cp->name, UT_NAMESIZE, "%u", uid);
+			if (nouser)
+				return (NULL);
+		}
+	}
 	return ((nouser && !cp->found) ? NULL : cp->name);
 }
 
@@ -105,27 +105,27 @@ char *group_from_gid (gid_t gid, int nogroup)
 
 	cp = c_gid + (gid & MASK);
 	if (cp->gid != gid || !*cp->name)
-	  {
-		  if (gropen == 0)
-			{
-				//setgroupent(1);
-				gropen = 1;
-			}
-		  gr = getgrgid (gid);
-		  cp->gid = gid;
-		  if (gr != NULL)
-			{
-				cp->found = 1;
-				(void)strncpy (cp->name, gr->gr_name, UT_NAMESIZE);
-				cp->name[UT_NAMESIZE] = '\0';
-			}
-		  else
-			{
-				cp->found = 0;
-				(void)snprintf (cp->name, UT_NAMESIZE, "%u", gid);
-				if (nogroup)
-					return (NULL);
-			}
-	  }
+	{
+		if (gropen == 0)
+		{
+			//setgroupent(1);
+			gropen = 1;
+		}
+		gr = getgrgid (gid);
+		cp->gid = gid;
+		if (gr != NULL)
+		{
+			cp->found = 1;
+			(void)strncpy (cp->name, gr->gr_name, UT_NAMESIZE);
+			cp->name[UT_NAMESIZE] = '\0';
+		}
+		else
+		{
+			cp->found = 0;
+			(void)snprintf (cp->name, UT_NAMESIZE, "%u", gid);
+			if (nogroup)
+				return (NULL);
+		}
+	}
 	return ((nogroup && !cp->found) ? NULL : cp->name);
 }

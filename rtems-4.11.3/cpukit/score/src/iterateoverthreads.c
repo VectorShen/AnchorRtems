@@ -32,25 +32,25 @@ void rtems_iterate_over_all_threads (rtems_per_thread_routine routine)
 		return;
 
 	for (api_index = 1; api_index <= OBJECTS_APIS_LAST; api_index++)
-	  {
+	{
 #if !defined(RTEMS_POSIX_API) || defined(RTEMS_DEBUG)
-		  if (!_Objects_Information_table[api_index])
-			  continue;
+		if (!_Objects_Information_table[api_index])
+			continue;
 #endif
 
-		  information = _Objects_Information_table[api_index][1];
-		  if (!information)
-			  continue;
+		information = _Objects_Information_table[api_index][1];
+		if (!information)
+			continue;
 
-		  for (i = 1; i <= information->maximum; i++)
-			{
-				the_thread = (Thread_Control *) information->local_table[i];
+		for (i = 1; i <= information->maximum; i++)
+		{
+			the_thread = (Thread_Control *) information->local_table[i];
 
-				if (!the_thread)
-					continue;
+			if (!the_thread)
+				continue;
 
-				(*routine) (the_thread);
-			}
-	  }
+			(*routine) (the_thread);
+		}
+	}
 
 }

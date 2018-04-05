@@ -33,22 +33,22 @@ rtems_status_code rtems_port_delete (rtems_id id)
 	_Objects_Allocator_lock ();
 	the_port = _Dual_ported_memory_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  _Objects_Close (&_Dual_ported_memory_Information,
-							  &the_port->Object);
-			  _Objects_Put (&the_port->Object);
-			  _Dual_ported_memory_Free (the_port);
-			  _Objects_Allocator_unlock ();
-			  return RTEMS_SUCCESSFUL;
+		case OBJECTS_LOCAL:
+			_Objects_Close (&_Dual_ported_memory_Information,
+							&the_port->Object);
+			_Objects_Put (&the_port->Object);
+			_Dual_ported_memory_Free (the_port);
+			_Objects_Allocator_unlock ();
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	_Objects_Allocator_unlock ();
 

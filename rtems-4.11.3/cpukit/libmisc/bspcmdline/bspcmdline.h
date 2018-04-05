@@ -42,77 +42,77 @@ extern "C"
 #endif
 
 /**
- * @brief Obtain Pointer to BSP Boot Command String
- *
- * This method returns a pointer to the BSP Boot Command String. It
- * is as likely to be NULL as point to a string as most BSPs do not
- * have a start environment that provides a boot string.
- *
- * @retval This method returns the pointer to the BSP Boot Command String.
- */
-	const char *rtems_bsp_cmdline_get (void);
+* @brief Obtain Pointer to BSP Boot Command String
+*
+* This method returns a pointer to the BSP Boot Command String. It
+* is as likely to be NULL as point to a string as most BSPs do not
+* have a start environment that provides a boot string.
+*
+* @retval This method returns the pointer to the BSP Boot Command String.
+*/
+const char *rtems_bsp_cmdline_get (void);
 
 /**
- * @brief Obtain COPY of the Entire Matching Argument
- *
- * This method searches for the argument @a name in the BSP Boot Command
- * String and returns a copy of the entire string associated with it in
- * @a value up to a string of @a length. This will include the argument
- * and any right hand side portion of the string. For example, one might
- * be returned --mode=FAST if
- * searching for --mode.
- *
- * @param[in] name is the arugment to search for
- * @param[in] value points to where the contents will
- *            be placed if located.
- * @param[in] length is the maximum length to copy
- *
- * @return This method returns NULL if not found and
- *         @a value if found.
- */
-	const char *rtems_bsp_cmdline_get_param (const char *name,
+* @brief Obtain COPY of the Entire Matching Argument
+*
+* This method searches for the argument @a name in the BSP Boot Command
+* String and returns a copy of the entire string associated with it in
+* @a value up to a string of @a length. This will include the argument
+* and any right hand side portion of the string. For example, one might
+* be returned --mode=FAST if
+* searching for --mode.
+*
+* @param[in] name is the arugment to search for
+* @param[in] value points to where the contents will
+*            be placed if located.
+* @param[in] length is the maximum length to copy
+*
+* @return This method returns NULL if not found and
+*         @a value if found.
+*/
+const char *rtems_bsp_cmdline_get_param (const char *name,
+										 char *value, size_t length);
+
+/**
+* @brief Obtain COPY of the Right Hand Side of the Matching Argument
+*
+* This method searches for the argument @a name in
+* the BSP Boot Command String and returns the right hand side
+* associated with it in @a value up to a maximum string @a length.
+* This will NOT include the argument but only any right hand side
+* portion of the string. *  For example, one might be returned FAST if
+* searching for --mode.
+*
+* @param[in] name is the arugment to search for
+* @param[in] value points to where the contents will
+*            be placed if located.
+* @param[in] length is the maximum length to copy
+*
+* @retval This method returns NULL if not found and
+*         @a value if found.
+*/
+const char *rtems_bsp_cmdline_get_param_rhs (const char *name,
 											 char *value, size_t length);
 
 /**
- * @brief Obtain COPY of the Right Hand Side of the Matching Argument
- *
- * This method searches for the argument @a name in
- * the BSP Boot Command String and returns the right hand side
- * associated with it in @a value up to a maximum string @a length.
- * This will NOT include the argument but only any right hand side
- * portion of the string. *  For example, one might be returned FAST if
- * searching for --mode.
- *
- * @param[in] name is the arugment to search for
- * @param[in] value points to where the contents will
- *            be placed if located.
- * @param[in] length is the maximum length to copy
- *
- * @retval This method returns NULL if not found and
- *         @a value if found.
- */
-	const char *rtems_bsp_cmdline_get_param_rhs (const char *name,
-												 char *value, size_t length);
-
-/**
- * @brief Obtain Pointer to the Entire Matching Argument
- *
- * This method searches for the argument @a name in
- * the BSP Boot Command String and returns a pointer to the
- * entire string associated with it. This will include the
- * argument and any right hand side portion of the string.
- * For example, one might be returned --mode=FAST if
- * searching for --mode.
- *
- * @param[in] name is the arugment to search for
- *
- * @retval This method returns NULL if not found and a pointer
- *         into the BSP Boot Command String if found.
- *
- * @note The pointer will be to the original BSP Command
- *       Line string. Exercise caution when using this.
- */
-	const char *rtems_bsp_cmdline_get_param_raw (const char *name);
+* @brief Obtain Pointer to the Entire Matching Argument
+*
+* This method searches for the argument @a name in
+* the BSP Boot Command String and returns a pointer to the
+* entire string associated with it. This will include the
+* argument and any right hand side portion of the string.
+* For example, one might be returned --mode=FAST if
+* searching for --mode.
+*
+* @param[in] name is the arugment to search for
+*
+* @retval This method returns NULL if not found and a pointer
+*         into the BSP Boot Command String if found.
+*
+* @note The pointer will be to the original BSP Command
+*       Line string. Exercise caution when using this.
+*/
+const char *rtems_bsp_cmdline_get_param_raw (const char *name);
 
 #ifdef __cplusplus
 }

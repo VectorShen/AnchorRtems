@@ -27,9 +27,9 @@
 #include <rtems/score/apimutex.h>
 
 rtems_status_code rtems_region_resize_segment (rtems_id id,
-											   void *segment,
-											   uintptr_t size,
-											   uintptr_t * old_size)
+											 void *segment,
+											 uintptr_t size,
+											 uintptr_t * old_size)
 {
 	uintptr_t avail_size;
 	Objects_Locations location;
@@ -45,42 +45,42 @@ rtems_status_code rtems_region_resize_segment (rtems_id id,
 
 	the_region = _Region_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
+		case OBJECTS_LOCAL:
 
-			  _Region_Debug_Walk (the_region, 7);
+			_Region_Debug_Walk (the_region, 7);
 
-			  status = _Heap_Resize_block (&the_region->Memory,
-										   segment,
-										   (uint32_t) size,
-										   &osize, &avail_size);
-			  *old_size = (uint32_t) osize;
+			status = _Heap_Resize_block (&the_region->Memory,
+										 segment,
+										 (uint32_t) size,
+										 &osize, &avail_size);
+			*old_size = (uint32_t) osize;
 
-			  _Region_Debug_Walk (the_region, 8);
+			_Region_Debug_Walk (the_region, 8);
 
-			  if (status == HEAP_RESIZE_SUCCESSFUL)
-				  /* unlocks allocator */
-				  _Region_Process_queue (the_region);
-			  else
-				  _RTEMS_Unlock_allocator ();
+			if (status == HEAP_RESIZE_SUCCESSFUL)
+				/* unlocks allocator */
+				_Region_Process_queue (the_region);
+			else
+				_RTEMS_Unlock_allocator ();
 
-			  if (status == HEAP_RESIZE_SUCCESSFUL)
-				  return RTEMS_SUCCESSFUL;
-			  if (status == HEAP_RESIZE_UNSATISFIED)
-				  return RTEMS_UNSATISFIED;
-			  return RTEMS_INVALID_ADDRESS;
-			  break;
+			if (status == HEAP_RESIZE_SUCCESSFUL)
+				return RTEMS_SUCCESSFUL;
+			if (status == HEAP_RESIZE_UNSATISFIED)
+				return RTEMS_UNSATISFIED;
+			return RTEMS_INVALID_ADDRESS;
+			break;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* this error cannot be returned */
+		case OBJECTS_REMOTE:	/* this error cannot be returned */
 #endif
 
-		  case OBJECTS_ERROR:
-		  default:
-			  return_status = RTEMS_INVALID_ID;
-			  break;
-	  }
+		case OBJECTS_ERROR:
+		default:
+			return_status = RTEMS_INVALID_ID;
+			break;
+	}
 
 	_RTEMS_Unlock_allocator ();
 	return return_status;

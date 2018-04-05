@@ -81,7 +81,8 @@ typedef struct
 
 static rtems_capture_per_cpu_data *capture_per_cpu = NULL;
 
-static rtems_capture_global_data capture_global = {
+static rtems_capture_global_data capture_global =
+{
 	.lock = RTEMS_INTERRUPT_LOCK_INITIALIZER ("Capture")
 };
 
@@ -113,7 +114,8 @@ static rtems_capture_global_data capture_global = {
 /*
  * RTEMS Event text.
  */
-static const char *const capture_event_text[] = {
+static const char *const capture_event_text[] =
+{
 	"CREATED_BY",
 	"CREATED",
 	"STARTED_BY",
@@ -159,9 +161,9 @@ void rtems_capture_get_time (rtems_capture_time_t * time)
 	if (capture_timestamp)
 		capture_timestamp (time);
 	else
-	  {
-		  *time = rtems_clock_get_uptime_nanoseconds ();
-	  }
+	{
+		*time = rtems_clock_get_uptime_nanoseconds ();
+	}
 }
 
 /*
@@ -198,10 +200,10 @@ rtems_capture_match_name_id (rtems_name lhs_name,
 	if ((lhs_name == 0) && (lhs_id == rhs_id))
 		return 1;
 	else if ((lhs_id == 0) || (lhs_id == rhs_id))
-	  {
-		  if (rtems_capture_match_names (lhs_name, rhs_name))
-			  return 1;
-	  }
+	{
+		if (rtems_capture_match_names (lhs_name, rhs_name))
+			return 1;
+	}
 	return 0;
 }
 
@@ -229,33 +231,33 @@ rtems_capture_by_in_to (uint32_t events,
 	int i;
 
 	for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
-	  {
-		  /*
-		   * If there are no more valid BY entries then
-		   * we are finished.
-		   */
-		  if ((valid_remainder & to->by_valid) == 0)
-			  break;
+	{
+		/*
+		 * If there are no more valid BY entries then
+		 * we are finished.
+		 */
+		if ((valid_remainder & to->by_valid) == 0)
+			break;
 
-		  /*
-		   * Is the froby entry valid and does its name or id match.
-		   */
-		  if ((valid_mask & to->by_valid) && (to->by[i].trigger & events))
-			{
-				/*
-				 * We have the BY task on the right hand side so we
-				 * match with id's first then labels if the id's are
-				 * not set.
-				 */
-				if (rtems_capture_match_name_id (to->by[i].name, to->by[i].id,
-												 rtems_capture_task_name (by),
-												 by->Object.id))
-					return 1;
-			}
+		/*
+		 * Is the froby entry valid and does its name or id match.
+		 */
+		if ((valid_mask & to->by_valid) && (to->by[i].trigger & events))
+		{
+			/*
+			 * We have the BY task on the right hand side so we
+			 * match with id's first then labels if the id's are
+			 * not set.
+			 */
+			if (rtems_capture_match_name_id (to->by[i].name, to->by[i].id,
+											 rtems_capture_task_name (by),
+											 by->Object.id))
+				return 1;
+		}
 
-		  valid_mask >>= 1;
-		  valid_remainder >>= 1;
-	  }
+		valid_mask >>= 1;
+		valid_remainder >>= 1;
+	}
 
 	return 0;
 }
@@ -264,8 +266,8 @@ rtems_capture_by_in_to (uint32_t events,
  * This function searches for a trigger given a name.
  */
 static inline rtems_capture_control_t *rtems_capture_find_control (rtems_name
-																   name,
-																   rtems_id id)
+																 name,
+																 rtems_id id)
 {
 	rtems_capture_control_t *control;
 
@@ -312,32 +314,32 @@ static inline rtems_capture_control_t *rtems_capture_create_control (rtems_name
 	control = rtems_capture_find_control (name, id);
 
 	if (control == NULL)
-	  {
-		  control = malloc (sizeof (*control));
+	{
+		control = malloc (sizeof (*control));
 
-		  if (!control)
-			{
-				capture_flags_global |= RTEMS_CAPTURE_NO_MEMORY;
-				return NULL;
-			}
+		if (!control)
+		{
+			capture_flags_global |= RTEMS_CAPTURE_NO_MEMORY;
+			return NULL;
+		}
 
-		  control->name = name;
-		  control->id = id;
-		  control->flags = 0;
-		  control->to_triggers = 0;
-		  control->from_triggers = 0;
-		  control->by_valid = 0;
+		control->name = name;
+		control->id = id;
+		control->flags = 0;
+		control->to_triggers = 0;
+		control->from_triggers = 0;
+		control->by_valid = 0;
 
-		  memset (control->by, 0, sizeof (control->by));
+		memset (control->by, 0, sizeof (control->by));
 
-		  rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
+		rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
 
-		  control->next = capture_controls;
-		  capture_controls = control;
-		  rtems_iterate_over_all_threads (rtems_capture_initialize_control);
+		control->next = capture_controls;
+		capture_controls = control;
+		rtems_iterate_over_all_threads (rtems_capture_initialize_control);
 
-		  rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
-	  }
+		rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
+	}
 
 	return control;
 }
@@ -357,13 +359,13 @@ void rtems_capture_initialize_task (rtems_tcb * tcb)
 
 	rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
 	if (tcb->Capture.control == NULL)
-	  {
-		  for (control = capture_controls; control != NULL;
-			   control = control->next)
-			  if (rtems_capture_match_name_id
-				  (control->name, control->id, name, tcb->Object.id))
-				  tcb->Capture.control = control;
-	  }
+	{
+		for (control = capture_controls; control != NULL;
+			 control = control->next)
+			if (rtems_capture_match_name_id
+				(control->name, control->id, name, tcb->Object.id))
+				tcb->Capture.control = control;
+	}
 
 	tcb->Capture.flags |= RTEMS_CAPTURE_INIT_TASK;
 	rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
@@ -393,11 +395,11 @@ void rtems_capture_record_task (rtems_tcb * tcb)
 	rtems_capture_begin_add_record (tcb, 0, sizeof (rec), &ptr);
 	ptr = rtems_capture_append_to_record (ptr, &rec.name, sizeof (rec.name));
 	ptr = rtems_capture_append_to_record (ptr,
-										  &rec.start_priority,
-										  sizeof (rec.start_priority));
+										&rec.start_priority,
+										sizeof (rec.start_priority));
 	ptr = rtems_capture_append_to_record (ptr,
-										  &rec.stack_size,
-										  sizeof (rec.stack_size));
+										&rec.stack_size,
+										sizeof (rec.stack_size));
 	rtems_capture_end_add_record (ptr);
 }
 
@@ -409,27 +411,27 @@ bool rtems_capture_filter (rtems_tcb * tcb, uint32_t events)
 {
 	if (tcb &&
 		((capture_flags_global &
-		  (RTEMS_CAPTURE_TRIGGERED | RTEMS_CAPTURE_ONLY_MONITOR)) ==
+		(RTEMS_CAPTURE_TRIGGERED | RTEMS_CAPTURE_ONLY_MONITOR)) ==
 		 RTEMS_CAPTURE_TRIGGERED))
-	  {
-		  rtems_capture_control_t *control;
+	{
+		rtems_capture_control_t *control;
 
-		  control = tcb->Capture.control;
+		control = tcb->Capture.control;
 
-		  /*
-		   * Capture the record if we have an event that is always
-		   * captured, or the task's real priority is greater than the
-		   * watch ceiling, and the global watch or task watch is enabled.
-		   */
-		  if ((events & RTEMS_CAPTURE_RECORD_EVENTS) ||
-			  ((tcb->real_priority >= capture_ceiling) &&
-			   (tcb->real_priority <= capture_floor) &&
-			   ((capture_flags_global & RTEMS_CAPTURE_GLOBAL_WATCH) ||
+		/*
+		 * Capture the record if we have an event that is always
+		 * captured, or the task's real priority is greater than the
+		 * watch ceiling, and the global watch or task watch is enabled.
+		 */
+		if ((events & RTEMS_CAPTURE_RECORD_EVENTS) ||
+			((tcb->real_priority >= capture_ceiling) &&
+			 (tcb->real_priority <= capture_floor) &&
+			 ((capture_flags_global & RTEMS_CAPTURE_GLOBAL_WATCH) ||
 				(control && (control->flags & RTEMS_CAPTURE_WATCH)))))
-			{
-				return false;
-			}
-	  }
+		{
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -450,21 +452,21 @@ void *rtems_capture_record_open (rtems_tcb * tcb,
 	ptr = rtems_capture_buffer_allocate (&capture_records, size);
 	capture_in = (rtems_capture_record_t *) ptr;
 	if (capture_in)
-	  {
-		  capture_count++;
-		  capture_in->size = size;
-		  capture_in->task_id = tcb->Object.id;
-		  capture_in->events = (events |
+	{
+		capture_count++;
+		capture_in->size = size;
+		capture_in->task_id = tcb->Object.id;
+		capture_in->events = (events |
 								(tcb->real_priority) |
 								(tcb->current_priority << 8));
 
-		  if ((events & RTEMS_CAPTURE_RECORD_EVENTS) == 0)
-			  tcb->Capture.flags |= RTEMS_CAPTURE_TRACED;
+		if ((events & RTEMS_CAPTURE_RECORD_EVENTS) == 0)
+			tcb->Capture.flags |= RTEMS_CAPTURE_TRACED;
 
-		  rtems_capture_get_time (&capture_in->time);
+		rtems_capture_get_time (&capture_in->time);
 
-		  ptr = ptr + sizeof (*capture_in);
-	  }
+		ptr = ptr + sizeof (*capture_in);
+	}
 	else
 		capture_flags_per_cpu |= RTEMS_CAPTURE_OVERFLOW;
 
@@ -487,58 +489,58 @@ bool rtems_capture_trigger (rtems_tcb * ft, rtems_tcb * tt, uint32_t events)
 	 * If we have not triggered then see if this is a trigger condition.
 	 */
 	if (!(capture_flags_global & RTEMS_CAPTURE_TRIGGERED))
-	  {
-		  rtems_capture_control_t *fc = NULL;
-		  rtems_capture_control_t *tc = NULL;
-		  uint32_t from_events = 0;
-		  uint32_t to_events = 0;
-		  uint32_t from_to_events = 0;
+	{
+		rtems_capture_control_t *fc = NULL;
+		rtems_capture_control_t *tc = NULL;
+		uint32_t from_events = 0;
+		uint32_t to_events = 0;
+		uint32_t from_to_events = 0;
 
-		  if (ft)
+		if (ft)
+		{
+			fc = ft->Capture.control;
+			if (fc)
+				from_events = fc->from_triggers & events;
+		}
+
+		if (tt)
+		{
+			tc = tt->Capture.control;
+			if (tc)
 			{
-				fc = ft->Capture.control;
-				if (fc)
-					from_events = fc->from_triggers & events;
+				to_events = tc->to_triggers & events;
+				if (ft && tc->by_valid)
+					from_to_events = tc->by_triggers & events;
 			}
+		}
 
-		  if (tt)
-			{
-				tc = tt->Capture.control;
-				if (tc)
-				  {
-					  to_events = tc->to_triggers & events;
-					  if (ft && tc->by_valid)
-						  from_to_events = tc->by_triggers & events;
-				  }
-			}
+		/*
+		 * Check if we have any from or to events. These are the
+		 * from any or to any type triggers. All from/to triggers are
+		 * listed in the to's control with the from in the from list.
+		 *
+		 * The masking above means any flag set is a trigger.
+		 */
+		if (from_events || to_events)
+		{
+			capture_flags_global |= RTEMS_CAPTURE_TRIGGERED;
+			return 1;
+		}
 
-		  /*
-		   * Check if we have any from or to events. These are the
-		   * from any or to any type triggers. All from/to triggers are
-		   * listed in the to's control with the from in the from list.
-		   *
-		   * The masking above means any flag set is a trigger.
-		   */
-		  if (from_events || to_events)
+		/*
+		 * Check the from->to events.
+		 */
+		if (from_to_events)
+		{
+			if (rtems_capture_by_in_to (events, ft, tc))
 			{
 				capture_flags_global |= RTEMS_CAPTURE_TRIGGERED;
 				return 1;
 			}
+		}
 
-		  /*
-		   * Check the from->to events.
-		   */
-		  if (from_to_events)
-			{
-				if (rtems_capture_by_in_to (events, ft, tc))
-				  {
-					  capture_flags_global |= RTEMS_CAPTURE_TRIGGERED;
-					  return 1;
-				  }
-			}
-
-		  return 0;
-	  }
+		return 0;
+	}
 
 	return 1;
 }
@@ -561,29 +563,29 @@ rtems_capture_open (uint32_t size, rtems_capture_timestamp timestamp
 	 */
 
 	if ((capture_flags_global & RTEMS_CAPTURE_INIT) == RTEMS_CAPTURE_INIT)
-	  {
-		  return RTEMS_RESOURCE_IN_USE;
-	  }
+	{
+		return RTEMS_RESOURCE_IN_USE;
+	}
 
 	count = rtems_get_processor_count ();
 	if (capture_per_cpu == NULL)
-	  {
-		  capture_per_cpu = calloc (count, sizeof (*capture_per_cpu));
-	  }
+	{
+		capture_per_cpu = calloc (count, sizeof (*capture_per_cpu));
+	}
 
 	for (i = 0; i < count; i++)
-	  {
-		  buff = &capture_records_on_cpu (i);
-		  rtems_capture_buffer_create (buff, size);
-		  if (buff->buffer == NULL)
-			{
-				sc = RTEMS_NO_MEMORY;
-				break;
-			}
+	{
+		buff = &capture_records_on_cpu (i);
+		rtems_capture_buffer_create (buff, size);
+		if (buff->buffer == NULL)
+		{
+			sc = RTEMS_NO_MEMORY;
+			break;
+		}
 
-		  rtems_interrupt_lock_initialize (&capture_lock_on_cpu (i),
-										   "Capture Per-CPU");
-	  }
+		rtems_interrupt_lock_initialize (&capture_lock_on_cpu (i),
+										 "Capture Per-CPU");
+	}
 
 	capture_flags_global = 0;
 	capture_ceiling = 0;
@@ -592,14 +594,14 @@ rtems_capture_open (uint32_t size, rtems_capture_timestamp timestamp
 		sc = rtems_capture_user_extension_open ();
 
 	if (sc != RTEMS_SUCCESSFUL)
-	  {
-		  for (i = 0; i < count; i++)
-			  rtems_capture_buffer_destroy (&capture_records_on_cpu (i));
-	  }
+	{
+		for (i = 0; i < count; i++)
+			rtems_capture_buffer_destroy (&capture_records_on_cpu (i));
+	}
 	else
-	  {
-		  capture_flags_global |= RTEMS_CAPTURE_INIT;
-	  }
+	{
+		capture_flags_global |= RTEMS_CAPTURE_INIT;
+	}
 
 	return sc;
 }
@@ -618,16 +620,16 @@ rtems_status_code rtems_capture_close (void)
 	rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
 
 	if ((capture_flags_global & RTEMS_CAPTURE_INIT) != RTEMS_CAPTURE_INIT)
-	  {
-		  rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
-		  return RTEMS_SUCCESSFUL;
-	  }
+	{
+		rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
+		return RTEMS_SUCCESSFUL;
+	}
 
 	if ((capture_flags_global & RTEMS_CAPTURE_ON) != 0)
-	  {
-		  rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
-		  return RTEMS_UNSATISFIED;
-	  }
+	{
+		rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
+		return RTEMS_UNSATISFIED;
+	}
 
 	capture_flags_global &=
 		~(RTEMS_CAPTURE_ON | RTEMS_CAPTURE_ONLY_MONITOR | RTEMS_CAPTURE_INIT);
@@ -647,20 +649,20 @@ rtems_status_code rtems_capture_close (void)
 	control = capture_controls;
 
 	while (control)
-	  {
-		  rtems_capture_control_t *delete = control;
-		  control = control->next;
-		  free (delete);
-	  }
+	{
+		rtems_capture_control_t *delete = control;
+		control = control->next;
+		free (delete);
+	}
 
 	capture_controls = NULL;
 	for (cpu = 0; cpu < rtems_get_processor_count (); cpu++)
-	  {
-		  if (capture_records_on_cpu (cpu).buffer)
-			  rtems_capture_buffer_destroy (&capture_records_on_cpu (cpu));
+	{
+		if (capture_records_on_cpu (cpu).buffer)
+			rtems_capture_buffer_destroy (&capture_records_on_cpu (cpu));
 
-		  rtems_interrupt_lock_destroy (&capture_lock_on_cpu (cpu));
-	  }
+		rtems_interrupt_lock_destroy (&capture_lock_on_cpu (cpu));
+	}
 
 	free (capture_per_cpu);
 	capture_per_cpu = NULL;
@@ -675,10 +677,10 @@ rtems_status_code rtems_capture_control (bool enable)
 	rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
 
 	if ((capture_flags_global & RTEMS_CAPTURE_INIT) != RTEMS_CAPTURE_INIT)
-	  {
-		  rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
-		  return RTEMS_UNSATISFIED;
-	  }
+	{
+		rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
+		return RTEMS_UNSATISFIED;
+	}
 
 	if (enable)
 		capture_flags_global |= RTEMS_CAPTURE_ON;
@@ -702,10 +704,10 @@ rtems_status_code rtems_capture_monitor (bool enable)
 	rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context);
 
 	if ((capture_flags_global & RTEMS_CAPTURE_INIT) != RTEMS_CAPTURE_INIT)
-	  {
-		  rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
-		  return RTEMS_UNSATISFIED;
-	  }
+	{
+		rtems_interrupt_lock_release (&capture_lock_global, &lock_context);
+		return RTEMS_UNSATISFIED;
+	}
 
 	if (enable)
 		capture_flags_global |= RTEMS_CAPTURE_ONLY_MONITOR;
@@ -737,11 +739,11 @@ rtems_status_code rtems_capture_flush (bool prime)
 	rtems_interrupt_lock_acquire (&capture_lock_global, &lock_context_global);
 
 	if ((capture_flags_global & RTEMS_CAPTURE_ON) != 0)
-	  {
-		  rtems_interrupt_lock_release (&capture_lock_global,
+	{
+		rtems_interrupt_lock_release (&capture_lock_global,
 										&lock_context_global);
-		  return RTEMS_UNSATISFIED;
-	  }
+		return RTEMS_UNSATISFIED;
+	}
 
 	rtems_iterate_over_all_threads (rtems_capture_flush_tcb);
 
@@ -752,16 +754,16 @@ rtems_status_code rtems_capture_flush (bool prime)
 		capture_flags_global &= ~RTEMS_CAPTURE_OVERFLOW;
 
 	for (cpu = 0; cpu < rtems_get_processor_count (); cpu++)
-	  {
-		  RTEMS_INTERRUPT_LOCK_REFERENCE (lock, &(capture_lock_on_cpu (cpu)))
-			  rtems_interrupt_lock_context lock_context_per_cpu;
+	{
+		RTEMS_INTERRUPT_LOCK_REFERENCE (lock, &(capture_lock_on_cpu (cpu)))
+			rtems_interrupt_lock_context lock_context_per_cpu;
 
-		  rtems_interrupt_lock_acquire (lock, &lock_context_per_cpu);
-		  capture_count_on_cpu (cpu) = 0;
-		  if (capture_records_on_cpu (cpu).buffer)
-			  rtems_capture_buffer_flush (&capture_records_on_cpu (cpu));
-		  rtems_interrupt_lock_release (lock, &lock_context_per_cpu);
-	  }
+		rtems_interrupt_lock_acquire (lock, &lock_context_per_cpu);
+		capture_count_on_cpu (cpu) = 0;
+		if (capture_records_on_cpu (cpu).buffer)
+			rtems_capture_buffer_flush (&capture_records_on_cpu (cpu));
+		rtems_interrupt_lock_release (lock, &lock_context_per_cpu);
+	}
 
 	rtems_interrupt_lock_release (&capture_lock_global, &lock_context_global);
 
@@ -820,30 +822,30 @@ rtems_status_code rtems_capture_watch_del (rtems_name name, rtems_id id)
 
 	for (prev_control = &capture_controls, control = capture_controls;
 		 control != NULL;)
-	  {
-		  if (rtems_capture_match_name_id
-			  (control->name, control->id, name, id))
-			{
-				rtems_interrupt_lock_acquire (&capture_lock_global,
-											  &lock_context);
+	{
+		if (rtems_capture_match_name_id
+			(control->name, control->id, name, id))
+		{
+			rtems_interrupt_lock_acquire (&capture_lock_global,
+										&lock_context);
 
-				*prev_control = control->next;
+			*prev_control = control->next;
 
-				rtems_interrupt_lock_release (&capture_lock_global,
-											  &lock_context);
+			rtems_interrupt_lock_release (&capture_lock_global,
+										&lock_context);
 
-				free (control);
+			free (control);
 
-				control = *prev_control;
+			control = *prev_control;
 
-				found = true;
-			}
-		  else
-			{
-				prev_control = &control->next;
-				control = control->next;
-			}
-	  }
+			found = true;
+		}
+		else
+		{
+			prev_control = &control->next;
+			control = control->next;
+		}
+	}
 
 	if (found)
 		return RTEMS_SUCCESSFUL;
@@ -870,24 +872,24 @@ rtems_capture_watch_ctrl (rtems_name name, rtems_id id, bool enable)
 	 * be controlled.
 	 */
 	for (control = capture_controls; control != NULL; control = control->next)
-	  {
-		  if (rtems_capture_match_name_id
-			  (control->name, control->id, name, id))
-			{
-				rtems_interrupt_lock_acquire (&capture_lock_global,
-											  &lock_context);
+	{
+		if (rtems_capture_match_name_id
+			(control->name, control->id, name, id))
+		{
+			rtems_interrupt_lock_acquire (&capture_lock_global,
+										&lock_context);
 
-				if (enable)
-					control->flags |= RTEMS_CAPTURE_WATCH;
-				else
-					control->flags &= ~RTEMS_CAPTURE_WATCH;
+			if (enable)
+				control->flags |= RTEMS_CAPTURE_WATCH;
+			else
+				control->flags &= ~RTEMS_CAPTURE_WATCH;
 
-				rtems_interrupt_lock_release (&capture_lock_global,
-											  &lock_context);
+			rtems_interrupt_lock_release (&capture_lock_global,
+										&lock_context);
 
-				found = true;
-			}
-	  }
+			found = true;
+		}
+	}
 
 	if (found)
 		return RTEMS_SUCCESSFUL;
@@ -977,26 +979,26 @@ static uint32_t rtems_capture_map_trigger (rtems_capture_trigger_t trigger)
 	 * Transform the mode and trigger to a bit map.
 	 */
 	switch (trigger)
-	  {
-		  case rtems_capture_switch:
-			  return RTEMS_CAPTURE_SWITCH;
-		  case rtems_capture_create:
-			  return RTEMS_CAPTURE_CREATE;
-		  case rtems_capture_start:
-			  return RTEMS_CAPTURE_START;
-		  case rtems_capture_restart:
-			  return RTEMS_CAPTURE_RESTART;
-		  case rtems_capture_delete:
-			  return RTEMS_CAPTURE_DELETE;
-		  case rtems_capture_begin:
-			  return RTEMS_CAPTURE_BEGIN;
-		  case rtems_capture_exitted:
-			  return RTEMS_CAPTURE_EXITTED;
-		  case rtems_capture_terminated:
-			  return RTEMS_CAPTURE_TERMINATED;
-		  default:
-			  break;
-	  }
+	{
+		case rtems_capture_switch:
+			return RTEMS_CAPTURE_SWITCH;
+		case rtems_capture_create:
+			return RTEMS_CAPTURE_CREATE;
+		case rtems_capture_start:
+			return RTEMS_CAPTURE_START;
+		case rtems_capture_restart:
+			return RTEMS_CAPTURE_RESTART;
+		case rtems_capture_delete:
+			return RTEMS_CAPTURE_DELETE;
+		case rtems_capture_begin:
+			return RTEMS_CAPTURE_BEGIN;
+		case rtems_capture_exitted:
+			return RTEMS_CAPTURE_EXITTED;
+		case rtems_capture_terminated:
+			return RTEMS_CAPTURE_TERMINATED;
+		default:
+			break;
+	}
 	return 0;
 }
 
@@ -1013,11 +1015,11 @@ static uint32_t rtems_capture_map_trigger (rtems_capture_trigger_t trigger)
  */
 rtems_status_code
 rtems_capture_set_trigger (rtems_name from_name,
-						   rtems_id from_id,
-						   rtems_name to_name,
-						   rtems_id to_id,
-						   rtems_capture_trigger_mode_t mode,
-						   rtems_capture_trigger_t trigger)
+						 rtems_id from_id,
+						 rtems_name to_name,
+						 rtems_id to_id,
+						 rtems_capture_trigger_mode_t mode,
+						 rtems_capture_trigger_t trigger)
 {
 	rtems_capture_control_t *control;
 	uint32_t flags;
@@ -1031,59 +1033,59 @@ rtems_capture_set_trigger (rtems_name from_name,
 	 */
 
 	if (mode == rtems_capture_to_any)
-	  {
-		  control = rtems_capture_create_control (from_name, from_id);
-		  if (control == NULL)
-			  return RTEMS_NO_MEMORY;
-		  control->from_triggers |= flags & RTEMS_CAPTURE_FROM_TRIGS;
-	  }
+	{
+		control = rtems_capture_create_control (from_name, from_id);
+		if (control == NULL)
+			return RTEMS_NO_MEMORY;
+		control->from_triggers |= flags & RTEMS_CAPTURE_FROM_TRIGS;
+	}
 	else
-	  {
-		  control = rtems_capture_create_control (to_name, to_id);
-		  if (control == NULL)
-			  return RTEMS_NO_MEMORY;
-		  if (mode == rtems_capture_from_any)
-			  control->to_triggers |= flags;
-		  else
+	{
+		control = rtems_capture_create_control (to_name, to_id);
+		if (control == NULL)
+			return RTEMS_NO_MEMORY;
+		if (mode == rtems_capture_from_any)
+			control->to_triggers |= flags;
+		else
+		{
+			bool done = false;
+			int i;
+
+			control->by_triggers |= flags;
+
+			for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
 			{
-				bool done = false;
-				int i;
-
-				control->by_triggers |= flags;
-
-				for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
-				  {
-					  if (rtems_capture_control_by_valid (control, i) &&
-						  ((control->by[i].name == from_name) ||
-						   (from_id && (control->by[i].id == from_id))))
-						{
-							control->by[i].trigger |= flags;
-							done = true;
-							break;
-						}
-				  }
-
-				if (!done)
-				  {
-					  for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
-						{
-							if (!rtems_capture_control_by_valid (control, i))
-							  {
-								  control->by_valid |=
-									  RTEMS_CAPTURE_CONTROL_FROM_MASK (i);
-								  control->by[i].name = from_name;
-								  control->by[i].id = from_id;
-								  control->by[i].trigger = flags;
-								  done = true;
-								  break;
-							  }
-						}
-				  }
-
-				if (!done)
-					return RTEMS_TOO_MANY;
+				if (rtems_capture_control_by_valid (control, i) &&
+					((control->by[i].name == from_name) ||
+					 (from_id && (control->by[i].id == from_id))))
+				{
+					control->by[i].trigger |= flags;
+					done = true;
+					break;
+				}
 			}
-	  }
+
+			if (!done)
+			{
+				for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
+				{
+					if (!rtems_capture_control_by_valid (control, i))
+					{
+						control->by_valid |=
+							RTEMS_CAPTURE_CONTROL_FROM_MASK (i);
+						control->by[i].name = from_name;
+						control->by[i].id = from_id;
+						control->by[i].trigger = flags;
+						done = true;
+						break;
+					}
+				}
+			}
+
+			if (!done)
+				return RTEMS_TOO_MANY;
+		}
+	}
 	return RTEMS_SUCCESSFUL;
 }
 
@@ -1104,57 +1106,57 @@ rtems_capture_clear_trigger (rtems_name from_name,
 	flags = rtems_capture_map_trigger (trigger);
 
 	if (mode == rtems_capture_to_any)
-	  {
-		  control = rtems_capture_find_control (from_name, from_id);
-		  if (control == NULL)
+	{
+		control = rtems_capture_find_control (from_name, from_id);
+		if (control == NULL)
+		{
+			if (from_id)
+				return RTEMS_INVALID_ID;
+			return RTEMS_INVALID_NAME;
+		}
+		control->from_triggers &= ~flags;
+	}
+	else
+	{
+		control = rtems_capture_find_control (to_name, to_id);
+		if (control == NULL)
+		{
+			if (to_id)
+				return RTEMS_INVALID_ID;
+			return RTEMS_INVALID_NAME;
+		}
+		if (mode == rtems_capture_from_any)
+			control->to_triggers &= ~flags;
+		else
+		{
+			bool done = false;
+			int i;
+
+			control->by_triggers &= ~flags;
+
+			for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
+			{
+				if (rtems_capture_control_by_valid (control, i) &&
+					((control->by[i].name == from_name) ||
+					 (control->by[i].id == from_id)))
+				{
+					control->by[i].trigger &= ~trigger;
+					if (control->by[i].trigger == 0)
+						control->by_valid &=
+							~RTEMS_CAPTURE_CONTROL_FROM_MASK (i);
+					done = true;
+					break;
+				}
+			}
+
+			if (!done)
 			{
 				if (from_id)
 					return RTEMS_INVALID_ID;
 				return RTEMS_INVALID_NAME;
 			}
-		  control->from_triggers &= ~flags;
-	  }
-	else
-	  {
-		  control = rtems_capture_find_control (to_name, to_id);
-		  if (control == NULL)
-			{
-				if (to_id)
-					return RTEMS_INVALID_ID;
-				return RTEMS_INVALID_NAME;
-			}
-		  if (mode == rtems_capture_from_any)
-			  control->to_triggers &= ~flags;
-		  else
-			{
-				bool done = false;
-				int i;
-
-				control->by_triggers &= ~flags;
-
-				for (i = 0; i < RTEMS_CAPTURE_TRIGGER_TASKS; i++)
-				  {
-					  if (rtems_capture_control_by_valid (control, i) &&
-						  ((control->by[i].name == from_name) ||
-						   (control->by[i].id == from_id)))
-						{
-							control->by[i].trigger &= ~trigger;
-							if (control->by[i].trigger == 0)
-								control->by_valid &=
-									~RTEMS_CAPTURE_CONTROL_FROM_MASK (i);
-							done = true;
-							break;
-						}
-				  }
-
-				if (!done)
-				  {
-					  if (from_id)
-						  return RTEMS_INVALID_ID;
-					  return RTEMS_INVALID_NAME;
-				  }
-			}
-	  }
+		}
+	}
 	return RTEMS_SUCCESSFUL;
 }
 
@@ -1166,13 +1168,13 @@ static inline uint32_t rtems_capture_count_records (void *recs, size_t size)
 	size_t byte_count = 0;
 
 	while (byte_count < size)
-	  {
-		  rec = (rtems_capture_record_t *) ptr;
-		  rec_count++;
-		  _Assert (rec->size >= sizeof (*rec));
-		  ptr += rec->size;
-		  byte_count += rec->size;
-	  };
+	{
+		rec = (rtems_capture_record_t *) ptr;
+		rec_count++;
+		_Assert (rec->size >= sizeof (*rec));
+		ptr += rec->size;
+		byte_count += rec->size;
+	};
 
 	return rec_count;
 }
@@ -1212,16 +1214,16 @@ rtems_capture_read (uint32_t cpu,
 	 */
 
 	if (*flags & RTEMS_CAPTURE_READER_ACTIVE)
-	  {
-		  rtems_interrupt_lock_release (lock, &lock_context);
-		  return RTEMS_RESOURCE_IN_USE;
-	  }
+	{
+		rtems_interrupt_lock_release (lock, &lock_context);
+		return RTEMS_RESOURCE_IN_USE;
+	}
 
 	if ((capture_flags_global & RTEMS_CAPTURE_ON) != 0)
-	  {
-		  rtems_interrupt_lock_release (lock, &lock_context);
-		  return RTEMS_UNSATISFIED;
-	  }
+	{
+		rtems_interrupt_lock_release (lock, &lock_context);
+		return RTEMS_UNSATISFIED;
+	}
 
 	*flags |= RTEMS_CAPTURE_READER_ACTIVE;
 
@@ -1255,15 +1257,15 @@ rtems_status_code rtems_capture_release (uint32_t cpu, uint32_t count)
 	rtems_interrupt_lock_acquire (lock, &lock_context);
 
 	if (count > *total)
-	  {
-		  count = *total;
-	  }
+	{
+		count = *total;
+	}
 
 	if ((capture_flags_global & RTEMS_CAPTURE_ON) != 0)
-	  {
-		  rtems_interrupt_lock_release (lock, &lock_context);
-		  return RTEMS_UNSATISFIED;
-	  }
+	{
+		rtems_interrupt_lock_release (lock, &lock_context);
+		return RTEMS_UNSATISFIED;
+	}
 
 	counted = count;
 
@@ -1272,25 +1274,25 @@ rtems_status_code rtems_capture_release (uint32_t cpu, uint32_t count)
 
 	rel_size = 0;
 	while (counted--)
-	  {
-		  rec = (rtems_capture_record_t *) ptr;
-		  rel_size += rec->size;
-		  _Assert (rel_size <= ptr_size);
-		  ptr += rec->size;
-	  }
+	{
+		rec = (rtems_capture_record_t *) ptr;
+		rel_size += rec->size;
+		_Assert (rel_size <= ptr_size);
+		ptr += rec->size;
+	}
 
 	if (rel_size > ptr_size)
-	  {
-		  ret_val = RTEMS_INVALID_NUMBER;
-		  rel_size = ptr_size;
-	  }
+	{
+		ret_val = RTEMS_INVALID_NUMBER;
+		rel_size = ptr_size;
+	}
 
 	*total -= count;
 
 	if (count)
-	  {
-		  rtems_capture_buffer_free (records, rel_size);
-	  }
+	{
+		rtems_capture_buffer_free (records, rel_size);
+	}
 
 	*flags &= ~RTEMS_CAPTURE_READER_ACTIVE;
 

@@ -41,8 +41,8 @@ static bool _Thread_Set_priority_filter (Thread_Control * the_thread,
 }
 
 void _Thread_Set_priority (Thread_Control * the_thread,
-						   Priority_Control new_priority,
-						   Priority_Control * old_priority, bool prepend_it)
+						 Priority_Control new_priority,
+						 Priority_Control * old_priority, bool prepend_it)
 {
 	_Thread_Change_priority (the_thread,
 							 new_priority,

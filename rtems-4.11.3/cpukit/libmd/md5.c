@@ -54,7 +54,8 @@
 /* forward declaration */
 static void Transform (UINT4 * buf, UINT4 * in);
 
-static unsigned char PADDING[64] = {
+static unsigned char PADDING[64] =
+{
 	0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -141,12 +142,12 @@ void MD5Update (MD5_CTX * mdContext, const void *inBufArg, unsigned int inLen)
 	mdContext->i[1] += ((UINT4) inLen >> 29);
 
 	while (inLen--)
-	  {
-		  /* add new character to buffer, increment mdi */
-		  mdContext->in[mdi++] = *inBuf++;
+	{
+		/* add new character to buffer, increment mdi */
+		mdContext->in[mdi++] = *inBuf++;
 
-		  /* transform if necessary */
-		  if (mdi == 0x40)
+		/* transform if necessary */
+		if (mdi == 0x40)
 			{
 				for (i = 0, ii = 0; i < 16; i++, ii += 4)
 					in[i] = (((UINT4) mdContext->in[ii + 3]) << 24) |
@@ -156,7 +157,7 @@ void MD5Update (MD5_CTX * mdContext, const void *inBufArg, unsigned int inLen)
 				Transform (mdContext->buf, in);
 				mdi = 0;
 			}
-	  }
+	}
 }
 
 /* The routine MD5Final terminates the message-digest computation and
@@ -190,15 +191,15 @@ void MD5Final (unsigned char hash[], MD5_CTX * mdContext)
 
 	/* store buffer in digest */
 	for (i = 0, ii = 0; i < 4; i++, ii += 4)
-	  {
-		  mdContext->digest[ii] = (unsigned char)(mdContext->buf[i] & 0xFF);
-		  mdContext->digest[ii + 1] =
-			  (unsigned char)((mdContext->buf[i] >> 8) & 0xFF);
-		  mdContext->digest[ii + 2] =
-			  (unsigned char)((mdContext->buf[i] >> 16) & 0xFF);
-		  mdContext->digest[ii + 3] =
-			  (unsigned char)((mdContext->buf[i] >> 24) & 0xFF);
-	  }
+	{
+		mdContext->digest[ii] = (unsigned char)(mdContext->buf[i] & 0xFF);
+		mdContext->digest[ii + 1] =
+			(unsigned char)((mdContext->buf[i] >> 8) & 0xFF);
+		mdContext->digest[ii + 2] =
+			(unsigned char)((mdContext->buf[i] >> 16) & 0xFF);
+		mdContext->digest[ii + 3] =
+			(unsigned char)((mdContext->buf[i] >> 24) & 0xFF);
+	}
 	memcpy (hash, mdContext->digest, 16);
 }
 

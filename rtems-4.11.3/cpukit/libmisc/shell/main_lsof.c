@@ -34,7 +34,7 @@ static void print_location (const rtems_filesystem_location_info_t * loc)
 }
 
 static void print_mt_entry_locations (const rtems_filesystem_mount_table_entry_t
-									  * mt_entry)
+									* mt_entry)
 {
 	const rtems_chain_control *mt_entry_chain = &mt_entry->location_chain;
 	const rtems_chain_node *mt_entry_node;
@@ -42,12 +42,12 @@ static void print_mt_entry_locations (const rtems_filesystem_mount_table_entry_t
 	for (mt_entry_node = rtems_chain_immutable_first (mt_entry_chain);
 		 !rtems_chain_is_tail (mt_entry_chain, mt_entry_node);
 		 mt_entry_node = rtems_chain_immutable_next (mt_entry_node))
-	  {
-		  const rtems_filesystem_location_info_t *loc =
-			  (const rtems_filesystem_location_info_t *)mt_entry_node;
+	{
+		const rtems_filesystem_location_info_t *loc =
+			(const rtems_filesystem_location_info_t *)mt_entry_node;
 
-		  print_location (loc);
-	  }
+		print_location (loc);
+	}
 }
 
 static void lsof (void)
@@ -64,21 +64,21 @@ static void lsof (void)
 	for (mt_node = rtems_chain_immutable_first (mt_chain);
 		 !rtems_chain_is_tail (mt_chain, mt_node);
 		 mt_node = rtems_chain_immutable_next (mt_node))
-	  {
-		  rtems_filesystem_mount_table_entry_t *mt_entry =
-			  (rtems_filesystem_mount_table_entry_t *) mt_node;
+	{
+		rtems_filesystem_mount_table_entry_t *mt_entry =
+			(rtems_filesystem_mount_table_entry_t *) mt_node;
 
-		  fprintf (stdout,
-				   "type = %s, %s, %s, target = %s, dev = %s, root loc = 0x%08"
-				   PRIxPTR "\n", mt_entry->type,
-				   mt_entry->mounted ? "mounted" : "unmounted",
-				   mt_entry->writeable ? "read-write" : "read-only",
-				   mt_entry->target,
-				   mt_entry->dev == NULL ? "NULL" : mt_entry->dev,
-				   (uintptr_t) mt_entry->mt_fs_root);
+		fprintf (stdout,
+				 "type = %s, %s, %s, target = %s, dev = %s, root loc = 0x%08"
+				 PRIxPTR "\n", mt_entry->type,
+				 mt_entry->mounted ? "mounted" : "unmounted",
+				 mt_entry->writeable ? "read-write" : "read-only",
+				 mt_entry->target,
+				 mt_entry->dev == NULL ? "NULL" : mt_entry->dev,
+				 (uintptr_t) mt_entry->mt_fs_root);
 
-		  print_mt_entry_locations (mt_entry);
-	  }
+		print_mt_entry_locations (mt_entry);
+	}
 }
 
 static int rtems_shell_main_lsof (int argc, char **argv)
@@ -88,7 +88,8 @@ static int rtems_shell_main_lsof (int argc, char **argv)
 	return 0;
 }
 
-rtems_shell_cmd_t rtems_shell_LSOF_Command = {
+rtems_shell_cmd_t rtems_shell_LSOF_Command =
+{
 	.name = "lsof",
 	.usage = "lsof",
 	.topic = "files",

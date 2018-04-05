@@ -29,7 +29,7 @@
 #include <rtems/score/threadimpl.h>
 
 int pthread_getschedparam (pthread_t thread,
-						   int *policy, struct sched_param *param)
+						 int *policy, struct sched_param *param)
 {
 	Objects_Locations location;
 	POSIX_API_Control *api;
@@ -40,28 +40,28 @@ int pthread_getschedparam (pthread_t thread,
 
 	the_thread = _Thread_Get (thread, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  api = the_thread->API_Extensions[THREAD_API_POSIX];
-			  if (policy)
-				  *policy = api->schedpolicy;
-			  if (param)
-				{
-					*param = api->schedparam;
-					param->sched_priority =
-						_POSIX_Priority_From_core (the_thread->
-												   current_priority);
-				}
-			  _Objects_Put (&the_thread->Object);
-			  return 0;
+		case OBJECTS_LOCAL:
+			api = the_thread->API_Extensions[THREAD_API_POSIX];
+			if (policy)
+				*policy = api->schedpolicy;
+			if (param)
+			{
+				*param = api->schedparam;
+				param->sched_priority =
+					_POSIX_Priority_From_core (the_thread->
+											 current_priority);
+			}
+			_Objects_Put (&the_thread->Object);
+			return 0;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 

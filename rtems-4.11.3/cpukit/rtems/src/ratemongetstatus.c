@@ -27,8 +27,8 @@
 #include <rtems/score/timespec.h>
 
 rtems_status_code rtems_rate_monotonic_get_status (rtems_id id,
-												   rtems_rate_monotonic_period_status
-												   * status)
+												 rtems_rate_monotonic_period_status
+												 * status)
 {
 	Thread_CPU_usage_t executed;
 	Objects_Locations location;
@@ -41,52 +41,52 @@ rtems_status_code rtems_rate_monotonic_get_status (rtems_id id,
 
 	the_period = _Rate_monotonic_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  status->owner = the_period->owner->Object.id;
-			  status->state = the_period->state;
+		case OBJECTS_LOCAL:
+			status->owner = the_period->owner->Object.id;
+			status->state = the_period->state;
 
-			  /*
-			   *  If the period is inactive, there is no information.
-			   */
-			  if (status->state == RATE_MONOTONIC_INACTIVE)
+			/*
+			 *  If the period is inactive, there is no information.
+			 */
+			if (status->state == RATE_MONOTONIC_INACTIVE)
+			{
+				_Timespec_Set_to_zero (&status->since_last_period);
+				_Timespec_Set_to_zero (&status->executed_since_last_period);
+			}
+			else
+			{
+
+				/*
+				 *  Grab the current status.
+				 */
+				valid_status =
+					_Rate_monotonic_Get_status (the_period,
+												&since_last_period,
+												&executed);
+				if (!valid_status)
 				{
-					_Timespec_Set_to_zero (&status->since_last_period);
-					_Timespec_Set_to_zero (&status->executed_since_last_period);
-				}
-			  else
-				{
-
-					/*
-					 *  Grab the current status.
-					 */
-					valid_status =
-						_Rate_monotonic_Get_status (the_period,
-													&since_last_period,
-													&executed);
-					if (!valid_status)
-					  {
-						  _Objects_Put (&the_period->Object);
-						  return RTEMS_NOT_DEFINED;
-					  }
-
-					_Timestamp_To_timespec (&since_last_period,
-											&status->since_last_period);
-					_Timestamp_To_timespec (&executed,
-											&status->
-											executed_since_last_period);
+					_Objects_Put (&the_period->Object);
+					return RTEMS_NOT_DEFINED;
 				}
 
-			  _Objects_Put (&the_period->Object);
-			  return RTEMS_SUCCESSFUL;
+				_Timestamp_To_timespec (&since_last_period,
+										&status->since_last_period);
+				_Timestamp_To_timespec (&executed,
+										&status->
+										executed_since_last_period);
+			}
+
+			_Objects_Put (&the_period->Object);
+			return RTEMS_SUCCESSFUL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:	/* should never return this */
+		case OBJECTS_REMOTE:	/* should never return this */
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return RTEMS_INVALID_ID;
 }

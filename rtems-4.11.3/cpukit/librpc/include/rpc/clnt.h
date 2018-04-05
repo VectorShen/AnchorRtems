@@ -254,14 +254,14 @@ typedef struct __rpc_client
  * and "unix".
  */
 __BEGIN_DECLS
-	extern CLIENT *clnt_create (const char *, const rpcprog_t, const rpcvers_t,
+extern CLIENT *clnt_create (const char *, const rpcprog_t, const rpcvers_t,
 								const char *);
 __END_DECLS
 /*
  * Added for compatibility to old rpc 4.0. Obsoleted by clnt_vc_create().
  */
 __BEGIN_DECLS
-	extern CLIENT *clntunix_create (struct sockaddr_un *,
+extern CLIENT *clntunix_create (struct sockaddr_un *,
 									u_long, u_long, int *, u_int, u_int);
 __END_DECLS
 /*
@@ -285,7 +285,7 @@ __END_DECLS
 /*
  * If a creation fails, the following allows the user to figure out why.
  */
-	struct rpc_createerr
+struct rpc_createerr
 {
 	enum clnt_stat cf_stat;
 	struct rpc_err cf_error;	/* useful when cf_stat == RPC_PMAPFAILURE */

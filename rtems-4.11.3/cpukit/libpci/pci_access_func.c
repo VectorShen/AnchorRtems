@@ -59,16 +59,16 @@ static int pci_memreg_func (int wr, int size, void **func, int endian)
 int pci_access_func (int wr, int size, void **func, int endian, int type)
 {
 	switch (type)
-	  {
-		  default:
-		  case 2:				/* Memory Space - not implemented */
-			  return -1;
-		  case 1:				/* I/O space */
-			  return pci_ioc_func (wr, size, func,
-								   (void **)&pci_access_ops.cfg);
-		  case 3:				/* Registers over Memory space */
-			  return pci_memreg_func (wr, size, func, endian);
-		  case 4:				/* Configuration space */
-			  return pci_ioc_func (wr, size, func, (void **)&pci_access_ops.io);
-	  }
+	{
+		default:
+		case 2:				/* Memory Space - not implemented */
+			return -1;
+		case 1:				/* I/O space */
+			return pci_ioc_func (wr, size, func,
+								 (void **)&pci_access_ops.cfg);
+		case 3:				/* Registers over Memory space */
+			return pci_memreg_func (wr, size, func, endian);
+		case 4:				/* Configuration space */
+			return pci_ioc_func (wr, size, func, (void **)&pci_access_ops.io);
+	}
 }

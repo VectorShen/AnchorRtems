@@ -58,44 +58,44 @@ extern "C"
 
 #define FB_ACCEL_NONE                  0	/* no hardware accelerator    */
 
-	struct fb_bitfield
-	{
-		uint32_t offset;		/* beginning of bitfield    */
-		uint32_t length;		/* length of bitfield       */
-		uint32_t msb_right;		/* != 0 : Most significant bit is */
-		/* right */
-	};
+struct fb_bitfield
+{
+	uint32_t offset;		/* beginning of bitfield    */
+	uint32_t length;		/* length of bitfield       */
+	uint32_t msb_right;		/* != 0 : Most significant bit is */
+	/* right */
+};
 
-	struct fb_var_screeninfo
-	{
-		uint32_t xres;			/* visible resolution        */
-		uint32_t yres;
-		uint32_t bits_per_pixel;	/* guess what            */
-		struct fb_bitfield red;	/* bitfield in fb mem if true color, */
-		struct fb_bitfield green;	/* else only length is significant */
-		struct fb_bitfield blue;
-		struct fb_bitfield transp;	/* transparency         */
-	};
+struct fb_var_screeninfo
+{
+	uint32_t xres;			/* visible resolution        */
+	uint32_t yres;
+	uint32_t bits_per_pixel;	/* guess what            */
+	struct fb_bitfield red;	/* bitfield in fb mem if true color, */
+	struct fb_bitfield green;	/* else only length is significant */
+	struct fb_bitfield blue;
+	struct fb_bitfield transp;	/* transparency         */
+};
 
-	struct fb_fix_screeninfo
-	{
-		volatile char *smem_start;	/* Start of frame buffer mem  */
-		/* (physical address)         */
-		uint32_t smem_len;		/* Length of frame buffer mem */
-		uint32_t type;			/* see FB_TYPE_*              */
-		uint32_t visual;		/* see FB_VISUAL_*            */
-		uint32_t line_length;	/* number of chars per line */
-	};
+struct fb_fix_screeninfo
+{
+	volatile char *smem_start;	/* Start of frame buffer mem  */
+	/* (physical address)         */
+	uint32_t smem_len;		/* Length of frame buffer mem */
+	uint32_t type;			/* see FB_TYPE_*              */
+	uint32_t visual;		/* see FB_VISUAL_*            */
+	uint32_t line_length;	/* number of chars per line */
+};
 
-	struct fb_cmap
-	{
-		uint32_t start;			/* First entry    */
-		uint32_t len;			/* Number of entries */
-		uint16_t *red;			/* Red values    */
-		uint16_t *green;
-		uint16_t *blue;
-		uint16_t *transp;		/* transparency, can be NULL */
-	};
+struct fb_cmap
+{
+	uint32_t start;			/* First entry    */
+	uint32_t len;			/* Number of entries */
+	uint16_t *red;			/* Red values    */
+	uint16_t *green;
+	uint16_t *blue;
+	uint16_t *transp;		/* transparency, can be NULL */
+};
 
 #ifdef	__cplusplus
 }

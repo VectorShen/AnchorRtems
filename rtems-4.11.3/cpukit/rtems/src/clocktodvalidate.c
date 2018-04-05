@@ -28,7 +28,8 @@
  *  The second dimension should range from 1 to 12 for January to
  *  February, respectively.
  */
-const uint32_t _TOD_Days_per_month[2][13] = {
+const uint32_t _TOD_Days_per_month[2][13] =
+{
 	{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
 	{0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };

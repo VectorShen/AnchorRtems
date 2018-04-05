@@ -67,25 +67,25 @@ int nanosleep (const struct timespec *rqtp, struct timespec *rmtp)
 	 *  consistent with the RTEMS API and yields desirable behavior.
 	 */
 	if (!ticks)
-	  {
-		  cpu_self = _Thread_Dispatch_disable ();
-		  _Thread_Yield (executing);
-		  _Thread_Dispatch_enable (cpu_self);
-		  if (rmtp)
-			{
-				rmtp->tv_sec = 0;
-				rmtp->tv_nsec = 0;
-			}
-		  return 0;
-	  }
+	{
+		cpu_self = _Thread_Dispatch_disable ();
+		_Thread_Yield (executing);
+		_Thread_Dispatch_enable (cpu_self);
+		if (rmtp)
+		{
+			rmtp->tv_sec = 0;
+			rmtp->tv_nsec = 0;
+		}
+		return 0;
+	}
 
 	/*
 	 *  Block for the desired amount of time
 	 */
 	_Thread_queue_Enqueue (&_Nanosleep_Pseudo_queue,
-						   executing,
-						   STATES_DELAYING | STATES_INTERRUPTIBLE_BY_SIGNAL,
-						   ticks, 0);
+						 executing,
+						 STATES_DELAYING | STATES_INTERRUPTIBLE_BY_SIGNAL,
+						 ticks, 0);
 
 	/*
 	 * Calculate the time that passed while we were sleeping and how
@@ -101,9 +101,9 @@ int nanosleep (const struct timespec *rqtp, struct timespec *rmtp)
 	 * If the user wants the time remaining, do the conversion.
 	 */
 	if (rmtp)
-	  {
-		  _Timespec_From_ticks (ticks, rmtp);
-	  }
+	{
+		_Timespec_From_ticks (ticks, rmtp);
+	}
 
 	/*
 	 *  Only when POSIX is enabled, can a sleep be interrupted.

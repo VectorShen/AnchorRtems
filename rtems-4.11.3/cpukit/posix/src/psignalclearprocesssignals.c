@@ -32,13 +32,13 @@ void _POSIX_signals_Clear_process_signals (int signo)
 	mask = signo_to_mask (signo);
 
 	if (_POSIX_signals_Vectors[signo].sa_flags == SA_SIGINFO)
-	  {
-		  if (!_Chain_Is_empty (&_POSIX_signals_Siginfo[signo]))
-			  clear_signal = false;
-	  }
+	{
+		if (!_Chain_Is_empty (&_POSIX_signals_Siginfo[signo]))
+			clear_signal = false;
+	}
 
 	if (clear_signal)
-	  {
-		  _POSIX_signals_Pending &= ~mask;
-	  }
+	{
+		_POSIX_signals_Pending &= ~mask;
+	}
 }

@@ -68,12 +68,12 @@ struct servent *getservbyport (int port, const char *proto)
 
 	setservent (_serv_stayopen);
 	while ((p = getservent ()))
-	  {
-		  if (p->s_port != port)
-			  continue;
-		  if (proto == 0 || strcmp (p->s_proto, proto) == 0)
-			  break;
-	  }
+	{
+		if (p->s_port != port)
+			continue;
+		if (proto == 0 || strcmp (p->s_proto, proto) == 0)
+			break;
+	}
 	if (!_serv_stayopen)
 		endservent ();
 

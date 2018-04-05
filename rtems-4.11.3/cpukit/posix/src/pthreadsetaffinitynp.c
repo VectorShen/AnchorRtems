@@ -43,24 +43,24 @@ int pthread_setaffinity_np (pthread_t id,
 
 	the_thread = _Thread_Get (id, &location);
 	switch (location)
-	  {
+	{
 
-		  case OBJECTS_LOCAL:
-			  ok = _Scheduler_Set_affinity (the_thread, cpusetsize, cpuset);
-			  if (ok)
-				{
-					api = the_thread->API_Extensions[THREAD_API_POSIX];
-					CPU_COPY (api->Attributes.affinityset, cpuset);
-				}
-			  _Objects_Put (&the_thread->Object);
-			  return ok ? 0 : EINVAL;
+		case OBJECTS_LOCAL:
+			ok = _Scheduler_Set_affinity (the_thread, cpusetsize, cpuset);
+			if (ok)
+			{
+				api = the_thread->API_Extensions[THREAD_API_POSIX];
+				CPU_COPY (api->Attributes.affinityset, cpuset);
+			}
+			_Objects_Put (&the_thread->Object);
+			return ok ? 0 : EINVAL;
 
 #if defined(RTEMS_MULTIPROCESSING)
-		  case OBJECTS_REMOTE:
+		case OBJECTS_REMOTE:
 #endif
-		  case OBJECTS_ERROR:
-			  break;
-	  }
+		case OBJECTS_ERROR:
+			break;
+	}
 
 	return ESRCH;
 }

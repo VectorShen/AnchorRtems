@@ -31,43 +31,43 @@ extern "C"
 #endif
 
 /**
- *  Appends the lines to the a file. Create the file
- *  and builds the path if it does not exist.
- *
- *  @param file
- *  @param omode
- *  @param line_cnt
- *  @param lines
- * 
- *  @return 0 on success, -1 on error
- */
+*  Appends the lines to the a file. Create the file
+*  and builds the path if it does not exist.
+*
+*  @param file
+*  @param omode
+*  @param line_cnt
+*  @param lines
+*
+*  @return 0 on success, -1 on error
+*/
 
-	int rtems_rootfs_file_append (const char *file,
-								  mode_t omode,
-								  const int line_cnt, const char **lines);
-
-/**
- *  @brief Helper for bulding an /etc/hosts file.
- *
- *  @param cip
- *  @param cname
- *  @param dname
- *
- *  @return 0 on success, -1 on error
- */
-
-	int rtems_rootfs_append_host_rec (in_addr_t cip,
-									  const char *cname, const char *dname);
+int rtems_rootfs_file_append (const char *file,
+							  mode_t omode,
+							  const int line_cnt, const char **lines);
 
 /**
- * Create a few common directories, plus a:
- * /etc/passwd, /etc/group, /etc/host.conf, and
- * /etc/hosts file.
- *
- * @return 0 on success, -1 on error
- */
+*  @brief Helper for bulding an /etc/hosts file.
+*
+*  @param cip
+*  @param cname
+*  @param dname
+*
+*  @return 0 on success, -1 on error
+*/
 
-	int rtems_create_root_fs (void);
+int rtems_rootfs_append_host_rec (in_addr_t cip,
+								  const char *cname, const char *dname);
+
+/**
+* Create a few common directories, plus a:
+* /etc/passwd, /etc/group, /etc/host.conf, and
+* /etc/hosts file.
+*
+* @return 0 on success, -1 on error
+*/
+
+int rtems_create_root_fs (void);
 
 #ifdef __cplusplus
 }

@@ -37,8 +37,8 @@ void _RBTree_Initialize (RBTree_Control * the_rbtree,
 	next = starting_address;
 
 	while (count--)
-	  {
-		  _RBTree_Insert (the_rbtree, next, compare, is_unique);
-		  next = (RBTree_Node *) _Addresses_Add_offset (next, node_size);
-	  }
+	{
+		_RBTree_Insert (the_rbtree, next, compare, is_unique);
+		next = (RBTree_Node *) _Addresses_Add_offset (next, node_size);
+	}
 }

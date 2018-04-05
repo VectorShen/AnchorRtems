@@ -51,18 +51,19 @@ extern "C"
  *  It is used in single processor configurations.
  */
 #if defined(SAPI_INIT)
-	const rtems_multiprocessing_table
-		_Initialization_Default_multiprocessing_table = {
-		1,						/* local node number */
-		1,						/* maximum number nodes in system */
-		0,						/* maximum number global objects */
-		0,						/* maximum number proxies */
-		STACK_MINIMUM_SIZE,		/* MPCI receive server stack size */
-		NULL,					/* pointer to MPCI address table */
-	};
+const rtems_multiprocessing_table
+	_Initialization_Default_multiprocessing_table =
+{
+	1,						/* local node number */
+	1,						/* maximum number nodes in system */
+	0,						/* maximum number global objects */
+	0,						/* maximum number proxies */
+	STACK_MINIMUM_SIZE,		/* MPCI receive server stack size */
+	NULL,					/* pointer to MPCI address table */
+};
 #else
-	extern const rtems_multiprocessing_table
-		_Initialization_Default_multiprocessing_table;
+extern const rtems_multiprocessing_table
+	_Initialization_Default_multiprocessing_table;
 #endif
 #endif
 

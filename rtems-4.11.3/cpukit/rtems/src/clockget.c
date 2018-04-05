@@ -32,7 +32,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 rtems_status_code rtems_clock_get (rtems_clock_get_options option,
-								   void *time_buffer)
+								 void *time_buffer)
 {
 	if (!time_buffer)
 		return RTEMS_INVALID_ADDRESS;
@@ -45,20 +45,20 @@ rtems_status_code rtems_clock_get (rtems_clock_get_options option,
 													time_buffer);
 
 	if (option == RTEMS_CLOCK_GET_TICKS_SINCE_BOOT)
-	  {
-		  rtems_interval *interval = (rtems_interval *) time_buffer;
+	{
+		rtems_interval *interval = (rtems_interval *) time_buffer;
 
-		  *interval = rtems_clock_get_ticks_since_boot ();
-		  return RTEMS_SUCCESSFUL;
-	  }
+		*interval = rtems_clock_get_ticks_since_boot ();
+		return RTEMS_SUCCESSFUL;
+	}
 
 	if (option == RTEMS_CLOCK_GET_TICKS_PER_SECOND)
-	  {
-		  rtems_interval *interval = (rtems_interval *) time_buffer;
+	{
+		rtems_interval *interval = (rtems_interval *) time_buffer;
 
-		  *interval = rtems_clock_get_ticks_per_second ();
-		  return RTEMS_SUCCESSFUL;
-	  }
+		*interval = rtems_clock_get_ticks_per_second ();
+		return RTEMS_SUCCESSFUL;
+	}
 
 	if (option == RTEMS_CLOCK_GET_TIME_VALUE)
 		return rtems_clock_get_tod_timeval ((struct timeval *)time_buffer);

@@ -36,11 +36,11 @@ const void *rtems_monitor_manager_next (void *table_void,
 	object = _Objects_Get_next (table, *next_id, &location, next_id);
 
 	if (object)
-	  {
-		  copy = (rtems_monitor_generic_t *) canonical;
-		  copy->id = object->id;
-		  copy->name = object->name.name_u32;
-	  }
+	{
+		copy = (rtems_monitor_generic_t *) canonical;
+		copy->id = object->id;
+		copy->name = object->name.name_u32;
+	}
 
 #if defined(RTEMS_MULTIPROCESSING)
   done:

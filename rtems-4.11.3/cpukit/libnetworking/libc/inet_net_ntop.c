@@ -56,13 +56,13 @@ char *inet_net_ntop (af, src, bits, dst, size)
 	 size_t size;
 {
 	switch (af)
-	  {
-		  case AF_INET:
-			  return (inet_net_ntop_ipv4 (src, bits, dst, size));
-		  default:
-			  errno = EAFNOSUPPORT;
-			  return (NULL);
-	  }
+	{
+		case AF_INET:
+			return (inet_net_ntop_ipv4 (src, bits, dst, size));
+		default:
+			errno = EAFNOSUPPORT;
+			return (NULL);
+	}
 }
 
 /*
@@ -90,46 +90,46 @@ static char *inet_net_ntop_ipv4 (src, bits, dst, size)
 	int b;
 
 	if (bits < 0 || bits > 32)
-	  {
-		  errno = EINVAL;
-		  return (NULL);
-	  }
+	{
+		errno = EINVAL;
+		return (NULL);
+	}
 	if (bits == 0)
-	  {
-		  if (size < sizeof "0")
-			  goto emsgsize;
-		  *dst++ = '0';
-		  *dst = '\0';
-	  }
+	{
+		if (size < sizeof "0")
+			goto emsgsize;
+		*dst++ = '0';
+		*dst = '\0';
+	}
 
 	/* Format whole octets. */
 	for (b = bits / 8; b > 0; b--)
-	  {
-		  if (size < sizeof "255.")
-			  goto emsgsize;
-		  t = dst;
-		  dst += SPRINTF ((dst, "%u", *src++));
-		  if (b > 1)
-			{
-				*dst++ = '.';
-				*dst = '\0';
-			}
-		  size -= (size_t) (dst - t);
-	  }
+	{
+		if (size < sizeof "255.")
+			goto emsgsize;
+		t = dst;
+		dst += SPRINTF ((dst, "%u", *src++));
+		if (b > 1)
+		{
+			*dst++ = '.';
+			*dst = '\0';
+		}
+		size -= (size_t) (dst - t);
+	}
 
 	/* Format partial octet. */
 	b = bits % 8;
 	if (b > 0)
-	  {
-		  if (size < sizeof ".255")
-			  goto emsgsize;
-		  t = dst;
-		  if (dst != odst)
-			  *dst++ = '.';
-		  m = ((1 << b) - 1) << (8 - b);
-		  dst += SPRINTF ((dst, "%u", *src & m));
-		  size -= (size_t) (dst - t);
-	  }
+	{
+		if (size < sizeof ".255")
+			goto emsgsize;
+		t = dst;
+		if (dst != odst)
+			*dst++ = '.';
+		m = ((1 << b) - 1) << (8 - b);
+		dst += SPRINTF ((dst, "%u", *src & m));
+		size -= (size_t) (dst - t);
+	}
 
 	/* Format CIDR /width. */
 	if (size < sizeof "/32")
