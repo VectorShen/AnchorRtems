@@ -1,0 +1,5 @@
+CC=arm-rtems4.11-gcc --pipe -B/home/anchorcentos/WorkSpace/EmbOS/Rtems/rtems_4.11.3/AnchorRtems/rtems-4.11.3/eclipse_bsps/eclipse_rtems_stm32f4/arm-rtems4.11/stm32f4/lib/ -specs bsp_specs -qrtems  
+AS=arm-rtems4.11-as
+CPU_CFLAGS=-march=armv7-m -mthumb
+CFLAGS=-Wall  -O2 -g 
+LDFLAGS= 

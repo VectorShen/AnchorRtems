@@ -1,0 +1,19 @@
+# Copyright 2013 Gedare Bloom (gedare@rtems.org)
+#
+# This file's license is 2-clause BSD as in this distribution's LICENSE.2 file.
+#
+
+import rtems_waf.rtems as rtems
+
+def build(bld):
+    arch = bld.get_env()['RTEMS_ARCH']
+
+    bld.recurse('minimum')
+    if (arch == 'i386'):
+        bld.recurse('x86_display_cpu')
+    bld.recurse('bspcmdline')
+    bld.recurse('nanosecond_tick_wrap')
+    bld.recurse('qemu_vfat')
+    bld.recurse('applib')
+    #if rtems.check_posix(bld):
+    #    bld.recurse('adamain')

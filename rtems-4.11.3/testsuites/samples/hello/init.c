@@ -24,13 +24,13 @@ rtems_task Init(rtems_task_argument argument);
 const char rtems_test_name[] = "HELLO WORLD";
 
 rtems_task Init(
-  rtems_task_argument ignored
+	rtems_task_argument ignored
 )
 {
-  rtems_test_begin();
-  printf( "Hello World\n" );
-  rtems_test_end();
-  exit( 0 );
+	rtems_test_begin();
+	printf( "Hello World\n" );
+	rtems_test_end();
+	exit( 0 );
 }
 
 

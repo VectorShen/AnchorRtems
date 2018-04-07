@@ -1,0 +1,30 @@
++ rtems-bsd-prot.c 
+  - add include of rtems/freebsd/sys/refcount.h
+  - add crextend()
+  - add crsetgroups_locked()
+  - add crsetgroups()
+    - required addition
+
++ Added rtems-bsd-rmlock.c stub
+
++ Moved all RTEMS specific code under rtemsbsd preserving directory structure.
+
++ freebsd-to-rtems.py in this tree for VCS control
+  - Added argument for destination directory
+  - Support config.inc
+  - Fix for loop line too long on install stanza
+
++ kern_subr.c
+  - had to add #include <sys/uio.h>
+
++ RTEMS does not have 
+  - any thread td_ structure elements
+  - sys/mutex.h - stubbed thread_lock and friends
+
++ Include Files to ifdef include out
+    #include <sys/vnode.h>
+    #include <vm/vm.h>
+    #include <vm/vm_extern.h>
+    #include <vm/vm_kern.h>
+    #include <vm/vm_page.h>
+

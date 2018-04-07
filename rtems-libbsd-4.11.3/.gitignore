@@ -1,0 +1,14 @@
+*.pyc
+*.a
+*.d
+*.o
+*.exe
+*.map
+libbsd.html
+rtemsbsd/rtems/rtems-kvm-symbols.c
+testsuite/include/rtems/bsd/test/network-config.h
+/*.i
+/*.s
+/log
+.lock-waf*
+build
